@@ -29,16 +29,16 @@ bitcal/
 新结构:
 bitcal/
 ├── include/bitcal/     ✅ 新版header-only
-├── src/legacy/         ✅ 旧版集中管理
 ├── examples/           ✅ 示例分离
 ├── tests/              ✅ 测试分离
-└── CMakeLists_new.txt  ✅ 新构建系统
+└── CMakeLists.txt      ✅ 顶层构建系统（唯一入口）
 ```
 
 **迁移操作**:
-- 将根目录所有旧cpp/h文件移至 `src/legacy/`
 - 新版本放在 `include/bitcal/`
 - 测试和示例独立目录
+
+说明：已确认不再维护 legacy/dispatch 路线，相关 `src/` 目录已移除。
 
 ### 2. 文件命名规范化 ✅
 
@@ -98,9 +98,7 @@ std::cout << "Info: " << data << std::endl;
 ```
 
 **已修复文件**:
-- ✅ `src/legacy/bit_cal.cpp` - spdlog替换为std::cerr
-- ✅ `src/legacy/bitcal_dispatch.cpp` - 更新include路径
-- ⚠️ 其他legacy文件需要批量修复
+说明：已确认不再维护 legacy/dispatch 路线，相关目录已移除，此处不再列出 legacy 文件清单。
 
 **影响**:
 - 减少外部依赖
@@ -114,7 +112,7 @@ std::cout << "Info: " << data << std::endl;
 
 #### 解决方案
 
-**CMakeLists_new.txt**:
+**CMakeLists.txt**:
 ```cmake
 # 从
 set(CMAKE_CXX_STANDARD 17)
@@ -200,9 +198,9 @@ auto c = a & b;
 
 ### Legacy版本 (兼容性)
 ```cpp
-#include "src/legacy/bit_cal.h"  // 需要修复spdlog
-
-BitCal::getInstance().bitAnd256(a, b, out);
+// 已确认不再维护 legacy/dispatch 路线。
+// 请直接使用 v2.x header-only 主线：
+#include <bitcal/bitcal.hpp>
 ```
 
 **建议**: 新项目直接使用新版本。
@@ -220,29 +218,7 @@ bitcal/
 │   ├── avx_ops.hpp             # AVX实现
 │   └── neon_ops.hpp            # NEON实现
 │
-├── src/legacy/                  # 旧版本 (兼容性)
-│   ├── bit_cal.cpp             # ✅ 已规范化命名
-│   ├── bit_cal.h               # ✅ 已规范化命名
-│   ├── bit_cal_gpr.cpp         # ✅ 已规范化命名
-│   ├── bit_cal_gpr.h           # ✅ 已规范化命名
-│   ├── bit_cal_xmm.cpp         # ✅ 已规范化命名
-│   ├── bit_cal_xmm.h           # ✅ 已规范化命名
-│   ├── bit_cal_ymm.cpp         # ✅ 已规范化命名
-│   ├── bit_cal_ymm.h           # ✅ 已规范化命名
-│   ├── base.h                  # ✅ 已规范化命名
-│   ├── check_cpu.cpp           # ✅ 已规范化命名
-│   ├── check_cpu.h             # ✅ 已规范化命名
-│   ├── encode.cpp              # ✅ 已规范化命名
-│   ├── encode.h                # ✅ 已规范化命名
-│   ├── encode_gpr.cpp          # ✅ 已规范化命名
-│   ├── encode_gpr.h            # ✅ 已规范化命名
-│   ├── encode_ymm.cpp          # ✅ 已规范化命名
-│   ├── encode_ymm.h            # ✅ 已规范化命名
-│   ├── bitcal_dispatch.cpp     # ✅ 原本就是小写
-│   ├── bitcal_dispatch.h       # ✅ 原本就是小写
-│   ├── encode_dispatch.cpp     # ✅ 原本就是小写
-│   └── encode_dispatch.h       # ✅ 原本就是小写
-│
+├── docs/                        # 中文文档
 ├── examples/                    # 示例
 │   ├── basic_usage.cpp         # ✅ C++20
 │   └── performance_comparison.cpp  # ✅ C++20
@@ -252,7 +228,7 @@ bitcal/
 │
 ├── cmake/                       # CMake配置
 ├── changelog/                   # 变更日志
-├── CMakeLists_new.txt          # ✅ C++20支持
+├── CMakeLists.txt              # ✅ 顶层构建系统（唯一入口）
 ├── README.md
 ├── MIGRATION_GUIDE.md
 ├── REFACTOR_NOTES.md           # 本次重构说明
@@ -262,18 +238,14 @@ bitcal/
 ## 待完成工作
 
 ### 紧急 (需要手工处理)
-- [ ] 批量替换legacy代码中的spdlog调用（约50+处）
-- [ ] 更新legacy代码中的include路径
-- [ ] 测试legacy代码编译
+- [ ] （legacy 路线已移除，此项不再适用）
 
 ### 重要
-- [ ] 更新原 `CMakeLists.txt` 指向新目录
-- [ ] 添加编译legacy的选项
+- [ ] 维护顶层 `CMakeLists.txt` 作为唯一权威入口
 - [ ] CI/CD集成
 
 ### 可选
-- [ ] 完全移除legacy代码（等待用户确认）
-- [ ] 仅保留header-only版本
+- [ ] 持续迭代 header-only 版本
 
 ## 编译指南
 

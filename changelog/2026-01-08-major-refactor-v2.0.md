@@ -158,7 +158,7 @@ bitcal::bitarray<256, bitcal::simd_backend::scalar> portable;
 - `README.md` - 完整的文档
 
 #### 构建系统
-- `CMakeLists_new.txt` - 现代化的 CMake 配置
+- `CMakeLists.txt` - 现代化的 CMake 配置（当前已作为唯一顶层入口）
 - 支持 header-only 模式
 - 自动检测并启用最优指令集
 - 跨平台构建支持
