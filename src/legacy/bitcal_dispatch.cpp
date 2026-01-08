@@ -1,11 +1,11 @@
 #include "bitcal_dispatch.h"
 
-#include "BitCalGpr.h"
+#include "bit_cal_gpr.h"
 
 #if defined(__x86_64__) || defined(_M_X64)
-#include "BitCalXmm.h"
-#include "BitCalYmm.h"
-#include "CheckCpu.h"
+#include "bit_cal_xmm.h"
+#include "bit_cal_ymm.h"
+#include "check_cpu.h"
 #endif
 
 static BitCalGpr g_gpr;

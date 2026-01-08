@@ -1,5 +1,7 @@
 add_executable(basic_usage basic_usage.cpp)
 target_link_libraries(basic_usage PRIVATE bitcal)
+target_compile_features(basic_usage PRIVATE cxx_std_20)
 
 add_executable(performance_comparison performance_comparison.cpp)
 target_link_libraries(performance_comparison PRIVATE bitcal)
+target_compile_features(performance_comparison PRIVATE cxx_std_20)
