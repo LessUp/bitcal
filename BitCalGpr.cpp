@@ -1,6 +1,6 @@
 #include "BitCalGpr.h"
 
-#ifdef __aarch64__
+#if defined(__aarch64__) || defined(_M_ARM64)
 #include "sse2neon.h"
 #endif
 #include "spdlog/spdlog.h"

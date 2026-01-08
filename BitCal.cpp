@@ -9,7 +9,7 @@
 #include <string>
 
 BitCal::BitCal() {
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(_M_X64)
   // NOTE: AVX2 is a superset of AVX, so check AVX2 first!
   // CPUs supporting AVX2 also support AVX, checking AVX first would never use AVX2.
   if(CheckCpu::getInstance().avx2Available()) {

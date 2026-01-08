@@ -3,9 +3,9 @@
 
 #include <cstdint>
 #include <cstdio>
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(_M_X64)
 #include <immintrin.h>
-#elif __aarch64__
+#elif defined(__aarch64__) || defined(_M_ARM64)
 #include <arm_neon.h>
 #endif
 #include "Base.h"
