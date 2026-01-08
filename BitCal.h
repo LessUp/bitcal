@@ -85,34 +85,71 @@ public:
   //============================================================================================================================
   // bit pop_cnt
   //============================================================================================================================
+  // bit pop_cnt a 64-bit value using general purpose registers
+  //          uint64_t *data -    data to popcnt
+  // return:  uint64_t       -    allBitCount amount number
   uint64_t bitPopcnt64(uint64_t data);
 
+  // bit pop_cnt a 128-bit value using general purpose registers
+  //          uint64_t *data -   data to popcnt
+  //          uint64_t *cnt_arr -len = 2, cnt_arr number from font to end is the bitcnt of uint64 data form font to end
+  // return:  uint64_t       -   set 1 bit count
   uint64_t bitPopcnt128(const uint64_t* data, uint8_t* cnt_arr);
 
+  // bit pop_cnt a 256-bit value using general purpose registers
+  //          uint64_t *data -   data to popcnt
+  //          uint64_t *cnt_arr -len = 4, cnt_arr number from font to end is the bitcnt of uint64 data form font to end
+  // return:  uint64_t       -   set 1 bit count
   uint64_t bitPopcnt256(const uint64_t* data, uint8_t* cnt_arr);
 
+  // bit pop_cnt a 512-bit value using general purpose registers
+  //          uint64_t *data -   data to popcnt
+  //          uint64_t *cnt_arr -len = 8, cnt_arr number from font to end is the bitcnt of uint64 data form font to end
+  // return:  uint64_t       -   set 1 bit count
   uint64_t bitPopcnt512(const uint64_t* data, uint8_t* cnt_arr);
 
   //============================================================================================================================
   // bit reverse
   //============================================================================================================================
+  // bit reverse a 64-bit value using general purpose registers
+  //          uint64_t 	dataIn	    data to reverse
+  // 			uint64_t    dataOut    -data reversed
   uint64_t bitReverse64(uint64_t data);
 
+  // bit reverse a 128-bit value using general purpose registers
+  //          uint64_t*	dataIn	    data to reverse
+  //          uint64_t*   dataOut    -data reversed
   bool bitReverse128(uint64_t* dataIn, uint64_t* dataOut);
 
+  // bit reverse a 256-bit value using general purpose registers
+  //          uint64_t *data - data to reverse
+  //          uint64_t *data - data to reverse
   bool bitReverse256(uint64_t* dataIn, uint64_t* dataOut);
 
+  // bit reverse a 512-bit value using general purpose registers
+  //          uint64_t*	dataIn	    data to reverse
+  //          uint64_t*   dataOut    -data reversed
   bool bitReverse512(uint64_t* dataIn, uint64_t* dataOut);
 
+  // bit reverse inplace a 128-bit value using general purpose registers
+  //          uint64_t    *data -     data to reverse and reversed
   bool bitReverseInPlace128(uint64_t* data);
 
+  // bit reverse  inplace a 256-bit value using general purpose registers
+  //          uint64_t    *data -     data to reverse and reversed
   bool bitReverseInPlace256(uint64_t* data);
 
+  // bit reverse  inplace a 512-bit value using general purpose registers
+  //          uint64_t*	data	    data to reverse and reversed
   bool bitReverseInPlace512(uint64_t* data);
 
   //============================================================================================================================
   // bit cal helper
   //============================================================================================================================
+  // convUint64ToBinStr
+  //          uint64_t *data - data to reverse
+  //          int count      - number of bits to or
+  // return:  uint64_t       - carry out bit(s)
   static std::string convUint64ToBinStr(const uint64_t* data, uint32_t size);
 };
 

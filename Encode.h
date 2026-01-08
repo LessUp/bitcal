@@ -2,14 +2,12 @@
 #define HYBRIDENGINE_ENCODE_H
 
 #include "Base.h"
+#include "encode_dispatch.h"
 
 #include <cstddef>
 #include <cstdint>
 
 class Encode {
-private:
-  EncodeBase* m_encode = nullptr;
-
 private:
   Encode();
 
@@ -23,7 +21,7 @@ public:
     return instance;
   };
 
-  ~Encode();
+  ~Encode() = default;
 
   //============================================================================================================================
   // encode
