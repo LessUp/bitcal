@@ -1,10 +1,10 @@
-#include "BitCal.h"
-
-#include "spdlog/spdlog.h"
+#include "bit_cal.h"
 
 #include <algorithm>
 #include <cstdint>
 #include <string>
+#include <iostream>
+#include <stdexcept>
 
 BitCal::BitCal() {
 }

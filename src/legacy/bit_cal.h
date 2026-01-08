@@ -6,6 +6,7 @@
 #elif defined(__aarch64__) || defined(_M_ARM64)
 #include <arm_neon.h>
 #endif
+#pragma once
 #include "Base.h"
 #include "bitcal_dispatch.h"
 
