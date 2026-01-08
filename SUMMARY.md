@@ -54,7 +54,7 @@ bitcal/
 │   ├── 2026-01-08-hardware-dispatch-foundation.md
 │   └── 2026-01-08-major-refactor-v2.0.md
 ├── cmake/                       # CMake 配置
-├── CMakeLists_new.txt          # 新构建配置
+├── CMakeLists.txt              # 顶层构建配置（header-only INTERFACE）
 ├── README.md                    # 项目文档
 ├── MIGRATION_GUIDE.md          # 迁移指南
 ├── LICENSE                      # MIT 许可证

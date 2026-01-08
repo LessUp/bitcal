@@ -1,15 +1,8 @@
 # 2026-01-08
 
-- 修复并补齐 CPU 特性检测相关头文件路径：新增 `src/Utils/CheckCpu.h` 作为兼容入口。
-- 新增 `src/Base/Helper.h`，提供 `likely/unlikely` 宏，修复 `EncodeYmm.cpp` 依赖缺失。
-- 强化 `CheckCpu.cpp` 在 Windows/MSVC 下的兼容性（使用 `__cpuidex/_xgetbv`），为后续硬件加速分发打基础。
-- 统一 x86_64/aarch64 平台宏判断，确保在 Windows（`_M_X64/_M_ARM64`）下可正确启用对应实现。
-- 修正多个 `.cpp/.h` 的架构宏，使 MSVC x64 下可编译并进入 AVX/AVX2 分发逻辑。
-- 新增本地 `spdlog/spdlog.h` 兼容头（最小实现 `spdlog::error`），避免缺失外部依赖导致无法编译。
-- 新增 `bitcal_dispatch.{h,cpp}`：使用函数指针表进行运行时分发（GPR/XMM/YMM），并提供 `namespace bitcal` 的纯函数 API。
-- 将 `BitCal` 改为薄封装：不再 `new/delete` 多态实现类，成员函数直接转发到 `namespace bitcal`.
-- 修复 `BitCal.h` 中残留的不完整注释片段，恢复为原有 `//` 注释风格，避免头文件无法编译。
-- 新增 `encode_dispatch.{h,cpp}`：使用函数指针表进行运行时分发（GPR/YMM），并提供 `namespace bitencode` 的纯函数 API。
-- 将 `Encode` 改为薄封装：不再 `new/delete` 多态实现类，成员函数直接转发到 `namespace bitencode`.
-- 新增 `include/bitcal/bitcal.h` 与 `include/bitcal/encode.h` 作为对外入口头。
-- 新增 `CMakeLists.txt`，可直接构建静态库 `bitcal`.
+- 说明：本文件记录的是早期“运行时 dispatch/legacy 路线”的一次阶段性工作。
+- 当前仓库主线已明确选择 **仅保留 v2.x header-only 实现**：
+  - 已移除 `src/` 目录
+  - 已移除 `include/bitcal/bitcal.h` 与 `include/bitcal/encode.h`
+  - 已移除本地 `spdlog/spdlog.h` 兼容头
+  - 顶层构建以 `CMakeLists.txt` 的 `INTERFACE`（header-only）库为准

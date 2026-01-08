@@ -21,6 +21,14 @@
 
 namespace bitcal {
 
+// bitarray<N, Backend>：固定宽度位数组
+//
+// - Bits：位宽（例如 64/128/256/512/1024）
+// - Backend：编译期选择的 SIMD 后端；默认由 get_default_backend() 自动选择
+//
+// 该类型为 header-only + 零开销抽象：在开启优化时，编译器会把大多数操作内联到对应的
+// 标量/SIMD 实现。
+
 template<size_t Bits, simd_backend Backend = get_default_backend()>
 class bitarray {
 public:
@@ -37,12 +45,14 @@ public:
         data_[0] = value;
     }
     
+    // 清零所有位。
     BITCAL_FORCEINLINE void clear() noexcept {
         for (size_t i = 0; i < u64_count; ++i) {
             data_[i] = 0;
         }
     }
     
+    // 直接暴露底层的 word 数组（uint64_t），便于与外部算法对接。
     BITCAL_FORCEINLINE uint64_t* data() noexcept { return data_; }
     BITCAL_FORCEINLINE const uint64_t* data() const noexcept { return data_; }
     
@@ -56,6 +66,7 @@ public:
         return data_[index];
     }
     
+    // 读取单个位（0..Bits-1）。
     BITCAL_FORCEINLINE bool get_bit(size_t bit_index) const noexcept {
         assert(bit_index < Bits);
         const size_t word_idx = bit_index / 64;
@@ -63,6 +74,7 @@ public:
         return (data_[word_idx] >> bit_offset) & 1;
     }
     
+    // 设置单个位；value=false 表示清除该位。
     BITCAL_FORCEINLINE void set_bit(size_t bit_index, bool value = true) noexcept {
         assert(bit_index < Bits);
         const size_t word_idx = bit_index / 64;
@@ -74,6 +86,7 @@ public:
         }
     }
     
+    // 翻转单个位。
     BITCAL_FORCEINLINE void flip_bit(size_t bit_index) noexcept {
         assert(bit_index < Bits);
         const size_t word_idx = bit_index / 64;
@@ -81,6 +94,7 @@ public:
         data_[word_idx] ^= (1ULL << bit_offset);
     }
     
+    // 左移 count 位（超出位宽的部分被丢弃）。
     BITCAL_FORCEINLINE void shift_left(int count) noexcept {
         if constexpr (Bits == 64) {
             data_[0] = scalar::shift_left(data_[0], count);
@@ -117,6 +131,7 @@ public:
         }
     }
     
+    // 右移 count 位（超出位宽的部分被丢弃）。
     BITCAL_FORCEINLINE void shift_right(int count) noexcept {
         if constexpr (Bits == 64) {
             data_[0] = scalar::shift_right(data_[0], count);
@@ -216,6 +231,7 @@ public:
         return result;
     }
     
+    // 统计 1 的个数（对 Bits>64 采用逐 word 累加）。
     BITCAL_FORCEINLINE uint64_t popcount() const noexcept {
         if constexpr (Bits == 64) {
             return scalar::popcount(data_[0]);
@@ -224,6 +240,7 @@ public:
         }
     }
     
+    // 前导零计数（CLZ）。
     BITCAL_FORCEINLINE int count_leading_zeros() const noexcept {
         for (int i = u64_count - 1; i >= 0; --i) {
             if (data_[i] != 0) {
@@ -234,6 +251,7 @@ public:
         return Bits;
     }
     
+    // 尾部零计数（CTZ）。
     BITCAL_FORCEINLINE int count_trailing_zeros() const noexcept {
         for (size_t i = 0; i < u64_count; ++i) {
             if (data_[i] != 0) {
@@ -243,6 +261,7 @@ public:
         return Bits;
     }
     
+    // 位反转：bit0 <-> bit(Bits-1)。
     BITCAL_FORCEINLINE void reverse() noexcept {
         if constexpr (Bits == 64) {
             data_[0] = scalar::reverse_bits(data_[0]);
@@ -385,6 +404,7 @@ private:
     }
 };
 
+// 常用位宽别名（默认后端 = get_default_backend()）。
 using bit64 = bitarray<64>;
 using bit128 = bitarray<128>;
 using bit256 = bitarray<256>;
@@ -392,6 +412,9 @@ using bit512 = bitarray<512>;
 using bit1024 = bitarray<1024>;
 
 namespace ops {
+
+// ops：给“原始 uint64_t 数组”提供的函数式接口。
+// 适合与外部数据结构对接，或在不想构造 bitarray 时直接做运算。
 
 template<size_t Bits>
 BITCAL_FORCEINLINE uint64_t popcount(const uint64_t* data) noexcept {

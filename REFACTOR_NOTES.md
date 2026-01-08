@@ -7,13 +7,13 @@
 **问题**: cpp和h文件混乱地放在根目录，不符合规范。
 
 **解决**:
-- 创建 `src/legacy/` 目录
-- 将所有旧版本实现移动到 `src/legacy/`
 - 根目录现在只保留：
-  - `include/` - 新版header-only实现
+  - `include/` - 新版 header-only 实现（主线）
   - `examples/` - 示例代码
   - `tests/` - 测试代码
-  - `src/legacy/` - 旧版本代码（仅用于兼容性）
+  - `docs/` - 中文文档
+
+说明：已确认不需要兼容/legacy 路线，相关 `src/` 目录与兼容入口头已从仓库移除。
 
 **目录结构**:
 ```
@@ -26,30 +26,9 @@ bitcal/
 │   ├── sse_ops.hpp
 │   ├── avx_ops.hpp
 │   └── neon_ops.hpp
-├── src/legacy/              # 旧版本 (兼容性保留)
-│   ├── bit_cal.cpp
-│   ├── bit_cal.h
-│   ├── bit_cal_gpr.cpp
-│   ├── bit_cal_gpr.h
-│   ├── bit_cal_xmm.cpp
-│   ├── bit_cal_xmm.h
-│   ├── bit_cal_ymm.cpp
-│   ├── bit_cal_ymm.h
-│   ├── base.h
-│   ├── check_cpu.cpp
-│   ├── check_cpu.h
-│   ├── encode.cpp
-│   ├── encode.h
-│   ├── encode_gpr.cpp
-│   ├── encode_gpr.h
-│   ├── encode_ymm.cpp
-│   ├── encode_ymm.h
-│   ├── bitcal_dispatch.cpp
-│   ├── bitcal_dispatch.h
-│   ├── encode_dispatch.cpp
-│   └── encode_dispatch.h
 ├── examples/
 ├── tests/
+├── docs/
 └── cmake/
 ```
 
@@ -58,18 +37,13 @@ bitcal/
 **问题**: 文件命名混用大写字母（如 `BitCal.cpp`, `CheckCpu.h`），不符合现代C++约定。
 
 **解决**: 统一使用小写字母+下划线命名风格：
-- `BitCal.cpp` → `bit_cal.cpp`
-- `BitCal.h` → `bit_cal.h`
-- `BitCalGpr.cpp` → `bit_cal_gpr.cpp`
-- `BitCalGpr.h` → `bit_cal_gpr.h`
-- `BitCalXmm.cpp` → `bit_cal_xmm.cpp`
-- `BitCalXmm.h` → `bit_cal_xmm.h`
-- `BitCalYmm.cpp` → `bit_cal_ymm.cpp`
-- `BitCalYmm.h` → `bit_cal_ymm.h`
-- `Base.h` → `base.h`
-- `CheckCpu.cpp` → `check_cpu.cpp`
-- `CheckCpu.h` → `check_cpu.h`
-- `Encode.cpp` → `encode.cpp`
+- `bitcal.hpp` 
+- `config.hpp` 
+- `simd_traits.hpp` 
+- `scalar_ops.hpp` 
+- `sse_ops.hpp` 
+- `avx_ops.hpp` 
+- `neon_ops.hpp` 
 - `Encode.h` → `encode.h`
 - `EncodeGpr.cpp` → `encode_gpr.cpp`
 - `EncodeGpr.h` → `encode_gpr.h`
@@ -106,7 +80,7 @@ std::cerr << "BitCal::convUint64ToBinStr: input data is illegal!" << std::endl;
 **问题**: CMakeLists.txt使用C++17，未支持C++20新特性。
 
 **解决**:
-- `CMakeLists_new.txt`: `set(CMAKE_CXX_STANDARD 20)`
+- `CMakeLists.txt`: `target_compile_features(bitcal INTERFACE cxx_std_17)`（主线保持 C++17，示例/测试可按需启用 C++20）
 - `examples/CMakeLists.txt`: 添加 `target_compile_features(... cxx_std_20)`
 - `tests/CMakeLists.txt`: 添加 `target_compile_features(... cxx_std_20)`
 
@@ -123,13 +97,7 @@ std::cerr << "BitCal::convUint64ToBinStr: input data is illegal!" << std::endl;
 
 ### 1. 批量替换spdlog调用
 
-`src/legacy/` 目录下的以下文件仍有大量spdlog调用需要替换：
-- `bit_cal.cpp` (1处)
-- `bit_cal_gpr.cpp` (约30处)
-- `bit_cal_xmm.cpp`
-- `bit_cal_ymm.cpp`
-- `check_cpu.cpp`
-- `encode*.cpp`
+说明：已确认不再维护 legacy/dispatch 路线，相关目录已从仓库移除，此项不再适用。
 
 **替换模式**:
 ```bash
@@ -142,7 +110,7 @@ sed -i 's/spdlog::info/std::cout << /g' *.cpp
 
 ### 2. 更新头文件include路径
 
-`src/legacy/` 中的头文件相互引用需要更新：
+（legacy 路线已移除，此项不再适用）
 ```cpp
 // 需要检查并更新
 #include "Base.h"  → #include "base.h"
@@ -150,10 +118,7 @@ sed -i 's/spdlog::info/std::cout << /g' *.cpp
 
 ### 3. 更新原CMakeLists.txt
 
-如果要继续支持旧版本编译，需要更新 `CMakeLists.txt`：
-- 更新源文件路径指向 `src/legacy/`
-- 支持C++20
-- 移除spdlog依赖
+说明：已确认不再维护 legacy 路线，此项不再适用。
 
 ## 📊 大厂类似库参考
 
@@ -210,10 +175,9 @@ auto c = a & b;
 
 ### 旧项目兼容
 ```cpp
-// 如果必须使用旧接口，需要先修复spdlog依赖
-#include "src/legacy/bit_cal.h"
-
-BitCal::getInstance().bitAnd256(...);
+// 已确认不再维护 legacy/dispatch 路线。
+// 请直接使用 v2.x header-only 主线：
+#include <bitcal/bitcal.hpp>
 ```
 
 ### 最佳实践
@@ -224,9 +188,7 @@ BitCal::getInstance().bitAnd256(...);
 ## 📝 下一步行动
 
 ### 短期
-- [ ] 完成spdlog批量替换脚本
-- [ ] 测试legacy代码编译
-- [ ] 更新主CMakeLists.txt
+- [ ] 增强文档与示例（持续）
 
 ### 中期
 - [ ] 添加CI/CD自动化测试
@@ -234,8 +196,7 @@ BitCal::getInstance().bitAnd256(...);
 - [ ] 完整文档
 
 ### 长期
-- [ ] 完全废弃legacy代码
-- [ ] 仅保留header-only版本
+- [ ] 持续迭代 header-only 版本
 
 ## 🔍 命名规范对比
 
@@ -267,9 +228,8 @@ BitCal::getInstance().bitAnd256(...);
 ✅ 符合大厂最佳实践  
 
 ### 注意事项
-⚠️ Legacy代码需要手工修复spdlog才能编译  
-⚠️ 建议新项目直接使用header-only版本  
-⚠️ 旧代码仅作为兼容性保留  
+⚠️ 本仓库仅保留 header-only 主线；不再提供 legacy/dispatch 兼容路线  
+⚠️ 建议新项目直接使用 `include/bitcal/bitcal.hpp`  
 
 ---
 

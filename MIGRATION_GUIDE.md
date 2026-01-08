@@ -164,7 +164,8 @@ target_link_libraries(your_app bitcal)
 
 **新配置**:
 ```cmake
-# 使用新的 CMakeLists_new.txt 或直接添加头文件路径
+# 该仓库主线为 header-only，顶层 CMakeLists.txt 已提供 INTERFACE 目标 bitcal。
+# 你也可以在自己的工程里直接添加 include 路径。
 target_include_directories(your_app PRIVATE 
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
