@@ -45,15 +45,26 @@ namespace bitcal {
     #else
         #define BITCAL_HAS_AVX512 0
     #endif
-#endif
-
-#if BITCAL_ARCH_ARM
+    
+    #define BITCAL_HAS_NEON 0
+#elif BITCAL_ARCH_ARM
     #include <arm_neon.h>
     #if defined(__ARM_NEON) || defined(__ARM_NEON__)
         #define BITCAL_HAS_NEON 1
     #else
         #define BITCAL_HAS_NEON 0
     #endif
+    
+    #define BITCAL_HAS_SSE2 0
+    #define BITCAL_HAS_AVX 0
+    #define BITCAL_HAS_AVX2 0
+    #define BITCAL_HAS_AVX512 0
+#else
+    #define BITCAL_HAS_SSE2 0
+    #define BITCAL_HAS_AVX 0
+    #define BITCAL_HAS_AVX2 0
+    #define BITCAL_HAS_AVX512 0
+    #define BITCAL_HAS_NEON 0
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)
