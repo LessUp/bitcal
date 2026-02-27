@@ -4,6 +4,8 @@
 
 BitCal 是一个现代化的、跨平台的高性能位运算加速库，针对 Linux 和 ARM 平台进行了优化。
 
+> **当前版本**: v2.1.0
+
 ## 特性
 
 ### 🚀 性能优化
@@ -54,7 +56,7 @@ cp -r include/bitcal /path/to/your/project/include/
 
 #### 方法 2: CMake 集成
 ```bash
-git clone https://github.com/yourusername/bitcal.git
+git clone https://github.com/user/bitcal.git
 cd bitcal
 mkdir build && cd build
 cmake ..
@@ -197,10 +199,12 @@ bitcal::bit1024  // 1024位位数组
 - `shift_left(int count)` / `operator<<(int)`
 - `shift_right(int count)` / `operator>>(int)`
 - `operator&`, `operator|`, `operator^`, `operator~`
+- `andnot(mask)` - ANDNOT (`a & ~mask`)，利用原生 SIMD 指令
 - `popcount()` - 统计置位数
 - `count_leading_zeros()` - CLZ
 - `count_trailing_zeros()` - CTZ
 - `reverse()` - 位反转
+- `is_zero()` - 零检测（SIMD 加速）
 - `get_bit(size_t)`, `set_bit(size_t, bool)`, `flip_bit(size_t)`
 
 ### SIMD 后端
@@ -248,8 +252,7 @@ bitcal/
 
 ## 联系方式
 
-- 问题反馈: [GitHub Issues](https://github.com/yourusername/bitcal/issues)
-- 邮件: your.email@example.com
+- 问题反馈: GitHub Issues
 
 ---
 

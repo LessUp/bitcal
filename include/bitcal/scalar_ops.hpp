@@ -30,6 +30,10 @@ BITCAL_FORCEINLINE uint64_t bit_not(uint64_t a) noexcept {
     return ~a;
 }
 
+BITCAL_FORCEINLINE uint64_t bit_andnot(uint64_t a, uint64_t b) noexcept {
+    return a & ~b;
+}
+
 BITCAL_FORCEINLINE uint64_t popcount(uint64_t x) noexcept {
 #if defined(__GNUC__) || defined(__clang__)
     return __builtin_popcountll(x);
@@ -187,6 +191,13 @@ template<size_t N>
 BITCAL_FORCEINLINE void bit_xor_array(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
     for (size_t i = 0; i < N; ++i) {
         out[i] = a[i] ^ b[i];
+    }
+}
+
+template<size_t N>
+BITCAL_FORCEINLINE void bit_andnot_array(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
+    for (size_t i = 0; i < N; ++i) {
+        out[i] = a[i] & ~b[i];
     }
 }
 

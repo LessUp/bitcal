@@ -62,6 +62,17 @@ int main() {
     std::cout << "bit[255] = " << arr.get_bit(255) << std::endl;
     std::cout << std::endl;
     
+    std::cout << "ANDNOT 操作 (a & ~b):" << std::endl;
+    {
+        bitcal::bit256 x(0xFFFF0000FFFF0000);
+        bitcal::bit256 mask(0xFF00FF00FF00FF00);
+        auto result = x.andnot(mask);
+        print_hex("x", x);
+        print_hex("mask", mask);
+        print_hex("x.andnot(mask)", result);
+    }
+    std::cout << std::endl;
+    
     std::cout << "位反转:" << std::endl;
     bitcal::bit64 small(0x123456789ABCDEF0);
     std::cout << "原始: 0x" << std::hex << small[0] << std::endl;
