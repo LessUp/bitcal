@@ -3,6 +3,11 @@
 #include <cstddef>
 #include <cstdint>
 
+#define BITCAL_VERSION_MAJOR 2
+#define BITCAL_VERSION_MINOR 1
+#define BITCAL_VERSION_PATCH 0
+#define BITCAL_VERSION ((BITCAL_VERSION_MAJOR << 16) | (BITCAL_VERSION_MINOR << 8) | BITCAL_VERSION_PATCH)
+
 namespace bitcal {
 
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
