@@ -33,3 +33,12 @@ compile_commands.json
 # OS specific
 .DS_Store
 Thumbs.db
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.vcxproj.user
+
+# Windsurf
+.windsurf/

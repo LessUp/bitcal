@@ -1,11 +1,25 @@
 #include <bitcal/bitcal.hpp>
 #include <iostream>
 #include <chrono>
-#include <vector>
-#include <numeric>
+#include <cstring>
+
+template<typename T>
+BITCAL_FORCEINLINE void do_not_optimize(T const& value) {
+#if defined(__GNUC__) || defined(__clang__)
+    asm volatile("" : : "r,m"(value) : "memory");
+#else
+    volatile auto sink = value;
+    (void)sink;
+#endif
+}
 
 template<typename Func>
 double benchmark(const char* name, Func&& func, size_t iterations = 1000000) {
+    // warmup
+    for (size_t i = 0; i < iterations / 10; ++i) {
+        func();
+    }
+
     auto start = std::chrono::high_resolution_clock::now();
     
     for (size_t i = 0; i < iterations; ++i) {
@@ -29,24 +43,27 @@ int main() {
     {
         bitcal::bit64 a(0xDEADBEEFCAFEBABE);
         bitcal::bit64 b(0x0123456789ABCDEF);
-        bitcal::bit64 c;
         
         benchmark("bit64 AND", [&]() {
-            c = a & b;
+            do_not_optimize(a & b);
         }, iterations);
         
         benchmark("bit64 XOR", [&]() {
-            c = a ^ b;
+            do_not_optimize(a ^ b);
+        }, iterations);
+        
+        benchmark("bit64 ANDNOT", [&]() {
+            do_not_optimize(a.andnot(b));
         }, iterations);
         
         benchmark("bit64 shift_left", [&]() {
             auto tmp = a;
             tmp.shift_left(10);
+            do_not_optimize(tmp);
         }, iterations);
         
         benchmark("bit64 popcount", [&]() {
-            volatile auto count = a.popcount();
-            (void)count;
+            do_not_optimize(a.popcount());
         }, iterations);
     }
     
@@ -54,24 +71,27 @@ int main() {
     {
         bitcal::bit128 a(0xDEADBEEFCAFEBABE);
         bitcal::bit128 b(0x0123456789ABCDEF);
-        bitcal::bit128 c;
         
         benchmark("bit128 AND", [&]() {
-            c = a & b;
+            do_not_optimize(a & b);
         }, iterations);
         
         benchmark("bit128 XOR", [&]() {
-            c = a ^ b;
+            do_not_optimize(a ^ b);
+        }, iterations);
+        
+        benchmark("bit128 ANDNOT", [&]() {
+            do_not_optimize(a.andnot(b));
         }, iterations);
         
         benchmark("bit128 shift_left", [&]() {
             auto tmp = a;
             tmp.shift_left(10);
+            do_not_optimize(tmp);
         }, iterations);
         
         benchmark("bit128 popcount", [&]() {
-            volatile auto count = a.popcount();
-            (void)count;
+            do_not_optimize(a.popcount());
         }, iterations);
     }
     
@@ -79,24 +99,27 @@ int main() {
     {
         bitcal::bit256 a(0xDEADBEEFCAFEBABE);
         bitcal::bit256 b(0x0123456789ABCDEF);
-        bitcal::bit256 c;
         
         benchmark("bit256 AND", [&]() {
-            c = a & b;
+            do_not_optimize(a & b);
         }, iterations);
         
         benchmark("bit256 XOR", [&]() {
-            c = a ^ b;
+            do_not_optimize(a ^ b);
+        }, iterations);
+        
+        benchmark("bit256 ANDNOT", [&]() {
+            do_not_optimize(a.andnot(b));
         }, iterations);
         
         benchmark("bit256 shift_left", [&]() {
             auto tmp = a;
             tmp.shift_left(10);
+            do_not_optimize(tmp);
         }, iterations);
         
         benchmark("bit256 popcount", [&]() {
-            volatile auto count = a.popcount();
-            (void)count;
+            do_not_optimize(a.popcount());
         }, iterations);
     }
     
@@ -104,24 +127,27 @@ int main() {
     {
         bitcal::bit512 a(0xDEADBEEFCAFEBABE);
         bitcal::bit512 b(0x0123456789ABCDEF);
-        bitcal::bit512 c;
         
         benchmark("bit512 AND", [&]() {
-            c = a & b;
+            do_not_optimize(a & b);
         }, iterations);
         
         benchmark("bit512 XOR", [&]() {
-            c = a ^ b;
+            do_not_optimize(a ^ b);
+        }, iterations);
+        
+        benchmark("bit512 ANDNOT", [&]() {
+            do_not_optimize(a.andnot(b));
         }, iterations);
         
         benchmark("bit512 shift_left", [&]() {
             auto tmp = a;
             tmp.shift_left(10);
+            do_not_optimize(tmp);
         }, iterations);
         
         benchmark("bit512 popcount", [&]() {
-            volatile auto count = a.popcount();
-            (void)count;
+            do_not_optimize(a.popcount());
         }, iterations);
     }
     

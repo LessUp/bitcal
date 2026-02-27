@@ -31,15 +31,15 @@ BITCAL_FORCEINLINE uint64x2_t bit_xor(uint64x2_t a, uint64x2_t b) noexcept {
 }
 
 BITCAL_FORCEINLINE uint64x2_t bit_not(uint64x2_t a) noexcept {
-    return vmvnq_u64(a);
+    return veorq_u64(a, vdupq_n_u64(~0ULL));
 }
 
 BITCAL_FORCEINLINE uint64x2_t shift_left_64(uint64x2_t a, int count) noexcept {
-    return vshlq_n_u64(a, count);
+    return vshlq_u64(a, vdupq_n_s64(count));
 }
 
 BITCAL_FORCEINLINE uint64x2_t shift_right_64(uint64x2_t a, int count) noexcept {
-    return vshrq_n_u64(a, count);
+    return vshlq_u64(a, vdupq_n_s64(-count));
 }
 
 BITCAL_FORCEINLINE void shift_left_128(uint64_t* data, int count) noexcept {
@@ -404,6 +404,48 @@ BITCAL_FORCEINLINE void bit_xor_512(const uint64_t* a, const uint64_t* b, uint64
         uint64x2_t va = load(a + i * 2);
         uint64x2_t vb = load(b + i * 2);
         store(out + i * 2, bit_xor(va, vb));
+    }
+}
+
+BITCAL_FORCEINLINE void bit_not_128(const uint64_t* in, uint64_t* out) noexcept {
+    uint64x2_t v = load(in);
+    store(out, bit_not(v));
+}
+
+BITCAL_FORCEINLINE void bit_not_256(const uint64_t* in, uint64_t* out) noexcept {
+    uint64x2_t v0 = load(in);
+    uint64x2_t v1 = load(in + 2);
+    store(out, bit_not(v0));
+    store(out + 2, bit_not(v1));
+}
+
+BITCAL_FORCEINLINE void bit_not_512(const uint64_t* in, uint64_t* out) noexcept {
+    for (int i = 0; i < 4; ++i) {
+        uint64x2_t v = load(in + i * 2);
+        store(out + i * 2, bit_not(v));
+    }
+}
+
+BITCAL_FORCEINLINE void bit_andnot_128(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
+    uint64x2_t va = load(a);
+    uint64x2_t vb = load(b);
+    store(out, vbicq_u64(va, vb));
+}
+
+BITCAL_FORCEINLINE void bit_andnot_256(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
+    uint64x2_t a0 = load(a);
+    uint64x2_t a1 = load(a + 2);
+    uint64x2_t b0 = load(b);
+    uint64x2_t b1 = load(b + 2);
+    store(out, vbicq_u64(a0, b0));
+    store(out + 2, vbicq_u64(a1, b1));
+}
+
+BITCAL_FORCEINLINE void bit_andnot_512(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
+    for (int i = 0; i < 4; ++i) {
+        uint64x2_t va = load(a + i * 2);
+        uint64x2_t vb = load(b + i * 2);
+        store(out + i * 2, vbicq_u64(va, vb));
     }
 }
 

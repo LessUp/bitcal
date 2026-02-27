@@ -17,26 +17,30 @@ namespace bitcal {
 #endif
 
 #if BITCAL_ARCH_X86
+    #if defined(_MSC_VER)
+        #include <intrin.h>
+    #endif
     #include <immintrin.h>
-    #if defined(__SSE2__)
+    
+    #if defined(__SSE2__) || (defined(_MSC_VER) && (defined(_M_X64) || defined(_M_AMD64)))
         #define BITCAL_HAS_SSE2 1
     #else
         #define BITCAL_HAS_SSE2 0
     #endif
     
-    #if defined(__AVX__)
+    #if defined(__AVX__) || (defined(_MSC_VER) && defined(__AVX__))
         #define BITCAL_HAS_AVX 1
     #else
         #define BITCAL_HAS_AVX 0
     #endif
     
-    #if defined(__AVX2__)
+    #if defined(__AVX2__) || (defined(_MSC_VER) && defined(__AVX2__))
         #define BITCAL_HAS_AVX2 1
     #else
         #define BITCAL_HAS_AVX2 0
     #endif
     
-    #if defined(__AVX512F__)
+    #if defined(__AVX512F__) || (defined(_MSC_VER) && defined(__AVX512F__))
         #define BITCAL_HAS_AVX512 1
     #else
         #define BITCAL_HAS_AVX512 0

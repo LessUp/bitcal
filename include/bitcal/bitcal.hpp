@@ -16,6 +16,7 @@
 #endif
 
 #include <cassert>
+#include <cstring>
 #include <cstdint>
 #include <type_traits>
 
@@ -47,9 +48,7 @@ public:
     
     // 清零所有位。
     BITCAL_FORCEINLINE void clear() noexcept {
-        for (size_t i = 0; i < u64_count; ++i) {
-            data_[i] = 0;
-        }
+        std::memset(data_, 0, sizeof(data_));
     }
     
     // 直接暴露底层的 word 数组（uint64_t），便于与外部算法对接。
@@ -170,42 +169,81 @@ public:
     
     BITCAL_FORCEINLINE bitarray operator&(const bitarray& other) const noexcept {
         bitarray result;
-        bit_and(*this, other, result);
+        dispatch_binop<binop::op_and>(*this, other, result);
         return result;
     }
     
     BITCAL_FORCEINLINE bitarray operator|(const bitarray& other) const noexcept {
         bitarray result;
-        bit_or(*this, other, result);
+        dispatch_binop<binop::op_or>(*this, other, result);
         return result;
     }
     
     BITCAL_FORCEINLINE bitarray operator^(const bitarray& other) const noexcept {
         bitarray result;
-        bit_xor(*this, other, result);
+        dispatch_binop<binop::op_xor>(*this, other, result);
+        return result;
+    }
+    
+    // ANDNOT: result = a & ~b，利用原生 SIMD 指令（vpandn / vbic）比分开做 NOT+AND 更快。
+    BITCAL_FORCEINLINE bitarray andnot(const bitarray& mask) const noexcept {
+        bitarray result;
+        dispatch_binop<binop::op_andnot>(*this, mask, result);
         return result;
     }
     
     BITCAL_FORCEINLINE bitarray operator~() const noexcept {
         bitarray result;
-        for (size_t i = 0; i < u64_count; ++i) {
-            result.data_[i] = ~data_[i];
+        if constexpr (Bits == 64) {
+            result.data_[0] = ~data_[0];
+        }
+#if BITCAL_HAS_NEON
+        else if constexpr (Backend == simd_backend::neon && Bits == 128) {
+            neon::bit_not_128(data_, result.data_);
+        }
+        else if constexpr (Backend == simd_backend::neon && Bits == 256) {
+            neon::bit_not_256(data_, result.data_);
+        }
+        else if constexpr (Backend == simd_backend::neon && Bits == 512) {
+            neon::bit_not_512(data_, result.data_);
+        }
+#endif
+#if BITCAL_HAS_SSE2
+        else if constexpr (Backend == simd_backend::sse2 && Bits == 128) {
+            sse::bit_not_128(data_, result.data_);
+        }
+        else if constexpr (Backend == simd_backend::sse2 && Bits == 256) {
+            sse::bit_not_256(data_, result.data_);
+        }
+#endif
+#if BITCAL_HAS_AVX2
+        else if constexpr (Backend == simd_backend::avx2 && Bits == 256) {
+            avx::bit_not_256(data_, result.data_);
+        }
+        else if constexpr (Backend == simd_backend::avx2 && Bits == 512) {
+            avx::bit_not_512(data_, result.data_);
+        }
+#endif
+        else {
+            for (size_t i = 0; i < u64_count; ++i) {
+                result.data_[i] = ~data_[i];
+            }
         }
         return result;
     }
     
     BITCAL_FORCEINLINE bitarray& operator&=(const bitarray& other) noexcept {
-        bit_and(*this, other, *this);
+        dispatch_binop<binop::op_and>(*this, other, *this);
         return *this;
     }
     
     BITCAL_FORCEINLINE bitarray& operator|=(const bitarray& other) noexcept {
-        bit_or(*this, other, *this);
+        dispatch_binop<binop::op_or>(*this, other, *this);
         return *this;
     }
     
     BITCAL_FORCEINLINE bitarray& operator^=(const bitarray& other) noexcept {
-        bit_xor(*this, other, *this);
+        dispatch_binop<binop::op_xor>(*this, other, *this);
         return *this;
     }
     
@@ -266,19 +304,44 @@ public:
         if constexpr (Bits == 64) {
             data_[0] = scalar::reverse_bits(data_[0]);
         } else {
-            uint64_t temp[u64_count];
-            scalar::reverse_bits_array<u64_count>(data_, temp);
-            for (size_t i = 0; i < u64_count; ++i) {
-                data_[i] = temp[i];
+            for (size_t i = 0; i < u64_count / 2; ++i) {
+                uint64_t a = scalar::reverse_bits(data_[i]);
+                uint64_t b = scalar::reverse_bits(data_[u64_count - 1 - i]);
+                data_[i] = b;
+                data_[u64_count - 1 - i] = a;
+            }
+            if constexpr (u64_count % 2 == 1) {
+                data_[u64_count / 2] = scalar::reverse_bits(data_[u64_count / 2]);
             }
         }
     }
     
     BITCAL_FORCEINLINE bool is_zero() const noexcept {
-        for (size_t i = 0; i < u64_count; ++i) {
-            if (data_[i] != 0) return false;
+        if constexpr (Bits == 64) {
+            return data_[0] == 0;
         }
-        return true;
+#if BITCAL_HAS_SSE2
+        else if constexpr (Backend == simd_backend::sse2 && Bits == 128) {
+            return sse::is_zero_128(data_);
+        }
+        else if constexpr (Backend == simd_backend::sse2 && Bits == 256) {
+            return sse::is_zero_256(data_);
+        }
+#endif
+#if BITCAL_HAS_AVX2
+        else if constexpr (Backend == simd_backend::avx2 && Bits == 256) {
+            return avx::is_zero_256(data_);
+        }
+        else if constexpr (Backend == simd_backend::avx2 && Bits == 512) {
+            return avx::is_zero_512(data_);
+        }
+#endif
+        else {
+            for (size_t i = 0; i < u64_count; ++i) {
+                if (data_[i] != 0) return false;
+            }
+            return true;
+        }
     }
     
     BITCAL_FORCEINLINE bool operator==(const bitarray& other) const noexcept {
@@ -295,111 +358,69 @@ public:
 private:
     alignas(BITCAL_ALIGNMENT) uint64_t data_[u64_count];
     
-    static BITCAL_FORCEINLINE void bit_and(const bitarray& a, const bitarray& b, bitarray& out) noexcept {
-        if constexpr (Bits == 64) {
-            out.data_[0] = scalar::bit_and(a.data_[0], b.data_[0]);
-        }
-#if BITCAL_HAS_NEON
-        else if constexpr (Backend == simd_backend::neon && Bits == 128) {
-            neon::bit_and_128(a.data_, b.data_, out.data_);
-        }
-        else if constexpr (Backend == simd_backend::neon && Bits == 256) {
-            neon::bit_and_256(a.data_, b.data_, out.data_);
-        }
-        else if constexpr (Backend == simd_backend::neon && Bits == 512) {
-            neon::bit_and_512(a.data_, b.data_, out.data_);
-        }
-#endif
-#if BITCAL_HAS_SSE2
-        else if constexpr (Backend == simd_backend::sse2 && Bits == 128) {
-            sse::bit_and_128(a.data_, b.data_, out.data_);
-        }
-        else if constexpr (Backend == simd_backend::sse2 && Bits == 256) {
-            sse::bit_and_256(a.data_, b.data_, out.data_);
-        }
-#endif
-#if BITCAL_HAS_AVX2
-        else if constexpr (Backend == simd_backend::avx2 && Bits == 256) {
-            avx::bit_and_256(a.data_, b.data_, out.data_);
-        }
-        else if constexpr (Backend == simd_backend::avx2 && Bits == 512) {
-            avx::bit_and_512(a.data_, b.data_, out.data_);
-        }
-#endif
-        else {
-            scalar::bit_and_array<u64_count>(a.data_, b.data_, out.data_);
-        }
-    }
+    enum class binop { op_and, op_or, op_xor, op_andnot };
     
-    static BITCAL_FORCEINLINE void bit_or(const bitarray& a, const bitarray& b, bitarray& out) noexcept {
+    template<binop Op>
+    static BITCAL_FORCEINLINE void dispatch_binop(const bitarray& a, const bitarray& b, bitarray& out) noexcept {
         if constexpr (Bits == 64) {
-            out.data_[0] = scalar::bit_or(a.data_[0], b.data_[0]);
+            if constexpr (Op == binop::op_and)    out.data_[0] = scalar::bit_and(a.data_[0], b.data_[0]);
+            if constexpr (Op == binop::op_or)     out.data_[0] = scalar::bit_or(a.data_[0], b.data_[0]);
+            if constexpr (Op == binop::op_xor)    out.data_[0] = scalar::bit_xor(a.data_[0], b.data_[0]);
+            if constexpr (Op == binop::op_andnot) out.data_[0] = scalar::bit_andnot(a.data_[0], b.data_[0]);
         }
 #if BITCAL_HAS_NEON
         else if constexpr (Backend == simd_backend::neon && Bits == 128) {
-            neon::bit_or_128(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_and)    neon::bit_and_128(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_or)     neon::bit_or_128(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_xor)    neon::bit_xor_128(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_andnot) neon::bit_andnot_128(a.data_, b.data_, out.data_);
         }
         else if constexpr (Backend == simd_backend::neon && Bits == 256) {
-            neon::bit_or_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_and)    neon::bit_and_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_or)     neon::bit_or_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_xor)    neon::bit_xor_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_andnot) neon::bit_andnot_256(a.data_, b.data_, out.data_);
         }
         else if constexpr (Backend == simd_backend::neon && Bits == 512) {
-            neon::bit_or_512(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_and)    neon::bit_and_512(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_or)     neon::bit_or_512(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_xor)    neon::bit_xor_512(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_andnot) neon::bit_andnot_512(a.data_, b.data_, out.data_);
         }
 #endif
 #if BITCAL_HAS_SSE2
         else if constexpr (Backend == simd_backend::sse2 && Bits == 128) {
-            sse::bit_or_128(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_and)    sse::bit_and_128(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_or)     sse::bit_or_128(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_xor)    sse::bit_xor_128(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_andnot) sse::bit_andnot_128(a.data_, b.data_, out.data_);
         }
         else if constexpr (Backend == simd_backend::sse2 && Bits == 256) {
-            sse::bit_or_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_and)    sse::bit_and_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_or)     sse::bit_or_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_xor)    sse::bit_xor_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_andnot) sse::bit_andnot_256(a.data_, b.data_, out.data_);
         }
 #endif
 #if BITCAL_HAS_AVX2
         else if constexpr (Backend == simd_backend::avx2 && Bits == 256) {
-            avx::bit_or_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_and)    avx::bit_and_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_or)     avx::bit_or_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_xor)    avx::bit_xor_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_andnot) avx::bit_andnot_256(a.data_, b.data_, out.data_);
         }
         else if constexpr (Backend == simd_backend::avx2 && Bits == 512) {
-            avx::bit_or_512(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_and)    avx::bit_and_512(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_or)     avx::bit_or_512(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_xor)    avx::bit_xor_512(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_andnot) avx::bit_andnot_512(a.data_, b.data_, out.data_);
         }
 #endif
         else {
-            scalar::bit_or_array<u64_count>(a.data_, b.data_, out.data_);
-        }
-    }
-    
-    static BITCAL_FORCEINLINE void bit_xor(const bitarray& a, const bitarray& b, bitarray& out) noexcept {
-        if constexpr (Bits == 64) {
-            out.data_[0] = scalar::bit_xor(a.data_[0], b.data_[0]);
-        }
-#if BITCAL_HAS_NEON
-        else if constexpr (Backend == simd_backend::neon && Bits == 128) {
-            neon::bit_xor_128(a.data_, b.data_, out.data_);
-        }
-        else if constexpr (Backend == simd_backend::neon && Bits == 256) {
-            neon::bit_xor_256(a.data_, b.data_, out.data_);
-        }
-        else if constexpr (Backend == simd_backend::neon && Bits == 512) {
-            neon::bit_xor_512(a.data_, b.data_, out.data_);
-        }
-#endif
-#if BITCAL_HAS_SSE2
-        else if constexpr (Backend == simd_backend::sse2 && Bits == 128) {
-            sse::bit_xor_128(a.data_, b.data_, out.data_);
-        }
-        else if constexpr (Backend == simd_backend::sse2 && Bits == 256) {
-            sse::bit_xor_256(a.data_, b.data_, out.data_);
-        }
-#endif
-#if BITCAL_HAS_AVX2
-        else if constexpr (Backend == simd_backend::avx2 && Bits == 256) {
-            avx::bit_xor_256(a.data_, b.data_, out.data_);
-        }
-        else if constexpr (Backend == simd_backend::avx2 && Bits == 512) {
-            avx::bit_xor_512(a.data_, b.data_, out.data_);
-        }
-#endif
-        else {
-            scalar::bit_xor_array<u64_count>(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_and)    scalar::bit_and_array<u64_count>(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_or)     scalar::bit_or_array<u64_count>(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_xor)    scalar::bit_xor_array<u64_count>(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_andnot) scalar::bit_andnot_array<u64_count>(a.data_, b.data_, out.data_);
         }
     }
 };
