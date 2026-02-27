@@ -1,0 +1,17 @@
+{
+  "title": "BitCal - 高性能位运算加速库",
+  "description": "BitCal v2.1 使用手册",
+  "language": "zh-hans",
+  "gitbook": ">=3.0.0",
+  "structure": {
+    "readme": "README.md",
+    "summary": "SUMMARY.md"
+  },
+  "plugins": [
+    "code",
+    "copy-code-button",
+    "search-pro",
+    "-lunr",
+    "-search"
+  ]
+}
