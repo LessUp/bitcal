@@ -51,7 +51,7 @@ BITCAL_FORCEINLINE int count_leading_zeros(uint64_t x) noexcept {
     if (x == 0) return 64;
 #if defined(__GNUC__) || defined(__clang__)
     return __builtin_clzll(x);
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) && defined(_M_X64)
     unsigned long index;
     _BitScanReverse64(&index, x);
     return 63 - static_cast<int>(index);
@@ -69,7 +69,7 @@ BITCAL_FORCEINLINE int count_trailing_zeros(uint64_t x) noexcept {
     if (x == 0) return 64;
 #if defined(__GNUC__) || defined(__clang__)
     return __builtin_ctzll(x);
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) && defined(_M_X64)
     unsigned long index;
     _BitScanForward64(&index, x);
     return static_cast<int>(index);

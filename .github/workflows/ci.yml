@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux x86-64 (GCC)
+          - os: ubuntu-latest
+            compiler: gcc
+            cxx: g++
+            cc: gcc
+            name: "Linux x64 GCC"
+
+          # Linux x86-64 (Clang)
+          - os: ubuntu-latest
+            compiler: clang
+            cxx: clang++
+            cc: clang
+            name: "Linux x64 Clang"
+
+          # Windows x64 (MSVC)
+          - os: windows-latest
+            compiler: msvc
+            name: "Windows x64 MSVC"
+
+          # macOS x64 (Apple Clang)
+          - os: macos-13
+            compiler: appleclang
+            cxx: clang++
+            cc: clang
+            name: "macOS x64 AppleClang"
+
+          # macOS ARM64 (Apple Silicon)
+          - os: macos-latest
+            compiler: appleclang
+            cxx: clang++
+            cc: clang
+            name: "macOS ARM64 AppleClang"
+
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure (Unix)
+        if: matrix.compiler != 'msvc'
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBITCAL_BUILD_TESTS=ON \
+            -DBITCAL_BUILD_EXAMPLES=ON \
+            -DBITCAL_NATIVE_ARCH=ON
+
+      - name: Configure (MSVC)
+        if: matrix.compiler == 'msvc'
+        run: |
+          cmake -S . -B build `
+            -DBITCAL_BUILD_TESTS=ON `
+            -DBITCAL_BUILD_EXAMPLES=ON `
+            -DBITCAL_NATIVE_ARCH=ON
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -C Release
+
+  # Linux ARM64 cross-compile check (no run, just build)
+  build-arm64:
+    name: "Linux ARM64 (cross-compile)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ARM64 toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-aarch64-linux-gnu
+
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ \
+            -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBITCAL_BUILD_TESTS=ON \
+            -DBITCAL_BUILD_EXAMPLES=ON \
+            -DBITCAL_NATIVE_ARCH=OFF
+
+      - name: Build
+        run: cmake --build build --config Release
