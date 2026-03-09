@@ -5,6 +5,9 @@ on:
     branches: [master, main]
     paths:
       - "gitbook/**"
+      - "README.md"
+      - "README.zh-CN.md"
+      - "MIGRATION_GUIDE.md"
       - ".github/workflows/docs.yml"
   workflow_dispatch:
 
@@ -22,6 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            gitbook
+          sparse-checkout-cone-mode: false
 
       - uses: actions/setup-node@v4
         with:
@@ -29,7 +36,6 @@ jobs:
 
       - name: Install honkit
         run: npm install honkit
-
       - name: Build docs
         run: npx honkit build gitbook _site
 

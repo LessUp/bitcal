@@ -1,7 +1,8 @@
 # BitCal - High-Performance Bit Operation Acceleration Library
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/LessUp/bitcal/actions/workflows/ci.yml/badge.svg)](https://github.com/LessUp/bitcal/actions/workflows/ci.yml)
 [![Docs](https://github.com/LessUp/bitcal/actions/workflows/docs.yml/badge.svg)](https://lessup.github.io/bitcal/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 English | [简体中文](README.zh-CN.md)
 
