@@ -3,6 +3,8 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Docs](https://github.com/LessUp/bitcal/actions/workflows/docs.yml/badge.svg)](https://lessup.github.io/bitcal/)
 
+简体中文 | [English](README.en.md)
+
 BitCal 是一个现代化的、跨平台的高性能位运算加速库，针对 Linux 和 ARM 平台进行了优化。
 
 > **当前版本**: v2.1.0
@@ -57,7 +59,7 @@ cp -r include/bitcal /path/to/your/project/include/
 
 #### 方法 2: CMake 集成
 ```bash
-git clone https://github.com/user/bitcal.git
+git clone https://github.com/LessUp/bitcal.git
 cd bitcal
 mkdir build && cd build
 cmake ..

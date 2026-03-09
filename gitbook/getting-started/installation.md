@@ -26,7 +26,7 @@ target_link_libraries(your_target bitcal::bitcal)
 ### 安装后使用
 
 ```bash
-git clone https://github.com/user/bitcal.git
+git clone https://github.com/LessUp/bitcal.git
 cd bitcal
 mkdir build && cd build
 cmake ..

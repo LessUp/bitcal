@@ -13,5 +13,10 @@
     "search-pro",
     "-lunr",
     "-search"
-  ]
+  ],
+  "links": {
+    "sidebar": {
+      "GitHub": "https://github.com/LessUp/bitcal"
+    }
+  }
 }
