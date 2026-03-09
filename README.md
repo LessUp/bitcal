@@ -1,6 +1,7 @@
 # BitCal - 高性能位运算加速库
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Docs](https://github.com/LessUp/bitcal/actions/workflows/docs.yml/badge.svg)](https://lessup.github.io/bitcal/)
 
 BitCal 是一个现代化的、跨平台的高性能位运算加速库，针对 Linux 和 ARM 平台进行了优化。
 
