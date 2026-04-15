@@ -1,15 +1,13 @@
 #pragma once
 
+// Standard headers must be included before SIMD intrinsics headers
+// to avoid conflicts with C++ standard library
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
+#include <cstring>
 
-#define BITCAL_VERSION_MAJOR 2
-#define BITCAL_VERSION_MINOR 1
-#define BITCAL_VERSION_PATCH 0
-#define BITCAL_VERSION ((BITCAL_VERSION_MAJOR << 16) | (BITCAL_VERSION_MINOR << 8) | BITCAL_VERSION_PATCH)
-
-namespace bitcal {
-
+// Platform detection
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
     #define BITCAL_ARCH_X86 1
     #define BITCAL_ARCH_ARM 0
@@ -21,45 +19,60 @@ namespace bitcal {
     #define BITCAL_ARCH_ARM 0
 #endif
 
+// SIMD intrinsics - must be included outside any namespace
 #if BITCAL_ARCH_X86
     #if defined(_MSC_VER)
         #include <intrin.h>
     #endif
     #include <immintrin.h>
-    
+#elif BITCAL_ARCH_ARM
+    #include <arm_neon.h>
+#endif
+
+#define BITCAL_VERSION_MAJOR 2
+#define BITCAL_VERSION_MINOR 1
+#define BITCAL_VERSION_PATCH 0
+#define BITCAL_VERSION ((BITCAL_VERSION_MAJOR << 16) | (BITCAL_VERSION_MINOR << 8) | BITCAL_VERSION_PATCH)
+
+namespace bitcal {
+
+#if BITCAL_ARCH_X86
     #if defined(__SSE2__) || (defined(_MSC_VER) && (defined(_M_X64) || defined(_M_AMD64)))
         #define BITCAL_HAS_SSE2 1
     #else
         #define BITCAL_HAS_SSE2 0
     #endif
-    
+
     #if defined(__AVX__) || (defined(_MSC_VER) && defined(__AVX__))
         #define BITCAL_HAS_AVX 1
     #else
         #define BITCAL_HAS_AVX 0
     #endif
-    
+
     #if defined(__AVX2__) || (defined(_MSC_VER) && defined(__AVX2__))
         #define BITCAL_HAS_AVX2 1
     #else
         #define BITCAL_HAS_AVX2 0
     #endif
-    
+
     #if defined(__AVX512F__) || (defined(_MSC_VER) && defined(__AVX512F__))
         #define BITCAL_HAS_AVX512 1
     #else
         #define BITCAL_HAS_AVX512 0
     #endif
-    
+
+    // Note: AVX-512 support is detected but not yet fully implemented in bitcal.hpp.
+    // The library will fall back to AVX2 for operations. Full AVX-512 optimization
+    // is planned for a future release. See the project roadmap for details.
+
     #define BITCAL_HAS_NEON 0
 #elif BITCAL_ARCH_ARM
-    #include <arm_neon.h>
     #if defined(__ARM_NEON) || defined(__ARM_NEON__)
         #define BITCAL_HAS_NEON 1
     #else
         #define BITCAL_HAS_NEON 0
     #endif
-    
+
     #define BITCAL_HAS_SSE2 0
     #define BITCAL_HAS_AVX 0
     #define BITCAL_HAS_AVX2 0
@@ -110,7 +123,8 @@ enum class simd_backend {
 
 BITCAL_CONSTEXPR simd_backend get_default_backend() noexcept {
 #if BITCAL_HAS_AVX512
-    return simd_backend::avx512;
+    // AVX-512 detected but operations fall back to AVX2 until fully implemented
+    return simd_backend::avx2;
 #elif BITCAL_HAS_AVX2
     return simd_backend::avx2;
 #elif BITCAL_HAS_AVX

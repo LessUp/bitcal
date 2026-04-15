@@ -320,6 +320,17 @@ public:
         if constexpr (Bits == 64) {
             return data_[0] == 0;
         }
+#if BITCAL_HAS_NEON
+        else if constexpr (Backend == simd_backend::neon && Bits == 128) {
+            return neon::is_zero_128(data_);
+        }
+        else if constexpr (Backend == simd_backend::neon && Bits == 256) {
+            return neon::is_zero_256(data_);
+        }
+        else if constexpr (Backend == simd_backend::neon && Bits == 512) {
+            return neon::is_zero_512(data_);
+        }
+#endif
 #if BITCAL_HAS_SSE2
         else if constexpr (Backend == simd_backend::sse2 && Bits == 128) {
             return sse::is_zero_128(data_);

@@ -244,12 +244,13 @@ bool test_bit256_shift_boundary() {
     ASSERT_EQ(a[2], 0ULL);
 
     // shift by 65 = 64 word shift + 1 bit shift
+    // Original: bit 62 set. After 65-bit shift: bit 127 set (bit 63 of word 1)
     bitcal::bit256 b;
     b[0] = 0x4000000000000000ULL; b[1] = 0; b[2] = 0; b[3] = 0;
     b.shift_left(65);
     ASSERT_EQ(b[0], 0ULL);
-    ASSERT_EQ(b[1], 0ULL);
-    ASSERT_EQ(b[2], 0x8000000000000000ULL);
+    ASSERT_EQ(b[1], 0x8000000000000000ULL);
+    ASSERT_EQ(b[2], 0ULL);
 
     // shift by 255
     bitcal::bit256 e;
@@ -394,6 +395,106 @@ bool test_reverse_256() {
     return true;
 }
 
+// ========== 1024-bit tests ==========
+
+bool test_bit1024_basic() {
+    bitcal::bit1024 a(0xDEADBEEF);
+    ASSERT_EQ(a[0], 0xDEADBEEFULL);
+    for (size_t i = 1; i < 16; ++i) ASSERT_EQ(a[i], 0ULL);
+    return true;
+}
+
+bool test_bit1024_shift_cross_carry() {
+    // word 7 -> word 8 (cross 512-bit boundary)
+    bitcal::bit1024 a;
+    a[7] = 0x8000000000000000ULL;
+    a.shift_left(1);
+    ASSERT_EQ(a[7], 0ULL);
+    ASSERT_EQ(a[8], 1ULL);
+
+    // shift right cross
+    bitcal::bit1024 b;
+    b[8] = 1;
+    b.shift_right(1);
+    ASSERT_EQ(b[7], 0x8000000000000000ULL);
+    ASSERT_EQ(b[8], 0ULL);
+
+    // shift by 512
+    bitcal::bit1024 c;
+    c[0] = 0xAAAAAAAAAAAAAAAAULL;
+    c[1] = 0xBBBBBBBBBBBBBBBBULL;
+    c.shift_left(512);
+    ASSERT_EQ(c[0], 0ULL);
+    ASSERT_EQ(c[8], 0xAAAAAAAAAAAAAAAAULL);
+    ASSERT_EQ(c[9], 0xBBBBBBBBBBBBBBBBULL);
+    return true;
+}
+
+bool test_bit1024_shift_boundary() {
+    bitcal::bit1024 a;
+    a[0] = 1;
+    a.shift_left(1023);
+    ASSERT_EQ(a[15], 0x8000000000000000ULL);
+    for (int i = 0; i < 15; ++i) ASSERT_EQ(a[i], 0ULL);
+
+    bitcal::bit1024 b;
+    b[0] = 0xFFFFFFFFFFFFFFFFULL;
+    b.shift_left(1024);
+    ASSERT_TRUE(b.is_zero());
+    return true;
+}
+
+bool test_bit1024_popcount() {
+    bitcal::bit1024 a;
+    for (size_t i = 0; i < 16; ++i) a[i] = 0xFFFFFFFFFFFFFFFFULL;
+    ASSERT_EQ(a.popcount(), 1024ULL);
+
+    bitcal::bit1024 b;
+    b[0] = 0xFFFFFFFFFFFFFFFFULL;
+    ASSERT_EQ(b.popcount(), 64ULL);
+    return true;
+}
+
+bool test_bit1024_bitwise_ops() {
+    bitcal::bit1024 a, b;
+    a[0] = 0xFF00FF00FF00FF00ULL; a[15] = 0x00FF00FF00FF00FFULL;
+    b[0] = 0xF0F0F0F0F0F0F0F0ULL; b[15] = 0x0F0F0F0F0F0F0F0FULL;
+
+    auto and_result = a & b;
+    ASSERT_EQ(and_result[0], 0xF000F000F000F000ULL);
+    ASSERT_EQ(and_result[15], 0x000F000F000F000FULL);
+
+    auto or_result = a | b;
+    ASSERT_EQ(or_result[0], 0xFFF0FFF0FFF0FFF0ULL);
+    ASSERT_EQ(or_result[15], 0x0FFF0FFF0FFF0FFFULL);
+
+    auto xor_result = a ^ b;
+    ASSERT_EQ(xor_result[0], 0x0FF00FF00FF00FF0ULL);
+    ASSERT_EQ(xor_result[15], 0x0FF00FF00FF00FF0ULL);
+    return true;
+}
+
+bool test_bit1024_is_zero() {
+    bitcal::bit1024 a;
+    ASSERT_TRUE(a.is_zero());
+
+    bitcal::bit1024 b;
+    b[15] = 1;
+    ASSERT_TRUE(!b.is_zero());
+
+    bitcal::bit1024 c;
+    c[8] = 1;
+    ASSERT_TRUE(!c.is_zero());
+    return true;
+}
+
+bool test_bit1024_equality() {
+    bitcal::bit1024 a(123), b(123), c(456);
+    ASSERT_TRUE(a == b);
+    ASSERT_TRUE(a != c);
+    return true;
+}
+
 // ========== main ==========
 
 int main() {
@@ -430,6 +531,15 @@ int main() {
     RUN_TEST(test_bit512_basic);
     RUN_TEST(test_bit512_shift_cross_carry);
     RUN_TEST(test_bit512_shift_boundary);
+
+    std::cout << std::endl << "[1024-bit]" << std::endl;
+    RUN_TEST(test_bit1024_basic);
+    RUN_TEST(test_bit1024_shift_cross_carry);
+    RUN_TEST(test_bit1024_shift_boundary);
+    RUN_TEST(test_bit1024_popcount);
+    RUN_TEST(test_bit1024_bitwise_ops);
+    RUN_TEST(test_bit1024_is_zero);
+    RUN_TEST(test_bit1024_equality);
 
     std::cout << std::endl << "[ANDNOT]" << std::endl;
     RUN_TEST(test_andnot_64);

@@ -108,3 +108,28 @@ jobs:
 
       - name: Build
         run: cmake --build build --config Release
+
+  # Linux ARM32 cross-compile check
+  build-arm32:
+    name: "Linux ARM32 (cross-compile)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ARM32 toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-arm-linux-gnueabihf
+
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++ \
+            -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBITCAL_BUILD_TESTS=ON \
+            -DBITCAL_BUILD_EXAMPLES=ON \
+            -DBITCAL_NATIVE_ARCH=OFF
+
+      - name: Build
+        run: cmake --build build --config Release
