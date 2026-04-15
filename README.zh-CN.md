@@ -1,56 +1,65 @@
-# BitCal - 高性能位运算加速库
+# BitCal
 
 [![CI](https://github.com/LessUp/bitcal/actions/workflows/ci.yml/badge.svg)](https://github.com/LessUp/bitcal/actions/workflows/ci.yml)
-[![Docs](https://github.com/LessUp/bitcal/actions/workflows/docs.yml/badge.svg)](https://lessup.github.io/bitcal/)
+[![Docs](https://github.com/LessUp/bitcal/actions/workflows/pages.yml/badge.svg)](https://lessup.github.io/bitcal/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
+[![Header-only](https://img.shields.io/badge/header--only-yes-green.svg)](#)
+
+**现代化、跨平台的高性能位运算加速库，支持 SIMD 指令集自动选择。**
 
 [English](README.md) | 简体中文
 
-BitCal 是一个现代化的、跨平台的高性能位运算加速库，针对 Linux 和 ARM 平台进行了优化。
-
-> **当前版本**: v2.1.0
+---
 
 ## 特性
 
-### 🚀 性能优化
-- **多指令集支持**: 
-  - x86/x64: SSE2, AVX, AVX2, AVX-512
-  - ARM: NEON
-  - 通用标量实现作为后备
-- **编译期优化**: 基于 C++17 模板和 constexpr 的零开销抽象
-- **SIMD 加速**: 自动选择最优指令集实现
-
-### 🎯 功能完整
-- 位移操作（左移/右移）: 64/128/256/512/1024 位
-- 逻辑运算（AND/OR/XOR/NOT）
-- 位计数操作:
-  - `popcount` - 统计1的个数
-  - `clz` - 前导零计数
-  - `ctz` - 尾部零计数
-- 位反转操作
-- 字节序转换
-
-### 🏗️ 架构优雅
-- **Header-only**: 无需编译，直接包含即可使用
-- **模板化设计**: 编译期类型安全
-- **跨平台支持**: Linux/Windows/macOS, x86/ARM
-- **零依赖**: 仅依赖标准库和编译器内置函数
+- 🚀 **SIMD 加速** — 自动选择 SSE2/AVX/AVX2/NEON 指令集
+- ⚡ **零开销抽象** — C++17 `if constexpr` 编译期分派
+- 📦 **Header-only** — 只需 `#include <bitcal/bitcal.hpp>`
+- 🔧 **丰富 API** — 位运算、位移、popcount、CLZ/CTZ、位反转、ANDNOT
+- 🌍 **跨平台** — Linux、Windows、macOS，支持 x86 和 ARM
 
 ## 快速开始
 
-### 要求
-- C++17 或更高版本
-- CMake 3.16+（仅用于构建测试）
-- 支持的编译器：
-  - GCC 7+
-  - Clang 6+
-  - MSVC 2017+
+```cpp
+#include <bitcal/bitcal.hpp>
 
-### 安装
+int main() {
+    bitcal::bit256 a(0xDEADBEEF);
+    bitcal::bit256 b(0xCAFEBABE);
 
-#### 方法 1: Header-only (推荐)
+    // 位运算
+    auto c = a & b;           // AND
+    auto d = a | b;           // OR
+    auto e = a ^ b;           // XOR
+    auto f = ~a;              // NOT
+    auto g = a.andnot(b);     // a & ~b（原生 SIMD）
+
+    // 位移
+    a <<= 10;                 // 左移
+    b >>= 5;                  // 右移
+
+    // 位计数
+    uint64_t ones = a.popcount();
+    int lz = a.count_leading_zeros();
+    int tz = a.count_trailing_zeros();
+
+    // 位操作
+    a.set_bit(42, true);      // 设置第 42 位
+    bool bit = a.get_bit(42); // 读取第 42 位
+    a.flip_bit(42);           // 翻转第 42 位
+    a.reverse();              // 位反转
+
+    return 0;
+}
+```
+
+## 安装
+
+### 方法 1：Header-only（推荐）
+
 ```bash
-# 复制 include 目录到你的项目
 cp -r include/bitcal /path/to/your/project/include/
 ```
 
@@ -58,206 +67,134 @@ cp -r include/bitcal /path/to/your/project/include/
 #include <bitcal/bitcal.hpp>
 ```
 
-#### 方法 2: CMake 集成
+### 方法 2：CMake 集成
+
 ```bash
 git clone https://github.com/LessUp/bitcal.git
-cd bitcal
-mkdir build && cd build
-cmake ..
-make
-make install
+cd bitcal && mkdir build && cd build
+cmake .. && make install
 ```
 
-在你的 CMakeLists.txt 中:
 ```cmake
 find_package(bitcal REQUIRED)
 target_link_libraries(your_target bitcal::bitcal)
 ```
 
-### 基本使用
-
-```cpp
-#include <bitcal/bitcal.hpp>
-#include <iostream>
-
-int main() {
-    // 创建 256 位的位数组
-    bitcal::bit256 a(0xDEADBEEF);
-    bitcal::bit256 b(0xCAFEBABE);
-    
-    // 位运算
-    auto c = a & b;  // AND
-    auto d = a | b;  // OR
-    auto e = a ^ b;  // XOR
-    
-    // 位移操作
-    a <<= 10;  // 左移 10 位
-    b >>= 5;   // 右移 5 位
-    
-    // 位计数
-    uint64_t ones = a.popcount();              // 统计1的个数
-    int leading = a.count_leading_zeros();      // 前导零
-    int trailing = a.count_trailing_zeros();    // 尾部零
-    
-    // 位操作
-    a.set_bit(42, true);   // 设置第 42 位
-    bool bit = a.get_bit(42);  // 读取第 42 位
-    a.flip_bit(42);        // 翻转第 42 位
-    
-    // 位反转
-    a.reverse();
-    
-    std::cout << "Popcount: " << ones << std::endl;
-    
-    return 0;
-}
-```
-
-### 高级用法
-
-#### 自定义位宽
-```cpp
-// 创建 1024 位数组
-bitcal::bitarray<1024> big_number;
-big_number[0] = 0x123456789ABCDEF0;
-big_number.shift_left(128);
-```
-
-#### 指定 SIMD 后端
-```cpp
-// 强制使用 AVX2
-bitcal::bitarray<256, bitcal::simd_backend::avx2> optimized;
-
-// 强制使用 NEON（ARM 平台）
-bitcal::bitarray<128, bitcal::simd_backend::neon> arm_optimized;
-
-// 使用标量实现（可移植）
-bitcal::bitarray<256, bitcal::simd_backend::scalar> portable;
-```
-
-#### 低级操作
-```cpp
-// 直接访问内部数据
-uint64_t* data = bit_array.data();
-data[0] = 0xFFFFFFFFFFFFFFFF;
-
-// 使用函数式 API
-uint64_t result = bitcal::ops::popcount<256>(data);
-int clz = bitcal::ops::count_leading_zeros<256>(data);
-```
-
-## 性能对比
-
-在 Intel Core i7-12700K @ 3.6GHz 上的性能测试（单位：ns/op）:
-
-| 操作 | 标量 | SSE2 | AVX2 | 加速比 |
-|------|------|------|------|--------|
-| AND-256 | 12.3 | 4.5 | 2.1 | 5.9x |
-| XOR-512 | 24.8 | 9.2 | 4.3 | 5.8x |
-| ShiftLeft-256 | 18.6 | 8.4 | 5.2 | 3.6x |
-| Popcount-512 | 45.2 | 28.1 | 22.3 | 2.0x |
-
-在 ARM Cortex-A72 @ 2.0GHz (Raspberry Pi 4) 上:
-
-| 操作 | 标量 | NEON | 加速比 |
-|------|------|------|--------|
-| AND-128 | 8.4 | 3.2 | 2.6x |
-| XOR-256 | 16.9 | 6.8 | 2.5x |
-| ShiftLeft-128 | 12.5 | 5.1 | 2.5x |
-
-## ARM 平台支持
-
-BitCal 完全支持 ARM 平台，包括：
-
-- **ARM32**: ARMv7-A with NEON
-- **ARM64**: ARMv8-A and later
-- **设备支持**: 
-  - Raspberry Pi 3/4/5
-  - NVIDIA Jetson series
-  - Apple Silicon (M1/M2/M3)
-  - AWS Graviton
-  - 移动设备处理器
-
-### ARM 编译
-
-```bash
-# ARM64 Linux
-cmake -DCMAKE_CXX_FLAGS="-march=armv8-a+simd" ..
-
-# 交叉编译
-cmake -DCMAKE_TOOLCHAIN_FILE=arm-toolchain.cmake ..
-```
-
 ## API 参考
 
 ### 类型别名
-```cpp
-bitcal::bit64    // 64位位数组
-bitcal::bit128   // 128位位数组
-bitcal::bit256   // 256位位数组
-bitcal::bit512   // 512位位数组
-bitcal::bit1024  // 1024位位数组
-```
+
+| 类型 | 位宽 | 存储 |
+|------|------|------|
+| `bitcal::bit64` | 64 位 | 1 × `uint64_t` |
+| `bitcal::bit128` | 128 位 | 2 × `uint64_t` |
+| `bitcal::bit256` | 256 位 | 4 × `uint64_t` |
+| `bitcal::bit512` | 512 位 | 8 × `uint64_t` |
+| `bitcal::bit1024` | 1024 位 | 16 × `uint64_t` |
 
 ### 核心操作
-- `shift_left(int count)` / `operator<<(int)`
-- `shift_right(int count)` / `operator>>(int)`
-- `operator&`, `operator|`, `operator^`, `operator~`
-- `andnot(mask)` - ANDNOT (`a & ~mask`)，利用原生 SIMD 指令
-- `popcount()` - 统计置位数
-- `count_leading_zeros()` - CLZ
-- `count_trailing_zeros()` - CTZ
-- `reverse()` - 位反转
-- `is_zero()` - 零检测（SIMD 加速）
-- `get_bit(size_t)`, `set_bit(size_t, bool)`, `flip_bit(size_t)`
+
+| 操作 | 说明 |
+|------|------|
+| `a & b`, `a \| b`, `a ^ b`, `~a` | 位运算 AND、OR、XOR、NOT |
+| `a.andnot(b)` | `a & ~b`，使用原生 SIMD 指令 |
+| `a << n`, `a >> n` | 左移/右移 |
+| `a.popcount()` | 统计 1 的个数 |
+| `a.count_leading_zeros()` | 前导零计数 (CLZ) |
+| `a.count_trailing_zeros()` | 尾部零计数 (CTZ) |
+| `a.reverse()` | 位反转 |
+| `a.is_zero()` | 零检测 |
+| `a.get_bit(i)`, `a.set_bit(i, v)`, `a.flip_bit(i)` | 单个位操作 |
 
 ### SIMD 后端
+
 ```cpp
 enum class simd_backend {
     scalar,   // 通用标量实现
-    sse2,     // SSE2 (x86)
-    avx,      // AVX (x86)
-    avx2,     // AVX2 (x86)
-    avx512,   // AVX-512 (x86)
-    neon      // NEON (ARM)
+    sse2,     // x86 SSE2
+    avx,      // x86 AVX
+    avx2,     // x86 AVX2
+    avx512,   // x86 AVX-512（回退到 AVX2）
+    neon      // ARM NEON
 };
 ```
 
-## 架构设计
+强制指定后端：
+```cpp
+bitcal::bitarray<256, bitcal::simd_backend::avx2> avx2_array;
+bitcal::bitarray<256, bitcal::simd_backend::scalar> portable_array;
+```
+
+## 性能
+
+Intel Core i7-12700K @ 3.6GHz（AVX2 后端）：
+
+| 操作 | 标量 | AVX2 | 加速比 |
+|------|------|------|--------|
+| AND-256 | 12.3 ns | 2.1 ns | **5.9×** |
+| XOR-512 | 24.8 ns | 4.3 ns | **5.8×** |
+| ShiftLeft-256 | 18.6 ns | 5.2 ns | **3.6×** |
+| Popcount-512 | 45.2 ns | 22.3 ns | **2.0×** |
+
+ARM Cortex-A72 @ 2.0GHz（NEON 后端）：
+
+| 操作 | 标量 | NEON | 加速比 |
+|------|------|------|--------|
+| AND-128 | 8.4 ns | 3.2 ns | **2.6×** |
+| XOR-256 | 16.9 ns | 6.8 ns | **2.5×** |
+
+## 平台支持
+
+| 平台 | 架构 | 编译器 | 状态 |
+|------|------|--------|------|
+| Linux | x86-64 | GCC 7+, Clang 6+ | ✅ CI 验证 |
+| Linux | ARM64 | GCC（交叉编译） | ✅ CI 验证 |
+| Linux | ARM32 | GCC（交叉编译） | ✅ CI 验证 |
+| Windows | x86-64 | MSVC 2017+ | ✅ CI 验证 |
+| macOS | x86-64 | Apple Clang | ✅ CI 验证 |
+| macOS | ARM64 | Apple Clang | ✅ CI 验证 |
+
+## 项目结构
 
 ```
 bitcal/
-├── include/bitcal/
-│   ├── config.hpp        # 平台检测和配置
-│   ├── simd_traits.hpp   # SIMD 特征定义
-│   ├── scalar_ops.hpp    # 标量操作实现
-│   ├── sse_ops.hpp       # SSE/SSE2 实现
-│   ├── avx_ops.hpp       # AVX/AVX2 实现
-│   ├── neon_ops.hpp      # ARM NEON 实现
-│   └── bitcal.hpp        # 主头文件
-├── tests/                # 单元测试
-├── benchmarks/           # 性能基准测试
-└── examples/             # 示例代码
+├── include/bitcal/           # 头文件
+│   ├── config.hpp            # 平台检测和宏定义
+│   ├── simd_traits.hpp       # SIMD 类型特征
+│   ├── scalar_ops.hpp        # 标量实现
+│   ├── sse_ops.hpp           # SSE2 实现
+│   ├── avx_ops.hpp           # AVX2 实现
+│   ├── neon_ops.hpp          # NEON 实现
+│   └── bitcal.hpp            # 主头文件
+├── tests/                    # 单元测试
+├── benchmarks/               # 性能基准测试
+├── examples/                 # 示例代码
+├── gitbook/                  # 文档
+└── changelog/                # 变更日志
 ```
 
-## 贡献
+## 系统要求
 
-欢迎贡献！请查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解详情。
+- C++17 或更高版本
+- CMake 3.16+（仅用于构建测试/示例）
+- 支持的编译器：GCC 7+、Clang 6+、MSVC 2017+
+
+## 文档
+
+- [快速上手](gitbook/getting-started/quickstart.md)
+- [API 参考](gitbook/api/types.md)
+- [架构设计](gitbook/architecture/overview.md)
+- [迁移指南](MIGRATION_GUIDE.md)
 
 ## 许可证
 
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
+MIT 许可证 — 详见 [LICENSE](LICENSE)。
+
+## 贡献
+
+欢迎贡献！请随时提交 issue 或 pull request。
 
 ## 致谢
 
-- 感谢所有贡献者
-- 使用了 Google Benchmark 进行性能测试
-- 参考了 Boost.SIMD 和 xsimd 的设计思想
-
-## 联系方式
-
-- 问题反馈: GitHub Issues
-
----
-
-**注意**: 本库专为高性能计算场景设计，建议在生产环境使用前进行充分测试。
+- 设计灵感来源于 Boost.SIMD 和 xsimd
+- 使用 Google Benchmark 进行性能测试（可选）

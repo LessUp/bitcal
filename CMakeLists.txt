@@ -3,6 +3,7 @@ project(bitcal VERSION 2.1.0 LANGUAGES CXX)
 
 option(BITCAL_BUILD_TESTS "Build tests" ON)
 option(BITCAL_BUILD_EXAMPLES "Build examples" ON)
+option(BITCAL_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(BITCAL_NATIVE_ARCH "Use -march=native or equivalent for tests/examples" ON)
 
 add_library(bitcal INTERFACE)
@@ -37,6 +38,10 @@ endif()
 
 if(BITCAL_BUILD_EXAMPLES)
   add_subdirectory(examples)
+endif()
+
+if(BITCAL_BUILD_BENCHMARKS)
+  add_subdirectory(benchmarks)
 endif()
 
 include(GNUInstallDirs)
