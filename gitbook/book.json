@@ -8,8 +8,6 @@
     "summary": "SUMMARY.md"
   },
   "plugins": [
-    "code",
-    "copy-code-button",
     "search-pro",
     "-lunr",
     "-search"
