@@ -1,14 +1,38 @@
-# CONTRIBUTING
+# Contributing to BitCal
 
-感谢你对 BitCal 的兴趣！本文档说明如何贡献代码。
+Thank you for your interest in contributing to BitCal! This document explains how to get involved.
 
-## 开发环境
+## Spec-Driven Development
 
-### 要求
-- C++17 编译器 (GCC 7+, Clang 6+, MSVC 2017+)
+BitCal follows **Spec-Driven Development (SDD)**. All new features and changes must be defined in the `/specs` directory before implementation.
+
+### Workflow
+
+1. **Review existing specs** in `/specs/` to understand current requirements
+2. **Propose spec updates** before writing code (PRDs, RFCs, API specs)
+3. **Get spec approval** from maintainers
+4. **Implement** according to the approved spec
+5. **Write tests** that verify against spec acceptance criteria
+
+### Spec Directory Structure
+
+| Directory | Purpose |
+|-----------|---------|
+| `/specs/product/` | Product feature definitions and acceptance criteria |
+| `/specs/rfc/` | Technical design documents and architecture proposals |
+| `/specs/api/` | Public API specifications |
+| `/specs/testing/` | Test coverage requirements |
+
+See [AGENTS.md](AGENTS.md) for detailed AI workflow instructions.
+
+## Development Environment
+
+### Requirements
+
+- C++17 compiler (GCC 7+, Clang 6+, MSVC 2017+)
 - CMake 3.16+
 
-### 构建
+### Building
 
 ```bash
 git clone https://github.com/LessUp/bitcal.git
@@ -18,44 +42,51 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 ```
 
-### 运行测试
+### Running Tests
 
 ```bash
 ./tests/test_bitcal
 ```
 
-## 代码风格
+## Code Style
 
-- **文件命名**: 小写 + 下划线 (`scalar_ops.hpp`)
-- **命名空间**: `bitcal::`
-- **类名**: 小写 + 下划线 (`bitarray`)
-- **函数名**: 小写 + 下划线 (`shift_left`)
+- **File naming**: lowercase + underscore (`scalar_ops.hpp`)
+- **Namespace**: `bitcal::`
+- **Class names**: lowercase + underscore (`bitarray`)
+- **Function names**: lowercase + underscore (`shift_left`)
 
-## 提交规范
+## Commit Convention
 
-使用语义化提交信息：
+Use semantic commit messages:
 
 ```
-feat: 添加新功能
-fix: 修复 bug
-docs: 文档更新
-perf: 性能优化
-refactor: 代码重构
-test: 测试相关
-chore: 构建/工具相关
+feat: add new feature
+fix: fix a bug
+docs: documentation update
+perf: performance optimization
+refactor: code refactoring
+test: test-related changes
+chore: build/tooling changes
 ```
 
-## 添加新 SIMD 后端
+## Adding a New SIMD Backend
 
-1. 在 `include/bitcal/` 创建 `<backend>_ops.hpp`
-2. 在 `config.hpp` 添加平台检测和 `BITCAL_HAS_*` 宏
-3. 在 `simd_backend` 枚举添加新后端
-4. 在 `bitcal.hpp` 添加分派逻辑
-5. 添加测试用例
+1. Create `<backend>_ops.hpp` in `include/bitcal/`
+2. Add platform detection and `BITCAL_HAS_*` macro in `config.hpp`
+3. Add new backend to `simd_backend` enum
+4. Add dispatch logic in `bitcal.hpp`
+5. Add test cases
 
-## 发布流程
+## Documentation
 
-1. 更新 `CHANGELOG.md`
-2. 更新版本号 (`config.hpp`, `CMakeLists.txt`)
-3. 创建 tag: `git tag v2.x.x`
-4. 推送: `git push --tags`
+- User documentation goes in `/docs/`
+- Technical specs go in `/specs/`
+- Keep API reference up-to-date in `/docs/api/`
+- Architecture explanations in `/docs/architecture/`
+
+## Release Process
+
+1. Update `CHANGELOG.md`
+2. Update version numbers (`config.hpp`, `CMakeLists.txt`)
+3. Create tag: `git tag v2.x.x`
+4. Push: `git push --tags`

@@ -201,7 +201,7 @@ bitcal/
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
 
-### Latest Release: v2.1.0 (2026-02-27)
+### Latest Release: v2.1.0 (2026-04-16)
 
 - ✨ **New:** ANDNOT operation with native SIMD instructions
 - ⚡ **Performance:** Up to 2.3× faster `is_zero()`, 1.7× faster `~`
