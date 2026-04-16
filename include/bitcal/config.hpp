@@ -61,10 +61,6 @@ namespace bitcal {
         #define BITCAL_HAS_AVX512 0
     #endif
 
-    // Note: AVX-512 support is detected but not yet fully implemented in bitcal.hpp.
-    // The library will fall back to AVX2 for operations. Full AVX-512 optimization
-    // is planned for a future release. See the project roadmap for details.
-
     #define BITCAL_HAS_NEON 0
 #elif BITCAL_ARCH_ARM
     #if defined(__ARM_NEON) || defined(__ARM_NEON__)
@@ -123,8 +119,10 @@ enum class simd_backend {
 
 BITCAL_CONSTEXPR simd_backend get_default_backend() noexcept {
 #if BITCAL_HAS_AVX512
-    // AVX-512 detected but operations fall back to AVX2 until fully implemented
-    return simd_backend::avx2;
+    // AVX-512 detected: we use AVX-512 VL instructions for 128/256-bit operations
+    // and EVEX-encoded 512-bit operations where beneficial.
+    // Note: Some operations fall back to AVX2 for better latency on certain CPUs.
+    return simd_backend::avx512;
 #elif BITCAL_HAS_AVX2
     return simd_backend::avx2;
 #elif BITCAL_HAS_AVX
@@ -138,9 +136,9 @@ BITCAL_CONSTEXPR simd_backend get_default_backend() noexcept {
 #endif
 }
 
-template<typename T>
+template<typename T, size_t N>
 struct alignas(BITCAL_ALIGNMENT) aligned_array {
-    T data[1];
+    T data[N] = {};  // Zero-initialized by default
 };
 
 }

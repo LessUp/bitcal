@@ -11,6 +11,10 @@
 #include "avx_ops.hpp"
 #endif
 
+#if BITCAL_HAS_AVX512
+#include "avx512_ops.hpp"
+#endif
+
 #if BITCAL_HAS_NEON
 #include "neon_ops.hpp"
 #endif
@@ -32,20 +36,31 @@ namespace bitcal {
 
 template<size_t Bits, simd_backend Backend = get_default_backend()>
 class bitarray {
+    static_assert(Bits >= 64, "Bits must be at least 64");
+    static_assert(Bits % 64 == 0, "Bits must be a multiple of 64");
+
 public:
     static constexpr size_t bits = Bits;
-    static constexpr size_t u64_count = (Bits + 63) / 64;
+    static constexpr size_t u64_count = Bits / 64;
     static constexpr simd_backend backend = Backend;
-    
+
     bitarray() noexcept {
         clear();
     }
-    
+
     explicit bitarray(uint64_t value) noexcept {
         clear();
         data_[0] = value;
     }
-    
+
+    // Copy and move constructors (explicitly defaulted for clarity with alignas)
+    bitarray(const bitarray& other) noexcept = default;
+    bitarray(bitarray&& other) noexcept = default;
+
+    // Copy and move assignment operators
+    bitarray& operator=(const bitarray& other) noexcept = default;
+    bitarray& operator=(bitarray&& other) noexcept = default;
+
     // 清零所有位。
     BITCAL_FORCEINLINE void clear() noexcept {
         std::memset(data_, 0, sizeof(data_));
@@ -66,7 +81,7 @@ public:
     }
     
     // 读取单个位（0..Bits-1）。
-    BITCAL_FORCEINLINE bool get_bit(size_t bit_index) const noexcept {
+    [[nodiscard]] BITCAL_FORCEINLINE bool get_bit(size_t bit_index) const noexcept {
         assert(bit_index < Bits);
         const size_t word_idx = bit_index / 64;
         const size_t bit_offset = bit_index % 64;
@@ -98,6 +113,14 @@ public:
         if constexpr (Bits == 64) {
             data_[0] = scalar::shift_left(data_[0], count);
         }
+#if BITCAL_HAS_AVX512
+        else if constexpr (Backend == simd_backend::avx512 && Bits == 256) {
+            avx512::shift_left_256_vl(data_, count);
+        }
+        else if constexpr (Backend == simd_backend::avx512 && Bits == 512) {
+            avx512::shift_left_512(data_, count);
+        }
+#endif
 #if BITCAL_HAS_NEON
         else if constexpr (Backend == simd_backend::neon && Bits == 128) {
             neon::shift_left_128(data_, count);
@@ -135,6 +158,14 @@ public:
         if constexpr (Bits == 64) {
             data_[0] = scalar::shift_right(data_[0], count);
         }
+#if BITCAL_HAS_AVX512
+        else if constexpr (Backend == simd_backend::avx512 && Bits == 256) {
+            avx512::shift_right_256_vl(data_, count);
+        }
+        else if constexpr (Backend == simd_backend::avx512 && Bits == 512) {
+            avx512::shift_right_512(data_, count);
+        }
+#endif
 #if BITCAL_HAS_NEON
         else if constexpr (Backend == simd_backend::neon && Bits == 128) {
             neon::shift_right_128(data_, count);
@@ -172,31 +203,39 @@ public:
         dispatch_binop<binop::op_and>(*this, other, result);
         return result;
     }
-    
+
     BITCAL_FORCEINLINE bitarray operator|(const bitarray& other) const noexcept {
         bitarray result;
         dispatch_binop<binop::op_or>(*this, other, result);
         return result;
     }
-    
+
     BITCAL_FORCEINLINE bitarray operator^(const bitarray& other) const noexcept {
         bitarray result;
         dispatch_binop<binop::op_xor>(*this, other, result);
         return result;
     }
-    
+
     // ANDNOT: result = a & ~b，利用原生 SIMD 指令（vpandn / vbic）比分开做 NOT+AND 更快。
-    BITCAL_FORCEINLINE bitarray andnot(const bitarray& mask) const noexcept {
+    [[nodiscard]] BITCAL_FORCEINLINE bitarray andnot(const bitarray& mask) const noexcept {
         bitarray result;
         dispatch_binop<binop::op_andnot>(*this, mask, result);
         return result;
     }
-    
-    BITCAL_FORCEINLINE bitarray operator~() const noexcept {
+
+    [[nodiscard]] BITCAL_FORCEINLINE bitarray operator~() const noexcept {
         bitarray result;
         if constexpr (Bits == 64) {
             result.data_[0] = ~data_[0];
         }
+#if BITCAL_HAS_AVX512
+        else if constexpr (Backend == simd_backend::avx512 && Bits == 256) {
+            avx512::bit_not_256(data_, result.data_);
+        }
+        else if constexpr (Backend == simd_backend::avx512 && Bits == 512) {
+            avx512::bit_not_512(data_, result.data_);
+        }
+#endif
 #if BITCAL_HAS_NEON
         else if constexpr (Backend == simd_backend::neon && Bits == 128) {
             neon::bit_not_128(data_, result.data_);
@@ -251,35 +290,35 @@ public:
         shift_left(count);
         return *this;
     }
-    
+
     BITCAL_FORCEINLINE bitarray& operator>>=(int count) noexcept {
         shift_right(count);
         return *this;
     }
-    
-    BITCAL_FORCEINLINE bitarray operator<<(int count) const noexcept {
+
+    [[nodiscard]] BITCAL_FORCEINLINE bitarray operator<<(int count) const noexcept {
         bitarray result(*this);
         result.shift_left(count);
         return result;
     }
-    
-    BITCAL_FORCEINLINE bitarray operator>>(int count) const noexcept {
+
+    [[nodiscard]] BITCAL_FORCEINLINE bitarray operator>>(int count) const noexcept {
         bitarray result(*this);
         result.shift_right(count);
         return result;
     }
-    
+
     // 统计 1 的个数（对 Bits>64 采用逐 word 累加）。
-    BITCAL_FORCEINLINE uint64_t popcount() const noexcept {
+    [[nodiscard]] BITCAL_FORCEINLINE uint64_t popcount() const noexcept {
         if constexpr (Bits == 64) {
             return scalar::popcount(data_[0]);
         } else {
             return scalar::popcount_array<u64_count>(data_);
         }
     }
-    
+
     // 前导零计数（CLZ）。
-    BITCAL_FORCEINLINE int count_leading_zeros() const noexcept {
+    [[nodiscard]] BITCAL_FORCEINLINE int count_leading_zeros() const noexcept {
         for (int i = u64_count - 1; i >= 0; --i) {
             if (data_[i] != 0) {
                 int clz = scalar::count_leading_zeros(data_[i]);
@@ -288,9 +327,9 @@ public:
         }
         return Bits;
     }
-    
+
     // 尾部零计数（CTZ）。
-    BITCAL_FORCEINLINE int count_trailing_zeros() const noexcept {
+    [[nodiscard]] BITCAL_FORCEINLINE int count_trailing_zeros() const noexcept {
         for (size_t i = 0; i < u64_count; ++i) {
             if (data_[i] != 0) {
                 return i * 64 + scalar::count_trailing_zeros(data_[i]);
@@ -316,10 +355,18 @@ public:
         }
     }
     
-    BITCAL_FORCEINLINE bool is_zero() const noexcept {
+    [[nodiscard]] BITCAL_FORCEINLINE bool is_zero() const noexcept {
         if constexpr (Bits == 64) {
             return data_[0] == 0;
         }
+#if BITCAL_HAS_AVX512
+        else if constexpr (Backend == simd_backend::avx512 && Bits == 256) {
+            return avx512::is_zero_256(data_);
+        }
+        else if constexpr (Backend == simd_backend::avx512 && Bits == 512) {
+            return avx512::is_zero_512(data_);
+        }
+#endif
 #if BITCAL_HAS_NEON
         else if constexpr (Backend == simd_backend::neon && Bits == 128) {
             return neon::is_zero_128(data_);
@@ -379,6 +426,20 @@ private:
             if constexpr (Op == binop::op_xor)    out.data_[0] = scalar::bit_xor(a.data_[0], b.data_[0]);
             if constexpr (Op == binop::op_andnot) out.data_[0] = scalar::bit_andnot(a.data_[0], b.data_[0]);
         }
+#if BITCAL_HAS_AVX512
+        else if constexpr (Backend == simd_backend::avx512 && Bits == 256) {
+            if constexpr (Op == binop::op_and)    avx512::bit_and_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_or)     avx512::bit_or_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_xor)    avx512::bit_xor_256(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_andnot) avx512::bit_andnot_256(a.data_, b.data_, out.data_);
+        }
+        else if constexpr (Backend == simd_backend::avx512 && Bits == 512) {
+            if constexpr (Op == binop::op_and)    avx512::bit_and_512(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_or)     avx512::bit_or_512(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_xor)    avx512::bit_xor_512(a.data_, b.data_, out.data_);
+            if constexpr (Op == binop::op_andnot) avx512::bit_andnot_512(a.data_, b.data_, out.data_);
+        }
+#endif
 #if BITCAL_HAS_NEON
         else if constexpr (Backend == simd_backend::neon && Bits == 128) {
             if constexpr (Op == binop::op_and)    neon::bit_and_128(a.data_, b.data_, out.data_);
@@ -484,5 +545,32 @@ BITCAL_FORCEINLINE uint64_t byte_swap_64(uint64_t x) noexcept {
 }
 
 }
+
+// ============================================================================
+// Type Traits
+// ============================================================================
+
+/// Type trait to check if T is a bitarray type
+template<typename T>
+struct is_bitarray : std::false_type {};
+
+template<size_t Bits, simd_backend Backend>
+struct is_bitarray<bitarray<Bits, Backend>> : std::true_type {};
+
+template<typename T>
+inline constexpr bool is_bitarray_v = is_bitarray<T>::value;
+
+/// Type traits for bitarray types
+template<typename T>
+struct bitarray_traits;
+
+template<size_t Bits, simd_backend Backend>
+struct bitarray_traits<bitarray<Bits, Backend>> {
+    static constexpr size_t bits = Bits;
+    static constexpr size_t u64_count = Bits / 64;
+    static constexpr simd_backend backend = Backend;
+    using word_type = uint64_t;
+    using type = bitarray<Bits, Backend>;
+};
 
 }

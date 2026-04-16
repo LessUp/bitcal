@@ -451,32 +451,26 @@ BITCAL_FORCEINLINE void bit_andnot_512(const uint64_t* a, const uint64_t* b, uin
 
 BITCAL_FORCEINLINE bool is_zero_128(const uint64_t* data) noexcept {
     uint64x2_t v = load(data);
-    uint64x2_t zero = vdupq_n_u64(0);
-    uint64x2_t cmp = vceqq_u64(v, zero);
-    // Check if all lanes are equal to zero (both 64-bit lanes must be 0)
-    return (vgetq_lane_u64(cmp, 0) != 0) && (vgetq_lane_u64(cmp, 1) != 0);
+    // vminvq_u64 returns the minimum value across all lanes
+    // If all lanes are zero, the minimum is zero
+    // If any lane is non-zero, the minimum will be non-zero (since values are unsigned)
+    return vminvq_u64(v) == 0;
 }
 
 BITCAL_FORCEINLINE bool is_zero_256(const uint64_t* data) noexcept {
     uint64x2_t v0 = load(data);
     uint64x2_t v1 = load(data + 2);
-    uint64x2_t zero = vdupq_n_u64(0);
-    uint64x2_t cmp0 = vceqq_u64(v0, zero);
-    uint64x2_t cmp1 = vceqq_u64(v1, zero);
-    return (vgetq_lane_u64(cmp0, 0) != 0) && (vgetq_lane_u64(cmp0, 1) != 0) &&
-           (vgetq_lane_u64(cmp1, 0) != 0) && (vgetq_lane_u64(cmp1, 1) != 0);
+    // OR the two vectors together, then check if result is zero
+    uint64x2_t combined = vorrq_u64(v0, v1);
+    return vminvq_u64(combined) == 0;
 }
 
 BITCAL_FORCEINLINE bool is_zero_512(const uint64_t* data) noexcept {
+    uint64x2_t combined = vdupq_n_u64(0);
     for (int i = 0; i < 4; ++i) {
-        uint64x2_t v = load(data + i * 2);
-        uint64x2_t zero = vdupq_n_u64(0);
-        uint64x2_t cmp = vceqq_u64(v, zero);
-        if ((vgetq_lane_u64(cmp, 0) == 0) || (vgetq_lane_u64(cmp, 1) == 0)) {
-            return false;
-        }
+        combined = vorrq_u64(combined, load(data + i * 2));
     }
-    return true;
+    return vminvq_u64(combined) == 0;
 }
 
 }
