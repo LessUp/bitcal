@@ -21,45 +21,44 @@ int main() {
 
 ## Documentation Structure
 
-### Getting Started
-- [Installation Guide](setup/installation.md) — Setup and installation
-- [Quick Start](setup/quickstart.md) — Your first BitCal program
-- [Build Options](setup/build-options.md) — Compiler flags and CMake options
-- [Migration Guide](setup/migration-guide.md) — Migrating from v1.x to v2.x
+### English Documentation
 
-### API Reference
-- [Types](api/types.md) — `bitarray` template and type aliases
-- [Core Operations](api/core-operations.md) — AND, OR, XOR, NOT, ANDNOT
-- [Shift Operations](api/shift-operations.md) — Left and right shifts
-- [Bit Counting](api/bit-counting.md) — popcount, CLZ, CTZ
-- [Bit Manipulation](api/bit-manipulation.md) — get/set/flip bits, reverse
-- [SIMD Backend](api/simd-backend.md) — Backend selection
-- [Ops Namespace](api/ops-namespace.md) — Low-level functional API
+| Directory | Contents |
+|-----------|----------|
+| [Getting Started](en/getting-started/) | Installation, quickstart, build options |
+| [API Reference](en/api/) | Types, operations, backend selection |
+| [Architecture](en/architecture/) | Design principles, SIMD dispatch, platform support |
+| [Changelog](en/changelog/) | Version history and release notes |
 
-### Architecture
-- [Overview](architecture/overview.md) — Design principles
-- [SIMD Dispatch](architecture/simd-dispatch.md) — Compile-time dispatch mechanism
-- [Platform Support](architecture/platform-support.md) — Compatibility matrix
+### 中文文档
 
-### Specifications
-- [Product Spec](../specs/product/bit-manipulation-library.md) — Feature requirements (PRD)
-- [Architecture RFCs](../specs/rfc/) — Technical design documents
-- [API Spec](../specs/api/bitcal-public-api.md) — Public interface specification
-- [Testing Spec](../specs/testing/bitcal-testing-spec.md) — Test coverage requirements
+| 目录 | 内容 |
+|------|------|
+| [入门指南](zh/getting-started/) | 安装、快速开始、构建选项 |
+| [API 参考](zh/api/) | 类型、操作、后端选择 |
+| [架构设计](zh/architecture/) | 设计原则、SIMD 分派、平台支持 |
+| [更新日志](zh/changelog/) | 版本历史和发布说明 |
 
-### Internal Documents
-- [Refactoring Notes](internal/refactor-notes.md) — Design rationale for v2.x
-- [Release Notes](internal/release-notes.md) — Detailed release information
+## Specifications
+
+The `/specs` directory contains all specification documents following Spec-Driven Development methodology:
+
+| Directory | Purpose |
+|-----------|---------|
+| `/specs/product/` | Product Requirements Documents (PRD) |
+| `/specs/rfc/` | Technical design documents (RFC) |
+| `/specs/api/` | Public API specifications |
+| `/specs/testing/` | Test specifications and coverage requirements |
 
 ## Core Types
 
-| Type | Width | Description |
-|------|-------|-------------|
-| `bitcal::bit64` | 64-bit | Single machine word |
-| `bitcal::bit128` | 128-bit | SSE2/NEON native width |
-| `bitcal::bit256` | 256-bit | AVX2 native width |
-| `bitcal::bit512` | 512-bit | Large operations |
-| `bitcal::bit1024` | 1024-bit | Very large operations |
+| Type | Width | Words | Best For |
+|------|-------|-------|----------|
+| `bitcal::bit64` | 64-bit | 1 | Machine word |
+| `bitcal::bit128` | 128-bit | 2 | SSE2/NEON native |
+| `bitcal::bit256` | 256-bit | 4 | AVX2 native |
+| `bitcal::bit512` | 512-bit | 8 | Large parallel ops |
+| `bitcal::bit1024` | 1024-bit | 16 | Very large ops |
 
 ## SIMD Performance
 
@@ -75,11 +74,8 @@ bitcal/
 ├── include/bitcal/       # Core headers (header-only library)
 ├── specs/                # Specification documents (PRDs, RFCs, APIs)
 ├── docs/                 # Developer and user documentation
-│   ├── setup/            # Installation and build guides
-│   ├── api/              # API reference documentation
-│   ├── architecture/     # Architecture explanations
-│   ├── internal/         # Internal development notes
-│   └── assets/           # Images, diagrams
+│   ├── en/               # English documentation
+│   └── zh/               # Chinese documentation (中文文档)
 ├── tests/                # Unit tests
 ├── benchmarks/           # Performance benchmarks
 └── examples/             # Example programs
@@ -88,6 +84,7 @@ bitcal/
 ## Links
 
 - [GitHub Repository](https://github.com/LessUp/bitcal)
-- [中文 README](../README.zh-CN.md)
+- [README (English)](../README.md)
+- [README (中文)](../README.zh-CN.md)
 - [Changelog](../CHANGELOG.md)
 - [Contributing Guide](../CONTRIBUTING.md)

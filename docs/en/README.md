@@ -5,31 +5,12 @@
 </p>
 
 <p align="center">
-  <a href="../setup/installation.md">📦 Installation</a> •
-  <a href="../setup/quickstart.md">🚀 Quick Start</a> •
-  <a href="../api/types.md">📚 API Reference</a> •
-  <a href="../architecture/overview.md">🏗️ Architecture</a> •
+  <a href="getting-started/installation.md">📦 Installation</a> •
+  <a href="getting-started/quickstart.md">🚀 Quick Start</a> •
+  <a href="api/types.md">📚 API Reference</a> •
+  <a href="architecture/overview.md">🏗️ Architecture</a> •
   <a href="../../specs/product/bit-manipulation-library.md">📋 Product Spec</a>
 </p>
-
----
-
-## Documentation Reorganization
-
-BitCal now follows a **Spec-Driven Development (SDD)** workflow. Documentation has been reorganized:
-
-| Directory | Purpose |
-|-----------|---------|
-| `/docs/setup/` | Installation, quickstart, build options, migration guide |
-| `/docs/api/` | API reference documentation |
-| `/docs/architecture/` | Architecture explanations and design decisions |
-| `/docs/internal/` | Internal development notes (refactoring, release details) |
-| `/specs/product/` | Product requirements and acceptance criteria |
-| `/specs/rfc/` | Technical design documents (RFCs) |
-| `/specs/api/` | Public API specifications |
-| `/specs/testing/` | Test coverage requirements |
-
-➡️ [View Full Documentation Index](../README.md)
 
 ---
 
@@ -76,55 +57,87 @@ int main() {
 g++ -std=c++17 -O3 -march=native example.cpp -o example && ./example
 ```
 
-## Documentation Structure
+---
+
+## Documentation Index
 
 ### 🚀 Getting Started
-| Document | Description | Difficulty |
-|----------|-------------|------------|
-| [Installation Guide](getting-started/installation.md) | System requirements, installation methods, and verification | ⭐ Beginner |
-| [Quick Start](getting-started/quickstart.md) | First BitCal program, core concepts, common patterns | ⭐ Beginner |
-| [Build Options](getting-started/build-options.md) | Compiler flags, CMake integration, optimization tips | ⭐⭐ Intermediate |
+
+| Document | Description |
+|----------|-------------|
+| [Installation Guide](getting-started/installation.md) | System requirements, installation methods, verification |
+| [Quick Start](getting-started/quickstart.md) | First BitCal program, core concepts, common patterns |
+| [Build Options](getting-started/build-options.md) | Compiler flags, CMake integration, optimization tips |
 
 ### 📚 API Reference
-| Document | Description | Status |
-|----------|-------------|--------|
-| [Types](api/types.md) | `bitarray` template, type aliases, memory layout | Complete |
-| [Core Operations](api/core-operations.md) | AND, OR, XOR, NOT, ANDNOT, comparison, state detection | Complete |
-| [Shift Operations](api/shift-operations.md) | Left/right shifts with cross-word carry | Complete |
-| [Bit Counting](api/bit-counting.md) | `popcount()`, `clz()`, `ctz()` with hardware acceleration | Complete |
-| [Bit Manipulation](api/bit-manipulation.md) | get/set/flip bits, `reverse()`, `clear()` | Complete |
-| [SIMD Backend](api/simd-backend.md) | Backend selection, platform detection, forcing backends | Complete |
-| [Ops Namespace](api/ops-namespace.md) | Low-level functional API for raw pointer operations | Complete |
+
+| Document | Description |
+|----------|-------------|
+| [Types](api/types.md) | `bitarray` template, type aliases, memory layout |
+| [Core Operations](api/core-operations.md) | AND, OR, XOR, NOT, ANDNOT, comparison, state detection |
+| [Shift Operations](api/shift-operations.md) | Left/right shifts with cross-word carry |
+| [Bit Counting](api/bit-counting.md) | `popcount()`, `clz()`, `ctz()` with hardware acceleration |
+| [Bit Manipulation](api/bit-manipulation.md) | get/set/flip bits, `reverse()`, `clear()` |
+| [SIMD Backend](api/simd-backend.md) | Backend selection, platform detection, forcing backends |
+| [Ops Namespace](api/ops-namespace.md) | Low-level functional API for raw pointer operations |
 
 ### 🏗️ Architecture
-| Document | Description | Audience |
-|----------|-------------|----------|
-| [Overview](architecture/overview.md) | Design principles, file structure, performance characteristics | All users |
-| [SIMD Dispatch](architecture/simd-dispatch.md) | Compile-time dispatch mechanism, backend selection logic | Advanced users |
-| [Platform Support](architecture/platform-support.md) | Supported platforms, compilers, and architectures | All users |
 
-### 📝 Release Notes
-| Version | Release Date | Highlights |
-|---------|--------------|------------|
-| [v2.1.0](changelog/v2.1.0.md) | 2026-02-27 | ANDNOT operation, unified dispatch, performance improvements |
-| [v2.0.0](changelog/v2.0.0.md) | 2026-01-08 | Complete rewrite: header-only, template-based, compile-time dispatch |
+| Document | Description |
+|----------|-------------|
+| [Overview](architecture/overview.md) | Design principles, file structure, performance characteristics |
+| [SIMD Dispatch](architecture/simd-dispatch.md) | Compile-time dispatch mechanism, backend selection logic |
+| [Platform Support](architecture/platform-support.md) | Supported platforms, compilers, and architectures |
+
+### 📝 Changelog
+
+| Version | Release Date |
+|---------|--------------|
+| [v2.1.0](changelog/v2.1.0.md) | 2026-04-16 |
+| [v2.0.0](changelog/v2.0.0.md) | 2026-01-08 |
+
+---
+
+## Specifications
+
+This project follows **Spec-Driven Development (SDD)**. All specifications are in the `/specs` directory:
+
+| Directory | Purpose |
+|-----------|---------|
+| [Product Spec](../../specs/product/bit-manipulation-library.md) | Feature requirements and acceptance criteria |
+| [Architecture RFCs](../../specs/rfc/) | Technical design documents |
+| [API Spec](../../specs/api/bitcal-public-api.md) | Public interface specification |
+| [Testing Spec](../../specs/testing/bitcal-testing-spec.md) | Test coverage requirements |
+
+---
+
+## Core Types
+
+| Type | Width | Words | Best For |
+|------|-------|-------|----------|
+| `bitcal::bit64` | 64-bit | 1 | Machine word |
+| `bitcal::bit128` | 128-bit | 2 | SSE2/NEON native |
+| `bitcal::bit256` | 256-bit | 4 | AVX2 native |
+| `bitcal::bit512` | 512-bit | 8 | Large parallel ops |
+| `bitcal::bit1024` | 1024-bit | 16 | Very large ops |
+
+## SIMD Performance
+
+| Platform | Instruction Set | Speedup |
+|----------|-----------------|---------|
+| x86-64 | AVX2 | 5-6× |
+| ARM | NEON | 2.5× |
+
+---
 
 ## Language Support
 
 This documentation is available in multiple languages:
 
-- 🇺🇸 **[English](README.md)** (current)
-- 🇨🇳 **[中文](..//zh/README.md)** — 简体中文版本
+- 🇺🇸 **English** (current)
+- 🇨🇳 **[中文](../zh/README.md)** — 简体中文版本
 
-## Version Information
-
-| Property | Value |
-|----------|-------|
-| **Current Version** | v2.1.0 |
-| **Release Date** | February 27, 2026 |
-| **Minimum C++ Standard** | C++17 |
-| **License** | MIT |
-| **Dependencies** | None (header-only) |
+---
 
 ## Getting Help
 
@@ -135,11 +148,7 @@ This documentation is available in multiple languages:
 
 ## Contributing
 
-Contributions are welcome! Please see our [Contributing Guidelines](../../CONTRIBUTING.md) for details on:
-- Code style and conventions
-- Pull request process
-- Reporting issues
-- Feature requests
+Contributions are welcome! Please see our [Contributing Guidelines](../../CONTRIBUTING.md) for details.
 
 ---
 

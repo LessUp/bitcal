@@ -32,7 +32,10 @@ jobs:
         run: |
           # Create _site directory
           mkdir -p _site
-          
+
+          # Prevent Jekyll from processing the site
+          touch _site/.nojekyll
+
           # Copy main site files
           cp index.html _site/
           cp 404.html _site/

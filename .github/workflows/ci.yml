@@ -35,7 +35,7 @@ jobs:
             compiler: msvc
             name: "Windows x64 MSVC"
 
-          - os: macos-13
+          - os: macos-14
             compiler: appleclang
             cxx: clang++
             cc: clang
@@ -67,6 +67,7 @@ jobs:
 
       - name: Configure (MSVC)
         if: matrix.compiler == 'msvc'
+        shell: pwsh
         run: |
           cmake -S . -B build `
             -DBITCAL_BUILD_TESTS=ON `
