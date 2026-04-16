@@ -141,13 +141,16 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
         hi = vsetq_lane_u64(carry, hi, 0);
         
         if (count > 64) {
-            count -= 64;
-            lo = vshlq_n_u64(lo, count);
-            
+            int shift = count - 64;
+            uint64_t lo_lo_val = vgetq_lane_u64(lo, 0);
+            uint64_t lo_hi_val = vgetq_lane_u64(lo, 1);
+            lo = vsetq_lane_u64(lo_lo_val << shift, lo, 0);
+            lo = vsetq_lane_u64(lo_hi_val << shift, lo, 1);
+
             uint64_t hi_lo_val = vgetq_lane_u64(hi, 0);
             uint64_t hi_hi_val = vgetq_lane_u64(hi, 1);
-            uint64_t new_hi_lo = (hi_lo_val << count);
-            uint64_t new_hi_hi = (hi_hi_val << count) | (hi_lo_val >> (64 - count));
+            uint64_t new_hi_lo = (hi_lo_val << shift);
+            uint64_t new_hi_hi = (hi_hi_val << shift) | (hi_lo_val >> (64 - shift));
             hi = vsetq_lane_u64(new_hi_lo, hi, 0);
             hi = vsetq_lane_u64(new_hi_hi, hi, 1);
         }
@@ -192,13 +195,16 @@ BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
         lo = vsetq_lane_u64(vgetq_lane_u64(lo, 1), lo, 0);
         
         if (count > 64) {
-            count -= 64;
-            hi = vshrq_n_u64(hi, count);
-            
+            int shift = count - 64;
+            uint64_t hi_lo_val = vgetq_lane_u64(hi, 0);
+            uint64_t hi_hi_val = vgetq_lane_u64(hi, 1);
+            hi = vsetq_lane_u64(hi_lo_val >> shift, hi, 0);
+            hi = vsetq_lane_u64(hi_hi_val >> shift, hi, 1);
+
             uint64_t lo_lo_val = vgetq_lane_u64(lo, 0);
             uint64_t lo_hi_val = vgetq_lane_u64(lo, 1);
-            lo = vsetq_lane_u64((lo_lo_val >> count) | (lo_hi_val << (64 - count)), lo, 0);
-            lo = vsetq_lane_u64(lo_hi_val >> count, lo, 1);
+            lo = vsetq_lane_u64((lo_lo_val >> shift) | (lo_hi_val << (64 - shift)), lo, 0);
+            lo = vsetq_lane_u64(lo_hi_val >> shift, lo, 1);
         }
     } else if (count > 0) {
         uint64_t lo_lo = vgetq_lane_u64(lo, 0);
@@ -451,10 +457,9 @@ BITCAL_FORCEINLINE void bit_andnot_512(const uint64_t* a, const uint64_t* b, uin
 
 BITCAL_FORCEINLINE bool is_zero_128(const uint64_t* data) noexcept {
     uint64x2_t v = load(data);
-    // vminvq_u64 returns the minimum value across all lanes
-    // If all lanes are zero, the minimum is zero
-    // If any lane is non-zero, the minimum will be non-zero (since values are unsigned)
-    return vminvq_u64(v) == 0;
+    uint64_t lo = vgetq_lane_u64(v, 0);
+    uint64_t hi = vgetq_lane_u64(v, 1);
+    return (lo | hi) == 0;
 }
 
 BITCAL_FORCEINLINE bool is_zero_256(const uint64_t* data) noexcept {
@@ -462,7 +467,9 @@ BITCAL_FORCEINLINE bool is_zero_256(const uint64_t* data) noexcept {
     uint64x2_t v1 = load(data + 2);
     // OR the two vectors together, then check if result is zero
     uint64x2_t combined = vorrq_u64(v0, v1);
-    return vminvq_u64(combined) == 0;
+    uint64_t lo = vgetq_lane_u64(combined, 0);
+    uint64_t hi = vgetq_lane_u64(combined, 1);
+    return (lo | hi) == 0;
 }
 
 BITCAL_FORCEINLINE bool is_zero_512(const uint64_t* data) noexcept {
@@ -470,7 +477,9 @@ BITCAL_FORCEINLINE bool is_zero_512(const uint64_t* data) noexcept {
     for (int i = 0; i < 4; ++i) {
         combined = vorrq_u64(combined, load(data + i * 2));
     }
-    return vminvq_u64(combined) == 0;
+    uint64_t lo = vgetq_lane_u64(combined, 0);
+    uint64_t hi = vgetq_lane_u64(combined, 1);
+    return (lo | hi) == 0;
 }
 
 }
