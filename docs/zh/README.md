@@ -5,31 +5,12 @@
 </p>
 
 <p align="center">
-  <a href="../setup/installation.md">📦 安装指南</a> •
-  <a href="../setup/quickstart.md">🚀 快速开始</a> •
-  <a href="../api/types.md">📚 API 参考</a> •
-  <a href="../architecture/overview.md">🏗️ 架构设计</a> •
+  <a href="getting-started/installation.md">📦 安装指南</a> •
+  <a href="getting-started/quickstart.md">🚀 快速开始</a> •
+  <a href="api/types.md">📚 API 参考</a> •
+  <a href="architecture/overview.md">🏗️ 架构设计</a> •
   <a href="../../specs/product/bit-manipulation-library.md">📋 产品规格</a>
 </p>
-
----
-
-## 文档结构重整
-
-BitCal 现在采用**规范驱动开发（SDD）**工作流。文档已重新组织：
-
-| 目录 | 用途 |
-|------|------|
-| `/docs/setup/` | 安装指南、快速入门、构建选项、迁移指南 |
-| `/docs/api/` | API 参考文档 |
-| `/docs/architecture/` | 架构说明和设计决策 |
-| `/docs/internal/` | 内部开发笔记（重构、发布详情） |
-| `/specs/product/` | 产品需求和验收标准 |
-| `/specs/rfc/` | 技术设计文档（RFC） |
-| `/specs/api/` | 公共 API 规范 |
-| `/specs/testing/` | 测试覆盖要求 |
-
-➡️ [查看完整文档索引](../README.md)
 
 ---
 
@@ -76,55 +57,87 @@ int main() {
 g++ -std=c++17 -O3 -march=native example.cpp -o example && ./example
 ```
 
-## 文档结构
+---
+
+## 文档索引
 
 ### 🚀 入门指南
-| 文档 | 描述 | 难度 |
-|------|------|------|
-| [安装指南](getting-started/installation.md) | 系统要求、安装方法和验证步骤 | ⭐ 入门 |
-| [快速开始](getting-started/quickstart.md) | 第一个 BitCal 程序、核心概念和常见用法 | ⭐ 入门 |
-| [构建选项](getting-started/build-options.md) | 编译器标志、CMake 集成和优化建议 | ⭐⭐ 进阶 |
+
+| 文档 | 描述 |
+|------|------|
+| [安装指南](getting-started/installation.md) | 系统要求、安装方法、验证步骤 |
+| [快速开始](getting-started/quickstart.md) | 第一个 BitCal 程序、核心概念和常见用法 |
+| [构建选项](getting-started/build-options.md) | 编译器标志、CMake 集成和优化建议 |
 
 ### 📚 API 参考
-| 文档 | 描述 | 状态 |
-|------|------|------|
-| [类型](api/types.md) | `bitarray` 模板、类型别名、内存布局 | 完整 |
-| [核心运算](api/core-operations.md) | 与、或、异或、非、ANDNOT、比较、状态检测 | 完整 |
-| [位移操作](api/shift-operations.md) | 左移、右移、跨字进位处理 | 完整 |
-| [位计数](api/bit-counting.md) | `popcount()`、前导零、尾部零，支持硬件加速 | 完整 |
-| [位操作](api/bit-manipulation.md) | 获取/设置/翻转位、`reverse()`、`clear()` | 完整 |
-| [SIMD 后端](api/simd-backend.md) | 后端选择、平台检测、强制指定后端 | 完整 |
-| [Ops 命名空间](api/ops-namespace.md) | 面向原始指针的低级函数式 API | 完整 |
+
+| 文档 | 描述 |
+|------|------|
+| [类型](api/types.md) | `bitarray` 模板、类型别名、内存布局 |
+| [核心运算](api/core-operations.md) | 与、或、异或、非、ANDNOT、比较、状态检测 |
+| [位移操作](api/shift-operations.md) | 左移、右移、跨字进位处理 |
+| [位计数](api/bit-counting.md) | `popcount()`、前导零、尾部零，支持硬件加速 |
+| [位操作](api/bit-manipulation.md) | 获取/设置/翻转位、`reverse()`、`clear()` |
+| [SIMD 后端](api/simd-backend.md) | 后端选择、平台检测、强制指定后端 |
+| [Ops 命名空间](api/ops-namespace.md) | 面向原始指针的低级函数式 API |
 
 ### 🏗️ 架构设计
-| 文档 | 描述 | 受众 |
-|------|------|------|
-| [概述](architecture/overview.md) | 设计原则、文件结构、性能特性 | 所有用户 |
-| [SIMD 分派](architecture/simd-dispatch.md) | 编译期分派机制、后端选择逻辑 | 高级用户 |
-| [平台支持](architecture/platform-support.md) | 支持的平台、编译器和架构 | 所有用户 |
+
+| 文档 | 描述 |
+|------|------|
+| [概述](architecture/overview.md) | 设计原则、文件结构、性能特性 |
+| [SIMD 分派](architecture/simd-dispatch.md) | 编译期分派机制、后端选择逻辑 |
+| [平台支持](architecture/platform-support.md) | 支持的平台、编译器和架构 |
 
 ### 📝 版本发布说明
-| 版本 | 发布日期 | 亮点 |
-|------|----------|------|
-| [v2.1.0](changelog/v2.1.0.md) | 2026-02-27 | ANDNOT 运算、统一分派、性能提升 |
-| [v2.0.0](changelog/v2.0.0.md) | 2026-01-08 | 完全重写：纯头文件、基于模板、编译期分派 |
+
+| 版本 | 发布日期 |
+|------|----------|
+| [v2.1.0](changelog/v2.1.0.md) | 2026-04-16 |
+| [v2.0.0](changelog/v2.0.0.md) | 2026-01-08 |
+
+---
+
+## 规范文档
+
+本项目采用**规范驱动开发（SDD）**方法。所有规范文档位于 `/specs` 目录：
+
+| 目录 | 用途 |
+|------|------|
+| [产品规格](../../specs/product/bit-manipulation-library.md) | 功能需求和验收标准 |
+| [架构 RFC](../../specs/rfc/) | 技术设计文档 |
+| [API 规范](../../specs/api/bitcal-public-api.md) | 公共接口规范 |
+| [测试规范](../../specs/testing/bitcal-testing-spec.md) | 测试覆盖要求 |
+
+---
+
+## 核心类型
+
+| 类型 | 位宽 | 字数 | 最佳用途 |
+|------|------|------|----------|
+| `bitcal::bit64` | 64 位 | 1 | 机器字 |
+| `bitcal::bit128` | 128 位 | 2 | SSE2/NEON 原生位宽 |
+| `bitcal::bit256` | 256 位 | 4 | AVX2 原生位宽 |
+| `bitcal::bit512` | 512 位 | 8 | 大位宽并行运算 |
+| `bitcal::bit1024` | 1024 位 | 16 | 超大位宽运算 |
+
+## SIMD 性能
+
+| 平台 | 指令集 | 加速比 |
+|------|--------|--------|
+| x86-64 | AVX2 | 5-6× |
+| ARM | NEON | 2.5× |
+
+---
 
 ## 多语言支持
 
 本文档提供多种语言版本：
 
-- 🇨🇳 **[中文](README.md)**（当前）
-- 🇺🇸 **[English](../../en/README.md)** — English Version
+- 🇨🇳 **中文**（当前）
+- 🇺🇸 **[English](../en/README.md)** — English Version
 
-## 版本信息
-
-| 属性 | 值 |
-|------|-----|
-| **当前版本** | v2.1.0 |
-| **发布日期** | 2026年2月27日 |
-| **最低 C++ 标准** | C++17 |
-| **许可证** | MIT |
-| **依赖** | 无（纯头文件） |
+---
 
 ## 获取帮助
 
@@ -135,11 +148,7 @@ g++ -std=c++17 -O3 -march=native example.cpp -o example && ./example
 
 ## 参与贡献
 
-欢迎贡献！请参阅我们的[贡献指南](../../CONTRIBUTING.md)了解：
-- 代码风格和规范
-- 提交拉取请求流程
-- 报告问题
-- 功能需求
+欢迎贡献！请参阅我们的[贡献指南](../../CONTRIBUTING.md)了解详情。
 
 ---
 

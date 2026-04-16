@@ -135,7 +135,7 @@ int main() {
 - [📘 Types](docs/en/api/types.md) — `bitarray` template and type aliases
 - [🔧 Core Operations](docs/en/api/core-operations.md) — AND, OR, XOR, NOT, ANDNOT
 - [↔️ Shift Operations](docs/en/api/shift-operations.md) — Left and right shifts
-- #️⃣ [Bit Counting](docs/en/api/bit-counting.md) — popcount, CLZ, CTZ
+- [️⃣ Bit Counting](docs/en/api/bit-counting.md) — popcount, CLZ, CTZ
 - [🎛️ Bit Manipulation](docs/en/api/bit-manipulation.md) — get/set/flip bits, reverse
 - [💻 SIMD Backend](docs/en/api/simd-backend.md) — Backend selection
 - [🔩 Ops Namespace](docs/en/api/ops-namespace.md) — Low-level API
