@@ -1,26 +1,27 @@
 # BitCal
 
-[![CI](https://github.com/LessUp/bitcal/actions/workflows/ci.yml/badge.svg)](https://github.com/LessUp/bitcal/actions/workflows/ci.yml)
-[![Docs](https://github.com/LessUp/bitcal/actions/workflows/pages.yml/badge.svg)](https://lessup.github.io/bitcal/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
-[![Header-only](https://img.shields.io/badge/header--only-yes-green.svg)](#)
+<p align="center">
+  <strong>Modern, Cross-Platform, SIMD-Accelerated Bit Manipulation Library for C++17</strong>
+</p>
 
-**A modern, cross-platform, high-performance bit manipulation library with SIMD acceleration.**
+<p align="center">
+  <a href="https://github.com/LessUp/bitcal/actions/workflows/ci.yml"><img src="https://github.com/LessUp/bitcal/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://lessup.github.io/bitcal/"><img src="https://img.shields.io/badge/docs-Doxygen-blue.svg" alt="Docs"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+  <a href="https://en.cppreference.com/w/cpp/17"><img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg" alt="C++17"></a>
+  <a href="#installation"><img src="https://img.shields.io/badge/header--only-yes-green.svg" alt="Header-only"></a>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/version-2.1.0-blue.svg" alt="Version"></a>
+</p>
 
-English | [简体中文](README.zh-CN.md)
+<p align="center">
+  <strong>English</strong> | <a href="README.zh-CN.md">简体中文</a>
+</p>
 
 ---
 
-## Features
+## Overview
 
-- 🚀 **SIMD Acceleration** — Automatic selection of SSE2/AVX/AVX2/NEON based on CPU capabilities
-- ⚡ **Zero-overhead Abstraction** — Compile-time dispatch via C++17 `if constexpr`
-- 📦 **Header-only** — Just `#include <bitcal/bitcal.hpp>` and go
-- 🔧 **Rich API** — Bitwise ops, shifts, popcount, CLZ/CTZ, bit reversal, ANDNOT
-- 🌍 **Cross-platform** — Linux, Windows, macOS on x86 and ARM
-
-## Quick Start
+**BitCal** is a modern, high-performance C++17 header-only library for bit manipulation operations with automatic SIMD acceleration. Leveraging compile-time dispatch via `if constexpr`, BitCal delivers up to **6× performance improvement** over scalar implementations while maintaining zero runtime overhead.
 
 ```cpp
 #include <bitcal/bitcal.hpp>
@@ -28,173 +29,202 @@ English | [简体中文](README.zh-CN.md)
 int main() {
     bitcal::bit256 a(0xDEADBEEF);
     bitcal::bit256 b(0xCAFEBABE);
-
-    // Bitwise operations
-    auto c = a & b;           // AND
-    auto d = a | b;           // OR
-    auto e = a ^ b;           // XOR
-    auto f = ~a;              // NOT
-    auto g = a.andnot(b);     // a & ~b (native SIMD)
-
-    // Shifts
-    a <<= 10;                 // Left shift
-    b >>= 5;                  // Right shift
-
-    // Bit counting
-    uint64_t ones = a.popcount();
-    int lz = a.count_leading_zeros();
-    int tz = a.count_trailing_zeros();
-
-    // Bit manipulation
-    a.set_bit(42, true);      // Set bit 42
-    bool bit = a.get_bit(42); // Read bit 42
-    a.flip_bit(42);           // Flip bit 42
-    a.reverse();              // Reverse all bits
-
+    
+    auto c = a & b;           // SIMD-accelerated AND (~2.1ns)
+    auto pop = c.popcount();  // Hardware popcount
+    
     return 0;
 }
 ```
 
-## Installation
+## ✨ Features
 
-### Option 1: Header-only (Recommended)
+| Feature | Description | Performance Impact |
+|---------|-------------|-------------------|
+| 🚀 **SIMD Acceleration** | Automatic SSE2/AVX2 (x86) or NEON (ARM) selection | Up to 6× faster |
+| ⚡ **Zero Overhead** | Compile-time dispatch with `if constexpr` | No runtime cost |
+| 📦 **Header-Only** | Single `#include <bitcal/bitcal.hpp>` | Zero dependencies |
+| 🔧 **Rich API** | Bitwise ops, shifts, popcount, CLZ/CTZ, bit reversal, ANDNOT | Production-ready |
+| 🌍 **Cross-Platform** | Linux, Windows, macOS on x86-64 and ARM | Universal support |
+| 🏎️ **Type Safety** | Compile-time bit-width validation | Catch errors early |
+
+## 🚀 Quick Start
+
+### Installation
 
 ```bash
-cp -r include/bitcal /path/to/your/project/include/
+# Clone the repository
+git clone https://github.com/LessUp/bitcal.git
+
+# Copy headers to your project (header-only)
+cp -r bitcal/include/bitcal /path/to/your/project/include/
 ```
+
+### Compile
+
+```bash
+g++ -std=c++17 -O3 -march=native your_program.cpp -o your_program
+```
+
+### Example
 
 ```cpp
 #include <bitcal/bitcal.hpp>
+#include <iostream>
+
+int main() {
+    // Create 256-bit bit arrays
+    bitcal::bit256 a(0xFF00FF00FF00FF00);
+    bitcal::bit256 b(0x0FF00FF00FF00FF0);
+    
+    // Bitwise operations (SIMD-accelerated)
+    auto c = a & b;          // AND
+    auto d = a | b;          // OR  
+    auto e = a ^ b;          // XOR
+    auto f = ~a;             // NOT
+    auto g = a.andnot(b);    // a & ~b (~2× faster than a & ~b)
+    
+    // Shifts
+    a <<= 10;                // Left shift
+    b >>= 5;                 // Right shift
+    
+    // Bit counting
+    uint64_t ones = a.popcount();
+    int lz = a.count_leading_zeros();
+    int tz = a.count_trailing_zeros();
+    
+    // Single bit operations
+    a.set_bit(42, true);
+    bool bit = a.get_bit(42);
+    a.flip_bit(42);
+    a.reverse();
+    
+    std::cout << "Popcount: " << ones << std::endl;
+    return 0;
+}
 ```
 
-### Option 2: CMake Integration
+## 📊 Performance
 
-```bash
-git clone https://github.com/LessUp/bitcal.git
-cd bitcal && mkdir build && cd build
-cmake .. && make install
-```
-
-```cmake
-find_package(bitcal REQUIRED)
-target_link_libraries(your_target bitcal::bitcal)
-```
-
-## API Reference
-
-### Type Aliases
-
-| Type | Width | Storage |
-|------|-------|---------|
-| `bitcal::bit64` | 64 bits | 1 × `uint64_t` |
-| `bitcal::bit128` | 128 bits | 2 × `uint64_t` |
-| `bitcal::bit256` | 256 bits | 4 × `uint64_t` |
-| `bitcal::bit512` | 512 bits | 8 × `uint64_t` |
-| `bitcal::bit1024` | 1024 bits | 16 × `uint64_t` |
-
-### Core Operations
-
-| Operation | Description |
-|-----------|-------------|
-| `a & b`, `a \| b`, `a ^ b`, `~a` | Bitwise AND, OR, XOR, NOT |
-| `a.andnot(b)` | `a & ~b` using native SIMD instruction |
-| `a << n`, `a >> n` | Left/right shift |
-| `a.popcount()` | Count set bits |
-| `a.count_leading_zeros()` | Count leading zeros (CLZ) |
-| `a.count_trailing_zeros()` | Count trailing zeros (CTZ) |
-| `a.reverse()` | Reverse bit order |
-| `a.is_zero()` | Check if all bits are zero |
-| `a.get_bit(i)`, `a.set_bit(i, v)`, `a.flip_bit(i)` | Single bit operations |
-
-### SIMD Backends
-
-```cpp
-enum class simd_backend {
-    scalar,   // Portable fallback
-    sse2,     // x86 SSE2
-    avx,      // x86 AVX
-    avx2,     // x86 AVX2
-    avx512,   // x86 AVX-512 (falls back to AVX2)
-    neon      // ARM NEON
-};
-```
-
-Force a specific backend:
-```cpp
-bitcal::bitarray<256, bitcal::simd_backend::avx2> avx2_array;
-bitcal::bitarray<256, bitcal::simd_backend::scalar> portable_array;
-```
-
-## Performance
-
-Intel Core i7-12700K @ 3.6GHz (AVX2 backend):
+### Intel Core i7-12700K @ 3.6GHz (AVX2)
 
 | Operation | Scalar | AVX2 | Speedup |
 |-----------|--------|------|---------|
 | AND-256 | 12.3 ns | 2.1 ns | **5.9×** |
 | XOR-512 | 24.8 ns | 4.3 ns | **5.8×** |
-| ShiftLeft-256 | 18.6 ns | 5.2 ns | **3.6×** |
+| Shift Left-256 | 18.6 ns | 5.2 ns | **3.6×** |
 | Popcount-512 | 45.2 ns | 22.3 ns | **2.0×** |
+| is_zero-256 | 4.5 ns | 1.8 ns | **2.5×** |
 
-ARM Cortex-A72 @ 2.0GHz (NEON backend):
+### ARM Cortex-A72 @ 2.0GHz (NEON)
 
 | Operation | Scalar | NEON | Speedup |
 |-----------|--------|------|---------|
 | AND-128 | 8.4 ns | 3.2 ns | **2.6×** |
 | XOR-256 | 16.9 ns | 6.8 ns | **2.5×** |
+| Shift Left-128 | 12.3 ns | 6.8 ns | **1.8×** |
 
-## Platform Support
+## 📚 Documentation
 
-| Platform | Architecture | Compilers | Status |
-|----------|-------------|-----------|--------|
-| Linux | x86-64 | GCC 7+, Clang 6+ | ✅ CI verified |
-| Linux | ARM64 | GCC (cross-compile) | ✅ CI verified |
-| Linux | ARM32 | GCC (cross-compile) | ✅ CI verified |
-| Windows | x86-64 | MSVC 2017+ | ✅ CI verified |
-| macOS | x86-64 | Apple Clang | ✅ CI verified |
-| macOS | ARM64 | Apple Clang | ✅ CI verified |
+### Getting Started
+- [📖 Installation Guide](docs/en/getting-started/installation.md) — Setup and requirements
+- [🚀 Quick Start](docs/en/getting-started/quickstart.md) — Your first BitCal program
+- [⚙️ Build Options](docs/en/getting-started/build-options.md) — Compiler flags and optimization
 
-## Project Structure
+### API Reference
+- [📘 Types](docs/en/api/types.md) — `bitarray` template and type aliases
+- [🔧 Core Operations](docs/en/api/core-operations.md) — AND, OR, XOR, NOT, ANDNOT
+- [↔️ Shift Operations](docs/en/api/shift-operations.md) — Left and right shifts
+- #️⃣ [Bit Counting](docs/en/api/bit-counting.md) — popcount, CLZ, CTZ
+- [🎛️ Bit Manipulation](docs/en/api/bit-manipulation.md) — get/set/flip bits, reverse
+- [💻 SIMD Backend](docs/en/api/simd-backend.md) — Backend selection
+- [🔩 Ops Namespace](docs/en/api/ops-namespace.md) — Low-level API
+
+### Architecture
+- [🏗️ Overview](docs/en/architecture/overview.md) — Design principles
+- [⚡ SIMD Dispatch](docs/en/architecture/simd-dispatch.md) — Compile-time selection
+- [🖥️ Platform Support](docs/en/architecture/platform-support.md) — Compatibility matrix
+
+### Available Types
+
+| Type | Width | Words | Best For |
+|------|-------|-------|----------|
+| `bitcal::bit64` | 64-bit | 1 | Machine word |
+| `bitcal::bit128` | 128-bit | 2 | SSE2/NEON native |
+| `bitcal::bit256` | 256-bit | 4 | AVX2 native |
+| `bitcal::bit512` | 512-bit | 8 | Large parallel ops |
+| `bitcal::bit1024` | 1024-bit | 16 | Very large ops |
+
+Custom widths (multiple of 64):
+```cpp
+bitcal::bitarray<2048> custom;
+```
+
+## 🌍 Platform Support
+
+| Platform | Architecture | Compilers | SIMD | CI Status |
+|----------|--------------|-----------|------|-----------|
+| Linux | x86-64 | GCC 7+, Clang 6+ | SSE2/AVX2 | ✅ Verified |
+| Linux | ARM64 | GCC (cross) | NEON | ✅ Verified |
+| Linux | ARM32 | GCC (cross) | NEON | ✅ Verified |
+| Windows | x86-64 | MSVC 2017+ | SSE2/AVX2 | ✅ Verified |
+| macOS | x86-64 | Apple Clang | SSE2/AVX2 | ✅ Verified |
+| macOS | ARM64 (Apple Silicon) | Apple Clang | NEON | ✅ Verified |
+
+## 🏗️ Project Structure
 
 ```
 bitcal/
-├── include/bitcal/           # Header files
-│   ├── config.hpp            # Platform detection & macros
-│   ├── simd_traits.hpp       # SIMD type traits
-│   ├── scalar_ops.hpp        # Scalar implementation
-│   ├── sse_ops.hpp           # SSE2 implementation
-│   ├── avx_ops.hpp           # AVX2 implementation
-│   ├── neon_ops.hpp          # NEON implementation
-│   └── bitcal.hpp            # Main header
-├── tests/                    # Unit tests
-├── benchmarks/               # Performance benchmarks
-├── examples/                 # Usage examples
-├── gitbook/                  # Documentation
-└── changelog/                # Change logs
+├── include/bitcal/       # Header files (header-only library)
+│   ├── bitcal.hpp        # Main header (include this)
+│   ├── config.hpp        # Platform detection
+│   ├── simd_traits.hpp   # SIMD type traits
+│   ├── scalar_ops.hpp    # Scalar fallback
+│   ├── sse_ops.hpp       # SSE2 implementation
+│   ├── avx_ops.hpp       # AVX2 implementation
+│   └── neon_ops.hpp      # NEON implementation
+├── docs/                 # Documentation
+│   ├── en/               # English docs
+│   └── zh/               # 中文文档
+├── tests/                # Unit tests
+├── benchmarks/           # Performance benchmarks
+└── examples/             # Example programs
 ```
 
-## Requirements
+## 📦 Requirements
 
-- C++17 or later
-- CMake 3.16+ (for building tests/examples only)
-- Supported compilers: GCC 7+, Clang 6+, MSVC 2017+
+- **C++17** or later
+- **CMake 3.16+** (for tests/benchmarks)
+- **Supported Compilers**: GCC 7+, Clang 6+, MSVC 2017+
 
-## Documentation
+## 📝 Changelog
 
-- [Getting Started](gitbook/getting-started/quickstart.md)
-- [API Reference](gitbook/api/types.md)
-- [Architecture](gitbook/architecture/overview.md)
-- [Migration Guide](MIGRATION_GUIDE.md)
+See [CHANGELOG.md](CHANGELOG.md) for version history.
 
-## License
+### Latest Release: v2.1.0 (2026-02-27)
+
+- ✨ **New:** ANDNOT operation with native SIMD instructions
+- ⚡ **Performance:** Up to 2.3× faster `is_zero()`, 1.7× faster `~`
+- 🧪 **Testing:** Full bit1024 test coverage
+- 🔧 **Infrastructure:** ARM32 CI support
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## 📄 License
 
 MIT License — see [LICENSE](LICENSE) for details.
 
-## Contributing
+## 🙏 Acknowledgments
 
-Contributions are welcome! Please feel free to submit issues or pull requests.
+- Design inspired by [Boost.SIMD](https://github.com/boostorg/simd) and [xsimd](https://github.com/xtensor-stack/xsimd)
+- Performance testing with [Google Benchmark](https://github.com/google/benchmark)
 
-## Acknowledgments
+---
 
-- Inspired by design patterns from Boost.SIMD and xsimd
-- Uses Google Benchmark for performance testing (optional)
+<p align="center">
+  <a href="https://github.com/LessUp/bitcal">⭐ Star on GitHub</a> •
+  <a href="https://github.com/LessUp/bitcal/issues">🐛 Report Issue</a> •
+  <a href="https://github.com/LessUp/bitcal/discussions">💬 Discussions</a>
+</p>
