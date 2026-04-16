@@ -1,13 +1,12 @@
-name: Deploy Docs
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [master, main]
     paths:
-      - "gitbook/**"
-      - "README.md"
-      - "README.zh-CN.md"
-      - "CHANGELOG.md"
+      - "index.html"
+      - "404.html"
+      - "docs/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -25,24 +24,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            gitbook
-          sparse-checkout-cone-mode: false
-
+        
       - name: Setup Pages
         uses: actions/configure-pages@v5
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install honkit
-        run: npm install honkit
-
-      - name: Build docs
-        run: npx honkit build gitbook _site
-
+        
+      - name: Build Site Structure
+        run: |
+          # Create _site directory
+          mkdir -p _site
+          
+          # Copy main site files
+          cp index.html _site/
+          cp 404.html _site/
+          cp -r docs _site/
+          
+          # Copy other important files
+          cp README.md _site/ 2>/dev/null || true
+          cp README.zh-CN.md _site/ 2>/dev/null || true
+          cp CHANGELOG.md _site/ 2>/dev/null || true
+          cp CHANGELOG.zh-CN.md _site/ 2>/dev/null || true
+          cp LICENSE _site/ 2>/dev/null || true
+          
+          # List structure for debugging
+          echo "=== _site structure ==="
+          find _site -type f | head -50
+          
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
