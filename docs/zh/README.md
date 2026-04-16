@@ -5,11 +5,31 @@
 </p>
 
 <p align="center">
-  <a href="getting-started/installation.md">📦 安装指南</a> •
-  <a href="getting-started/quickstart.md">🚀 快速开始</a> •
-  <a href="api/types.md">📚 API 参考</a> •
-  <a href="architecture/overview.md">🏗️ 架构设计</a>
+  <a href="../setup/installation.md">📦 安装指南</a> •
+  <a href="../setup/quickstart.md">🚀 快速开始</a> •
+  <a href="../api/types.md">📚 API 参考</a> •
+  <a href="../architecture/overview.md">🏗️ 架构设计</a> •
+  <a href="../../specs/product/bit-manipulation-library.md">📋 产品规格</a>
 </p>
+
+---
+
+## 文档结构重整
+
+BitCal 现在采用**规范驱动开发（SDD）**工作流。文档已重新组织：
+
+| 目录 | 用途 |
+|------|------|
+| `/docs/setup/` | 安装指南、快速入门、构建选项、迁移指南 |
+| `/docs/api/` | API 参考文档 |
+| `/docs/architecture/` | 架构说明和设计决策 |
+| `/docs/internal/` | 内部开发笔记（重构、发布详情） |
+| `/specs/product/` | 产品需求和验收标准 |
+| `/specs/rfc/` | 技术设计文档（RFC） |
+| `/specs/api/` | 公共 API 规范 |
+| `/specs/testing/` | 测试覆盖要求 |
+
+➡️ [查看完整文档索引](../README.md)
 
 ---
 

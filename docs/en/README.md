@@ -5,11 +5,31 @@
 </p>
 
 <p align="center">
-  <a href="getting-started/installation.md">📦 Installation</a> •
-  <a href="getting-started/quickstart.md">🚀 Quick Start</a> •
-  <a href="api/types.md">📚 API Reference</a> •
-  <a href="architecture/overview.md">🏗️ Architecture</a>
+  <a href="../setup/installation.md">📦 Installation</a> •
+  <a href="../setup/quickstart.md">🚀 Quick Start</a> •
+  <a href="../api/types.md">📚 API Reference</a> •
+  <a href="../architecture/overview.md">🏗️ Architecture</a> •
+  <a href="../../specs/product/bit-manipulation-library.md">📋 Product Spec</a>
 </p>
+
+---
+
+## Documentation Reorganization
+
+BitCal now follows a **Spec-Driven Development (SDD)** workflow. Documentation has been reorganized:
+
+| Directory | Purpose |
+|-----------|---------|
+| `/docs/setup/` | Installation, quickstart, build options, migration guide |
+| `/docs/api/` | API reference documentation |
+| `/docs/architecture/` | Architecture explanations and design decisions |
+| `/docs/internal/` | Internal development notes (refactoring, release details) |
+| `/specs/product/` | Product requirements and acceptance criteria |
+| `/specs/rfc/` | Technical design documents (RFCs) |
+| `/specs/api/` | Public API specifications |
+| `/specs/testing/` | Test coverage requirements |
+
+➡️ [View Full Documentation Index](../README.md)
 
 ---
 
