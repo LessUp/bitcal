@@ -5,6 +5,16 @@ option(BITCAL_BUILD_TESTS "Build tests" ON)
 option(BITCAL_BUILD_EXAMPLES "Build examples" ON)
 option(BITCAL_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(BITCAL_NATIVE_ARCH "Use -march=native or equivalent for tests/examples" ON)
+option(BITCAL_ENABLE_LTO "Enable Link Time Optimization" ON)
+option(BITCAL_ENABLE_HARDENING "Enable security hardening flags" OFF)
+
+# Compiler checks
+include(CheckCXXCompilerFlag)
+include(CheckIPOSupported)
+
+# Check for compiler features
+check_cxx_compiler_flag("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
+check_cxx_compiler_flag("-mtune=native" COMPILER_SUPPORTS_MTUNE_NATIVE)
 
 add_library(bitcal INTERFACE)
 
@@ -42,6 +52,34 @@ endif()
 
 if(BITCAL_BUILD_BENCHMARKS)
   add_subdirectory(benchmarks)
+endif()
+
+# Link Time Optimization support
+if(BITCAL_ENABLE_LTO)
+  check_ipo_supported(RESULT ipo_supported OUTPUT ipo_output)
+  if(ipo_supported)
+    message(STATUS "Link Time Optimization enabled")
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+  else()
+    message(STATUS "Link Time Optimization not supported: ${ipo_output}")
+  endif()
+endif()
+
+# Security hardening flags
+if(BITCAL_ENABLE_HARDENING)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
+    target_compile_options(bitcal INTERFACE
+      -D_FORTIFY_SOURCE=2
+      -fstack-protector-strong
+      -Wformat
+      -Wformat-security
+    )
+    target_link_options(bitcal INTERFACE
+      -Wl,-z,relro
+      -Wl,-z,now
+      -Wl,-z,noexecstack
+    )
+  endif()
 endif()
 
 include(GNUInstallDirs)

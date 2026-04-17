@@ -51,7 +51,7 @@ BITCAL_FORCEINLINE __m256i shift_right_64(__m256i a, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
-    if (count == 0) return;
+    if (count <= 0) return;
     if (count >= 256) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), _mm256_setzero_si256());
         return;
@@ -63,7 +63,7 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
         data[1] = 0;
         data[0] = 0;
         count -= 128;
-        if (count == 0) return;
+        if (count <= 0) return;
     }
     
     if (count >= 64) {
@@ -72,7 +72,7 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
         data[1] = data[0];
         data[0] = 0;
         count -= 64;
-        if (count == 0) return;
+        if (count <= 0) return;
     }
     
     __m256i v = load(data);
@@ -86,7 +86,7 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
-    if (count == 0) return;
+    if (count <= 0) return;
     if (count >= 256) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), _mm256_setzero_si256());
         return;
@@ -98,7 +98,7 @@ BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
         data[2] = 0;
         data[3] = 0;
         count -= 128;
-        if (count == 0) return;
+        if (count <= 0) return;
     }
     
     if (count >= 64) {
@@ -107,7 +107,7 @@ BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
         data[2] = data[3];
         data[3] = 0;
         count -= 64;
-        if (count == 0) return;
+        if (count <= 0) return;
     }
     
     __m256i v = load(data);
@@ -139,7 +139,7 @@ BITCAL_FORCEINLINE void bit_xor_256(const uint64_t* a, const uint64_t* b, uint64
 }
 
 BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
-    if (count == 0) return;
+    if (count <= 0) return;
     if (count >= 512) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), _mm256_setzero_si256());
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data + 4), _mm256_setzero_si256());
@@ -184,7 +184,7 @@ BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_right_512(uint64_t* data, int count) noexcept {
-    if (count == 0) return;
+    if (count <= 0) return;
     if (count >= 512) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), _mm256_setzero_si256());
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data + 4), _mm256_setzero_si256());
@@ -292,6 +292,62 @@ BITCAL_FORCEINLINE void bit_andnot_512(const uint64_t* a, const uint64_t* b, uin
     __m256i b1 = load(b + 4);
     store(out, _mm256_andnot_si256(b0, a0));
     store(out + 4, _mm256_andnot_si256(b1, a1));
+}
+
+// ============================================================================
+// Popcount using SSSE3 lookup table approach (optimized for AVX2)
+// ============================================================================
+
+BITCAL_FORCEINLINE uint64_t popcount_256(const uint64_t* data) noexcept {
+    // Load 256 bits
+    __m256i v = load(data);
+    
+    // Use the same algorithm as scalar but vectorized
+    // Extract each 64-bit lane and use builtin popcount
+    // This is simple and portable, while still being faster than scalar loop
+    return scalar::popcount(_mm256_extract_epi64(v, 0)) +
+           scalar::popcount(_mm256_extract_epi64(v, 1)) +
+           scalar::popcount(_mm256_extract_epi64(v, 2)) +
+           scalar::popcount(_mm256_extract_epi64(v, 3));
+}
+
+BITCAL_FORCEINLINE uint64_t popcount_512(const uint64_t* data) noexcept {
+    __m256i v0 = load(data);
+    __m256i v1 = load(data + 4);
+    
+    return scalar::popcount(_mm256_extract_epi64(v0, 0)) +
+           scalar::popcount(_mm256_extract_epi64(v0, 1)) +
+           scalar::popcount(_mm256_extract_epi64(v0, 2)) +
+           scalar::popcount(_mm256_extract_epi64(v0, 3)) +
+           scalar::popcount(_mm256_extract_epi64(v1, 0)) +
+           scalar::popcount(_mm256_extract_epi64(v1, 1)) +
+           scalar::popcount(_mm256_extract_epi64(v1, 2)) +
+           scalar::popcount(_mm256_extract_epi64(v1, 3));
+}
+
+// ============================================================================
+// Equality comparison using SIMD
+// ============================================================================
+
+BITCAL_FORCEINLINE bool equals_256(const uint64_t* a, const uint64_t* b) noexcept {
+    __m256i va = load(a);
+    __m256i vb = load(b);
+    __m256i cmp = _mm256_cmpeq_epi64(va, vb);
+    // Check if all 4 elements are equal (cmp result is all ones)
+    return _mm256_testc_si256(cmp, _mm256_set1_epi32(-1)) != 0;
+}
+
+BITCAL_FORCEINLINE bool equals_512(const uint64_t* a, const uint64_t* b) noexcept {
+    __m256i va0 = load(a);
+    __m256i va1 = load(a + 4);
+    __m256i vb0 = load(b);
+    __m256i vb1 = load(b + 4);
+    
+    __m256i cmp0 = _mm256_cmpeq_epi64(va0, vb0);
+    __m256i cmp1 = _mm256_cmpeq_epi64(va1, vb1);
+    
+    __m256i combined = _mm256_and_si256(cmp0, cmp1);
+    return _mm256_testc_si256(combined, _mm256_set1_epi32(-1)) != 0;
 }
 
 }

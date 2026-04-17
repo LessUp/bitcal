@@ -54,7 +54,7 @@ BITCAL_FORCEINLINE __m128i shift_right_64(__m128i a, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_left_128(uint64_t* data, int count) noexcept {
-    if (count == 0) return;
+    if (count <= 0) return;
     if (count >= 128) {
         data[0] = data[1] = 0;
         return;
@@ -76,7 +76,7 @@ BITCAL_FORCEINLINE void shift_left_128(uint64_t* data, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_right_128(uint64_t* data, int count) noexcept {
-    if (count == 0) return;
+    if (count <= 0) return;
     if (count >= 128) {
         data[0] = data[1] = 0;
         return;
@@ -116,7 +116,7 @@ BITCAL_FORCEINLINE void bit_xor_128(const uint64_t* a, const uint64_t* b, uint64
 }
 
 BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
-    if (count == 0) return;
+    if (count <= 0) return;
     if (count >= 256) {
         data[0] = data[1] = data[2] = data[3] = 0;
         return;
@@ -128,7 +128,7 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
         data[1] = 0;
         data[0] = 0;
         count -= 128;
-        if (count == 0) return;
+        if (count <= 0) return;
     }
     
     if (count >= 64) {
@@ -137,7 +137,7 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
         data[1] = data[0];
         data[0] = 0;
         count -= 64;
-        if (count == 0) return;
+        if (count <= 0) return;
     }
     
     __m128i lo = load(data);
@@ -162,7 +162,7 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
-    if (count == 0) return;
+    if (count <= 0) return;
     if (count >= 256) {
         data[0] = data[1] = data[2] = data[3] = 0;
         return;
@@ -174,7 +174,7 @@ BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
         data[2] = 0;
         data[3] = 0;
         count -= 128;
-        if (count == 0) return;
+        if (count <= 0) return;
     }
     
     if (count >= 64) {
@@ -183,7 +183,7 @@ BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
         data[2] = data[3];
         data[3] = 0;
         count -= 64;
-        if (count == 0) return;
+        if (count <= 0) return;
     }
     
     __m128i lo = load(data);
