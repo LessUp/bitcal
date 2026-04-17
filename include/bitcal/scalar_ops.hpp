@@ -7,11 +7,15 @@ namespace bitcal {
 namespace scalar {
 
 BITCAL_FORCEINLINE uint64_t shift_left(uint64_t value, int count) noexcept {
-    return (count < 64) ? (value << count) : 0;
+    if (count <= 0) return value;
+    if (count >= 64) return 0;
+    return value << count;
 }
 
 BITCAL_FORCEINLINE uint64_t shift_right(uint64_t value, int count) noexcept {
-    return (count < 64) ? (value >> count) : 0;
+    if (count <= 0) return value;
+    if (count >= 64) return 0;
+    return value >> count;
 }
 
 BITCAL_FORCEINLINE uint64_t bit_and(uint64_t a, uint64_t b) noexcept {
@@ -111,7 +115,7 @@ template<size_t N>
 BITCAL_FORCEINLINE void shift_left_array(uint64_t* data, int count) noexcept {
     static_assert(N > 0, "Array size must be positive");
     
-    if (count == 0) return;
+    if (count <= 0) return;
     if (count >= 64) {
         const int word_shift = count / 64;
         const int bit_shift = count % 64;
@@ -144,7 +148,7 @@ template<size_t N>
 BITCAL_FORCEINLINE void shift_right_array(uint64_t* data, int count) noexcept {
     static_assert(N > 0, "Array size must be positive");
     
-    if (count == 0) return;
+    if (count <= 0) return;
     if (count >= 64) {
         const int word_shift = count / 64;
         const int bit_shift = count % 64;
@@ -214,6 +218,115 @@ template<size_t N>
 BITCAL_FORCEINLINE void reverse_bits_array(const uint64_t* in, uint64_t* out) noexcept {
     for (size_t i = 0; i < N; ++i) {
         out[N - 1 - i] = reverse_bits(in[i]);
+    }
+}
+
+// ============================================================================
+// Equality comparison
+// ============================================================================
+
+template<size_t N>
+BITCAL_FORCEINLINE bool equals_array(const uint64_t* a, const uint64_t* b) noexcept {
+    for (size_t i = 0; i < N; ++i) {
+        if (a[i] != b[i]) return false;
+    }
+    return true;
+}
+
+// ============================================================================
+// Find first/last set bit
+// ============================================================================
+
+template<size_t N>
+[[nodiscard]] BITCAL_FORCEINLINE int find_first_set(const uint64_t* data) noexcept {
+    for (size_t i = 0; i < N; ++i) {
+        if (data[i] != 0) {
+            return static_cast<int>(i * 64 + count_trailing_zeros(data[i]));
+        }
+    }
+    return -1;  // No bits set
+}
+
+template<size_t N>
+[[nodiscard]] BITCAL_FORCEINLINE int find_last_set(const uint64_t* data) noexcept {
+    for (int i = static_cast<int>(N) - 1; i >= 0; --i) {
+        if (data[i] != 0) {
+            return i * 64 + (63 - count_leading_zeros(data[i]));
+        }
+    }
+    return -1;  // No bits set
+}
+
+// ============================================================================
+// Range operations
+// ============================================================================
+
+template<size_t N>
+BITCAL_FORCEINLINE void set_range(uint64_t* data, size_t start, size_t end) noexcept {
+    if (start >= end || start >= N * 64) return;
+    if (end > N * 64) end = N * 64;
+    
+    size_t start_word = start / 64;
+    size_t end_word = (end - 1) / 64;
+    size_t start_bit = start % 64;
+    size_t end_bit = (end - 1) % 64 + 1;
+    
+    if (start_word == end_word) {
+        size_t num_bits = end_bit - start_bit;
+        uint64_t mask = (num_bits == 64) ? ~0ULL : ((1ULL << num_bits) - 1) << start_bit;
+        data[start_word] |= mask;
+    } else {
+        data[start_word] |= ~0ULL << start_bit;
+        for (size_t i = start_word + 1; i < end_word; ++i) {
+            data[i] = ~0ULL;
+        }
+        data[end_word] |= (end_bit == 64) ? ~0ULL : ((1ULL << end_bit) - 1);
+    }
+}
+
+template<size_t N>
+BITCAL_FORCEINLINE void clear_range(uint64_t* data, size_t start, size_t end) noexcept {
+    if (start >= end || start >= N * 64) return;
+    if (end > N * 64) end = N * 64;
+    
+    size_t start_word = start / 64;
+    size_t end_word = (end - 1) / 64;
+    size_t start_bit = start % 64;
+    size_t end_bit = (end - 1) % 64 + 1;
+    
+    if (start_word == end_word) {
+        size_t num_bits = end_bit - start_bit;
+        uint64_t mask = (num_bits == 64) ? ~0ULL : ((1ULL << num_bits) - 1) << start_bit;
+        data[start_word] &= ~mask;
+    } else {
+        data[start_word] &= ~(~0ULL << start_bit);
+        for (size_t i = start_word + 1; i < end_word; ++i) {
+            data[i] = 0;
+        }
+        data[end_word] &= (end_bit == 64) ? 0ULL : ~((1ULL << end_bit) - 1);
+    }
+}
+
+template<size_t N>
+BITCAL_FORCEINLINE void flip_range(uint64_t* data, size_t start, size_t end) noexcept {
+    if (start >= end || start >= N * 64) return;
+    if (end > N * 64) end = N * 64;
+    
+    size_t start_word = start / 64;
+    size_t end_word = (end - 1) / 64;
+    size_t start_bit = start % 64;
+    size_t end_bit = (end - 1) % 64 + 1;
+    
+    if (start_word == end_word) {
+        size_t num_bits = end_bit - start_bit;
+        uint64_t mask = (num_bits == 64) ? ~0ULL : ((1ULL << num_bits) - 1) << start_bit;
+        data[start_word] ^= mask;
+    } else {
+        data[start_word] ^= ~0ULL << start_bit;
+        for (size_t i = start_word + 1; i < end_word; ++i) {
+            data[i] = ~data[i];
+        }
+        data[end_word] ^= (end_bit == 64) ? ~0ULL : ((1ULL << end_bit) - 1);
     }
 }
 

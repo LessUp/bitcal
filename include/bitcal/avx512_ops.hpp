@@ -55,7 +55,7 @@ BITCAL_FORCEINLINE __m512i shift_right_64(__m512i a, int count) noexcept {
 
 // 512-bit shift operations
 BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
-    if (count == 0) return;
+    if (count <= 0) return;
     if (count >= 512) {
         store(data, _mm512_setzero_si512());
         return;
@@ -95,7 +95,7 @@ BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_right_512(uint64_t* data, int count) noexcept {
-    if (count == 0) return;
+    if (count <= 0) return;
     if (count >= 512) {
         store(data, _mm512_setzero_si512());
         return;
@@ -135,7 +135,7 @@ BITCAL_FORCEINLINE void shift_right_512(uint64_t* data, int count) noexcept {
 
 // 256-bit operations using VL (Vector Length) extensions
 BITCAL_FORCEINLINE void shift_left_256_vl(uint64_t* data, int count) noexcept {
-    if (count == 0) return;
+    if (count <= 0) return;
     if (count >= 256) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), _mm256_setzero_si256());
         return;
@@ -147,7 +147,7 @@ BITCAL_FORCEINLINE void shift_left_256_vl(uint64_t* data, int count) noexcept {
         data[1] = 0;
         data[0] = 0;
         count -= 128;
-        if (count == 0) return;
+        if (count <= 0) return;
     }
 
     if (count >= 64) {
@@ -156,7 +156,7 @@ BITCAL_FORCEINLINE void shift_left_256_vl(uint64_t* data, int count) noexcept {
         data[1] = data[0];
         data[0] = 0;
         count -= 64;
-        if (count == 0) return;
+        if (count <= 0) return;
     }
 
     __m256i v = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));
@@ -172,7 +172,7 @@ BITCAL_FORCEINLINE void shift_left_256_vl(uint64_t* data, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_right_256_vl(uint64_t* data, int count) noexcept {
-    if (count == 0) return;
+    if (count <= 0) return;
     if (count >= 256) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), _mm256_setzero_si256());
         return;
@@ -184,7 +184,7 @@ BITCAL_FORCEINLINE void shift_right_256_vl(uint64_t* data, int count) noexcept {
         data[2] = 0;
         data[3] = 0;
         count -= 128;
-        if (count == 0) return;
+        if (count <= 0) return;
     }
 
     if (count >= 64) {
@@ -193,7 +193,7 @@ BITCAL_FORCEINLINE void shift_right_256_vl(uint64_t* data, int count) noexcept {
         data[2] = data[3];
         data[3] = 0;
         count -= 64;
-        if (count == 0) return;
+        if (count <= 0) return;
     }
 
     __m256i v = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));

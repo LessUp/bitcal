@@ -104,9 +104,22 @@ namespace bitcal {
     #define BITCAL_CONSTEXPR inline
 #endif
 
+// Optimal alignment based on bit width
+template<size_t Bits>
+constexpr size_t get_optimal_alignment() noexcept {
+    if constexpr (Bits <= 64) return 8;      // 64-bit: 8-byte alignment
+    else if constexpr (Bits <= 128) return 16; // 128-bit: 16-byte alignment (SSE)
+    else if constexpr (Bits <= 256) return 32; // 256-bit: 32-byte alignment (AVX)
+    else return 64;                            // 512-bit+: 64-byte alignment (AVX-512)
+}
+
 #ifndef BITCAL_ALIGNMENT
     #define BITCAL_ALIGNMENT 64
 #endif
+
+// Minimum alignment for any bitarray
+template<size_t Bits>
+constexpr size_t bitcal_alignment = get_optimal_alignment<Bits>();
 
 enum class simd_backend {
     scalar,
@@ -136,8 +149,8 @@ BITCAL_CONSTEXPR simd_backend get_default_backend() noexcept {
 #endif
 }
 
-template<typename T, size_t N>
-struct alignas(BITCAL_ALIGNMENT) aligned_array {
+template<typename T, size_t N, size_t Alignment = BITCAL_ALIGNMENT>
+struct alignas(Alignment) aligned_array {
     T data[N] = {};  // Zero-initialized by default
 };
 

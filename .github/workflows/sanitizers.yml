@@ -1,0 +1,50 @@
+name: Sanitizers
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sanitizers-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sanitizer:
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitizer: [address, undefined, thread]
+        exclude:
+          # Thread sanitizer is not compatible with address sanitizer
+          - sanitizer: ${{ github.event_name == 'pull_request' && 'thread' || '' }}
+
+    name: "${{ matrix.sanitizer }} sanitizer"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure with sanitizer
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_FLAGS="-fsanitize=${{ matrix.sanitizer }} -fno-omit-frame-pointer" \
+            -DCMAKE_C_FLAGS="-fsanitize=${{ matrix.sanitizer }} -fno-omit-frame-pointer" \
+            -DBITCAL_BUILD_TESTS=ON \
+            -DBITCAL_BUILD_EXAMPLES=OFF \
+            -DBITCAL_NATIVE_ARCH=OFF
+
+      - name: Build
+        run: cmake --build build --config Debug
+
+      - name: Test with sanitizer
+        run: ctest --test-dir build --output-on-failure -C Debug
+        env:
+          # Suppress leak sanitizer in GitHub Actions environment
+          ASAN_OPTIONS: detect_leaks=0
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1

@@ -704,6 +704,167 @@ bool test_static_assert_validation() {
     return true;
 }
 
+// ========== Find First/Last Set tests ==========
+
+bool test_find_first_set() {
+    bitcal::bit256 a;
+    a[0] = 0; a[1] = 0; a[2] = 0x10; a[3] = 0;
+    ASSERT_EQ(a.find_first_set(), 132);  // 128 + 4
+    
+    bitcal::bit64 b(0x8);
+    ASSERT_EQ(b.find_first_set(), 3);
+    
+    bitcal::bit64 c(0);
+    ASSERT_EQ(c.find_first_set(), -1);
+    
+    bitcal::bit64 d(1);
+    ASSERT_EQ(d.find_first_set(), 0);
+    
+    return true;
+}
+
+bool test_find_last_set() {
+    bitcal::bit256 a;
+    a[0] = 0; a[1] = 0x80; a[2] = 0; a[3] = 0;
+    ASSERT_EQ(a.find_last_set(), 71);  // 64 + 7 (bit 7 of word 1)
+    
+    bitcal::bit64 b(0x8000000000000000ULL);
+    ASSERT_EQ(b.find_last_set(), 63);
+    
+    bitcal::bit64 c(0);
+    ASSERT_EQ(c.find_last_set(), -1);
+    
+    bitcal::bit64 d(1);
+    ASSERT_EQ(d.find_last_set(), 0);
+    
+    return true;
+}
+
+// ========== Range operations tests ==========
+
+bool test_range_operations() {
+    // Test set_range
+    bitcal::bit256 a;
+    a.set_range(10, 20);
+    ASSERT_TRUE(a.get_bit(10));
+    ASSERT_TRUE(a.get_bit(19));
+    ASSERT_TRUE(!a.get_bit(9));
+    ASSERT_TRUE(!a.get_bit(20));
+    ASSERT_EQ(a.popcount(), 10);
+    
+    // Test clear_range
+    bitcal::bit256 b;
+    b[0] = ~0ULL; b[1] = ~0ULL; b[2] = ~0ULL; b[3] = ~0ULL;
+    b.clear_range(10, 20);
+    ASSERT_TRUE(!b.get_bit(10));
+    ASSERT_TRUE(!b.get_bit(19));
+    ASSERT_TRUE(b.get_bit(9));
+    ASSERT_TRUE(b.get_bit(20));
+    ASSERT_EQ(b.popcount(), 246);  // 256 - 10
+    
+    // Test flip_range
+    bitcal::bit256 c;
+    c[0] = 0xFFFFFFFFULL;  // Lower 32 bits set
+    c.flip_range(0, 16);
+    ASSERT_EQ(c[0] & 0xFFFF, 0);  // Lower 16 bits cleared
+    ASSERT_EQ((c[0] >> 16) & 0xFFFF, 0xFFFF);  // Upper 16 bits still set
+    
+    // Test cross-word range
+    bitcal::bit256 d;
+    d.set_range(60, 68);  // 60-63 in word 0, 64-67 in word 1
+    ASSERT_TRUE(d.get_bit(60));
+    ASSERT_TRUE(d.get_bit(63));
+    ASSERT_TRUE(d.get_bit(64));
+    ASSERT_TRUE(d.get_bit(67));
+    ASSERT_EQ(d.popcount(), 8);
+    
+    return true;
+}
+
+// ========== Bit64 specialization tests ==========
+
+bool test_bit64_specialization() {
+    // Basic operations
+    bitcal::bit64 a(0xDEADBEEFCAFEBABEULL);
+    ASSERT_EQ(a[0], 0xDEADBEEFCAFEBABEULL);
+    ASSERT_EQ(static_cast<uint64_t>(a), 0xDEADBEEFCAFEBABEULL);
+    
+    // Bit operations
+    bitcal::bit64 b;
+    b.set_bit(5);
+    ASSERT_TRUE(b.get_bit(5));
+    b.clear_range(0, 64);
+    ASSERT_TRUE(b.is_zero());
+    
+    // Popcount
+    bitcal::bit64 c(0xFFFFFFFFFFFFFFFFULL);
+    ASSERT_EQ(c.popcount(), 64);
+    ASSERT_EQ(c.count(), 64);
+    
+    // Find first/last set
+    bitcal::bit64 d(0x10);
+    ASSERT_EQ(d.find_first_set(), 4);
+    ASSERT_EQ(d.find_last_set(), 4);
+    
+    // Query methods
+    bitcal::bit64 e(0xFFFFFFFFFFFFFFFFULL);
+    ASSERT_TRUE(e.all());
+    ASSERT_TRUE(e.any());
+    ASSERT_TRUE(!e.none());
+    
+    bitcal::bit64 f(0);
+    ASSERT_TRUE(!f.all());
+    ASSERT_TRUE(!f.any());
+    ASSERT_TRUE(f.none());
+    
+    // Size
+    ASSERT_EQ(bitcal::bit64::size(), 64);
+    ASSERT_EQ(b.size(), 64);
+    
+    return true;
+}
+
+// ========== Query methods tests ==========
+
+bool test_query_methods() {
+    // all(), any(), none()
+    bitcal::bit256 a;
+    a[0] = ~0ULL; a[1] = ~0ULL; a[2] = ~0ULL; a[3] = ~0ULL;
+    ASSERT_TRUE(a.all());
+    ASSERT_TRUE(a.any());
+    ASSERT_TRUE(!a.none());
+    
+    bitcal::bit256 b;
+    b[2] = 1;
+    ASSERT_TRUE(!b.all());
+    ASSERT_TRUE(b.any());
+    ASSERT_TRUE(!b.none());
+    
+    bitcal::bit256 c;
+    ASSERT_TRUE(!c.all());
+    ASSERT_TRUE(!c.any());
+    ASSERT_TRUE(c.none());
+    
+    // count() - alias for popcount
+    bitcal::bit256 d;
+    d[0] = 0xFFFFFFFF;
+    ASSERT_EQ(d.count(), 32);
+    ASSERT_EQ(d.count(), d.popcount());
+    
+    // size()
+    ASSERT_EQ(bitcal::bit64::size(), 64);
+    ASSERT_EQ(bitcal::bit256::size(), 256);
+    ASSERT_EQ(bitcal::bit1024::size(), 1024);
+    
+    // test() - alias for get_bit
+    bitcal::bit256 e;
+    e.set_bit(100);
+    ASSERT_TRUE(e.test(100));
+    ASSERT_TRUE(!e.test(101));
+    
+    return true;
+}
+
 // ========== main ==========
 
 int main() {
@@ -774,6 +935,19 @@ int main() {
 
     std::cout << std::endl << "[Static Assert Validation]" << std::endl;
     RUN_TEST(test_static_assert_validation);
+
+    std::cout << std::endl << "[Find First/Last Set]" << std::endl;
+    RUN_TEST(test_find_first_set);
+    RUN_TEST(test_find_last_set);
+
+    std::cout << std::endl << "[Range Operations]" << std::endl;
+    RUN_TEST(test_range_operations);
+
+    std::cout << std::endl << "[Bit64 Specialization]" << std::endl;
+    RUN_TEST(test_bit64_specialization);
+
+    std::cout << std::endl << "[Query Methods]" << std::endl;
+    RUN_TEST(test_query_methods);
 
     std::cout << std::endl << "==============================" << std::endl;
     std::cout << "Total: " << (g_pass + g_fail)
