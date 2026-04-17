@@ -35,7 +35,7 @@ jobs:
             compiler: msvc
             name: "Windows x64 MSVC"
 
-          - os: macos-14
+          - os: macos-13
             compiler: appleclang
             cxx: clang++
             cc: clang

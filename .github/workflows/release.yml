@@ -75,7 +75,7 @@ jobs:
           - os: windows-latest
             name: windows-x64
             ext: zip
-          - os: macos-14
+          - os: macos-13
             name: macos-x64
             ext: tar.gz
           - os: macos-latest

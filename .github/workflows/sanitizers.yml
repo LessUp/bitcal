@@ -18,10 +18,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sanitizer: [address, undefined, thread]
-        exclude:
-          # Thread sanitizer is not compatible with address sanitizer
-          - sanitizer: ${{ github.event_name == 'pull_request' && 'thread' || '' }}
+        include:
+          - sanitizer: address
+          - sanitizer: undefined
+          - sanitizer: thread
 
     name: "${{ matrix.sanitizer }} sanitizer"
     runs-on: ubuntu-latest
