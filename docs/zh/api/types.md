@@ -430,6 +430,6 @@ int main() {
 
 ## 另请参阅
 
-- [核心运算](core-operations.md) — 位运算操作
-- [SIMD 后端](simd-backend.md) — 后端选择详情
-- [架构设计概述](../architecture/overview.md) — 设计原则
+- [核心运算](core-operations.html) — 位运算操作
+- [SIMD 后端](simd-backend.html) — 后端选择详情
+- [架构设计概述](../architecture/overview.html) — 设计原则

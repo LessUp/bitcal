@@ -339,10 +339,10 @@ int main() {
 
 | Topic | Document | Description |
 |-------|----------|-------------|
-| Complete API | [Types](../api/types.md) | All types and their details |
-| Operations | [Core Operations](../api/core-operations.md) | Bitwise operations reference |
-| Performance | [Architecture](../architecture/overview.md) | Design and optimization |
-| Troubleshooting | [Installation](installation.md) | Common issues and solutions |
+| Complete API | [Types](../api/types.html) | All types and their details |
+| Operations | [Core Operations](../api/core-operations.html) | Bitwise operations reference |
+| Performance | [Architecture](../architecture/overview.html) | Design and optimization |
+| Troubleshooting | [Installation](installation.html) | Common issues and solutions |
 
 ---
 

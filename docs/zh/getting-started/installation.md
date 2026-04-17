@@ -350,9 +350,9 @@ cmake -DCMAKE_PREFIX_PATH=/path/to/bitcal/install ..
 
 ## 下一步
 
-- 🚀 [快速开始](quickstart.md) — 编写第一个 BitCal 程序
-- 📚 [API 参考](../api/types.md) — 探索完整 API
-- 🏗️ [架构设计](../architecture/overview.md) — 了解设计原理
+- 🚀 [快速开始](quickstart.html) — 编写第一个 BitCal 程序
+- 📚 [API 参考](../api/types.html) — 探索完整 API
+- 🏗️ [架构设计](../architecture/overview.html) — 了解设计原理
 
 ---
 

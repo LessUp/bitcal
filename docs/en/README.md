@@ -65,36 +65,36 @@ g++ -std=c++17 -O3 -march=native example.cpp -o example && ./example
 
 | Document | Description |
 |----------|-------------|
-| [Installation Guide](getting-started/installation.md) | System requirements, installation methods, verification |
-| [Quick Start](getting-started/quickstart.md) | First BitCal program, core concepts, common patterns |
-| [Build Options](getting-started/build-options.md) | Compiler flags, CMake integration, optimization tips |
+| [Installation Guide](getting-started/installation.html) | System requirements, installation methods, verification |
+| [Quick Start](getting-started/quickstart.html) | First BitCal program, core concepts, common patterns |
+| [Build Options](getting-started/build-options.html) | Compiler flags, CMake integration, optimization tips |
 
 ### 📚 API Reference
 
 | Document | Description |
 |----------|-------------|
-| [Types](api/types.md) | `bitarray` template, type aliases, memory layout |
-| [Core Operations](api/core-operations.md) | AND, OR, XOR, NOT, ANDNOT, comparison, state detection |
-| [Shift Operations](api/shift-operations.md) | Left/right shifts with cross-word carry |
-| [Bit Counting](api/bit-counting.md) | `popcount()`, `clz()`, `ctz()` with hardware acceleration |
-| [Bit Manipulation](api/bit-manipulation.md) | get/set/flip bits, `reverse()`, `clear()` |
-| [SIMD Backend](api/simd-backend.md) | Backend selection, platform detection, forcing backends |
-| [Ops Namespace](api/ops-namespace.md) | Low-level functional API for raw pointer operations |
+| [Types](api/types.html) | `bitarray` template, type aliases, memory layout |
+| [Core Operations](api/core-operations.html) | AND, OR, XOR, NOT, ANDNOT, comparison, state detection |
+| [Shift Operations](api/shift-operations.html) | Left/right shifts with cross-word carry |
+| [Bit Counting](api/bit-counting.html) | `popcount()`, `clz()`, `ctz()` with hardware acceleration |
+| [Bit Manipulation](api/bit-manipulation.html) | get/set/flip bits, `reverse()`, `clear()` |
+| [SIMD Backend](api/simd-backend.html) | Backend selection, platform detection, forcing backends |
+| [Ops Namespace](api/ops-namespace.html) | Low-level functional API for raw pointer operations |
 
 ### 🏗️ Architecture
 
 | Document | Description |
 |----------|-------------|
-| [Overview](architecture/overview.md) | Design principles, file structure, performance characteristics |
-| [SIMD Dispatch](architecture/simd-dispatch.md) | Compile-time dispatch mechanism, backend selection logic |
-| [Platform Support](architecture/platform-support.md) | Supported platforms, compilers, and architectures |
+| [Overview](architecture/overview.html) | Design principles, file structure, performance characteristics |
+| [SIMD Dispatch](architecture/simd-dispatch.html) | Compile-time dispatch mechanism, backend selection logic |
+| [Platform Support](architecture/platform-support.html) | Supported platforms, compilers, and architectures |
 
 ### 📝 Changelog
 
 | Version | Release Date |
 |---------|--------------|
-| [v2.1.0](changelog/v2.1.0.md) | 2026-04-16 |
-| [v2.0.0](changelog/v2.0.0.md) | 2026-01-08 |
+| [v2.1.0](changelog/v2.1.0.html) | 2026-04-16 |
+| [v2.0.0](changelog/v2.0.0.html) | 2026-01-08 |
 
 ---
 
@@ -104,10 +104,10 @@ This project follows **Spec-Driven Development (SDD)**. All specifications are i
 
 | Directory | Purpose |
 |-----------|---------|
-| [Product Spec](../../specs/product/bit-manipulation-library.md) | Feature requirements and acceptance criteria |
+| [Product Spec](../../specs/product/bit-manipulation-library.html) | Feature requirements and acceptance criteria |
 | [Architecture RFCs](../../specs/rfc/) | Technical design documents |
-| [API Spec](../../specs/api/bitcal-public-api.md) | Public interface specification |
-| [Testing Spec](../../specs/testing/bitcal-testing-spec.md) | Test coverage requirements |
+| [API Spec](../../specs/api/bitcal-public-api.html) | Public interface specification |
+| [Testing Spec](../../specs/testing/bitcal-testing-spec.html) | Test coverage requirements |
 
 ---
 
@@ -135,7 +135,7 @@ This project follows **Spec-Driven Development (SDD)**. All specifications are i
 This documentation is available in multiple languages:
 
 - 🇺🇸 **English** (current)
-- 🇨🇳 **[中文](../zh/README.md)** — 简体中文版本
+- 🇨🇳 **[中文](../zh/README.html)** — 简体中文版本
 
 ---
 
@@ -144,11 +144,11 @@ This documentation is available in multiple languages:
 - 📖 **Full Documentation**: [GitHub Pages](https://lessup.github.io/bitcal/)
 - 🐛 **Issue Tracker**: [GitHub Issues](https://github.com/LessUp/bitcal/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/LessUp/bitcal/discussions)
-- 📋 **Changelog**: [View all releases](../../CHANGELOG.md)
+- 📋 **Changelog**: [View all releases](../../CHANGELOG.html)
 
 ## Contributing
 
-Contributions are welcome! Please see our [Contributing Guidelines](../../CONTRIBUTING.md) for details.
+Contributions are welcome! Please see our [Contributing Guidelines](../../CONTRIBUTING.html) for details.
 
 ---
 

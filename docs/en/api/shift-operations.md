@@ -81,5 +81,5 @@ Phase 2: bit-shift (AVX2)
 
 ## See Also
 
-- [Types](types.md) — Available bitarray types
-- [Architecture](../architecture/simd-dispatch.md) — SIMD dispatch details
+- [Types](types.html) — Available bitarray types
+- [Architecture](../architecture/simd-dispatch.html) — SIMD dispatch details

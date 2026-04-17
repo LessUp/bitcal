@@ -65,36 +65,36 @@ g++ -std=c++17 -O3 -march=native example.cpp -o example && ./example
 
 | 文档 | 描述 |
 |------|------|
-| [安装指南](getting-started/installation.md) | 系统要求、安装方法、验证步骤 |
-| [快速开始](getting-started/quickstart.md) | 第一个 BitCal 程序、核心概念和常见用法 |
-| [构建选项](getting-started/build-options.md) | 编译器标志、CMake 集成和优化建议 |
+| [安装指南](getting-started/installation.html) | 系统要求、安装方法、验证步骤 |
+| [快速开始](getting-started/quickstart.html) | 第一个 BitCal 程序、核心概念和常见用法 |
+| [构建选项](getting-started/build-options.html) | 编译器标志、CMake 集成和优化建议 |
 
 ### 📚 API 参考
 
 | 文档 | 描述 |
 |------|------|
-| [类型](api/types.md) | `bitarray` 模板、类型别名、内存布局 |
-| [核心运算](api/core-operations.md) | 与、或、异或、非、ANDNOT、比较、状态检测 |
-| [位移操作](api/shift-operations.md) | 左移、右移、跨字进位处理 |
-| [位计数](api/bit-counting.md) | `popcount()`、前导零、尾部零，支持硬件加速 |
-| [位操作](api/bit-manipulation.md) | 获取/设置/翻转位、`reverse()`、`clear()` |
-| [SIMD 后端](api/simd-backend.md) | 后端选择、平台检测、强制指定后端 |
-| [Ops 命名空间](api/ops-namespace.md) | 面向原始指针的低级函数式 API |
+| [类型](api/types.html) | `bitarray` 模板、类型别名、内存布局 |
+| [核心运算](api/core-operations.html) | 与、或、异或、非、ANDNOT、比较、状态检测 |
+| [位移操作](api/shift-operations.html) | 左移、右移、跨字进位处理 |
+| [位计数](api/bit-counting.html) | `popcount()`、前导零、尾部零，支持硬件加速 |
+| [位操作](api/bit-manipulation.html) | 获取/设置/翻转位、`reverse()`、`clear()` |
+| [SIMD 后端](api/simd-backend.html) | 后端选择、平台检测、强制指定后端 |
+| [Ops 命名空间](api/ops-namespace.html) | 面向原始指针的低级函数式 API |
 
 ### 🏗️ 架构设计
 
 | 文档 | 描述 |
 |------|------|
-| [概述](architecture/overview.md) | 设计原则、文件结构、性能特性 |
-| [SIMD 分派](architecture/simd-dispatch.md) | 编译期分派机制、后端选择逻辑 |
-| [平台支持](architecture/platform-support.md) | 支持的平台、编译器和架构 |
+| [概述](architecture/overview.html) | 设计原则、文件结构、性能特性 |
+| [SIMD 分派](architecture/simd-dispatch.html) | 编译期分派机制、后端选择逻辑 |
+| [平台支持](architecture/platform-support.html) | 支持的平台、编译器和架构 |
 
 ### 📝 版本发布说明
 
 | 版本 | 发布日期 |
 |------|----------|
-| [v2.1.0](changelog/v2.1.0.md) | 2026-04-16 |
-| [v2.0.0](changelog/v2.0.0.md) | 2026-01-08 |
+| [v2.1.0](changelog/v2.1.0.html) | 2026-04-16 |
+| [v2.0.0](changelog/v2.0.0.html) | 2026-01-08 |
 
 ---
 
@@ -104,10 +104,10 @@ g++ -std=c++17 -O3 -march=native example.cpp -o example && ./example
 
 | 目录 | 用途 |
 |------|------|
-| [产品规格](../../specs/product/bit-manipulation-library.md) | 功能需求和验收标准 |
+| [产品规格](../../specs/product/bit-manipulation-library.html) | 功能需求和验收标准 |
 | [架构 RFC](../../specs/rfc/) | 技术设计文档 |
-| [API 规范](../../specs/api/bitcal-public-api.md) | 公共接口规范 |
-| [测试规范](../../specs/testing/bitcal-testing-spec.md) | 测试覆盖要求 |
+| [API 规范](../../specs/api/bitcal-public-api.html) | 公共接口规范 |
+| [测试规范](../../specs/testing/bitcal-testing-spec.html) | 测试覆盖要求 |
 
 ---
 
@@ -135,7 +135,7 @@ g++ -std=c++17 -O3 -march=native example.cpp -o example && ./example
 本文档提供多种语言版本：
 
 - 🇨🇳 **中文**（当前）
-- 🇺🇸 **[English](../en/README.md)** — English Version
+- 🇺🇸 **[English](../en/README.html)** — English Version
 
 ---
 
@@ -144,11 +144,11 @@ g++ -std=c++17 -O3 -march=native example.cpp -o example && ./example
 - 📖 **完整文档**: [GitHub Pages](https://lessup.github.io/bitcal/)
 - 🐛 **问题追踪**: [GitHub Issues](https://github.com/LessUp/bitcal/issues)
 - 💬 **讨论区**: [GitHub Discussions](https://github.com/LessUp/bitcal/discussions)
-- 📋 **更新日志**: [查看所有版本](../../CHANGELOG.md)
+- 📋 **更新日志**: [查看所有版本](../../CHANGELOG.html)
 
 ## 参与贡献
 
-欢迎贡献！请参阅我们的[贡献指南](../../CONTRIBUTING.md)了解详情。
+欢迎贡献！请参阅我们的[贡献指南](../../CONTRIBUTING.html)了解详情。
 
 ---
 

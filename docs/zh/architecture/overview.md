@@ -321,5 +321,5 @@ auto huge = std::make_unique<bitcal::bitarray<65536>>();
 
 ## 另请参阅
 
-- [SIMD 分派](simd-dispatch.md) — 详细分派机制
-- [平台支持](platform-support.md) — 支持的平台和编译器
+- [SIMD 分派](simd-dispatch.html) — 详细分派机制
+- [平台支持](platform-support.html) — 支持的平台和编译器
