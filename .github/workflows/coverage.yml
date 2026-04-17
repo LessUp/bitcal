@@ -52,6 +52,7 @@ jobs:
           files: coverage.info
           fail_ci_if_error: false
           verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
