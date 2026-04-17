@@ -170,5 +170,5 @@ The input pointer should be aligned to `alignof(uint64_t)` (8 bytes). For optima
 
 ## See Also
 
-- [Bit Counting](bit-counting.md) — bitarray bit counting API
-- [Types](types.md) — bitarray class documentation
+- [Bit Counting](bit-counting.html) — bitarray bit counting API
+- [Types](types.html) — bitarray class documentation

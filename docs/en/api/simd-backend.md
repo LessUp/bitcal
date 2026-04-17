@@ -152,5 +152,5 @@ g++ -std=c++17 -O3 -mavx2 benchmark.cpp -o bench_avx2
 
 ## See Also
 
-- [Architecture](../architecture/simd-dispatch.md) — SIMD dispatch implementation
-- [Platform Support](../architecture/platform-support.md) — Supported platforms
+- [Architecture](../architecture/simd-dispatch.html) — SIMD dispatch implementation
+- [Platform Support](../architecture/platform-support.html) — Supported platforms

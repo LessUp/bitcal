@@ -1,58 +1,47 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 - Page Not Found | BitCal</title>
+    <meta name="description" content="The page you're looking for appears to have been moved, deleted, or does not exist.">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root {
             --bg-primary: #0a0a0f;
             --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
             --text-primary: #ffffff;
             --text-secondary: #a0a0b0;
+            --text-muted: #6a6a7a;
             --accent-primary: #00d4ff;
             --accent-secondary: #ff006e;
             --accent-gradient: linear-gradient(135deg, #00d4ff 0%, #ff006e 100%);
+            --border-color: rgba(255, 255, 255, 0.1);
         }
         
-        [data-theme="light"] {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --text-primary: #1a1a2e;
-            --text-secondary: #4a4a6a;
-            --accent-primary: #0066cc;
-            --accent-secondary: #cc0066;
-            --accent-gradient: linear-gradient(135deg, #0066cc 0%, #cc0066 100%);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
-        }
-        
-        .error-container {
             text-align: center;
             padding: 2rem;
-            max-width: 600px;
         }
         
         .error-code {
+            font-family: 'JetBrains Mono', monospace;
             font-size: 8rem;
             font-weight: 800;
             background: var(--accent-gradient);
@@ -61,83 +50,140 @@
             background-clip: text;
             line-height: 1;
             margin-bottom: 1rem;
-            font-family: 'JetBrains Mono', monospace;
+            opacity: 0.8;
         }
         
         .error-title {
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
         }
         
         .error-message {
             color: var(--text-secondary);
+            font-size: 1.125rem;
+            max-width: 500px;
             margin-bottom: 2rem;
+            line-height: 1.6;
         }
         
-        .home-btn {
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 1rem 2rem;
-            background: var(--accent-gradient);
-            color: white;
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
             text-decoration: none;
-            border-radius: 12px;
-            font-weight: 600;
             transition: all 0.3s ease;
         }
         
-        .home-btn:hover {
-            transform: translateY(-3px);
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
         }
         
-        .binary-bg {
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .logo {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .particle {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            opacity: 0.03;
+            width: 4px;
+            height: 4px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            opacity: 0.1;
             pointer-events: none;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            overflow: hidden;
-            white-space: pre-wrap;
-            word-break: break-all;
-            padding: 2rem;
-            z-index: -1;
+            animation: float 6s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.1; }
+            50% { transform: translateY(-20px) translateX(10px); opacity: 0.3; }
+        }
+        
+        @media (max-width: 768px) {
+            .error-code { font-size: 5rem; }
+            .error-title { font-size: 1.5rem; }
+            .logo { top: 1rem; left: 1rem; }
         }
     </style>
 </head>
 <body>
-    <div class="binary-bg" id="binary-bg"></div>
+    <a href="index.html" class="logo">
+        <i class="fas fa-microchip"></i>
+        <span>BitCal</span>
+    </a>
     
-    <div class="error-container">
-        <div class="error-code">404</div>
-        <h1 class="error-title">Page Not Found</h1>
-        <p class="error-message">The page you're looking for doesn't exist or has been moved.</p>
-        <a href="/bitcal/" class="home-btn">
+    <div class="error-code">404</div>
+    <h1 class="error-title">Page Not Found</h1>
+    <p class="error-message">
+        The page you're looking for appears to have been moved, deleted, or does not exist. 
+        Let's get you back on track.
+    </p>
+    
+    <div class="error-actions">
+        <a href="index.html" class="btn btn-primary">
             <i class="fas fa-home"></i>
-            Back to Home
+            Go Home
+        </a>
+        <a href="docs/index.html" class="btn btn-secondary">
+            <i class="fas fa-book"></i>
+            Documentation
+        </a>
+        <a href="https://github.com/LessUp/bitcal" class="btn btn-secondary" target="_blank">
+            <i class="fab fa-github"></i>
+            GitHub
         </a>
     </div>
     
     <script>
-        // Generate random binary background
-        const binaryBg = document.getElementById('binary-bg');
-        let binaryText = '';
-        for (let i = 0; i < 3000; i++) {
-            binaryText += Math.random() > 0.5 ? '1' : '0';
-            if (i % 80 === 0) binaryText += '\n';
+        // Create floating particles
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.top = Math.random() * 100 + 'vh';
+            particle.style.animationDelay = Math.random() * 6 + 's';
+            particle.style.animationDuration = (Math.random() * 3 + 4) + 's';
+            document.body.appendChild(particle);
         }
-        binaryBg.textContent = binaryText;
-        
-        // Theme
-        const savedTheme = localStorage.getItem('bitcal-theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
 </body>
 </html>

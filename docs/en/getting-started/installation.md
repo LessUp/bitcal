@@ -379,9 +379,9 @@ cmake -DCMAKE_PREFIX_PATH=/path/to/bitcal/install ..
 
 ## Next Steps
 
-- 🚀 [Quick Start](quickstart.md) — Write your first BitCal program
-- 📚 [API Reference](../api/types.md) — Explore the complete API
-- 🏗️ [Architecture](../architecture/overview.md) — Understand the design
+- 🚀 [Quick Start](quickstart.html) — Write your first BitCal program
+- 📚 [API Reference](../api/types.html) — Explore the complete API
+- 🏗️ [Architecture](../architecture/overview.html) — Understand the design
 
 ---
 
