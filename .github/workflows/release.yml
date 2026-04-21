@@ -25,6 +25,26 @@ jobs:
           body: |
             ## BitCal ${{ github.ref_name }}
 
+            ### Installation
+
+            BitCal is a header-only library. Download `bitcal-*-headers.zip` and copy the `include/bitcal/` directory to your project.
+
+            ```cpp
+            #include <bitcal/bitcal.hpp>
+            ```
+
+            ### Platform Packages
+
+            | Package | Platform | Description |
+            |---------|----------|-------------|
+            | `bitcal-*-headers.zip` | All platforms | Headers only (recommended) |
+            | `bitcal-*-linux-x64.tar.gz` | Linux x64 | Headers + tests and examples |
+            | `bitcal-*-windows-x64.zip` | Windows x64 | Headers + tests and examples |
+            | `bitcal-*-macos-x64.tar.gz` | macOS x64 | Headers + tests and examples |
+            | `bitcal-*-macos-arm64.tar.gz` | macOS ARM64 | Headers + tests and examples |
+
+            ---
+
             ### 安装
 
             BitCal 是 header-only 库，下载 `bitcal-*-headers.zip` 后，将 `include/bitcal/` 目录复制到你的项目中即可。

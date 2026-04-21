@@ -5,11 +5,11 @@
 </p>
 
 <p align="center">
-  <a href="getting-started/installation.md">📦 Installation</a> •
-  <a href="getting-started/quickstart.md">🚀 Quick Start</a> •
-  <a href="api/types.md">📚 API Reference</a> •
-  <a href="architecture/overview.md">🏗️ Architecture</a> •
-  <a href="../../specs/product/bit-manipulation-library.md">📋 Product Spec</a>
+  <a href="getting-started/installation.html">📦 Installation</a> •
+  <a href="getting-started/quickstart.html">🚀 Quick Start</a> •
+  <a href="api/types.html">📚 API Reference</a> •
+  <a href="architecture/overview.html">🏗️ Architecture</a> •
+  <a href="../../specs/product/bit-manipulation-library.html">📋 Product Spec</a>
 </p>
 
 ---

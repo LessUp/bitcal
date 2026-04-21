@@ -5,11 +5,11 @@
 </p>
 
 <p align="center">
-  <a href="getting-started/installation.md">📦 安装指南</a> •
-  <a href="getting-started/quickstart.md">🚀 快速开始</a> •
-  <a href="api/types.md">📚 API 参考</a> •
-  <a href="architecture/overview.md">🏗️ 架构设计</a> •
-  <a href="../../specs/product/bit-manipulation-library.md">📋 产品规格</a>
+  <a href="getting-started/installation.html">📦 安装指南</a> •
+  <a href="getting-started/quickstart.html">🚀 快速开始</a> •
+  <a href="api/types.html">📚 API 参考</a> •
+  <a href="architecture/overview.html">🏗️ 架构设计</a> •
+  <a href="../../specs/product/bit-manipulation-library.html">📋 产品规格</a>
 </p>
 
 ---
