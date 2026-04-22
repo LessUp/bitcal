@@ -278,20 +278,20 @@ jobs:
             html_file="${file%.md}.html"
             dir=$(dirname "$file")
             basename=$(basename "$file" .md)
-            
+
             title="$basename"
             lang="en"
             if [[ "$file" == *"/zh/"* ]]; then
               lang="zh"
             fi
-            
+
             content=$(marked "$file" 2>/dev/null)
-            
-            echo "$HTML_TEMPLATE" | sed \
-              -e "s|LANG|$lang|g" \
-              -e "s|TITLE|$title|g" \
-              -e "s|CONTENT|$content|g" > "$html_file"
-            
+
+            # Replace placeholders using awk for reliable multi-line handling
+            awk -v lang="$lang" -v title="$title" -v content="$content" '
+              { gsub(/LANG/, lang); gsub(/TITLE/, title); gsub(/CONTENT/, content); print }
+            ' <<< "$HTML_TEMPLATE" > "$html_file"
+
             echo "Converted: $file -> $html_file"
           done
 
