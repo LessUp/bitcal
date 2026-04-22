@@ -3,1250 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BitCal - SIMD-Accelerated Bit Manipulation Library for C++17</title>
-    <meta name="description" content="High-performance C++17 header-only bit manipulation library with automatic SIMD acceleration (SSE2/AVX2/NEON). Up to 6x faster than scalar implementations.">
+    <title>BitCal - SIMD-Accelerated Bit Manipulation Library for C++</title>
+    <meta name="description" content="High-performance C++17 header-only bit manipulation library with automatic SSE2/AVX2/NEON acceleration. Up to 6x faster than scalar implementations.">
     <meta name="keywords" content="C++, C++17, SIMD, bit manipulation, SSE2, AVX2, NEON, header-only, high-performance">
     <meta name="author" content="BitCal">
     <meta name="robots" content="index, follow">
     
-    <!-- Open Graph / Social -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://lessup.github.io/bitcal/">
     <meta property="og:title" content="BitCal - SIMD-Accelerated Bit Manipulation Library">
-    <meta property="og:description" content="High-performance C++17 header-only bit manipulation library with automatic SIMD acceleration. Up to 6x faster than scalar implementations.">
-    <meta property="og:image" content="https://lessup.github.io/bitcal/docs/assets/og-image.png">
+    <meta property="og:description" content="High-performance C++17 header-only library with automatic SIMD acceleration.">
     
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="BitCal - SIMD-Accelerated Bit Manipulation Library">
-    <meta name="twitter:description" content="High-performance C++17 header-only bit manipulation library with automatic SIMD acceleration.">
-    
-    <!-- Canonical URL -->
+    <!-- Canonical -->
     <link rel="canonical" href="https://lessup.github.io/bitcal/">
     
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Prism.js for code highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
-    
-    <style>
-        :root {
-            /* Color System */
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #12121a;
-            --bg-tertiary: #1a1a25;
-            --bg-card: rgba(255, 255, 255, 0.03);
-            
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0b0;
-            --text-muted: #6a6a7a;
-            
-            --accent-primary: #00d4ff;
-            --accent-secondary: #ff006e;
-            --accent-gradient: linear-gradient(135deg, #00d4ff 0%, #ff006e 100%);
-            --accent-glow: rgba(0, 212, 255, 0.3);
-            
-            --border-color: rgba(255, 255, 255, 0.08);
-            --success: #00ff88;
-            --warning: #ffaa00;
-            
-            /* Typography */
-            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-            
-            /* Spacing */
-            --space-xs: 0.5rem;
-            --space-sm: 1rem;
-            --space-md: 1.5rem;
-            --space-lg: 2.5rem;
-            --space-xl: 4rem;
-            --space-xxl: 6rem;
-            
-            /* Animation */
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        [data-theme="light"] {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-tertiary: #e9ecef;
-            --bg-card: rgba(0, 0, 0, 0.03);
-            
-            --text-primary: #1a1a2e;
-            --text-secondary: #4a4a6a;
-            --text-muted: #8a8a9a;
-            
-            --accent-primary: #0066cc;
-            --accent-secondary: #cc0066;
-            --accent-gradient: linear-gradient(135deg, #0066cc 0%, #cc0066 100%);
-            --accent-glow: rgba(0, 102, 204, 0.2);
-            
-            --border-color: rgba(0, 0, 0, 0.08);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        html {
-            scroll-behavior: smooth;
-            font-size: 16px;
-        }
-        
-        body {
-            font-family: var(--font-sans);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-            transition: var(--transition);
-        }
-        
-        /* Background Animation Canvas */
-        #bg-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.4;
-        }
-        
-        /* Navigation */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            padding: 1rem var(--space-lg);
-            background: rgba(10, 10, 15, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-color);
-            transition: var(--transition);
-        }
-        
-        [data-theme="light"] .navbar {
-            background: rgba(255, 255, 255, 0.8);
-        }
-        
-        .navbar-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .logo i {
-            -webkit-text-fill-color: var(--accent-primary);
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: var(--space-lg);
-            align-items: center;
-        }
-        
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: var(--transition);
-            position: relative;
-        }
-        
-        .nav-links a:hover {
-            color: var(--text-primary);
-        }
-        
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--accent-gradient);
-            transition: var(--transition);
-        }
-        
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-        
-        .nav-controls {
-            display: flex;
-            gap: var(--space-sm);
-            align-items: center;
-        }
-        
-        .btn-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-card);
-            color: var(--text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            font-size: 1rem;
-        }
-        
-        .btn-icon:hover {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            transform: translateY(-2px);
-        }
-        
-        /* Hero Section */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: var(--space-xxl) var(--space-lg);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero-content {
-            max-width: 1200px;
-            text-align: center;
-            z-index: 1;
-        }
-        
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 100px;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-bottom: var(--space-lg);
-            animation: fadeInDown 0.8s ease;
-        }
-        
-        .badge i {
-            color: var(--success);
-        }
-        
-        .hero h1 {
-            font-size: clamp(3rem, 8vw, 6rem);
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: var(--space-md);
-            animation: fadeInUp 0.8s ease 0.2s both;
-        }
-        
-        .hero h1 span {
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .hero-description {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto var(--space-xl);
-            animation: fadeInUp 0.8s ease 0.4s both;
-        }
-        
-        .hero-buttons {
-            display: flex;
-            gap: var(--space-md);
-            justify-content: center;
-            flex-wrap: wrap;
-            animation: fadeInUp 0.8s ease 0.6s both;
-        }
-        
-        .btn {
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: var(--transition);
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        
-        .btn-primary {
-            background: var(--accent-gradient);
-            color: white;
-            box-shadow: 0 4px 20px var(--accent-glow);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 30px var(--accent-glow);
-        }
-        
-        .btn-secondary {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--bg-tertiary);
-            transform: translateY(-3px);
-        }
-        
-        /* Code Preview */
-        .code-preview {
-            max-width: 800px;
-            margin: var(--space-xl) auto 0;
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            animation: fadeInUp 0.8s ease 0.8s both;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-        
-        .code-header {
-            display: flex;
-            align-items: center;
-            gap: var(--space-sm);
-            padding: var(--space-md);
-            background: var(--bg-tertiary);
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .code-dots {
-            display: flex;
-            gap: 6px;
-        }
-        
-        .code-dots span {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-        
-        .code-dots span:nth-child(1) { background: #ff5f56; }
-        .code-dots span:nth-child(2) { background: #ffbd2e; }
-        .code-dots span:nth-child(3) { background: #27c93f; }
-        
-        .code-title {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin-left: auto;
-            font-family: var(--font-mono);
-        }
-        
-        .code-preview pre {
-            margin: 0;
-            padding: var(--space-lg);
-            overflow-x: auto;
-            font-size: 0.9rem;
-            line-height: 1.8;
-        }
-        
-        /* Features Grid */
-        .features {
-            padding: var(--space-xxl) var(--space-lg);
-            background: var(--bg-secondary);
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .section-header {
-            text-align: center;
-            margin-bottom: var(--space-xl);
-        }
-        
-        .section-header h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: var(--space-sm);
-        }
-        
-        .section-header p {
-            color: var(--text-secondary);
-            font-size: 1.125rem;
-        }
-        
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--space-lg);
-        }
-        
-        .feature-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: var(--space-lg);
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--accent-gradient);
-            transform: scaleX(0);
-            transition: var(--transition);
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-primary);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-        
-        .feature-card:hover::before {
-            transform: scaleX(1);
-        }
-        
-        .feature-icon {
-            width: 50px;
-            height: 50px;
-            background: var(--bg-tertiary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            color: var(--accent-primary);
-            margin-bottom: var(--space-md);
-        }
-        
-        .feature-card h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: var(--space-xs);
-        }
-        
-        .feature-card p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-        
-        /* Performance Section */
-        .performance {
-            padding: var(--space-xxl) var(--space-lg);
-        }
-        
-        .performance-chart {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            padding: var(--space-lg);
-            margin-top: var(--space-xl);
-        }
-        
-        .chart-container {
-            height: 300px;
-            position: relative;
-        }
-        
-        .benchmark-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: var(--space-md);
-            margin-top: var(--space-xl);
-        }
-        
-        .benchmark-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: var(--space-md);
-            text-align: center;
-        }
-        
-        .benchmark-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .benchmark-label {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-        
-        /* Types Section */
-        .types {
-            padding: var(--space-xxl) var(--space-lg);
-            background: var(--bg-secondary);
-        }
-        
-        .types-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: var(--space-xl);
-            background: var(--bg-card);
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-        
-        .types-table th,
-        .types-table td {
-            padding: var(--space-md);
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .types-table th {
-            background: var(--bg-tertiary);
-            font-weight: 600;
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .types-table tr:hover {
-            background: var(--bg-tertiary);
-        }
-        
-        .types-table code {
-            font-family: var(--font-mono);
-            background: var(--bg-tertiary);
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-        }
-        
-        /* Footer */
-        .footer {
-            padding: var(--space-xl) var(--space-lg);
-            border-top: 1px solid var(--border-color);
-            text-align: center;
-        }
-        
-        .footer-links {
-            display: flex;
-            gap: var(--space-lg);
-            justify-content: center;
-            margin-bottom: var(--space-md);
-            flex-wrap: wrap;
-        }
-        
-        .footer-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-        
-        .footer-links a:hover {
-            color: var(--accent-primary);
-        }
-        
-        .footer-copy {
-            color: var(--text-muted);
-            font-size: 0.875rem;
-        }
-        
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Scroll Reveal */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease;
-        }
-        
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        /* Mobile Menu */
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .mobile-menu-btn {
-                display: block;
-            }
-            
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-            
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .types-table {
-                font-size: 0.875rem;
-            }
-            
-            .types-table th,
-            .types-table td {
-                padding: var(--space-sm);
-            }
-        }
-    </style>
+    <!-- Styles -->
+    <link rel="stylesheet" href="docs/assets/styles.css">
 </head>
 <body>
-    <!-- Background Animation Canvas -->
-    <canvas id="bg-canvas"></canvas>
-    
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <a href="#" class="logo">
-                <i class="fas fa-microchip"></i>
-                BitCal
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="./" class="logo">
+                <div class="logo-icon"><i class="fas fa-microchip"></i></div>
+                <span>BitCal</span>
             </a>
             
-            <div class="nav-links">
-                <a href="#features" data-i18n="nav.features">Features</a>
-                <a href="#performance" data-i18n="nav.performance">Performance</a>
-                <a href="#types" data-i18n="nav.types">Types</a>
-                <a href="docs/index.html" data-i18n="nav.docs">Documentation</a>
+            <nav class="header-nav">
+                <a href="./docs/" class="active">Documentation</a>
                 <a href="https://github.com/LessUp/bitcal" target="_blank">
                     <i class="fab fa-github"></i> GitHub
                 </a>
+            </nav>
+            
+            <div class="header-controls">
+                <button class="btn btn-icon" data-theme-toggle title="Toggle theme">
+                    <i class="fas fa-sun" data-theme-icon></i>
+                </button>
+                <a href="./docs/zh/" class="btn btn-secondary btn-sm">中文</a>
             </div>
             
-            <div class="nav-controls">
-                <button class="btn-icon" id="lang-toggle" title="Switch Language">
-                    <span id="lang-icon">🇺🇸</span>
-                </button>
-                <button class="btn-icon" id="theme-toggle" title="Toggle Theme">
-                    <i class="fas fa-sun"></i>
-                </button>
-            </div>
+            <button class="mobile-menu-btn" data-mobile-toggle>
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
-    </nav>
-    
-    <!-- Hero Section -->
+    </header>
+
+    <!-- Mobile Sidebar -->
+    <aside class="sidebar" id="mobile-sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-title">Menu</div>
+            <ul class="sidebar-nav">
+                <li><a href="./docs/" class="active"><i class="fas fa-book"></i> Documentation</a></li>
+                <li><a href="https://github.com/LessUp/bitcal" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+                <li><a href="./docs/zh/"><i class="fas fa-language"></i> 中文</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Hero -->
     <section class="hero">
         <div class="hero-content">
             <div class="badge">
                 <i class="fas fa-bolt"></i>
-                <span data-i18n="hero.badge">High-Performance SIMD Library</span>
+                <span>High-Performance SIMD Library</span>
             </div>
             
-            <h1>
-                <span data-i18n="hero.title1">SIMD-Accelerated</span><br>
-                <span data-i18n="hero.title2">Bit Manipulation</span>
-            </h1>
+            <h1>SIMD-Accelerated Bit Manipulation</h1>
             
-            <p class="hero-description" data-i18n="hero.description">
-                Modern C++17 header-only library with automatic SSE2/AVX2/NEON acceleration. 
+            <p class="hero-description">
+                Modern C++17 header-only library with automatic SSE2/AVX2/NEON acceleration.
                 Up to 6× faster than scalar implementations with zero runtime overhead.
             </p>
             
-            <div class="hero-buttons">
-                <a href="docs/en/getting-started/installation.html" class="btn btn-primary">
-                    <i class="fas fa-download"></i>
-                    <span data-i18n="hero.btn.primary">Get Started</span>
+            <div class="hero-actions">
+                <a href="./docs/en/getting-started/quickstart.html" class="btn btn-primary btn-lg">
+                    <i class="fas fa-rocket"></i> Get Started
                 </a>
-                <a href="https://github.com/LessUp/bitcal" class="btn btn-secondary" target="_blank">
-                    <i class="fab fa-github"></i>
-                    <span data-i18n="hero.btn.secondary">View on GitHub</span>
+                <a href="https://github.com/LessUp/bitcal" class="btn btn-secondary btn-lg" target="_blank">
+                    <i class="fab fa-github"></i> View on GitHub
                 </a>
             </div>
             
             <div class="code-preview">
-                <div class="code-header">
+                <div class="code-preview-header">
                     <div class="code-dots">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                        <span></span><span></span><span></span>
                     </div>
                     <span class="code-title">example.cpp</span>
                 </div>
-                <pre><code class="language-cpp">#include &lt;bitcal/bitcal.hpp&gt;
+                <pre><code>#include &lt;bitcal/bitcal.hpp&gt;
 
 int main() {
     // Create 256-bit bit arrays
     bitcal::bit256 a(0xDEADBEEF);
     bitcal::bit256 b(0xCAFEBABE);
-    
+
     // SIMD-accelerated operations (~2.1ns)
     auto c = a & b;           // AND
     auto d = a | b;           // OR
     auto e = a ^ b;           // XOR
-    
-    // Bit counting (hardware accelerated)
+
+    // Hardware-accelerated bit counting
     auto pop = c.popcount();              // Count set bits
     auto lz = c.count_leading_zeros();    // Leading zeros
-    
+
     return 0;
 }</code></pre>
             </div>
         </div>
     </section>
-    
-    <!-- Features Section -->
-    <section class="features" id="features">
-        <div class="container">
-            <div class="section-header reveal">
-                <h2 data-i18n="features.title">Why BitCal?</h2>
-                <p data-i18n="features.subtitle">Designed for performance, built for developers</p>
+
+    <!-- Features -->
+    <section class="features">
+        <div class="section-header">
+            <h2>Why BitCal?</h2>
+            <p>Designed for performance, built for developers</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-rocket"></i></div>
+                <h3>SIMD Acceleration</h3>
+                <p>Automatic selection of SSE2, AVX2 (x86), or NEON (ARM) instruction sets. No code changes needed.</p>
             </div>
             
-            <div class="features-grid">
-                <div class="feature-card reveal">
-                    <div class="feature-icon">
-                        <i class="fas fa-rocket"></i>
-                    </div>
-                    <h3 data-i18n="features.1.title">SIMD Acceleration</h3>
-                    <p data-i18n="features.1.desc">Automatic selection of SSE2, AVX2 (x86), or NEON (ARM) instruction sets. No code changes needed.</p>
-                </div>
-                
-                <div class="feature-card reveal">
-                    <div class="feature-icon">
-                        <i class="fas fa-feather-alt"></i>
-                    </div>
-                    <h3 data-i18n="features.2.title">Zero Overhead</h3>
-                    <p data-i18n="features.2.desc">Compile-time dispatch via if constexpr. All optimization happens at compile time, zero runtime cost.</p>
-                </div>
-                
-                <div class="feature-card reveal">
-                    <div class="feature-icon">
-                        <i class="fas fa-box-open"></i>
-                    </div>
-                    <h3 data-i18n="features.3.title">Header-Only</h3>
-                    <p data-i18n="features.3.desc">Single #include, no compilation, no dependencies. Copy headers and start coding immediately.</p>
-                </div>
-                
-                <div class="feature-card reveal">
-                    <div class="feature-icon">
-                        <i class="fas fa-tools"></i>
-                    </div>
-                    <h3 data-i18n="features.4.title">Rich API</h3>
-                    <p data-i18n="features.4.desc">Bitwise operations, shifts, popcount, CLZ/CTZ, bit reversal, ANDNOT. Everything you need.</p>
-                </div>
-                
-                <div class="feature-card reveal">
-                    <div class="feature-icon">
-                        <i class="fas fa-globe"></i>
-                    </div>
-                    <h3 data-i18n="features.5.title">Cross-Platform</h3>
-                    <p data-i18n="features.5.desc">Linux, Windows, macOS on x86-64, ARM64, and ARM32. CI verified on all platforms.</p>
-                </div>
-                
-                <div class="feature-card reveal">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3 data-i18n="features.6.title">Type Safe</h3>
-                    <p data-i18n="features.6.desc">Compile-time bit-width validation with constexpr. Catches errors at compile time.</p>
-                </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-feather-alt"></i></div>
+                <h3>Zero Overhead</h3>
+                <p>Compile-time dispatch via if constexpr. All optimization happens at compile time, zero runtime cost.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-box-open"></i></div>
+                <h3>Header-Only</h3>
+                <p>Single #include, no compilation, no dependencies. Copy headers and start coding immediately.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-tools"></i></div>
+                <h3>Rich API</h3>
+                <p>Bitwise operations, shifts, popcount, CLZ/CTZ, bit reversal, ANDNOT. Everything you need.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-globe"></i></div>
+                <h3>Cross-Platform</h3>
+                <p>Linux, Windows, macOS on x86-64, ARM64, and ARM32. CI verified on all platforms.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                <h3>Type Safe</h3>
+                <p>Compile-time bit-width validation with constexpr. Catches errors at compile time.</p>
             </div>
         </div>
     </section>
-    
-    <!-- Performance Section -->
-    <section class="performance" id="performance">
-        <div class="container">
-            <div class="section-header reveal">
-                <h2 data-i18n="perf.title">Blazing Fast Performance</h2>
-                <p data-i18n="perf.subtitle">Benchmarked on Intel Core i7-12700K @ 3.6GHz (AVX2)</p>
+
+    <!-- Performance -->
+    <section class="features" style="background: var(--bg-secondary);">
+        <div class="section-header">
+            <h2>Blazing Fast Performance</h2>
+            <p>Benchmarked on Intel Core i7-12700K @ 3.6GHz (AVX2)</p>
+        </div>
+        
+        <div class="features-grid" style="max-width: 900px; margin: 0 auto;">
+            <div class="feature-card" style="text-align: center;">
+                <div style="font-size: 3rem; font-weight: 700; color: var(--accent-primary); margin-bottom: var(--space-xs);">5.9×</div>
+                <p>AND-256 Speedup vs Scalar</p>
             </div>
-            
-            <div class="benchmark-grid reveal">
-                <div class="benchmark-card">
-                    <div class="benchmark-value">5.9×</div>
-                    <div class="benchmark-label" data-i18n="perf.1.label">AND-256 Speedup</div>
-                </div>
-                <div class="benchmark-card">
-                    <div class="benchmark-value">5.8×</div>
-                    <div class="benchmark-label" data-i18n="perf.2.label">XOR-512 Speedup</div>
-                </div>
-                <div class="benchmark-card">
-                    <div class="benchmark-value">3.6×</div>
-                    <div class="benchmark-label" data-i18n="perf.3.label">Shift-256 Speedup</div>
-                </div>
-                <div class="benchmark-card">
-                    <div class="benchmark-value">2.1ns</div>
-                    <div class="benchmark-label" data-i18n="perf.4.label">AND-256 Latency</div>
-                </div>
+            <div class="feature-card" style="text-align: center;">
+                <div style="font-size: 3rem; font-weight: 700; color: var(--accent-primary); margin-bottom: var(--space-xs);">5.8×</div>
+                <p>XOR-512 Speedup vs Scalar</p>
             </div>
-            
-            <div class="performance-chart reveal">
-                <canvas id="perf-chart"></canvas>
+            <div class="feature-card" style="text-align: center;">
+                <div style="font-size: 3rem; font-weight: 700; color: var(--accent-primary); margin-bottom: var(--space-xs);">3.6×</div>
+                <p>Shift-256 Speedup vs Scalar</p>
+            </div>
+            <div class="feature-card" style="text-align: center;">
+                <div style="font-size: 3rem; font-weight: 700; color: var(--accent-primary); margin-bottom: var(--space-xs);">2.1ns</div>
+                <p>AND-256 Latency</p>
             </div>
         </div>
     </section>
-    
-    <!-- Types Section -->
-    <section class="types" id="types">
-        <div class="container">
-            <div class="section-header reveal">
-                <h2 data-i18n="types.title">Flexible Type System</h2>
-                <p data-i18n="types.subtitle">Pre-defined types for common bit widths, or create your own</p>
-            </div>
+
+    <!-- Quick Links -->
+    <section class="quick-links">
+        <div class="section-header">
+            <h2>Ready to Start?</h2>
+            <p>Everything you need to get up and running</p>
+        </div>
+        
+        <div class="quick-links-grid">
+            <a href="./docs/en/getting-started/installation.html" class="quick-link">
+                <div class="quick-link-icon"><i class="fas fa-download"></i></div>
+                <div class="quick-link-content">
+                    <h4>Installation</h4>
+                    <p>System requirements and setup instructions</p>
+                </div>
+            </a>
             
-            <table class="types-table reveal">
-                <thead>
-                    <tr>
-                        <th data-i18n="types.table.type">Type</th>
-                        <th data-i18n="types.table.width">Width</th>
-                        <th data-i18n="types.table.words">Words</th>
-                        <th data-i18n="types.table.use">Best For</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><code>bitcal::bit64</code></td>
-                        <td>64-bit</td>
-                        <td>1</td>
-                        <td data-i18n="types.table.1">Machine word operations</td>
-                    </tr>
-                    <tr>
-                        <td><code>bitcal::bit128</code></td>
-                        <td>128-bit</td>
-                        <td>2</td>
-                        <td data-i18n="types.table.2">SSE2/NEON native width</td>
-                    </tr>
-                    <tr>
-                        <td><code>bitcal::bit256</code></td>
-                        <td>256-bit</td>
-                        <td>4</td>
-                        <td data-i18n="types.table.3">AVX2 native width</td>
-                    </tr>
-                    <tr>
-                        <td><code>bitcal::bit512</code></td>
-                        <td>512-bit</td>
-                        <td>8</td>
-                        <td data-i18n="types.table.4">Large parallel operations</td>
-                    </tr>
-                    <tr>
-                        <td><code>bitcal::bit1024</code></td>
-                        <td>1024-bit</td>
-                        <td>16</td>
-                        <td data-i18n="types.table.5">Very large operations</td>
-                    </tr>
-                </tbody>
-            </table>
+            <a href="./docs/en/getting-started/quickstart.html" class="quick-link">
+                <div class="quick-link-icon"><i class="fas fa-rocket"></i></div>
+                <div class="quick-link-content">
+                    <h4>Quick Start</h4>
+                    <p>Your first BitCal program in minutes</p>
+                </div>
+            </a>
+            
+            <a href="./docs/en/api/types.html" class="quick-link">
+                <div class="quick-link-icon"><i class="fas fa-cubes"></i></div>
+                <div class="quick-link-content">
+                    <h4>API Reference</h4>
+                    <p>Complete API documentation</p>
+                </div>
+            </a>
+            
+            <a href="https://github.com/LessUp/bitcal/blob/master/CHANGELOG.md" class="quick-link" target="_blank">
+                <div class="quick-link-icon"><i class="fas fa-list-alt"></i></div>
+                <div class="quick-link-content">
+                    <h4>Changelog</h4>
+                    <p>Version history and updates</p>
+                </div>
+            </a>
         </div>
     </section>
-    
+
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-links">
-            <a href="docs/index.html" data-i18n="footer.docs">Documentation</a>
-            <a href="CHANGELOG.md" data-i18n="footer.changelog">Changelog</a>
-            <a href="CONTRIBUTING.md" data-i18n="footer.contributing">Contributing</a>
-            <a href="https://github.com/LessUp/bitcal/blob/master/LICENSE" data-i18n="footer.license">License</a>
+            <a href="./docs/">Documentation</a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/CHANGELOG.md">Changelog</a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/CONTRIBUTING.md">Contributing</a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/LICENSE">License</a>
         </div>
-        <p class="footer-copy" data-i18n="footer.copy">
-            &copy; 2026 BitCal. Released under the MIT License.
-        </p>
+        <p>© 2026 BitCal. Released under the MIT License.</p>
     </footer>
-    
-    <script>
-        // ==========================================
-        // INTERNATIONALIZATION
-        // ==========================================
-        const i18n = {
-            en: {
-                'nav.features': 'Features',
-                'nav.performance': 'Performance',
-                'nav.types': 'Types',
-                'nav.docs': 'Documentation',
-                'hero.badge': 'High-Performance SIMD Library',
-                'hero.title1': 'SIMD-Accelerated',
-                'hero.title2': 'Bit Manipulation',
-                'hero.description': 'Modern C++17 header-only library with automatic SSE2/AVX2/NEON acceleration. Up to 6× faster than scalar implementations with zero runtime overhead.',
-                'hero.btn.primary': 'Get Started',
-                'hero.btn.secondary': 'View on GitHub',
-                'features.title': 'Why BitCal?',
-                'features.subtitle': 'Designed for performance, built for developers',
-                'features.1.title': 'SIMD Acceleration',
-                'features.1.desc': 'Automatic selection of SSE2, AVX2 (x86), or NEON (ARM) instruction sets. No code changes needed.',
-                'features.2.title': 'Zero Overhead',
-                'features.2.desc': 'Compile-time dispatch via if constexpr. All optimization happens at compile time, zero runtime cost.',
-                'features.3.title': 'Header-Only',
-                'features.3.desc': 'Single #include, no compilation, no dependencies. Copy headers and start coding immediately.',
-                'features.4.title': 'Rich API',
-                'features.4.desc': 'Bitwise operations, shifts, popcount, CLZ/CTZ, bit reversal, ANDNOT. Everything you need.',
-                'features.5.title': 'Cross-Platform',
-                'features.5.desc': 'Linux, Windows, macOS on x86-64, ARM64, and ARM32. CI verified on all platforms.',
-                'features.6.title': 'Type Safe',
-                'features.6.desc': 'Compile-time bit-width validation with constexpr. Catches errors at compile time.',
-                'perf.title': 'Blazing Fast Performance',
-                'perf.subtitle': 'Benchmarked on Intel Core i7-12700K @ 3.6GHz (AVX2)',
-                'perf.1.label': 'AND-256 Speedup',
-                'perf.2.label': 'XOR-512 Speedup',
-                'perf.3.label': 'Shift-256 Speedup',
-                'perf.4.label': 'AND-256 Latency',
-                'types.title': 'Flexible Type System',
-                'types.subtitle': 'Pre-defined types for common bit widths, or create your own',
-                'types.table.type': 'Type',
-                'types.table.width': 'Width',
-                'types.table.words': 'Words',
-                'types.table.use': 'Best For',
-                'types.table.1': 'Machine word operations',
-                'types.table.2': 'SSE2/NEON native width',
-                'types.table.3': 'AVX2 native width',
-                'types.table.4': 'Large parallel operations',
-                'types.table.5': 'Very large operations',
-                'footer.docs': 'Documentation',
-                'footer.changelog': 'Changelog',
-                'footer.contributing': 'Contributing',
-                'footer.license': 'License',
-                'footer.copy': '&copy; 2026 BitCal. Released under the MIT License.'
-            },
-            zh: {
-                'nav.features': '特性',
-                'nav.performance': '性能',
-                'nav.types': '类型',
-                'nav.docs': '文档',
-                'hero.badge': '高性能 SIMD 库',
-                'hero.title1': 'SIMD 加速',
-                'hero.title2': '位运算操作',
-                'hero.description': '现代化 C++17 纯头文件库，自动 SSE2/AVX2/NEON 加速。比标量实现快 6 倍，零运行时开销。',
-                'hero.btn.primary': '开始使用',
-                'hero.btn.secondary': 'GitHub 查看',
-                'features.title': '为什么选择 BitCal？',
-                'features.subtitle': '为性能设计，为开发者打造',
-                'features.1.title': 'SIMD 加速',
-                'features.1.desc': '自动选择 SSE2、AVX2（x86）或 NEON（ARM）指令集。无需修改代码。',
-                'features.2.title': '零开销',
-                'features.2.desc': '通过 if constexpr 编译期分派。所有优化在编译期完成，零运行时成本。',
-                'features.3.title': '纯头文件',
-                'features.3.desc': '单个 #include，无需编译，零依赖。复制头文件即可开始编码。',
-                'features.4.title': '丰富 API',
-                'features.4.desc': '位运算、位移、popcount、CLZ/CTZ、位反转、ANDNOT。应有尽有。',
-                'features.5.title': '跨平台',
-                'features.5.desc': 'Linux、Windows、macOS 支持 x86-64、ARM64、ARM32。全平台 CI 验证。',
-                'features.6.title': '类型安全',
-                'features.6.desc': '通过 constexpr 编译期位宽验证。编译期捕获错误。',
-                'perf.title': '极速性能',
-                'perf.subtitle': '在 Intel Core i7-12700K @ 3.6GHz (AVX2) 上基准测试',
-                'perf.1.label': 'AND-256 加速比',
-                'perf.2.label': 'XOR-512 加速比',
-                'perf.3.label': '位移-256 加速比',
-                'perf.4.label': 'AND-256 延迟',
-                'types.title': '灵活的类型系统',
-                'types.subtitle': '预定义常用位宽类型，或创建自定义类型',
-                'types.table.type': '类型',
-                'types.table.width': '位宽',
-                'types.table.words': '字数',
-                'types.table.use': '最佳用途',
-                'types.table.1': '机器字运算',
-                'types.table.2': 'SSE2/NEON 原生宽度',
-                'types.table.3': 'AVX2 原生宽度',
-                'types.table.4': '大位宽并行操作',
-                'types.table.5': '超大位宽操作',
-                'footer.docs': '文档',
-                'footer.changelog': '更新日志',
-                'footer.contributing': '参与贡献',
-                'footer.license': '许可证',
-                'footer.copy': '&copy; 2026 BitCal。基于 MIT 许可证发布。'
-            }
-        };
-        
-        let currentLang = localStorage.getItem('bitcal-lang') || 'en';
-        
-        function updateLanguage() {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (i18n[currentLang] && i18n[currentLang][key]) {
-                    el.innerHTML = i18n[currentLang][key];
-                }
-            });
-            document.getElementById('lang-icon').textContent = currentLang === 'en' ? '🇺🇸' : '🇨🇳';
-            document.documentElement.lang = currentLang === 'en' ? 'en' : 'zh';
-        }
-        
-        document.getElementById('lang-toggle').addEventListener('click', () => {
-            currentLang = currentLang === 'en' ? 'zh' : 'en';
-            localStorage.setItem('bitcal-lang', currentLang);
-            updateLanguage();
-        });
-        
-        // ==========================================
-        // THEME TOGGLE
-        // ==========================================
-        const themeToggle = document.getElementById('theme-toggle');
-        const html = document.documentElement;
-        
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('bitcal-theme', newTheme);
-            themeToggle.innerHTML = newTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-        });
-        
-        // Load saved theme
-        const savedTheme = localStorage.getItem('bitcal-theme') || 'dark';
-        html.setAttribute('data-theme', savedTheme);
-        themeToggle.innerHTML = savedTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-        
-        // ==========================================
-        // BACKGROUND ANIMATION
-        // ==========================================
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        
-        let width, height;
-        let particles = [];
-        
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-        
-        class Particle {
-            constructor() {
-                this.reset();
-            }
-            
-            reset() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.size = Math.random() * 2 + 1;
-                this.speedX = (Math.random() - 0.5) * 0.5;
-                this.speedY = (Math.random() - 0.5) * 0.5;
-                this.opacity = Math.random() * 0.5 + 0.2;
-            }
-            
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                
-                if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
-                    this.reset();
-                }
-            }
-            
-            draw() {
-                const isDark = html.getAttribute('data-theme') === 'dark';
-                ctx.fillStyle = isDark 
-                    ? `rgba(0, 212, 255, ${this.opacity})` 
-                    : `rgba(0, 102, 204, ${this.opacity})`;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-        
-        function initParticles() {
-            particles = [];
-            const count = Math.min(100, Math.floor((width * height) / 15000));
-            for (let i = 0; i < count; i++) {
-                particles.push(new Particle());
-            }
-        }
-        
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
-            
-            // Draw connections
-            const isDark = html.getAttribute('data-theme') === 'dark';
-            ctx.strokeStyle = isDark 
-                ? 'rgba(0, 212, 255, 0.05)' 
-                : 'rgba(0, 102, 204, 0.05)';
-            ctx.lineWidth = 1;
-            
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (dist < 150) {
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-            
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            
-            requestAnimationFrame(animate);
-        }
-        
-        window.addEventListener('resize', () => {
-            resize();
-            initParticles();
-        });
-        
-        resize();
-        initParticles();
-        animate();
-        
-        // ==========================================
-        // SCROLL REVEAL
-        // ==========================================
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                }
-            });
-        }, observerOptions);
-        
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-        
-        // ==========================================
-        // PERFORMANCE CHART
-        // ==========================================
-        const chartCanvas = document.getElementById('perf-chart');
-        const chartCtx = chartCanvas.getContext('2d');
-        
-        function drawChart() {
-            const rect = chartCanvas.parentElement.getBoundingClientRect();
-            chartCanvas.width = rect.width;
-            chartCanvas.height = 300;
-            
-            const w = chartCanvas.width;
-            const h = chartCanvas.height;
-            const padding = 60;
-            
-            chartCtx.clearRect(0, 0, w, h);
-            
-            // Data
-            const operations = ['AND', 'XOR', 'Shift', 'Popcount'];
-            const scalar = [12.3, 12.5, 18.6, 45.2];
-            const avx2 = [2.1, 2.1, 5.2, 22.3];
-            const maxVal = 50;
-            
-            const barWidth = (w - padding * 2) / (operations.length * 2 + operations.length + 1);
-            const gap = barWidth;
-            
-            // Draw bars
-            operations.forEach((op, i) => {
-                const x = padding + gap + i * (barWidth * 2 + gap);
-                const scalarHeight = (scalar[i] / maxVal) * (h - padding * 2);
-                const avx2Height = (avx2[i] / maxVal) * (h - padding * 2);
-                
-                // Scalar bar
-                const isDark = html.getAttribute('data-theme') === 'dark';
-                chartCtx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)';
-                chartCtx.fillRect(x, h - padding - scalarHeight, barWidth, scalarHeight);
-                
-                // AVX2 bar
-                const gradient = chartCtx.createLinearGradient(0, h - padding - avx2Height, 0, h - padding);
-                gradient.addColorStop(0, '#00d4ff');
-                gradient.addColorStop(1, '#ff006e');
-                chartCtx.fillStyle = gradient;
-                chartCtx.fillRect(x + barWidth, h - padding - avx2Height, barWidth, avx2Height);
-                
-                // Labels
-                chartCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-secondary');
-                chartCtx.font = '12px Inter';
-                chartCtx.textAlign = 'center';
-                chartCtx.fillText(op, x + barWidth, h - padding + 20);
-            });
-            
-            // Legend
-            chartCtx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)';
-            chartCtx.fillRect(w - 150, 20, 15, 15);
-            chartCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-primary');
-            chartCtx.font = '12px Inter';
-            chartCtx.textAlign = 'left';
-            chartCtx.fillText('Scalar', w - 130, 32);
-            
-            const gradient = chartCtx.createLinearGradient(w - 150, 0, w - 135, 0);
-            gradient.addColorStop(0, '#00d4ff');
-            gradient.addColorStop(1, '#ff006e');
-            chartCtx.fillStyle = gradient;
-            chartCtx.fillRect(w - 150, 45, 15, 15);
-            chartCtx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-primary');
-            chartCtx.fillText('AVX2', w - 130, 57);
-        }
-        
-        window.addEventListener('resize', drawChart);
-        setTimeout(drawChart, 100);
-        
-        // ==========================================
-        // INITIALIZE
-        // ==========================================
-        updateLanguage();
-    </script>
+
+    <!-- Scripts -->
+    <script src="docs/assets/scripts.js"></script>
 </body>
 </html>
