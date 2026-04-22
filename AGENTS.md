@@ -1,3 +1,4 @@
+<!-- From: /home/shane/dev/bitcal/AGENTS.md -->
 # BitCal - AI Agent Development Guide
 
 This document provides essential information for AI coding agents working on the BitCal project. BitCal is a modern, high-performance C++17 header-only library for bit manipulation operations with automatic SIMD acceleration.
@@ -32,15 +33,16 @@ BitCal is a header-only C++ library that provides SIMD-accelerated bit manipulat
 |---------|-------------|----------------|-----------------|
 | `scalar` | Any | 64-bit | Always available |
 | `sse2` | x86-64 | 128-bit | `BITCAL_HAS_SSE2` |
+| `avx` | x86-64 | 256-bit | `BITCAL_HAS_AVX` |
 | `avx2` | x86-64 | 256-bit | `BITCAL_HAS_AVX2` |
-| `neon` | ARM (ARMv7-A+/ARM64) | 128-bit | `BITCAL_HAS_NEON` |
 | `avx512` | x86-64 | 512-bit | `BITCAL_HAS_AVX512` (partial) |
+| `neon` | ARM (ARMv7-A+/ARM64) | 128-bit | `BITCAL_HAS_NEON` |
 
 ### Predefined Types
 
 ```cpp
-using bit64   = bitarray<64>;     // 1 x uint64_t
-using bit128  = bitarray<128>;    // 2 x uint64_t  
+using bit64   = bitarray<64>;     // 1 x uint64_t (specialized implementation)
+using bit128  = bitarray<128>;    // 2 x uint64_t
 using bit256  = bitarray<256>;    // 4 x uint64_t
 using bit512  = bitarray<512>;    // 8 x uint64_t
 using bit1024 = bitarray<1024>;   // 16 x uint64_t
@@ -50,6 +52,16 @@ Custom widths are supported (must be multiple of 64):
 ```cpp
 bitcal::bitarray<2048> custom;
 ```
+
+### Template Parameters
+
+```cpp
+template<size_t Bits, simd_backend Backend = get_default_backend()>
+class bitarray;
+```
+
+- `Bits`: Total number of bits (must be >= 64 and multiple of 64)
+- `Backend`: SIMD implementation to use (default: auto-selected)
 
 ---
 
@@ -62,9 +74,10 @@ bitcal::bitarray<2048> custom;
   - Clang 6+
   - MSVC 2017+
   - Apple Clang
-- **Testing:** Custom lightweight test framework (single-file)
-- **Benchmarking:** Google Benchmark (optional)
-- **Code Formatting:** clang-format
+- **Testing:** Custom lightweight test framework (single-file, macro-based)
+- **Benchmarking:** Google Benchmark (optional) or built-in simple timer
+- **Code Formatting:** clang-format (Google style based)
+- **Code Analysis:** clang-tidy
 - **CI/CD:** GitHub Actions
 
 ---
@@ -93,6 +106,8 @@ bitcal/
 ├── tests/                  # Unit tests (test_bitcal.cpp)
 ├── benchmarks/             # Performance benchmarks (benchmark_bitcal.cpp)
 ├── examples/               # Example programs
+│   ├── basic_usage.cpp
+│   └── performance_comparison.cpp
 ├── cmake/                  # CMake configuration templates
 └── .github/workflows/      # CI/CD configuration
 ```
@@ -155,7 +170,7 @@ make -j$(nproc)
 ./tests/test_bitcal
 
 # Run benchmarks (if built)
-./benchmarks/bench_bitcal
+./benchmarks/bitcal_benchmark
 ```
 
 ### CMake Options
@@ -165,9 +180,11 @@ make -j$(nproc)
 | `BITCAL_BUILD_TESTS` | ON | Build unit tests |
 | `BITCAL_BUILD_EXAMPLES` | ON | Build example programs |
 | `BITCAL_BUILD_BENCHMARKS` | OFF | Build performance benchmarks |
-| `BITCAL_NATIVE_ARCH` | ON | Use `-march=native` for tests/examples |
+| `BITCAL_NATIVE_ARCH` | ON | Use `-march=native` or equivalent for tests/examples |
 | `BITCAL_ENABLE_LTO` | ON | Enable Link Time Optimization |
 | `BITCAL_ENABLE_HARDENING` | OFF | Enable security hardening flags |
+
+**Important:** The INTERFACE library (`bitcal`) itself does NOT carry SIMD flags. Tests and examples use `BITCAL_SIMD_FLAGS` which is set based on `BITCAL_NATIVE_ARCH`.
 
 ### Example: Build with Benchmarks
 
@@ -323,15 +340,206 @@ bitarray<256> memory representation:
 #endif
 ```
 
+### bit64 Specialization
+
+The `bit64` type (64-bit) is fully specialized with a more efficient implementation using a single `uint64_t` value instead of an array:
+
+```cpp
+template<>
+class bitarray<64> {
+    // Direct uint64_t storage
+    uint64_t value_;
+    // Optimized operations
+};
+```
+
+---
+
+## Public API Reference
+
+### Construction
+
+```cpp
+bitarray<N> a;                    // Default constructor (all zeros)
+bitarray<N> b(0xDEADBEEF);        // Value constructor (lower 64 bits)
+bitarray<N> c = b;                // Copy constructor
+bitarray<N> d = std::move(b);     // Move constructor
+```
+
+### Data Access
+
+```cpp
+uint64_t* data() noexcept;                    // Direct pointer to words
+const uint64_t* data() const noexcept;
+uint64_t operator[](size_t idx) const;        // Read word at index
+uint64_t& operator[](size_t idx);             // Read/write word at index
+static constexpr size_t bits;                 // Total bit count
+static constexpr size_t u64_count;            // Number of 64-bit words
+static constexpr simd_backend backend;        // Backend used
+```
+
+### Bitwise Operations
+
+```cpp
+bitarray operator&(const bitarray& other) const;  // AND
+bitarray operator|(const bitarray& other) const;  // OR
+bitarray operator^(const bitarray& other) const;  // XOR
+bitarray operator~() const;                       // NOT
+bitarray andnot(const bitarray& mask) const;      // Optimized: a & ~mask
+
+bitarray& operator&=(const bitarray& other);      // AND-assign
+bitarray& operator|=(const bitarray& other);      // OR-assign
+bitarray& operator^=(const bitarray& other);      // XOR-assign
+```
+
+### Shift Operations
+
+```cpp
+void shift_left(int count) noexcept;          // In-place left shift
+void shift_right(int count) noexcept;         // In-place right shift
+bitarray operator<<(int count) const;         // Return shifted copy (left)
+bitarray operator>>(int count) const;         // Return shifted copy (right)
+bitarray& operator<<=(int count) noexcept;    // Left shift-assign
+bitarray& operator>>=(int count) noexcept;    // Right shift-assign
+```
+
+**Shift Behavior:**
+- `count == 0`: No operation
+- `count >= Bits`: All bits cleared
+- `count < 0`: Undefined behavior
+
+### Bit Counting
+
+```cpp
+uint64_t popcount() const;                    // Count set bits (HW accelerated)
+uint64_t count() const;                       // Alias for popcount()
+int count_leading_zeros() const;              // CLZ: zeros from MSB
+int count_trailing_zeros() const;             // CTZ: zeros from LSB
+```
+
+### Single Bit Operations
+
+```cpp
+bool get_bit(size_t idx) const;               // Read bit at idx
+bool test(size_t idx) const;                  // Alias for get_bit
+void set_bit(size_t idx, bool val = true);    // Set/clear bit at idx
+void flip_bit(size_t idx);                    // Toggle bit at idx
+```
+
+### Range Operations
+
+```cpp
+void set_range(size_t start, size_t end);     // Set bits [start, end)
+void clear_range(size_t start, size_t end);   // Clear bits [start, end)
+void flip_range(size_t start, size_t end);    // Flip bits [start, end)
+```
+
+### State Detection & Queries
+
+```cpp
+bool is_zero() const;                         // Check if all bits are zero
+void clear();                                 // Set all bits to zero
+bool all() const;                             // Check if all bits are set
+bool any() const;                             // Check if any bit is set
+bool none() const;                            // Check if no bits are set
+static constexpr size_t size() noexcept;      // Return Bits
+```
+
+### Find Operations
+
+```cpp
+int find_first_set() const;                   // Index of first set bit, -1 if zero
+int find_last_set() const;                    // Index of last set bit, -1 if zero
+```
+
+### Comparison
+
+```cpp
+bool operator==(const bitarray& other) const; // Equality
+bool operator!=(const bitarray& other) const; // Inequality
+```
+
+### Bit Manipulation
+
+```cpp
+void reverse();                               // Reverse bit order
+```
+
+### Type Traits
+
+```cpp
+// Check if T is a bitarray type
+template<typename T>
+struct is_bitarray : std::false_type {};
+
+template<size_t Bits, simd_backend Backend>
+struct is_bitarray<bitarray<Bits, Backend>> : std::true_type {};
+
+template<typename T>
+inline constexpr bool is_bitarray_v = is_bitarray<T>::value;
+
+// Type traits for bitarray
+template<size_t Bits, simd_backend Backend>
+struct bitarray_traits<bitarray<Bits, Backend>> {
+    static constexpr size_t bits = Bits;
+    static constexpr size_t u64_count = Bits / 64;
+    static constexpr simd_backend backend = Backend;
+    using word_type = uint64_t;
+    using type = bitarray<Bits, Backend>;
+};
+```
+
+### Low-Level API (ops namespace)
+
+```cpp
+namespace bitcal::ops {
+    template<size_t Bits>
+    uint64_t popcount(const uint64_t* data);
+
+    template<size_t Bits>
+    int count_leading_zeros(const uint64_t* data);
+
+    template<size_t Bits>
+    int count_trailing_zeros(const uint64_t* data);
+
+    uint64_t reverse_bits_64(uint64_t x);
+    uint64_t byte_swap_64(uint64_t x);
+}
+```
+
 ---
 
 ## Testing Strategy
 
+### Test Framework
+
+BitCal uses a **custom lightweight test framework** defined in `tests/test_bitcal.cpp`:
+
+```cpp
+#define ASSERT_EQ(a, b)     // Check equality
+#define ASSERT_TRUE(expr)   // Check true condition
+#define RUN_TEST(func)      // Register and run test function
+```
+
+**Output format:**
+```
+=== BitCal Unit Tests ===
+
+[64-bit]
+  test_bit64_basic ... PASS
+  test_bit64_shift_left ... PASS
+  ...
+
+==============================
+Total: 55  Pass: 55  Fail: 0
+ALL TESTS PASSED!
+```
+
 ### Test Organization
 
-Tests in `/tests/test_bitcal.cpp` are organized by bit width:
+Tests are organized by bit width:
 
-1. **64-bit tests** - Basic operations, scalar backend
+1. **64-bit tests** - Basic operations, scalar backend, bit64 specialization
 2. **128-bit tests** - SSE2/NEON, cross-word carry
 3. **256-bit tests** - AVX2, complex shift operations
 4. **512-bit tests** - AVX2/AVX-512, cross-256-bit boundary
@@ -347,7 +555,9 @@ Per `/specs/testing/bitcal-testing-spec.md`:
 - **Comparison:** Equality, inequality
 - **Bit counting:** popcount, CLZ, CTZ
 - **Single bit operations:** get_bit, set_bit, flip_bit
-- **State detection:** is_zero, clear
+- **Range operations:** set_range, clear_range, flip_range
+- **State detection:** is_zero, clear, all, any, none
+- **Find operations:** find_first_set, find_last_set
 - **Manipulation:** reverse
 - **Edge cases:** Shift by 0, shift by width, all zeros, all ones
 
@@ -356,18 +566,6 @@ Per `/specs/testing/bitcal-testing-spec.md`:
 ```bash
 # Run all tests
 ./tests/test_bitcal
-
-# Expected output format:
-# === BitCal Unit Tests ===
-#
-# [64-bit]
-#   test_bit64_basic ... PASS
-#   test_bit64_shift_left ... PASS
-#   ...
-#
-# ==============================
-# Total: 55  Pass: 55  Fail: 0
-# ALL TESTS PASSED!
 ```
 
 ### Adding New Tests
@@ -436,6 +634,7 @@ This enables:
 | `BITCAL_FORCEINLINE` | `__attribute__((always_inline)) inline` | `__forceinline` |
 | `BITCAL_LIKELY(x)` | `__builtin_expect(!!(x), 1)` | `(x)` |
 | `BITCAL_UNLIKELY(x)` | `__builtin_expect(!!(x), 0)` | `(x)` |
+| `BITCAL_CONSTEXPR` | `constexpr` (C++14+) | `constexpr` |
 
 ### Commit Message Convention
 

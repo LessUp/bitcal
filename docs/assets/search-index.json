@@ -1,0 +1,18 @@
+[
+  {"title": "Installation Guide", "path": "Getting Started", "url": "./en/getting-started/installation.html", "content": "System requirements installation methods compiler configuration verification"},
+  {"title": "Quick Start", "path": "Getting Started", "url": "./en/getting-started/quickstart.html", "content": "First program core concepts API overview performance tips"},
+  {"title": "Build Options", "path": "Getting Started", "url": "./en/getting-started/build-options.html", "content": "CMake options compiler flags macro definitions"},
+  {"title": "Types Reference", "path": "API Reference", "url": "./en/api/types.html", "content": "bitarray template predefined types constructors data access static members"},
+  {"title": "Core Operations", "path": "API Reference", "url": "./en/api/core-operations.html", "content": "AND OR XOR NOT ANDNOT bitwise operations comparison state detection"},
+  {"title": "Bit Counting", "path": "API Reference", "url": "./en/api/bit-counting.html", "content": "popcount count_leading_zeros count_trailing_zeros CLZ CTZ"},
+  {"title": "Shift Operations", "path": "API Reference", "url": "./en/api/shift-operations.html", "content": "shift_left shift_right left right shift boundary behavior"},
+  {"title": "Bit Manipulation", "path": "API Reference", "url": "./en/api/bit-manipulation.html", "content": "get_bit set_bit flip_bit reverse single bit operations"},
+  {"title": "SIMD Backend", "path": "API Reference", "url": "./en/api/simd-backend.html", "content": "backend enumeration automatic selection manual specification runtime query"},
+  {"title": "Ops Namespace", "path": "API Reference", "url": "./en/api/ops-namespace.html", "content": "functional API bit counting utility functions"},
+  {"title": "Architecture Overview", "path": "Architecture", "url": "./en/architecture/overview.html", "content": "layered design file structure design principles SIMD dispatch memory usage"},
+  {"title": "SIMD Dispatch", "path": "Architecture", "url": "./en/architecture/simd-dispatch.html", "content": "compile-time dispatch binary operation shift operation implementation"},
+  {"title": "Platform Support", "path": "Architecture", "url": "./en/architecture/platform-support.html", "content": "supported platforms compilers SIMD support"},
+  {"title": "安装指南", "path": "开始使用", "url": "./zh/getting-started/installation.html", "content": "系统要求 安装方法 编译器配置 验证"},
+  {"title": "快速开始", "path": "开始使用", "url": "./zh/getting-started/quickstart.html", "content": "第一个程序 核心概念 API 概览"},
+  {"title": "构建选项", "path": "开始使用", "url": "./zh/getting-started/build-options.html", "content": "CMake 选项 编译器标志"}
+]

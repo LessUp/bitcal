@@ -46,20 +46,20 @@ int main() {
 | 📦 **纯头文件** | 单个 `#include <bitcal/bitcal.hpp>` | 零依赖 |
 | 🔧 **丰富的 API** | 位运算、位移、popcount、CLZ/CTZ、位反转、ANDNOT | 生产就绪 |
 | 🌍 **跨平台** | Linux、Windows、macOS，支持 x86-64 和 ARM | 通用支持 |
-| 🏎️ **类型安全** | 编译期位宽验证 | 尽早捕获错误 |
+| 🏎️ **类型安全** | 编译期位宽验证（`Bits % 64 == 0`） | 尽早捕获错误 |
 
 <details>
 <summary>📋 目录</summary>
 
-- [安装](#安装)
-- [快速开始](#快速开始)
-- [API 概览](#api-概览)
-- [使用场景](#使用场景)
-- [性能](#性能)
-- [文档](#文档)
-- [平台支持](#平台支持)
-- [构建说明](#构建说明)
-- [项目结构](#项目结构)
+- [安装](#-安装)
+- [快速开始](#-快速开始)
+- [API 概览](#-api-概览)
+- [使用场景](#-使用场景)
+- [性能](#-性能)
+- [文档](#-文档)
+- [平台支持](#-平台支持)
+- [构建说明](#-构建说明)
+- [项目结构](#-项目结构)
 </details>
 
 ## 🚀 安装
@@ -92,7 +92,7 @@ target_link_libraries(your_target PRIVATE bitcal::bitcal)
 
 ```bash
 # 克隆并安装
- git clone https://github.com/LessUp/bitcal.git
+git clone https://github.com/LessUp/bitcal.git
  cd bitcal
  mkdir build && cd build
  cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
@@ -179,7 +179,7 @@ int main() {
 | `bitcal::bit128` | 128 位 | 2 | SSE2/NEON 原生位宽 |
 | `bitcal::bit256` | 256 位 | 4 | AVX2 原生位宽 |
 | `bitcal::bit512` | 512 位 | 8 | 大位宽并行运算 |
-| `bitcal::bit1024` | 1024 位 | 16 | 超大批次位运算 |
+| `bitcal::bit1024` | 1024 位 | 16 | 超大位宽并行运算 |
 
 自定义位宽（64 的倍数）：
 ```cpp
@@ -247,10 +247,11 @@ a.reverse()               // 位序反转
 
 ### 强制指定后端
 ```cpp
-bitcal::bitarray<256, bitcal::simd_backend::avx2>  强制_avx2;
-bitcal::bitarray<256, bitcal::simd_backend::sse2>  强制_sse2;
-bitcal::bitarray<256, bitcal::simd_backend::neon>  强制_neon;
-bitcal::bitarray<256, bitcal::simd_backend::scalar> 强制_标量;
+bitcal::bitarray<256, bitcal::simd_backend::avx512> force_avx512;
+bitcal::bitarray<256, bitcal::simd_backend::avx2>   force_avx2;
+bitcal::bitarray<256, bitcal::simd_backend::sse2>   force_sse2;
+bitcal::bitarray<256, bitcal::simd_backend::neon>   force_neon;
+bitcal::bitarray<256, bitcal::simd_backend::scalar> force_scalar;
 ```
 
 ## 💡 使用场景
@@ -271,11 +272,31 @@ BitCal 在需要高性能位操作的场景中表现出色：
 ```cpp
 // 示例：快速 CIDR 掩码生成
 bitcal::bit256 make_mask(int prefix_len) {
+    if (prefix_len <= 0) return bitcal::bit256(0);
+    if (prefix_len >= 256) return ~bitcal::bit256(0);
+    
+    // 计算完整字和剩余位
+    int whole_words = prefix_len / 64;
+    int remain_bits = prefix_len % 64;
+    
     bitcal::bit256 mask;
-    mask.clear();
-    for (int i = 0; i < prefix_len; ++i) {
-        mask.set_bit(255 - i, true);
+    uint64_t* data = mask.data();
+    
+    // 填充完整的字为全1
+    for (int i = 0; i < whole_words; ++i) {
+        data[3 - i] = UINT64_MAX;  // CIDR 使用大端字序
     }
+    
+    // 在下一个字中设置剩余位
+    if (remain_bits > 0) {
+        data[3 - whole_words] = UINT64_MAX << (64 - remain_bits);
+    }
+    
+    // 清空剩余的字
+    for (int i = whole_words + (remain_bits > 0 ? 1 : 0); i < 4; ++i) {
+        data[3 - i] = 0;
+    }
+    
     return mask;
 }
 ```
@@ -326,12 +347,16 @@ cl /std:c++17 /O2 /arch:AVX2 /DNDEBUG
 
 BitCal 根据编译器选项自动选择最佳后端：
 
-| 平台 | 后端 | 位宽 | 触发条件 |
-|------|------|------|----------|
-| x86-64 | AVX2 | 256 位 | `-mavx2` 可用 |
-| x86-64 | SSE2 | 128 位 | `-msse2` 可用 |
-| ARM | NEON | 128 位 | ARMv7-A+ 或 ARM64 |
-| 任意 | 标量 | 64 位 | 回退方案 |
+| 平台 | 后端 | 位宽 | 触发条件 | 状态 |
+|------|------|------|----------|------|
+| x86-64 | AVX-512 | 512 位 | `-mavx512f` 可用 | 部分支持 |
+| x86-64 | AVX2 | 256 位 | `-mavx2` 可用 | 完全支持 |
+| x86-64 | AVX | 256 位 | `-mavx` 可用 | 完全支持 |
+| x86-64 | SSE2 | 128 位 | `-msse2` 可用 | 完全支持 |
+| ARM | NEON | 128 位 | ARMv7-A+ 或 ARM64 | 完全支持 |
+| 任意 | 标量 | 64 位 | 回退方案 | 完全支持 |
+
+> **注意：** AVX-512 目前为部分支持。核心运算（与、或、异或、非）使用 AVX-512，其他运算回退至 AVX2。
 
 ## 📚 文档
 
@@ -358,6 +383,15 @@ BitCal 根据编译器选项自动选择最佳后端：
 - [安装指南](docs/zh/getting-started/installation.md)
 - [快速开始](docs/zh/getting-started/quickstart.md)
 - [构建选项](docs/zh/getting-started/build-options.md)
+
+## 🔒 安全保证
+
+| 方面 | 保证 | 说明 |
+|------|------|------|
+| **异常安全** | 所有热路径操作均为 `noexcept` | 位操作不抛出异常 |
+| **边界检查** | 仅在调试构建中使用 `assert()` | 发布构建使用 `NDEBUG` |
+| **线程安全** | 线程兼容 | 不同实例：✅ 安全<br>同实例只读：✅ 安全<br>同实例读写：❌ 需要同步 |
+| **内存安全** | 64 字节对齐，无堆分配 | 纯栈分配，缓存行友好 |
 
 完整文档：[https://lessup.github.io/bitcal/](https://lessup.github.io/bitcal/)
 

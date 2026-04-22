@@ -46,7 +46,7 @@ int main() {
 | 📦 **Header-Only** | Single `#include <bitcal/bitcal.hpp>` | Zero dependencies |
 | 🔧 **Rich API** | Bitwise ops, shifts, popcount, CLZ/CTZ, bit reversal, ANDNOT | Production-ready |
 | 🌍 **Cross-Platform** | Linux, Windows, macOS on x86-64 and ARM | Universal support |
-| 🏎️ **Type Safety** | Compile-time bit-width validation | Catch errors early |
+| 🏎️ **Type Safety** | Compile-time bit-width validation (`Bits % 64 == 0`) | Catch errors early |
 
 <details>
 <summary>📋 Table of Contents</summary>
@@ -92,7 +92,7 @@ target_link_libraries(your_target PRIVATE bitcal::bitcal)
 
 ```bash
 # Clone and install
- git clone https://github.com/LessUp/bitcal.git
+git clone https://github.com/LessUp/bitcal.git
  cd bitcal
  mkdir build && cd build
  cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
@@ -179,7 +179,7 @@ int main() {
 | `bitcal::bit128` | 128-bit | 2 | SSE2/NEON native |
 | `bitcal::bit256` | 256-bit | 4 | AVX2 native |
 | `bitcal::bit512` | 512-bit | 8 | Large parallel ops |
-| `bitcal::bit1024` | 1024-bit | 16 | Very large bitsets |
+| `bitcal::bit1024` | 1024-bit | 16 | Very large parallel ops |
 
 Custom widths (multiple of 64):
 ```cpp
@@ -247,9 +247,10 @@ a.reverse()               // Reverse bit order
 
 ### Force Specific Backend
 ```cpp
-bitcal::bitarray<256, bitcal::simd_backend::avx2>  force_avx2;
-bitcal::bitarray<256, bitcal::simd_backend::sse2>  force_sse2;
-bitcal::bitarray<256, bitcal::simd_backend::neon>  force_neon;
+bitcal::bitarray<256, bitcal::simd_backend::avx512> force_avx512;
+bitcal::bitarray<256, bitcal::simd_backend::avx2>   force_avx2;
+bitcal::bitarray<256, bitcal::simd_backend::sse2>   force_sse2;
+bitcal::bitarray<256, bitcal::simd_backend::neon>   force_neon;
 bitcal::bitarray<256, bitcal::simd_backend::scalar> force_scalar;
 ```
 
@@ -271,11 +272,31 @@ See [`examples/`](examples/) for concrete implementations.
 ```cpp
 // Example: Fast CIDR mask generation
 bitcal::bit256 make_mask(int prefix_len) {
+    if (prefix_len <= 0) return bitcal::bit256(0);
+    if (prefix_len >= 256) return ~bitcal::bit256(0);
+    
+    // Calculate whole words and remaining bits
+    int whole_words = prefix_len / 64;
+    int remain_bits = prefix_len % 64;
+    
     bitcal::bit256 mask;
-    mask.clear();
-    for (int i = 0; i < prefix_len; ++i) {
-        mask.set_bit(255 - i, true);
+    uint64_t* data = mask.data();
+    
+    // Fill whole words with ones
+    for (int i = 0; i < whole_words; ++i) {
+        data[3 - i] = UINT64_MAX;  // Big-endian word order for CIDR
     }
+    
+    // Set remaining bits in the next word
+    if (remain_bits > 0) {
+        data[3 - whole_words] = UINT64_MAX << (64 - remain_bits);
+    }
+    
+    // Clear remaining words
+    for (int i = whole_words + (remain_bits > 0 ? 1 : 0); i < 4; ++i) {
+        data[3 - i] = 0;
+    }
+    
     return mask;
 }
 ```
@@ -326,12 +347,16 @@ cl /std:c++17 /O2 /arch:AVX2 /DNDEBUG
 
 BitCal automatically selects the best backend based on compiler flags:
 
-| Platform | Backend | Width | Condition |
-|----------|---------|-------|-----------|
-| x86-64 | AVX2 | 256-bit | `-mavx2` available |
-| x86-64 | SSE2 | 128-bit | `-msse2` available |
-| ARM | NEON | 128-bit | ARMv7-A+ or ARM64 |
-| Any | Scalar | 64-bit | Fallback |
+| Platform | Backend | Width | Condition | Status |
+|----------|---------|-------|-----------|--------|
+| x86-64 | AVX-512 | 512-bit | `-mavx512f` available | Partial support |
+| x86-64 | AVX2 | 256-bit | `-mavx2` available | Full support |
+| x86-64 | AVX | 256-bit | `-mavx` available | Full support |
+| x86-64 | SSE2 | 128-bit | `-msse2` available | Full support |
+| ARM | NEON | 128-bit | ARMv7-A+ or ARM64 | Full support |
+| Any | Scalar | 64-bit | Fallback | Full support |
+
+> **Note:** AVX-512 support is currently partial. Core operations (AND, OR, XOR, NOT) use AVX-512, while other operations fall back to AVX2.
 
 ## 📚 Documentation
 
@@ -358,6 +383,15 @@ BitCal automatically selects the best backend based on compiler flags:
 - [Installation Guide](docs/en/getting-started/installation.md)
 - [Quick Start](docs/en/getting-started/quickstart.md)
 - [Build Options](docs/en/getting-started/build-options.md)
+
+## 🔒 Safety Guarantees
+
+| Aspect | Guarantee | Notes |
+|--------|-----------|-------|
+| **Exception Safety** | `noexcept` on all hot-path operations | No exceptions thrown from bit operations |
+| **Bounds Checking** | `assert()` in debug builds | Use `NDEBUG` for release builds |
+| **Thread Safety** | Thread-compatible | Different instances: ✅ safe<br>Same instance, read-only: ✅ safe<br>Same instance, read+write: ❌ requires synchronization |
+| **Memory Safety** | 64-byte aligned, no heap allocation | Stack-only, cache-line friendly |
 
 Full documentation: [https://lessup.github.io/bitcal/](https://lessup.github.io/bitcal/)
 
