@@ -1,0 +1,42 @@
+schema: spec-driven
+
+# Project context for AI agents
+context: |
+  BitCal is a modern, high-performance C++17 header-only library for bit manipulation
+  operations with automatic SIMD acceleration.
+
+  Tech stack:
+    - C++17 (minimum)
+    - CMake 3.16+
+    - Header-only library
+    - Supported compilers: GCC 7+, Clang 6+, MSVC 2017+, Apple Clang
+
+  SIMD backends:
+    - scalar (portable fallback)
+    - sse2 (x86 128-bit)
+    - avx2 (x86 256-bit)
+    - neon (ARM 128-bit)
+
+  Predefined types:
+    - bit64, bit128, bit256, bit512, bit1024
+
+  Code style:
+    - Namespace: lowercase (bitcal)
+    - Class: lowercase_underscore (bitarray)
+    - Function: lowercase_underscore (popcount, shift_left)
+    - Macro: SCREAMING_SNAKE_CASE (BITCAL_HAS_AVX2)
+
+# Per-artifact rules
+rules:
+  proposal:
+    - Include "Why", "What", "Impact" sections
+    - Keep proposals concise (under 500 words)
+    - Reference related specs or RFCs
+  design:
+    - Include "Context", "Decision", "Implementation" sections
+    - Document alternatives considered
+    - List risks and mitigations
+  tasks:
+    - Break tasks into 1-2 hour chunks
+    - Use checkboxes for tracking
+    - Group by category (Implementation, Testing, Documentation)
