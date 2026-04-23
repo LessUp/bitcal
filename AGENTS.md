@@ -5,7 +5,7 @@ This document provides essential information for AI coding agents working on the
 
 **Current Version:** v2.1.0  
 **Minimum C++ Standard:** C++17  
-**Project Philosophy:** Spec-Driven Development (SDD)
+**Project Philosophy:** Spec-Driven Development (SDD) with OpenSpec
 
 ---
 
@@ -14,7 +14,7 @@ This document provides essential information for AI coding agents working on the
 - [Project Overview](#project-overview)
 - [Technology Stack](#technology-stack)
 - [Project Structure](#project-structure)
-- [Development Workflow](#development-workflow)
+- [OpenSpec Workflow](#openspec-workflow)
 - [Build and Test Commands](#build-and-test-commands)
 - [Code Style Guidelines](#code-style-guidelines)
 - [Architecture Overview](#architecture-overview)
@@ -95,11 +95,15 @@ bitcal/
 │   ├── avx_ops.hpp         # AVX2 (256-bit) operations for x86
 │   ├── avx512_ops.hpp      # AVX-512 (512-bit) operations for x86
 │   └── neon_ops.hpp        # NEON (128-bit) operations for ARM
-├── specs/                  # Specification documents (SDD workflow)
-│   ├── api/                # API specifications
-│   ├── product/            # Product requirements and acceptance criteria
-│   ├── rfc/                # Technical design documents
-│   └── testing/            # Test specifications
+├── openspec/             # OpenSpec configuration and specs (SDD workflow)
+│   ├── config.yaml       # Project configuration
+│   ├── specs/            # Persistent specifications
+│   │   ├── api/          # API specifications
+│   │   ├── product/      # Product requirements
+│   │   ├── rfc/          # Technical design documents
+│   │   └── testing/      # Test specifications
+│   └── changes/          # Change proposals and archive
+├── specs/                # Legacy specs (preserved for reference)
 ├── docs/                   # User documentation
 │   ├── en/                 # English documentation
 │   └── zh/                 # Chinese documentation
@@ -114,45 +118,103 @@ bitcal/
 
 ---
 
-## Development Workflow
+## OpenSpec Workflow
 
-**CRITICAL: This project follows Spec-Driven Development (SDD).** All changes must follow this workflow:
+**CRITICAL: This project uses OpenSpec for Spec-Driven Development.** All changes must follow the OpenSpec workflow:
 
-### Spec-Driven Development Workflow
+### Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `/opsx:propose "<idea>"` | Create a new change proposal with all artifacts |
+| `/opsx:apply` | Implement the tasks defined in a change |
+| `/opsx:verify` | Verify implementation against specs |
+| `/opsx:archive` | Archive completed changes |
+| `/opsx:explore` | Explore the codebase structure |
+
+### OpenSpec Workflow Stages
 
 ```
-Step 1: Review Specs
-    ↓ Read /specs/product/, /specs/rfc/, /specs/api/
-Step 2: Identify Conflicts
-    ↓ If user request conflicts with specs, STOP and alert user
-Step 3: Propose Spec Updates (if needed)
-    ↓ Update /specs/product/ for features, /specs/api/ for API changes
-Step 4: Wait for Approval
-    ↓ Do not write code until specs are approved
-Step 5: Implement According to Spec
-    ↓ Follow naming conventions and API contracts exactly
-Step 6: Test Against Spec
-    ↓ Verify all acceptance criteria are met
+Stage 1: Propose
+    ↓ /opsx:propose "<idea>"
+    ↓ Creates: openspec/changes/<name>/
+    ↓           ├── proposal.md  (why & what)
+    ↓           ├── design.md    (how)
+    ↓           ├── tasks.md     (implementation steps)
+    ↓           └── specs/       (requirements)
+Stage 2: Apply
+    ↓ /opsx:apply
+    ↓ Implement tasks from tasks.md
+    ↓ Update task checkboxes as completed
+Stage 3: Verify
+    ↓ /opsx:verify
+    ↓ Verify implementation matches specs
+Stage 4: Archive
+    ↓ /opsx:archive
+    ↓ Move to openspec/changes/archive/YYYY-MM-DD-<name>/
 ```
 
-### Spec Directory Structure
+### Directory Structure
+
+```
+openspec/
+├── config.yaml           # Project configuration
+├── specs/                # Persistent specifications
+│   ├── product/          # Product requirements
+│   ├── api/              # API specifications
+│   ├── rfc/              # Technical design documents
+│   └── testing/          # Test specifications
+├── changes/              # Active change proposals
+│   └── <change-name>/    # Each change has its own directory
+└── changes/
+    └── archive/          # Completed changes
+        └── YYYY-MM-DD-<name>/
+```
+
+### Spec Directory Purpose
 
 | Directory | Purpose | When to Update |
 |-----------|---------|----------------|
-| `/specs/product/` | Product requirements and acceptance criteria | Adding new features |
-| `/specs/rfc/` | Technical design documents and architecture proposals | Design decisions, optimizations |
-| `/specs/api/` | Public API specifications | Interface changes |
-| `/specs/testing/` | Test coverage requirements | New test scenarios |
+| `specs/product/` | Product requirements and acceptance criteria | Adding new features |
+| `specs/api/` | Public API specifications | Interface changes |
+| `specs/rfc/` | Technical design documents | Design decisions, optimizations |
+| `specs/testing/` | Test coverage requirements | New test scenarios |
 
-### Conflict Detection Examples
+### Conflict Detection
 
-- **User wants to add bit2048 type**
-  - Check `/specs/product/bit-manipulation-library.md` for allowed types
-  - If not listed, propose spec update first
-  
-- **User wants to change API naming**
-  - Check `/specs/api/bitcal-public-api.md` for current naming
-  - Any API changes require spec update first
+Before implementing any change:
+1. Check existing specs in `openspec/specs/`
+2. If request conflicts with specs, STOP and alert user
+3. Propose spec update via `/opsx:propose` if needed
+4. Wait for approval before implementing
+
+### Example: Adding a New Feature
+
+1. **Propose the change:**
+   ```
+   /opsx:propose "Add AVX-512 native support"
+   ```
+
+2. **Review generated artifacts** in `openspec/changes/add-avx512-native-support/`
+
+3. **Implement the change:**
+   ```
+   /opsx:apply
+   ```
+
+4. **Verify implementation:**
+   ```
+   /opsx:verify
+   ```
+
+5. **Archive when complete:**
+   ```
+   /opsx:archive
+   ```
+
+### Legacy Specs Note
+
+The original `specs/` directory is preserved for reference. All new specs should be created in `openspec/specs/`.
 
 ---
 
