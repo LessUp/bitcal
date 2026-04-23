@@ -430,6 +430,44 @@ BITCAL_FORCEINLINE bool is_zero_512(const uint64_t* data) noexcept {
     return (lo | hi) == 0;
 }
 
+// ============================================================================
+// all() operations - check if all bits are set
+// ============================================================================
+
+BITCAL_FORCEINLINE bool all_128(const uint64_t* data) noexcept {
+    uint64x2_t v = load(data);
+    uint64x2_t all_ones = vdupq_n_u64(~0ULL);
+    uint64x2_t cmp = vceqq_u64(v, all_ones);
+    // Check if both elements are all ones
+    uint64_t lo = vgetq_lane_u64(cmp, 0);
+    uint64_t hi = vgetq_lane_u64(cmp, 1);
+    return (lo & hi) == ~0ULL;
+}
+
+BITCAL_FORCEINLINE bool all_256(const uint64_t* data) noexcept {
+    uint64x2_t v0 = load(data);
+    uint64x2_t v1 = load(data + 2);
+    uint64x2_t all_ones = vdupq_n_u64(~0ULL);
+    uint64x2_t cmp0 = vceqq_u64(v0, all_ones);
+    uint64x2_t cmp1 = vceqq_u64(v1, all_ones);
+    uint64_t lo0 = vgetq_lane_u64(cmp0, 0);
+    uint64_t hi0 = vgetq_lane_u64(cmp0, 1);
+    uint64_t lo1 = vgetq_lane_u64(cmp1, 0);
+    uint64_t hi1 = vgetq_lane_u64(cmp1, 1);
+    return (lo0 & hi0 & lo1 & hi1) == ~0ULL;
+}
+
+BITCAL_FORCEINLINE bool all_512(const uint64_t* data) noexcept {
+    uint64x2_t all_ones = vdupq_n_u64(~0ULL);
+    uint64_t mask = ~0ULL;
+    for (int i = 0; i < 4; ++i) {
+        uint64x2_t v = load(data + i * 2);
+        uint64x2_t cmp = vceqq_u64(v, all_ones);
+        mask &= vgetq_lane_u64(cmp, 0) & vgetq_lane_u64(cmp, 1);
+    }
+    return mask == ~0ULL;
+}
+
 }
 }
 
