@@ -314,20 +314,19 @@ public:
         if constexpr (Bits == 64) {
             return scalar::popcount(data_[0]);
         }
+#if BITCAL_HAS_AVX512
+        else if constexpr (Backend == simd_backend::avx512 && Bits == 256) {
+            return avx512::popcount_256(data_);
+        }
+        else if constexpr (Backend == simd_backend::avx512 && Bits == 512) {
+            return avx512::popcount_512(data_);
+        }
+#endif
 #if BITCAL_HAS_AVX2
         else if constexpr (Backend == simd_backend::avx2 && Bits == 256) {
             return avx::popcount_256(data_);
         }
         else if constexpr (Backend == simd_backend::avx2 && Bits == 512) {
-            return avx::popcount_512(data_);
-        }
-#endif
-#if BITCAL_HAS_AVX512
-        else if constexpr (Backend == simd_backend::avx512 && Bits == 256) {
-            // AVX-512 VPOPCNTDQ instruction would be ideal, but we use the same implementation
-            return avx::popcount_256(data_);
-        }
-        else if constexpr (Backend == simd_backend::avx512 && Bits == 512) {
             return avx::popcount_512(data_);
         }
 #endif
@@ -486,13 +485,53 @@ public:
     // ============================================================================
     // Comparison operations
     // ============================================================================
-    
+
     /// Check if all bits are set (all ones)
     [[nodiscard]] BITCAL_FORCEINLINE bool all() const noexcept {
-        for (size_t i = 0; i < u64_count; ++i) {
-            if (data_[i] != ~0ULL) return false;
+        if constexpr (Bits == 64) {
+            return data_[0] == ~0ULL;
         }
-        return true;
+#if BITCAL_HAS_AVX512
+        else if constexpr (Backend == simd_backend::avx512 && Bits == 256) {
+            return avx512::all_256(data_);
+        }
+        else if constexpr (Backend == simd_backend::avx512 && Bits == 512) {
+            return avx512::all_512(data_);
+        }
+#endif
+#if BITCAL_HAS_AVX2
+        else if constexpr (Backend == simd_backend::avx2 && Bits == 256) {
+            return avx::all_256(data_);
+        }
+        else if constexpr (Backend == simd_backend::avx2 && Bits == 512) {
+            return avx::all_512(data_);
+        }
+#endif
+#if BITCAL_HAS_NEON
+        else if constexpr (Backend == simd_backend::neon && Bits == 128) {
+            return neon::all_128(data_);
+        }
+        else if constexpr (Backend == simd_backend::neon && Bits == 256) {
+            return neon::all_256(data_);
+        }
+        else if constexpr (Backend == simd_backend::neon && Bits == 512) {
+            return neon::all_512(data_);
+        }
+#endif
+#if BITCAL_HAS_SSE2
+        else if constexpr (Backend == simd_backend::sse2 && Bits == 128) {
+            return sse::all_128(data_);
+        }
+        else if constexpr (Backend == simd_backend::sse2 && Bits == 256) {
+            return sse::all_256(data_);
+        }
+#endif
+        else {
+            for (size_t i = 0; i < u64_count; ++i) {
+                if (data_[i] != ~0ULL) return false;
+            }
+            return true;
+        }
     }
     
     /// Check if any bit is set
