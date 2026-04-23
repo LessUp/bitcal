@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "bitcal",
+  "version": "2.1.0",
+  "description": "A modern C++17 header-only library for high-performance bit operations with automatic SIMD acceleration",
+  "homepage": "https://github.com/username/bitcal",
+  "license": "MIT",
+  "dependencies": [],
+  "supports": "(windows | linux | osx) & (x64 | arm64 | arm)",
+  "install-features": {
+    "benchmarks": {
+      "description": "Build benchmarks (requires google-benchmark)",
+      "dependencies": [
+        {
+          "name": "benchmark",
+          "host": true
+        }
+      ]
+    }
+  }
+}
