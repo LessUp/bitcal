@@ -259,7 +259,91 @@ BITCAL_FORCEINLINE void bit_andnot_256(const uint64_t* a, const uint64_t* b, uin
     _mm256_storeu_si256(reinterpret_cast<__m256i*>(out), _mm256_andnot_si256(vb, va));
 }
 
+// ============================================================================
+// Popcount using AVX-512 VPOPCNTDQ instructions
+// ============================================================================
+
+#if defined(__AVX512VPOPCNTDQ__) || (defined(_MSC_VER) && defined(__AVX512VPOPCNTDQ__))
+#define BITCAL_HAS_VPOPCNTDQ 1
+
+BITCAL_FORCEINLINE uint64_t popcount_512(const uint64_t* data) noexcept {
+    __m512i v = load(data);
+    // VPOPCNTDQ: count bits set in each 64-bit element
+    __m512i counts = _mm512_popcnt_epi64(v);
+    // Reduce: sum all 8 elements
+    // Use horizontal add by adding pairs recursively
+    __m256i lo = _mm512_castsi512_si256(counts);
+    __m256i hi = _mm512_extracti64x4_epi64(counts, 1);
+    __m256i sum256 = _mm256_add_epi64(lo, hi);
+    __m128i sum128 = _mm_add_epi64(
+        _mm256_castsi256_si128(sum256),
+        _mm256_extracti128_si256(sum256, 1)
+    );
+    sum128 = _mm_add_epi64(sum128, _mm_unpackhi_epi64(sum128, sum128));
+    return _mm_cvtsi128_si64(sum128);
+}
+
+BITCAL_FORCEINLINE uint64_t popcount_256(const uint64_t* data) noexcept {
+    __m256i v = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));
+    // Extend to 512-bit, use VPOPCNTDQ, then extract result
+    __m512i v512 = _mm512_castsi256_si512(v);
+    __m512i counts = _mm512_popcnt_epi64(v512);
+    __m256i counts256 = _mm512_castsi512_si256(counts);
+    // Sum 4 elements
+    __m128i lo = _mm256_castsi256_si128(counts256);
+    __m128i hi = _mm256_extracti128_si256(counts256, 1);
+    __m128i sum = _mm_add_epi64(lo, hi);
+    sum = _mm_add_epi64(sum, _mm_unpackhi_epi64(sum, sum));
+    return _mm_cvtsi128_si64(sum);
+}
+
+#else
+#define BITCAL_HAS_VPOPCNTDQ 0
+
+// Fallback: extract and use scalar popcount
+BITCAL_FORCEINLINE uint64_t popcount_512(const uint64_t* data) noexcept {
+    __m512i v = load(data);
+    return scalar::popcount(_mm512_extract_epi64(v, 0)) +
+           scalar::popcount(_mm512_extract_epi64(v, 1)) +
+           scalar::popcount(_mm512_extract_epi64(v, 2)) +
+           scalar::popcount(_mm512_extract_epi64(v, 3)) +
+           scalar::popcount(_mm512_extract_epi64(v, 4)) +
+           scalar::popcount(_mm512_extract_epi64(v, 5)) +
+           scalar::popcount(_mm512_extract_epi64(v, 6)) +
+           scalar::popcount(_mm512_extract_epi64(v, 7));
+}
+
+BITCAL_FORCEINLINE uint64_t popcount_256(const uint64_t* data) noexcept {
+    __m256i v = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));
+    return scalar::popcount(_mm256_extract_epi64(v, 0)) +
+           scalar::popcount(_mm256_extract_epi64(v, 1)) +
+           scalar::popcount(_mm256_extract_epi64(v, 2)) +
+           scalar::popcount(_mm256_extract_epi64(v, 3));
+}
+
+#endif  // BITCAL_HAS_VPOPCNTDQ
+
+// ============================================================================
+// all() operations - check if all bits are set
+// ============================================================================
+
+BITCAL_FORCEINLINE bool all_256(const uint64_t* data) noexcept {
+    __m256i v = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));
+    __m256i all_ones = _mm256_set1_epi32(-1);
+    __m256i cmp = _mm256_cmpeq_epi64(v, all_ones);
+    return _mm256_testc_si256(cmp, all_ones) != 0;
+}
+
+BITCAL_FORCEINLINE bool all_512(const uint64_t* data) noexcept {
+    __m512i v = load(data);
+    __mmask8 mask = _mm512_cmpeq_epi64_mask(v, _mm512_set1_epi32(-1));
+    return mask == 0xFF;
+}
+
+// ============================================================================
 // is_zero operations using AVX-512 mask registers
+// ============================================================================
+
 BITCAL_FORCEINLINE bool is_zero_256(const uint64_t* data) noexcept {
     __m256i v = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));
     // Test if all bits are zero - returns mask
