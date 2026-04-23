@@ -295,16 +295,86 @@ BITCAL_FORCEINLINE void bit_andnot_512(const uint64_t* a, const uint64_t* b, uin
 }
 
 // ============================================================================
-// Popcount using SSSE3 lookup table approach (optimized for AVX2)
+// Popcount using SIMD vectorized approach (Harley-Seal algorithm variant)
 // ============================================================================
 
+namespace detail {
+
+// Lookup table for popcount of 4-bit nibbles (used by SSSE3 PSHUFB method)
+// This is stored as a constant for the Harley-Seal SIMD popcount
+BITCAL_FORCEINLINE __m256i popcount_lut() noexcept {
+    // 0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4 repeated for 16 bytes
+    return _mm256_setr_epi8(
+        0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
+        0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4
+    );
+}
+
+// Mask for low 4 bits of each byte
+BITCAL_FORCEINLINE __m256i low_nibble_mask() noexcept {
+    return _mm256_set1_epi8(0x0F);
+}
+
+}  // namespace detail
+
+#if defined(__SSSE3__)
+// SSSE3 PSHUFB-based popcount - true SIMD vectorization
+BITCAL_FORCEINLINE __m256i popcount_bytes(__m256i v) noexcept {
+    __m256i lut = detail::popcount_lut();
+    __m256i low_mask = detail::low_nibble_mask();
+
+    // Process low nibbles
+    __m256i lo = _mm256_and_si256(v, low_mask);
+    __m256i pop_lo = _mm256_shuffle_epi8(lut, lo);
+
+    // Process high nibbles (shift right 4 bits)
+    __m256i hi = _mm256_and_si256(_mm256_srli_epi16(v, 4), low_mask);
+    __m256i pop_hi = _mm256_shuffle_epi8(lut, hi);
+
+    // Sum byte popcounts
+    return _mm256_add_epi8(pop_lo, pop_hi);
+}
+
+// Horizontal sum of all 32 bytes in a __m256i
+BITCAL_FORCEINLINE uint64_t hsum_bytes_256(__m256i v) noexcept {
+    // PSADBW computes sum of absolute differences for each 128-bit lane
+    // For each lane: result = sum(abs(v[i] - 0)) for i in 0..7
+    // So we get sum of first 8 bytes in each lane
+
+    // First, get sum of bytes 0-7 and 16-23
+    __m256i sad1 = _mm256_sad_epu8(v, _mm256_setzero_si256());
+
+    // Shift right by 8 bytes to get bytes 8-15 and 24-31
+    __m256i v_shifted = _mm256_srli_si256(v, 8);
+    __m256i sad2 = _mm256_sad_epu8(v_shifted, _mm256_setzero_si256());
+
+    // sad1 = [sum0_07, 0, sum1_1617, 0] (64-bit elements)
+    // sad2 = [sum0_815, 0, sum1_2431, 0]
+    // Total = sad1[0] + sad1[2] + sad2[0] + sad2[2]
+    return _mm256_extract_epi64(sad1, 0) + _mm256_extract_epi64(sad1, 2) +
+           _mm256_extract_epi64(sad2, 0) + _mm256_extract_epi64(sad2, 2);
+}
+
 BITCAL_FORCEINLINE uint64_t popcount_256(const uint64_t* data) noexcept {
-    // Load 256 bits
     __m256i v = load(data);
-    
-    // Use the same algorithm as scalar but vectorized
-    // Extract each 64-bit lane and use builtin popcount
-    // This is simple and portable, while still being faster than scalar loop
+    __m256i byte_counts = popcount_bytes(v);
+    return hsum_bytes_256(byte_counts);
+}
+
+BITCAL_FORCEINLINE uint64_t popcount_512(const uint64_t* data) noexcept {
+    __m256i v0 = load(data);
+    __m256i v1 = load(data + 4);
+
+    __m256i byte_counts0 = popcount_bytes(v0);
+    __m256i byte_counts1 = popcount_bytes(v1);
+
+    return hsum_bytes_256(byte_counts0) + hsum_bytes_256(byte_counts1);
+}
+
+#else
+// Fallback for pre-SSSE3: extract and use scalar popcount
+BITCAL_FORCEINLINE uint64_t popcount_256(const uint64_t* data) noexcept {
+    __m256i v = load(data);
     return scalar::popcount(_mm256_extract_epi64(v, 0)) +
            scalar::popcount(_mm256_extract_epi64(v, 1)) +
            scalar::popcount(_mm256_extract_epi64(v, 2)) +
@@ -314,7 +384,7 @@ BITCAL_FORCEINLINE uint64_t popcount_256(const uint64_t* data) noexcept {
 BITCAL_FORCEINLINE uint64_t popcount_512(const uint64_t* data) noexcept {
     __m256i v0 = load(data);
     __m256i v1 = load(data + 4);
-    
+
     return scalar::popcount(_mm256_extract_epi64(v0, 0)) +
            scalar::popcount(_mm256_extract_epi64(v0, 1)) +
            scalar::popcount(_mm256_extract_epi64(v0, 2)) +
@@ -323,6 +393,31 @@ BITCAL_FORCEINLINE uint64_t popcount_512(const uint64_t* data) noexcept {
            scalar::popcount(_mm256_extract_epi64(v1, 1)) +
            scalar::popcount(_mm256_extract_epi64(v1, 2)) +
            scalar::popcount(_mm256_extract_epi64(v1, 3));
+}
+#endif  // __SSSE3__
+
+// ============================================================================
+// all() operations - check if all bits are set (using SIMD)
+// ============================================================================
+
+BITCAL_FORCEINLINE bool all_256(const uint64_t* data) noexcept {
+    __m256i v = load(data);
+    __m256i all_ones = _mm256_set1_epi32(-1);
+    __m256i cmp = _mm256_cmpeq_epi64(v, all_ones);
+    // Check if all 4 elements are equal to all_ones (cmp result is all ones)
+    return _mm256_testc_si256(cmp, all_ones) != 0;
+}
+
+BITCAL_FORCEINLINE bool all_512(const uint64_t* data) noexcept {
+    __m256i v0 = load(data);
+    __m256i v1 = load(data + 4);
+    __m256i all_ones = _mm256_set1_epi32(-1);
+
+    __m256i cmp0 = _mm256_cmpeq_epi64(v0, all_ones);
+    __m256i cmp1 = _mm256_cmpeq_epi64(v1, all_ones);
+
+    __m256i combined = _mm256_and_si256(cmp0, cmp1);
+    return _mm256_testc_si256(combined, all_ones) != 0;
 }
 
 // ============================================================================
