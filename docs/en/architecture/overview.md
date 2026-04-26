@@ -321,5 +321,5 @@ auto huge = std::make_unique<bitcal::bitarray<65536>>();
 
 ## See Also
 
-- [SIMD Dispatch](simd-dispatch.html) — Detailed dispatch mechanism
-- [Platform Support](platform-support.html) — Supported platforms and compilers
+- [SIMD Dispatch](simd-dispatch.md) — Detailed dispatch mechanism
+- [Platform Support](platform-support.md) — Supported platforms and compilers

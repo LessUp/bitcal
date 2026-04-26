@@ -138,5 +138,5 @@ If you encounter platform-specific issues:
 
 ## See Also
 
-- [SIMD Backend](../api/simd-backend.html) — Backend selection
-- [SIMD Dispatch](simd-dispatch.html) — Dispatch mechanism
+- [SIMD Backend](../api/simd-backend.md) — Backend selection
+- [SIMD Dispatch](simd-dispatch.md) — Dispatch mechanism

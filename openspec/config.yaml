@@ -14,7 +14,9 @@ context: |
   SIMD backends:
     - scalar (portable fallback)
     - sse2 (x86 128-bit)
+    - avx (x86 256-bit, transitional path when AVX2 is unavailable)
     - avx2 (x86 256-bit)
+    - avx512 (x86 512-bit, partial support for selected operations)
     - neon (ARM 128-bit)
 
   Predefined types:

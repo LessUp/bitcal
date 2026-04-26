@@ -3,8 +3,26 @@ name: CI
 on:
   push:
     branches: [master, main]
+    paths:
+      - "include/**"
+      - "tests/**"
+      - "examples/**"
+      - "benchmarks/**"
+      - "cmake/**"
+      - "CMakeLists.txt"
+      - "vcpkg.json"
+      - ".github/workflows/ci.yml"
   pull_request:
     branches: [master, main]
+    paths:
+      - "include/**"
+      - "tests/**"
+      - "examples/**"
+      - "benchmarks/**"
+      - "cmake/**"
+      - "CMakeLists.txt"
+      - "vcpkg.json"
+      - ".github/workflows/ci.yml"
 
 permissions:
   contents: read

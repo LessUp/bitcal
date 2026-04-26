@@ -63,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Full Changelog**: [v2.0.0...v2.1.0](https://github.com/LessUp/bitcal/compare/v2.0.0...v2.1.0)
 - **Download**: [v2.1.0 Release](https://github.com/LessUp/bitcal/releases/tag/v2.1.0)
-- **Documentation**: [API Reference](docs/en/README.md)
+- **Documentation**: [Docs Landing](docs/index.html)
 
 ---
 

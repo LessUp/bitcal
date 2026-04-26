@@ -166,6 +166,11 @@ All above tests must pass for:
 - [ ] Results match scalar implementation
 - [ ] Cross-lane shift correctness
 
+### AVX-512 Backend (x86, partial)
+- [ ] Supported AVX-512 operations work with `simd_backend::avx512`
+- [ ] Results match retained API semantics
+- [ ] Documented AVX-512 fallbacks remain explicit where full native coverage is not provided
+
 ### NEON Backend (ARM)
 - [ ] All operations work with `simd_backend::neon`
 - [ ] Results match scalar implementation
@@ -214,15 +219,15 @@ Verify speedup targets on supported platforms:
 
 ## Platform Test Matrix
 
-| Platform | Compiler | Architecture | SIMD | CI Status |
-|----------|----------|--------------|------|-----------|
-| Linux | GCC 11 | x86-64 | AVX2 | ✅ Required |
-| Linux | Clang 14 | x86-64 | AVX2 | ✅ Required |
-| Linux | GCC (cross) | ARM64 | NEON | ✅ Required |
-| Linux | GCC (cross) | ARM32 | NEON | ✅ Required |
-| Windows | MSVC 2022 | x86-64 | AVX2 | ✅ Required |
-| macOS | Apple Clang | x86-64 | AVX2 | ✅ Required |
-| macOS | Apple Clang | ARM64 | NEON | ✅ Required |
+| Platform | Compiler | Architecture | SIMD | Validation Path |
+|----------|----------|--------------|------|-----------------|
+| Linux | GCC 11 | x86-64 | AVX2 | ✅ Native tests required |
+| Linux | Clang 14 | x86-64 | AVX2 | ✅ Native tests required |
+| Linux | GCC (cross) | ARM64 | NEON | ✅ Cross-compile required |
+| Linux | GCC (cross) | ARM32 | NEON | ✅ Cross-compile required |
+| Windows | MSVC 2022 | x86-64 | AVX2 | ✅ Native tests required |
+| macOS | Apple Clang | x86-64 | AVX2 | ✅ Native tests required |
+| macOS | Apple Clang | ARM64 | NEON | ✅ Native tests required |
 
 ## Test Infrastructure
 
@@ -231,19 +236,35 @@ Verify speedup targets on supported platforms:
 - Tests built with `-DCMAKE_BUILD_TYPE=Release`
 
 ### Execution
-- Unit tests: `./tests/test_bitcal`
-- Benchmarks: `./benchmarks/bench_bitcal`
+- Unit tests: `ctest --test-dir build --output-on-failure -C Release`
+- Benchmarks: `./build/benchmarks/bitcal_benchmark` (when `BITCAL_BUILD_BENCHMARKS=ON`)
 
 ### CI Integration
 - GitHub Actions workflow: `.github/workflows/ci.yml`
-- Tests run on every push and PR
-- All platforms must pass for merge
+- CI runs on scoped `push` and `pull_request` events for code, build, dependency, and workflow changes
+- Native test execution is required on retained first-class CI platforms; ARM targets are cross-compiled in CI and rely on documented NEON validation paths for runtime assurance
+
+## Retained Contract Validation Requirements
+
+### Requirement: Testing scope SHALL match the retained public contract
+BitCal SHALL focus automated testing on the public behaviors, platforms, and invariants that remain part of the final maintained contract after cleanup.
+
+#### Scenario: A behavior is retained as supported
+- **WHEN** the project keeps a public operation, platform claim, or backend guarantee
+- **THEN** the automated test strategy MUST include validation for that retained contract
+
+### Requirement: Validation workflows SHALL match the documented support policy
+BitCal SHALL ensure that CI validation, manual verification instructions, and testing specs describe the same maintained support matrix.
+
+#### Scenario: Maintainers review the support matrix
+- **WHEN** support claims are listed in testing specs or documentation
+- **THEN** the workflow configuration and verification instructions MUST align with those claims and omit unsupported combinations
 
 ## Acceptance Criteria
 
 A feature is considered complete when:
-1. ✅ All unit tests pass on all platforms
+1. ✅ Retained automated validation passes and any documented manual verification steps are completed
 2. ✅ Performance benchmarks meet or exceed targets
 3. ✅ No regressions in existing tests
-4. ✅ Code coverage ≥95% for new code
+4. ✅ Updated tests cover the retained public contract for the changed behavior
 5. ✅ Edge cases documented and tested

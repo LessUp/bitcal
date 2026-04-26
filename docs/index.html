@@ -3,167 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentation | BitCal</title>
-    <meta name="description" content="Complete documentation for BitCal - SIMD-accelerated bit manipulation library for C++17.">
+    <title>BitCal Docs | English</title>
+    <meta name="description" content="English documentation landing page for BitCal. Deep reference content is maintained as canonical Markdown in the repository.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./assets/styles.css">
 </head>
-<body class="with-toc">
-    <!-- Header -->
+<body>
     <header class="header">
         <div class="header-content">
             <a href="../" class="logo">
                 <div class="logo-icon"><i class="fas fa-microchip"></i></div>
                 <span>BitCal</span>
             </a>
-            
             <nav class="header-nav">
                 <a href="../">Home</a>
-                <a href="./" class="active">Documentation</a>
-                <a href="https://github.com/LessUp/bitcal" target="_blank">
-                    <i class="fab fa-github"></i> GitHub
-                </a>
+                <a href="./" class="active">Docs</a>
+                <a href="https://github.com/LessUp/bitcal" target="_blank"><i class="fab fa-github"></i> GitHub</a>
             </nav>
-            
             <div class="header-controls">
                 <button class="btn btn-icon" data-theme-toggle title="Toggle theme">
                     <i class="fas fa-sun" data-theme-icon></i>
                 </button>
                 <a href="./zh/" class="btn btn-secondary btn-sm">中文</a>
             </div>
-            
             <button class="mobile-menu-btn" data-mobile-toggle>
                 <i class="fas fa-bars"></i>
             </button>
         </div>
     </header>
 
-    <div class="doc-layout">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-title">Getting Started</div>
-                <ul class="sidebar-nav">
-                    <li><a href="./en/getting-started/installation.html">Installation</a></li>
-                    <li><a href="./en/getting-started/quickstart.html">Quick Start</a></li>
-                    <li><a href="./en/getting-started/build-options.html">Build Options</a></li>
-                </ul>
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge">
+                <i class="fas fa-book-open"></i>
+                <span>English docs landing</span>
             </div>
-            
-            <div class="sidebar-section">
-                <div class="sidebar-title">API Reference</div>
-                <ul class="sidebar-nav">
-                    <li><a href="./en/api/types.html">Types</a></li>
-                    <li><a href="./en/api/core-operations.html">Core Operations</a></li>
-                    <li><a href="./en/api/bit-counting.html">Bit Counting</a></li>
-                    <li><a href="./en/api/shift-operations.html">Shift Operations</a></li>
-                    <li><a href="./en/api/bit-manipulation.html">Bit Manipulation</a></li>
-                    <li><a href="./en/api/simd-backend.html">SIMD Backend</a></li>
-                    <li><a href="./en/api/ops-namespace.html">Ops Namespace</a></li>
-                </ul>
-            </div>
-            
-            <div class="sidebar-section">
-                <div class="sidebar-title">Architecture</div>
-                <ul class="sidebar-nav">
-                    <li><a href="./en/architecture/overview.html">Overview</a></li>
-                    <li><a href="./en/architecture/simd-dispatch.html">SIMD Dispatch</a></li>
-                    <li><a href="./en/architecture/platform-support.html">Platform Support</a></li>
-                </ul>
-            </div>
-            
-            <div class="sidebar-section">
-                <div class="sidebar-title">Changelog</div>
-                <ul class="sidebar-nav">
-                    <li><a href="./en/changelog/v2.1.0.html">v2.1.0</a></li>
-                    <li><a href="./en/changelog/v2.0.0.html">v2.0.0</a></li>
-                </ul>
-            </div>
-        </aside>
+            <h1>Start here, then go to the canonical Markdown.</h1>
+            <p class="hero-description">
+                BitCal now keeps deep technical reference in repository Markdown to avoid mirrored HTML drift.
+                Use this landing page for orientation and jump into the maintained source pages below.
+            </p>
+        </div>
+    </section>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="content-wrapper">
-                <div class="breadcrumb">
-                    <a href="../">Home</a>
-                    <span class="breadcrumb-separator">/</span>
-                    <span>Documentation</span>
+    <section class="quick-links">
+        <div class="section-header">
+            <h2>Getting started</h2>
+            <p>Core entry pages that remain worth maintaining.</p>
+        </div>
+        <div class="quick-links-grid">
+            <a href="https://github.com/LessUp/bitcal/blob/master/docs/en/getting-started/installation.md" class="quick-link" target="_blank">
+                <div class="quick-link-icon"><i class="fas fa-download"></i></div>
+                <div class="quick-link-content">
+                    <h4>Installation</h4>
+                    <p>Compiler baseline, setup, and supported build paths.</p>
                 </div>
+            </a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/docs/en/getting-started/quickstart.md" class="quick-link" target="_blank">
+                <div class="quick-link-icon"><i class="fas fa-rocket"></i></div>
+                <div class="quick-link-content">
+                    <h4>Quick start</h4>
+                    <p>The shortest path from include to working code.</p>
+                </div>
+            </a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/docs/en/getting-started/build-options.md" class="quick-link" target="_blank">
+                <div class="quick-link-icon"><i class="fas fa-sliders"></i></div>
+                <div class="quick-link-content">
+                    <h4>Build options</h4>
+                    <p>CMake options that still matter for verification and packaging.</p>
+                </div>
+            </a>
+        </div>
+    </section>
 
-                <article class="content">
-                    <h1>Documentation</h1>
-                    <p>Complete guides and API references for BitCal. Choose a section below to get started.</p>
-                    
-                    <h2>Getting Started</h2>
-                    <div class="features-grid" style="margin-bottom: 2rem;">
-                        <a href="./en/getting-started/quickstart.html" class="quick-link">
-                            <div class="quick-link-icon"><i class="fas fa-rocket"></i></div>
-                            <div class="quick-link-content">
-                                <h4>Quick Start</h4>
-                                <p>Your first BitCal program in 5 minutes</p>
-                            </div>
-                        </a>
-                        <a href="./en/getting-started/installation.html" class="quick-link">
-                            <div class="quick-link-icon"><i class="fas fa-download"></i></div>
-                            <div class="quick-link-content">
-                                <h4>Installation</h4>
-                                <p>System requirements and setup</p>
-                            </div>
-                        </a>
-                    </div>
-                    
-                    <h2>API Reference</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Section</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><a href="./en/api/types.html">Types</a></td>
-                                <td>bitarray&lt;N&gt;, bit64, bit128, bit256, bit512, bit1024</td>
-                            </tr>
-                            <tr>
-                                <td><a href="./en/api/core-operations.html">Core Operations</a></td>
-                                <td>AND, OR, XOR, NOT, ANDNOT, comparisons</td>
-                            </tr>
-                            <tr>
-                                <td><a href="./en/api/bit-counting.html">Bit Counting</a></td>
-                                <td>popcount, count_leading_zeros, count_trailing_zeros</td>
-                            </tr>
-                            <tr>
-                                <td><a href="./en/api/shift-operations.html">Shift Operations</a></td>
-                                <td>shift_left, shift_right, circular shifts</td>
-                            </tr>
-                            <tr>
-                                <td><a href="./en/api/bit-manipulation.html">Bit Manipulation</a></td>
-                                <td>get_bit, set_bit, flip_bit, reverse</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    
-                    <h2>Language</h2>
-                    <p>Documentation is available in:</p>
-                    <ul>
-                        <li><a href="./en/">English</a> (current)</li>
-                        <li><a href="./zh/">中文</a></li>
-                    </ul>
-                </article>
+    <section class="features" style="background: var(--bg-secondary);">
+        <div class="section-header">
+            <h2>Reference</h2>
+            <p>Maintained directly in repository Markdown.</p>
+        </div>
+        <div class="quick-links-grid">
+            <a href="https://github.com/LessUp/bitcal/blob/master/docs/en/api/types.md" class="quick-link" target="_blank">
+                <div class="quick-link-icon"><i class="fas fa-cubes"></i></div>
+                <div class="quick-link-content">
+                    <h4>API reference</h4>
+                    <p>Types, operations, counting, shifts, and low-level helpers.</p>
+                </div>
+            </a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/docs/en/architecture/overview.md" class="quick-link" target="_blank">
+                <div class="quick-link-icon"><i class="fas fa-sitemap"></i></div>
+                <div class="quick-link-content">
+                    <h4>Architecture</h4>
+                    <p>SIMD dispatch, platform boundaries, and implementation structure.</p>
+                </div>
+            </a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/openspec/specs/api/bitcal-public-api.md" class="quick-link" target="_blank">
+                <div class="quick-link-icon"><i class="fas fa-diagram-project"></i></div>
+                <div class="quick-link-content">
+                    <h4>OpenSpec</h4>
+                    <p>The authoritative contract for API, product, and testing requirements.</p>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="section-header">
+            <h2>Project status</h2>
+            <p>BitCal is being normalized toward a stable, archive-ready repository state.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>No more mirrored changelogs</h3>
+                <p>The canonical changelog now lives at the repository root, not duplicated under docs.</p>
             </div>
-        </main>
+            <div class="feature-card">
+                <h3>No speculative support claims</h3>
+                <p>Pages should only advertise platform or performance claims that the retained workflows and tests can still justify.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Less documentation drift</h3>
+                <p>Deep pages are linked from this landing page instead of being manually maintained twice.</p>
+            </div>
+        </div>
+    </section>
 
-        <!-- TOC Sidebar -->
-        <aside class="toc-sidebar">
-            <div class="toc-title">On this page</div>
-            <ul class="toc-nav">
-                <li><a href="#getting-started">Getting Started</a></li>
-                <li><a href="#api-reference">API Reference</a></li>
-                <li><a href="#language">Language</a></li>
-            </ul>
-        </aside>
-    </div>
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="../">Home</a>
+            <a href="./zh/">中文</a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/CHANGELOG.md">Changelog</a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/README.md">README</a>
+        </div>
+        <p>Deep reference pages open on GitHub so the repository Markdown remains the canonical source.</p>
+    </footer>
 
     <script src="./assets/scripts.js"></script>
 </body>
