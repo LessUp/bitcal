@@ -1,0 +1,202 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1777212854649,
+  "projectRoot": "/home/shane/dev/bitcal",
+  "techStack": {
+    "languages": [
+      {
+        "name": "C/C++",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "CMakeLists.txt"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs",
+      "examples",
+      "tests"
+    ],
+    "gitBranches": {
+      "defaultBranch": "master",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "benchmarks": {
+      "path": "benchmarks",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1777212854589,
+      "keyFiles": [
+        "CMakeLists.txt",
+        "benchmark_bitcal.cpp"
+      ]
+    },
+    "build": {
+      "path": "build",
+      "purpose": "Build output",
+      "fileCount": 6,
+      "lastAccessed": 1777212854605,
+      "keyFiles": [
+        "CMakeCache.txt",
+        "CTestTestfile.cmake",
+        "Makefile",
+        "bitcal-config-version.cmake",
+        "bitcal-config.cmake"
+      ]
+    },
+    "build_arm64": {
+      "path": "build_arm64",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1777212854611,
+      "keyFiles": [
+        "CMakeCache.txt"
+      ]
+    },
+    "cmake": {
+      "path": "cmake",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1777212854611,
+      "keyFiles": [
+        "bitcal-config.cmake.in"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 3,
+      "lastAccessed": 1777212854612,
+      "keyFiles": [
+        "README.md",
+        "index.html",
+        "project-status.md"
+      ]
+    },
+    "examples": {
+      "path": "examples",
+      "purpose": "Example code",
+      "fileCount": 3,
+      "lastAccessed": 1777212854614,
+      "keyFiles": [
+        "CMakeLists.txt",
+        "basic_usage.cpp",
+        "performance_comparison.cpp"
+      ]
+    },
+    "include": {
+      "path": "include",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1777212854615,
+      "keyFiles": []
+    },
+    "openspec": {
+      "path": "openspec",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1777212854615,
+      "keyFiles": [
+        "config.yaml"
+      ]
+    },
+    "specs": {
+      "path": "specs",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1777212854615,
+      "keyFiles": [
+        "README.md"
+      ]
+    },
+    "tests": {
+      "path": "tests",
+      "purpose": "Test files",
+      "fileCount": 2,
+      "lastAccessed": 1777212854616,
+      "keyFiles": [
+        "CMakeLists.txt",
+        "test_bitcal.cpp"
+      ]
+    },
+    "{output_folder}": {
+      "path": "{output_folder}",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1777212854621,
+      "keyFiles": []
+    },
+    "build/examples": {
+      "path": "build/examples",
+      "purpose": "Example code",
+      "fileCount": 5,
+      "lastAccessed": 1777212854640,
+      "keyFiles": [
+        "CTestTestfile.cmake",
+        "Makefile",
+        "basic_usage"
+      ]
+    },
+    "docs/assets": {
+      "path": "docs/assets",
+      "purpose": "Static assets",
+      "fileCount": 2,
+      "lastAccessed": 1777212854648,
+      "keyFiles": [
+        "scripts.js",
+        "styles.css"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "openspec/changes/archive/2026-04-26-finalize-bitcal/tasks.md",
+      "accessCount": 1,
+      "lastAccessed": 1777212904489,
+      "type": "file"
+    },
+    {
+      "path": ".claude/skills/openspec-propose/SKILL.md",
+      "accessCount": 1,
+      "lastAccessed": 1777213018700,
+      "type": "file"
+    },
+    {
+      "path": "specs/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1777213039472,
+      "type": "file"
+    },
+    {
+      "path": ".claude/settings.local.json",
+      "accessCount": 1,
+      "lastAccessed": 1777213118286,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
