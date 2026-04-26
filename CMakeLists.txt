@@ -1,16 +1,16 @@
 cmake_minimum_required(VERSION 3.16)
-project(bitcal VERSION 2.1.0 LANGUAGES CXX)
 
-# Version consistency check between CMakeLists.txt and config.hpp
-set(EXPECTED_VERSION_MAJOR 2)
-set(EXPECTED_VERSION_MINOR 1)
-set(EXPECTED_VERSION_PATCH 0)
+# Canonical version source: include/bitcal/config.hpp
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/include/bitcal/config.hpp" BITCAL_CONFIG_HPP)
+foreach(component MAJOR MINOR PATCH)
+  string(REGEX MATCH "#define BITCAL_VERSION_${component} ([0-9][0-9]*)" _match "${BITCAL_CONFIG_HPP}")
+  if(_match STREQUAL "")
+    message(FATAL_ERROR "Failed to read BITCAL_VERSION_${component} from include/bitcal/config.hpp")
+  endif()
+  set(BITCAL_VERSION_${component} "${CMAKE_MATCH_1}")
+endforeach()
 
-if(NOT PROJECT_VERSION_MAJOR EQUAL EXPECTED_VERSION_MAJOR OR
-   NOT PROJECT_VERSION_MINOR EQUAL EXPECTED_VERSION_MINOR OR
-   NOT PROJECT_VERSION_PATCH EQUAL EXPECTED_VERSION_PATCH)
-    message(WARNING "Version mismatch: CMakeLists.txt has ${PROJECT_VERSION} but expected ${EXPECTED_VERSION_MAJOR}.${EXPECTED_VERSION_MINOR}.${EXPECTED_VERSION_PATCH}")
-endif()
+project(bitcal VERSION "${BITCAL_VERSION_MAJOR}.${BITCAL_VERSION_MINOR}.${BITCAL_VERSION_PATCH}" LANGUAGES CXX)
 
 option(BITCAL_BUILD_TESTS "Build tests" ON)
 option(BITCAL_BUILD_EXAMPLES "Build examples" ON)

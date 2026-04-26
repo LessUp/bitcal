@@ -430,6 +430,6 @@ int main() {
 
 ## See Also
 
-- [Core Operations](core-operations.html) — Bitwise operations
-- [SIMD Backend](simd-backend.html) — Backend selection details
-- [Architecture Overview](../architecture/overview.html) — Design principles
+- [Core Operations](core-operations.md) — Bitwise operations
+- [SIMD Backend](simd-backend.md) — Backend selection details
+- [Architecture Overview](../architecture/overview.md) — Design principles

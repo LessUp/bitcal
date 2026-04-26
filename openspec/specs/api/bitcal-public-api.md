@@ -49,7 +49,9 @@ namespace bitcal {
     enum class simd_backend {
         scalar,  // Portable scalar implementation
         sse2,    // x86 SSE2 (128-bit)
+        avx,     // x86 AVX (256-bit transitional backend)
         avx2,    // x86 AVX2 (256-bit)
+        avx512,  // x86 AVX-512 (partial support)
         neon     // ARM NEON (128-bit)
     };
 }
@@ -285,7 +287,7 @@ Set bit at position `bit_index`.
 ### flip_bit
 
 ```cpp
-void flip_bit(size_bit_index);
+void flip_bit(size_t bit_index);
 ```
 
 Toggle bit at position `bit_index`.
@@ -336,7 +338,7 @@ simd_backend get_default_backend() noexcept;
 
 Returns optimal backend based on compiler flags.
 
-**Priority:** AVX2 → SSE2 → NEON → Scalar
+**Priority:** AVX-512 → AVX2 → AVX → SSE2 → NEON → Scalar
 
 ### Manual Specification
 
@@ -401,6 +403,22 @@ bitarray<256> memory:
 - Different threads on **different** instances: ✅ Thread-safe
 - Read-only access to **shared** instance: ✅ Thread-safe
 - Concurrent read/write on **same** instance: ❌ Requires synchronization
+
+## Contract Governance Requirements
+
+### Requirement: Public API changes SHALL be explicitly versioned and documented
+BitCal SHALL record any breaking public API or behavioral change in its API specification, migration-facing documentation, and canonical versioning source.
+
+#### Scenario: A public API contract changes
+- **WHEN** a method signature, type alias, semantic behavior, or supported contract changes in a breaking way
+- **THEN** the API specification MUST describe the new contract and the project documentation MUST identify the migration implication
+
+### Requirement: Public API documentation SHALL stay synchronized with implementation
+BitCal SHALL keep user-visible API documentation aligned with the implementation and tests that define retained behavior.
+
+#### Scenario: A documented API remains in the project
+- **WHEN** an API surface is documented as supported
+- **THEN** the implementation and test suite MUST still cover that documented behavior or the documentation MUST be removed or corrected
 
 ## Backward Compatibility
 

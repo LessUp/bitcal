@@ -3,147 +3,48 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 permissions:
   contents: write
 
 jobs:
-  create-release:
-    name: Create Release
+  release:
+    name: Publish header-only release
     runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create Release
-        id: create_release
+      - name: Package release artifacts
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          PKG="bitcal-${TAG}"
+          mkdir -p "dist/${PKG}/include"
+          cp -r include/bitcal "dist/${PKG}/include/"
+          cp LICENSE README.md README.zh-CN.md CHANGELOG.md CHANGELOG.zh-CN.md CMakeLists.txt "dist/${PKG}/"
+          cp -r cmake "dist/${PKG}/"
+          (cd dist && zip -r "${PKG}.zip" "${PKG}" >/dev/null)
+          (cd dist && tar czf "${PKG}.tar.gz" "${PKG}")
+
+      - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          name: BitCal ${{ github.ref_name }}
+          files: |
+            dist/*.zip
+            dist/*.tar.gz
           body: |
             ## BitCal ${{ github.ref_name }}
 
-            ### Installation
+            BitCal is a header-only C++17 library. This release publishes the canonical source bundle only:
 
-            BitCal is a header-only library. Download `bitcal-*-headers.zip` and copy the `include/bitcal/` directory to your project.
+            - `bitcal-${{ github.ref_name }}.zip`
+            - `bitcal-${{ github.ref_name }}.tar.gz`
 
-            ```cpp
-            #include <bitcal/bitcal.hpp>
-            ```
+            Included contents:
 
-            ### Platform Packages
+            - `include/bitcal/`
+            - `cmake/`
+            - `CMakeLists.txt`
+            - License, README, and changelog files
 
-            | Package | Platform | Description |
-            |---------|----------|-------------|
-            | `bitcal-*-headers.zip` | All platforms | Headers only (recommended) |
-            | `bitcal-*-linux-x64.tar.gz` | Linux x64 | Headers + tests and examples |
-            | `bitcal-*-windows-x64.zip` | Windows x64 | Headers + tests and examples |
-            | `bitcal-*-macos-x64.tar.gz` | macOS x64 | Headers + tests and examples |
-            | `bitcal-*-macos-arm64.tar.gz` | macOS ARM64 | Headers + tests and examples |
-
-            ---
-
-            ### 安装
-
-            BitCal 是 header-only 库，下载 `bitcal-*-headers.zip` 后，将 `include/bitcal/` 目录复制到你的项目中即可。
-
-            ```cpp
-            #include <bitcal/bitcal.hpp>
-            ```
-
-            ### 平台包说明
-
-            | 包名 | 平台 | 说明 |
-            |------|------|------|
-            | `bitcal-*-headers.zip` | 全平台 | 仅头文件（推荐） |
-            | `bitcal-*-linux-x64.tar.gz` | Linux x64 | 含头文件 + 测试和示例 |
-            | `bitcal-*-windows-x64.zip` | Windows x64 | 含头文件 + 测试和示例 |
-            | `bitcal-*-macos-x64.tar.gz` | macOS x64 | 含头文件 + 测试和示例 |
-            | `bitcal-*-macos-arm64.tar.gz` | macOS ARM64 | 含头文件 + 测试和示例 |
-
-  package-headers:
-    name: Package Headers
-    needs: create-release
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Package
-        run: |
-          mkdir -p bitcal-${{ github.ref_name }}-headers/include
-          cp -r include/bitcal bitcal-${{ github.ref_name }}-headers/include/
-          cp LICENSE README.md CHANGELOG.md bitcal-${{ github.ref_name }}-headers/
-          cp -r cmake bitcal-${{ github.ref_name }}-headers/ 2>/dev/null || true
-          cp CMakeLists.txt bitcal-${{ github.ref_name }}-headers/
-          zip -r bitcal-${{ github.ref_name }}-headers.zip bitcal-${{ github.ref_name }}-headers/
-
-      - name: Upload
-        uses: softprops/action-gh-release@v2
-        with:
-          files: bitcal-${{ github.ref_name }}-headers.zip
-
-  package-platform:
-    needs: create-release
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            name: linux-x64
-            ext: tar.gz
-          - os: windows-latest
-            name: windows-x64
-            ext: zip
-          - os: macos-13
-            name: macos-x64
-            ext: tar.gz
-          - os: macos-latest
-            name: macos-arm64
-            ext: tar.gz
-
-    name: Package ${{ matrix.name }}
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build
-        run: |
-          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBITCAL_NATIVE_ARCH=ON
-          cmake --build build --config Release
-
-      - name: Test
-        run: ctest --test-dir build --output-on-failure -C Release
-
-      - name: Package (Unix)
-        if: matrix.ext == 'tar.gz'
-        run: |
-          PKG=bitcal-${{ github.ref_name }}-${{ matrix.name }}
-          mkdir -p $PKG/include $PKG/bin
-          cp -r include/bitcal $PKG/include/
-          cp LICENSE README.md CHANGELOG.md $PKG/
-          # Copy test and example binaries from build directory
-          if [ -f build/tests/test_bitcal ]; then cp build/tests/test_bitcal $PKG/bin/; fi
-          if [ -f build/examples/basic_usage ]; then cp build/examples/basic_usage $PKG/bin/; fi
-          if [ -f build/examples/performance_comparison ]; then cp build/examples/performance_comparison $PKG/bin/; fi
-          tar czf $PKG.tar.gz $PKG/
-
-      - name: Package (Windows)
-        if: matrix.ext == 'zip'
-        shell: pwsh
-        run: |
-          $PKG = "bitcal-${{ github.ref_name }}-${{ matrix.name }}"
-          New-Item -ItemType Directory -Path "$PKG/include", "$PKG/bin" -Force
-          Copy-Item -Recurse include/bitcal "$PKG/include/"
-          Copy-Item LICENSE, README.md, CHANGELOG.md "$PKG/"
-          # Copy test and example binaries from build directory
-          if (Test-Path "build/tests/test_bitcal.exe") { Copy-Item "build/tests/test_bitcal.exe" "$PKG/bin/" }
-          if (Test-Path "build/examples/basic_usage.exe") { Copy-Item "build/examples/basic_usage.exe" "$PKG/bin/" }
-          if (Test-Path "build/examples/performance_comparison.exe") { Copy-Item "build/examples/performance_comparison.exe" "$PKG/bin/" }
-          Compress-Archive -Path "$PKG" -DestinationPath "$PKG.zip"
-
-      - name: Upload
-        uses: softprops/action-gh-release@v2
-        with:
-          files: bitcal-${{ github.ref_name }}-${{ matrix.name }}.${{ matrix.ext }}
+            Validation is handled by the retained CI workflow. No platform-specific binary archives are produced.

@@ -2,7 +2,7 @@
 
 ## Overview
 
-BitCal is a modern, high-performance C++17 header-only library for bit manipulation operations with automatic SIMD acceleration.
+BitCal is a stable, archive-ready, high-performance C++17 header-only library for bit manipulation operations with automatic SIMD acceleration.
 
 ## Version
 
@@ -17,7 +17,8 @@ BitCal is a modern, high-performance C++17 header-only library for bit manipulat
 ## Core Features
 
 ### 1. SIMD Acceleration
-- Automatic SSE2/AVX2 (x86) or NEON (ARM) selection
+- Automatic SSE2/AVX/AVX2 (x86) or NEON (ARM) selection
+- Partial AVX-512 acceleration for selected operations on supported x86 targets
 - Up to 6× performance improvement over scalar implementations
 - Compile-time dispatch via `if constexpr` for zero runtime overhead
 
@@ -62,12 +63,12 @@ Custom widths supported (must be multiple of 64).
 
 | Platform | Architecture | Compilers | SIMD | Status |
 |----------|--------------|-----------|------|--------|
-| Linux | x86-64 | GCC 7+, Clang 6+ | SSE2/AVX2 | ✅ Verified |
-| Linux | ARM64 | GCC (cross) | NEON | ✅ Verified |
-| Linux | ARM32 | GCC (cross) | NEON | ✅ Verified |
-| Windows | x86-64 | MSVC 2017+ | SSE2/AVX2 | ✅ Verified |
-| macOS | x86-64 | Apple Clang | SSE2/AVX2 | ✅ Verified |
-| macOS | ARM64 (Apple Silicon) | Apple Clang | NEON | ✅ Verified |
+| Linux | x86-64 | GCC 7+, Clang 6+ | SSE2/AVX2 | ✅ CI-tested |
+| Linux | ARM64 | GCC (cross) | NEON | ✅ Cross-compile validated |
+| Linux | ARM32 | GCC (cross) | NEON | ✅ Cross-compile validated |
+| Windows | x86-64 | MSVC 2017+ | SSE2/AVX2 | ✅ CI-tested |
+| macOS | x86-64 | Apple Clang | SSE2/AVX2 | ✅ CI-tested |
+| macOS | ARM64 (Apple Silicon) | Apple Clang | NEON | ✅ CI-tested |
 
 ## Acceptance Criteria
 
@@ -87,7 +88,7 @@ Custom widths supported (must be multiple of 64).
 - Zero external dependencies
 
 ### AC-4: Platform Compatibility
-- Must pass all unit tests on all supported platforms
+- Must pass the retained validation path for every documented support target
 - Must gracefully fall back to scalar when SIMD not available
 - Must handle edge cases (shift by 0, shift by width, negative shift is UB)
 
@@ -100,7 +101,7 @@ Custom widths supported (must be multiple of 64).
 
 ### Code Quality
 - 100% test coverage for all predefined types
-- CI verification on all supported platforms
+- Retained CI or documented validation on all supported platforms
 - No compiler warnings with `-Wall -Wextra`
 
 ### Documentation
@@ -108,9 +109,25 @@ Custom widths supported (must be multiple of 64).
 - Architecture documentation explaining SIMD dispatch
 - Migration guide for users from previous versions
 
+## Stability and Stewardship Requirements
+
+### Requirement: Product positioning SHALL prioritize archive-ready stability
+BitCal SHALL define itself as a stable, archive-ready SIMD bit-manipulation library whose documentation, support matrix, and engineering process reflect maintainable long-term stewardship rather than open-ended feature growth.
+
+#### Scenario: Project materials describe BitCal
+- **WHEN** maintainers update README, Pages, or product-facing specs
+- **THEN** those materials MUST describe the project as a stable library with explicit scope, support expectations, and maintenance boundaries
+
+### Requirement: Platform and performance claims SHALL reflect maintained reality
+BitCal SHALL only publish platform, compiler, and performance claims that are backed by retained workflows, tests, or documented validation procedure.
+
+#### Scenario: A support claim appears in documentation
+- **WHEN** documentation states that a platform, compiler, or performance target is supported
+- **THEN** the repository MUST retain a corresponding validation path or clearly mark the claim as non-guaranteed historical information
+
 ## Future Enhancements (Not in Current Scope)
 
-- AVX-512 native support (currently falls back to AVX2)
+- Broader AVX-512 validation and tuning beyond the currently supported partial path
 - ARM SVE/SVE2 support
 - Dynamic runtime CPU feature detection
 - Bit widths not multiple of 64

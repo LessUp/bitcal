@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="zh" data-theme="dark">
+<html lang="zh-CN" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文档 | BitCal</title>
-    <meta name="description" content="BitCal 完整文档 - C++17 SIMD 加速位运算库">
+    <title>BitCal 文档 | 中文入口</title>
+    <meta name="description" content="BitCal 中文文档入口页。深度参考内容以仓库中的 Markdown 作为唯一维护源。">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/styles.css">
 </head>
-<body class="with-toc">
+<body>
     <header class="header">
         <div class="header-content">
             <a href="../../" class="logo">
@@ -17,7 +17,7 @@
             </a>
             <nav class="header-nav">
                 <a href="../../">首页</a>
-                <a href="../" class="active">文档</a>
+                <a href="./" class="active">文档</a>
                 <a href="https://github.com/LessUp/bitcal" target="_blank"><i class="fab fa-github"></i> GitHub</a>
             </nav>
             <div class="header-controls">
@@ -26,119 +26,115 @@
                 </button>
                 <a href="../" class="btn btn-secondary btn-sm">EN</a>
             </div>
-            <button class="mobile-menu-btn" data-mobile-toggle><i class="fas fa-bars"></i></button>
+            <button class="mobile-menu-btn" data-mobile-toggle>
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </header>
 
-    <div class="doc-layout">
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-title">开始使用</div>
-                <ul class="sidebar-nav">
-                    <li><a href="./getting-started/installation.html">安装指南</a></li>
-                    <li><a href="./getting-started/quickstart.html">快速开始</a></li>
-                    <li><a href="./getting-started/build-options.html">构建选项</a></li>
-                </ul>
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge">
+                <i class="fas fa-language"></i>
+                <span>中文文档入口</span>
             </div>
-            <div class="sidebar-section">
-                <div class="sidebar-title">API 参考</div>
-                <ul class="sidebar-nav">
-                    <li><a href="./api/types.html">类型</a></li>
-                    <li><a href="./api/core-operations.html">核心操作</a></li>
-                    <li><a href="./api/bit-counting.html">位计数</a></li>
-                    <li><a href="./api/shift-operations.html">位移操作</a></li>
-                    <li><a href="./api/bit-manipulation.html">位操作</a></li>
-                    <li><a href="./api/simd-backend.html">SIMD 后端</a></li>
-                    <li><a href="./api/ops-namespace.html">Ops 命名空间</a></li>
-                </ul>
-            </div>
-            <div class="sidebar-section">
-                <div class="sidebar-title">架构设计</div>
-                <ul class="sidebar-nav">
-                    <li><a href="./architecture/overview.html">概述</a></li>
-                    <li><a href="./architecture/simd-dispatch.html">SIMD 分派</a></li>
-                    <li><a href="./architecture/platform-support.html">平台支持</a></li>
-                </ul>
-            </div>
-        </aside>
+            <h1>先在这里导航，再进入仓库中的 Markdown 正文。</h1>
+            <p class="hero-description">
+                BitCal 不再维护大规模 HTML/Markdown 镜像。中文入口页负责导航，深度参考页面以仓库中的 Markdown 为唯一维护源。
+            </p>
+        </div>
+    </section>
 
-        <main class="main-content">
-            <div class="content-wrapper">
-                <div class="breadcrumb">
-                    <a href="../../">首页</a>
-                    <span class="breadcrumb-separator">/</span>
-                    <span>文档</span>
+    <section class="quick-links">
+        <div class="section-header">
+            <h2>快速开始</h2>
+            <p>核心入门页面继续保留中文入口。</p>
+        </div>
+        <div class="quick-links-grid">
+            <a href="https://github.com/LessUp/bitcal/blob/master/docs/zh/getting-started/installation.md" class="quick-link" target="_blank">
+                <div class="quick-link-icon"><i class="fas fa-download"></i></div>
+                <div class="quick-link-content">
+                    <h4>安装</h4>
+                    <p>查看编译器基线、安装方式与构建入口。</p>
                 </div>
+            </a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/docs/zh/getting-started/quickstart.md" class="quick-link" target="_blank">
+                <div class="quick-link-icon"><i class="fas fa-rocket"></i></div>
+                <div class="quick-link-content">
+                    <h4>快速开始</h4>
+                    <p>从包含头文件到跑通第一个示例的最短路径。</p>
+                </div>
+            </a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/docs/zh/getting-started/build-options.md" class="quick-link" target="_blank">
+                <div class="quick-link-icon"><i class="fas fa-sliders"></i></div>
+                <div class="quick-link-content">
+                    <h4>构建选项</h4>
+                    <p>了解仍然有意义的 CMake 选项与验证方式。</p>
+                </div>
+            </a>
+        </div>
+    </section>
 
-                <article class="content">
-                    <h1>文档</h1>
-                    <p>BitCal 完整文档指南和 API 参考。点击下方链接开始阅读。</p>
-                    
-                    <h2>开始使用</h2>
-                    <div class="features-grid" style="margin-bottom: 2rem;">
-                        <a href="./getting-started/quickstart.html" class="quick-link">
-                            <div class="quick-link-icon"><i class="fas fa-rocket"></i></div>
-                            <div class="quick-link-content">
-                                <h4>快速开始</h4>
-                                <p>5 分钟编写第一个 BitCal 程序</p>
-                            </div>
-                        </a>
-                        <a href="./getting-started/installation.html" class="quick-link">
-                            <div class="quick-link-icon"><i class="fas fa-download"></i></div>
-                            <div class="quick-link-content">
-                                <h4>安装指南</h4>
-                                <p>系统要求和安装说明</p>
-                            </div>
-                        </a>
-                    </div>
-                    
-                    <h2>API 参考</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>章节</th>
-                                <th>描述</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><a href="./api/types.html">类型</a></td>
-                                <td>bitarray&lt;N&gt;, bit64, bit128, bit256, bit512, bit1024</td>
-                            </tr>
-                            <tr>
-                                <td><a href="./api/core-operations.html">核心操作</a></td>
-                                <td>AND, OR, XOR, NOT, ANDNOT, 比较操作</td>
-                            </tr>
-                            <tr>
-                                <td><a href="./api/bit-counting.html">位计数</a></td>
-                                <td>popcount, 前导零计数, 尾随零计数</td>
-                            </tr>
-                            <tr>
-                                <td><a href="./api/shift-operations.html">位移操作</a></td>
-                                <td>左移, 右移, 循环位移</td>
-                            </tr>
-                            <tr>
-                                <td><a href="./api/bit-manipulation.html">位操作</a></td>
-                                <td>get_bit, set_bit, flip_bit, reverse</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    
-                    <h2>语言切换</h2>
-                    <p>文档提供以下语言版本：</p>
-                    <ul>
-                        <li><a href="../en/">English</a></li>
-                        <li><a href="./">中文</a> (当前)</li>
-                    </ul>
-                </article>
+    <section class="features" style="background: var(--bg-secondary);">
+        <div class="section-header">
+            <h2>深度参考</h2>
+            <p>由仓库 Markdown 直接维护，避免镜像漂移。</p>
+        </div>
+        <div class="quick-links-grid">
+            <a href="https://github.com/LessUp/bitcal/blob/master/docs/zh/api/types.md" class="quick-link" target="_blank">
+                <div class="quick-link-icon"><i class="fas fa-cubes"></i></div>
+                <div class="quick-link-content">
+                    <h4>API 参考</h4>
+                    <p>类型、操作、计数、移位与底层 helper。</p>
+                </div>
+            </a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/docs/zh/architecture/overview.md" class="quick-link" target="_blank">
+                <div class="quick-link-icon"><i class="fas fa-sitemap"></i></div>
+                <div class="quick-link-content">
+                    <h4>架构说明</h4>
+                    <p>SIMD dispatch、平台边界与实现结构。</p>
+                </div>
+            </a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/openspec/specs/testing/bitcal-testing-spec.md" class="quick-link" target="_blank">
+                <div class="quick-link-icon"><i class="fas fa-diagram-project"></i></div>
+                <div class="quick-link-content">
+                    <h4>OpenSpec</h4>
+                    <p>查看当前活动规范，而不是 legacy `specs/`。</p>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="section-header">
+            <h2>项目状态</h2>
+            <p>仓库正在朝“稳定收尾 / 可归档维护”的终局状态收敛。</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>根目录 changelog 才是唯一记录</h3>
+                <p>`docs/` 下的 changelog 镜像已不再保留，避免重复维护。</p>
             </div>
-        </main>
+            <div class="feature-card">
+                <h3>支持声明必须可验证</h3>
+                <p>平台、性能、API 能力必须能被保留下来的测试、workflow 或说明文档支撑。</p>
+            </div>
+            <div class="feature-card">
+                <h3>中文页面聚焦入口</h3>
+                <p>中文入口页保留导航价值，深度参考按维护成本决定是否继续镜像。</p>
+            </div>
+        </div>
+    </section>
 
-        <aside class="toc-sidebar">
-            <div class="toc-title">本页目录</div>
-            <ul class="toc-nav"></ul>
-        </aside>
-    </div>
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="../../">首页</a>
+            <a href="../">English</a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/CHANGELOG.zh-CN.md">更新日志</a>
+            <a href="https://github.com/LessUp/bitcal/blob/master/README.zh-CN.md">README</a>
+        </div>
+        <p>深度参考跳转到 GitHub Markdown 页面，以仓库正文作为唯一维护源。</p>
+    </footer>
 
     <script src="../assets/scripts.js"></script>
 </body>

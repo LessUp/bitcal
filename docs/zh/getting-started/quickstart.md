@@ -339,10 +339,10 @@ int main() {
 
 | 主题 | 文档 | 描述 |
 |------|------|------|
-| 完整 API | [类型](../api/types.html) | 所有类型及其详细信息 |
-| 运算 | [核心运算](../api/core-operations.html) | 位运算参考 |
-| 性能 | [架构设计](../architecture/overview.html) | 设计和优化 |
-| 故障排除 | [安装指南](installation.html) | 常见问题和解决方案 |
+| 完整 API | [类型](../api/types.md) | 所有类型及其详细信息 |
+| 运算 | [核心运算](../api/core-operations.md) | 位运算参考 |
+| 性能 | [架构设计](../architecture/overview.md) | 设计和优化 |
+| 故障排除 | [安装指南](installation.md) | 常见问题和解决方案 |
 
 ---
 

@@ -1,0 +1,19 @@
+CompileFlags:
+  CompilationDatabase: build-test
+  Add:
+    - -std=c++17
+
+Diagnostics:
+  UnusedIncludes: Strict
+  ClangTidy:
+    Add:
+      - bugprone-*
+      - performance-*
+      - portability-*
+      - readability-identifier-naming
+
+Index:
+  Background: Build
+
+Hover:
+  ShowAKA: Yes
