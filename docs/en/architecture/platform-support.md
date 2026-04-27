@@ -122,6 +122,20 @@ BitCal is automatically tested on GitHub Actions with the following configuratio
 - **Fixed in v2.1**: NEON `vmvnq_u64` changed to `veorq_u64` XOR with all-ones
 - **Fixed in v2.1**: NEON variable shifts now use `vshlq_u64` instead of `vshlq_n_u64`
 
+### AVX-512 Feature Levels
+
+| Feature | Instruction Set | Status |
+|---------|-----------------|--------|
+| Basic bitwise ops | AVX-512F | ✅ Full support |
+| 512-bit shifts | AVX-512F | ✅ Full support (optimized in v2.2) |
+| Popcount | AVX-512VPOPCNTDQ | ⚠️ Requires specific CPU |
+
+#### VPOPCNTDQ Compatibility
+
+If the CPU supports AVX-512 but not VPOPCNTDQ (e.g., early Skylake-X), popcount falls back to scalar implementation. CPUs supporting VPOPCNTDQ:
+- Intel: Ice Lake and newer
+- AMD: Zen 4 and newer
+
 ### General
 
 - AVX-512: Falls back to AVX2 (full AVX-512 support planned)

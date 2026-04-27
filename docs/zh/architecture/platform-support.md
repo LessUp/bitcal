@@ -40,3 +40,17 @@
 MSVC 在 x64 模式下保证 SSE2 可用，但不定义 `__SSE2__` 宏。BitCal v2.1 通过检测 `_M_X64` 解决了这个问题。
 
 要启用 AVX2，需在编译时添加 `/arch:AVX2` 标志。CMake 构建系统会自动检测并添加。
+
+## AVX-512 功能分级
+
+| 功能 | 指令集 | 支持状态 |
+|------|--------|----------|
+| 基本位运算 | AVX-512F | ✅ 完整支持 |
+| 512 位位移 | AVX-512F | ✅ 完整支持（v2.2 优化） |
+| Popcount | AVX-512VPOPCNTDQ | ⚠️ 需要特定 CPU |
+
+### VPOPCNTDQ 兼容性
+
+如果 CPU 支持 AVX-512 但不支持 VPOPCNTDQ（如早期 Skylake-X），popcount 会回退到标量实现。支持 VPOPCNTDQ 的 CPU：
+- Intel: Ice Lake 及更新
+- AMD: Zen 4 及更新
