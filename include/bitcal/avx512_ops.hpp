@@ -53,7 +53,7 @@ BITCAL_FORCEINLINE __m512i shift_right_64(__m512i a, int count) noexcept {
     return _mm512_srli_epi64(a, count);
 }
 
-// 512-bit shift operations
+// 512-bit shift operations - optimized with AVX-512 instructions
 BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
     if (count <= 0) return;
     if (count >= 512) {
@@ -64,13 +64,17 @@ BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
     const int word_shift = count / 64;
     const int bit_shift = count % 64;
 
+    // Use AVX-512 alignr for word-level shift (if word_shift > 0)
     if (word_shift > 0) {
-        for (int i = 7; i >= word_shift; --i) {
-            data[i] = data[i - word_shift];
-        }
-        for (int i = 0; i < word_shift; ++i) {
-            data[i] = 0;
-        }
+        __m512i v = load(data);
+        // _mm512_alignr_epi64 shifts elements within the register
+        // For left shift by N words, we need to shift right by (8-N) and zero low elements
+        __m512i shifted = _mm512_maskz_alignr_epi64(
+            (0xFF << word_shift),  // mask: keep upper (8-word_shift) elements
+            v, v,
+            8 - word_shift  // alignr index
+        );
+        store(data, shifted);
     }
 
     if (bit_shift == 0) return;
@@ -79,7 +83,6 @@ BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
     __m512i v_shifted = _mm512_slli_epi64(v, bit_shift);
 
     // Create carry vector - each element gets the high bits from the previous element
-    // Using permute to shift elements right by 1 (with zero fill for first element)
     __m512i carry = _mm512_permutexvar_epi64(
         _mm512_set_epi64(6, 5, 4, 3, 2, 1, 0, -1),  // permutation indices
         v
@@ -104,13 +107,16 @@ BITCAL_FORCEINLINE void shift_right_512(uint64_t* data, int count) noexcept {
     const int word_shift = count / 64;
     const int bit_shift = count % 64;
 
+    // Use AVX-512 alignr for word-level shift (if word_shift > 0)
     if (word_shift > 0) {
-        for (int i = 0; i < 8 - word_shift; ++i) {
-            data[i] = data[i + word_shift];
-        }
-        for (int i = 8 - word_shift; i < 8; ++i) {
-            data[i] = 0;
-        }
+        __m512i v = load(data);
+        // For right shift by N words, shift left by N and zero high elements
+        __m512i shifted = _mm512_maskz_alignr_epi64(
+            (0xFF >> word_shift),  // mask: keep lower (8-word_shift) elements
+            v, v,
+            word_shift  // alignr index
+        );
+        store(data, shifted);
     }
 
     if (bit_shift == 0) return;

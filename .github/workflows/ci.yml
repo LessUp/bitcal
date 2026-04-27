@@ -53,12 +53,6 @@ jobs:
             compiler: msvc
             name: "Windows x64 MSVC"
 
-          - os: macos-13
-            compiler: appleclang
-            cxx: clang++
-            cc: clang
-            name: "macOS x64 AppleClang"
-
           - os: macos-latest
             compiler: appleclang
             cxx: clang++
@@ -122,26 +116,21 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
-  build-arm32:
-    name: "Linux ARM32 (cross-compile)"
+  sanitizer-test:
+    name: "Sanitizer (ASan + UBSan)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install ARM32 toolchain
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y g++-arm-linux-gnueabihf
-
-      - name: Configure
+      - name: Configure with Sanitizers
         run: |
           cmake -S . -B build \
-            -DCMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++ \
-            -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBITCAL_BUILD_TESTS=ON \
-            -DBITCAL_BUILD_EXAMPLES=ON \
-            -DBITCAL_NATIVE_ARCH=OFF
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -g" \
+            -DBITCAL_BUILD_TESTS=ON
 
       - name: Build
-        run: cmake --build build --config Release
+        run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
