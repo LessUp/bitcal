@@ -53,6 +53,8 @@ jobs:
             compiler: msvc
             name: "Windows x64 MSVC"
 
+          # Note: macos-latest uses ARM64 runners (M1/M2 Silicon)
+          # For x86_64 macOS testing, use macos-13 runner
           - os: macos-latest
             compiler: appleclang
             cxx: clang++
