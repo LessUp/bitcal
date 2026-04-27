@@ -658,6 +658,105 @@ bool test_backend_consistency() {
     return true;
 }
 
+// ========== Cross-backend consistency tests ==========
+
+bool test_cross_backend_consistency() {
+    // Test that different backends produce identical results
+    using scalar_bit256 = bitcal::bitarray<256, bitcal::simd_backend::scalar>;
+    using auto_bit256 = bitcal::bit256;  // Uses default (SIMD) backend
+
+    // Create test data
+    const uint64_t test_a[4] = {0xDEADBEEFCAFEBABEULL, 0x123456789ABCDEF0ULL,
+                                 0xFEDCBA9876543210ULL, 0x0F0F0F0F0F0F0F0FULL};
+    const uint64_t test_b[4] = {0xABCDEF0123456789ULL, 0x9876543210FEDCBAULL,
+                                 0x5555555555555555ULL, 0xAAAAAAAAAAAAAAAAULL};
+
+    // Initialize both backends with same data
+    scalar_bit256 sa, sb;
+    auto_bit256 aa, ab;
+
+    for (int i = 0; i < 4; ++i) {
+        sa[i] = test_a[i]; sb[i] = test_b[i];
+        aa[i] = test_a[i]; ab[i] = test_b[i];
+    }
+
+    // Test bitwise AND
+    scalar_bit256 scalar_and = sa & sb;
+    auto_bit256 auto_and = aa & ab;
+    for (int i = 0; i < 4; ++i) {
+        ASSERT_EQ(scalar_and[i], auto_and[i]);
+    }
+
+    // Test bitwise OR
+    scalar_bit256 scalar_or = sa | sb;
+    auto_bit256 auto_or = aa | ab;
+    for (int i = 0; i < 4; ++i) {
+        ASSERT_EQ(scalar_or[i], auto_or[i]);
+    }
+
+    // Test bitwise XOR
+    scalar_bit256 scalar_xor = sa ^ sb;
+    auto_bit256 auto_xor = aa ^ ab;
+    for (int i = 0; i < 4; ++i) {
+        ASSERT_EQ(scalar_xor[i], auto_xor[i]);
+    }
+
+    // Test bitwise NOT
+    scalar_bit256 scalar_not = ~sa;
+    auto_bit256 auto_not = ~aa;
+    for (int i = 0; i < 4; ++i) {
+        ASSERT_EQ(scalar_not[i], auto_not[i]);
+    }
+
+    // Test popcount
+    ASSERT_EQ(sa.popcount(), aa.popcount());
+    ASSERT_EQ(sb.popcount(), ab.popcount());
+
+    // Test shift left
+    scalar_bit256 sa_shift_l = sa;
+    auto_bit256 aa_shift_l = aa;
+    sa_shift_l.shift_left(37);
+    aa_shift_l.shift_left(37);
+    for (int i = 0; i < 4; ++i) {
+        ASSERT_EQ(sa_shift_l[i], aa_shift_l[i]);
+    }
+
+    // Test shift right
+    scalar_bit256 sa_shift_r = sa;
+    auto_bit256 aa_shift_r = aa;
+    sa_shift_r.shift_right(23);
+    aa_shift_r.shift_right(23);
+    for (int i = 0; i < 4; ++i) {
+        ASSERT_EQ(sa_shift_r[i], aa_shift_r[i]);
+    }
+
+    // Test all() and is_zero()
+    ASSERT_EQ(sa.all(), aa.all());
+    ASSERT_EQ(sa.is_zero(), aa.is_zero());
+
+    // Test with all-ones
+    scalar_bit256 scalar_ones;
+    auto_bit256 auto_ones;
+    for (int i = 0; i < 4; ++i) {
+        scalar_ones[i] = ~0ULL;
+        auto_ones[i] = ~0ULL;
+    }
+    ASSERT_EQ(scalar_ones.all(), auto_ones.all());
+    ASSERT_EQ(scalar_ones.is_zero(), auto_ones.is_zero());
+
+    // Test with all-zeros
+    scalar_bit256 scalar_zeros;
+    auto_bit256 auto_zeros;
+    for (int i = 0; i < 4; ++i) {
+        scalar_zeros[i] = 0;
+        auto_zeros[i] = 0;
+    }
+    ASSERT_EQ(scalar_zeros.all(), auto_zeros.all());
+    ASSERT_EQ(scalar_zeros.is_zero(), auto_zeros.is_zero());
+
+    return true;
+}
+
 // ========== Type traits tests ==========
 
 bool test_type_traits() {
@@ -929,6 +1028,7 @@ int main() {
 
     std::cout << std::endl << "[Backend Consistency]" << std::endl;
     RUN_TEST(test_backend_consistency);
+    RUN_TEST(test_cross_backend_consistency);
 
     std::cout << std::endl << "[Type Traits]" << std::endl;
     RUN_TEST(test_type_traits);
