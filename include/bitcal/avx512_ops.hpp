@@ -64,17 +64,14 @@ BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
     const int word_shift = count / 64;
     const int bit_shift = count % 64;
 
-    // Use AVX-512 alignr for word-level shift (if word_shift > 0)
+    // Word-level shift using scalar loop (alignr requires compile-time constant)
     if (word_shift > 0) {
-        __m512i v = load(data);
-        // _mm512_alignr_epi64 shifts elements within the register
-        // For left shift by N words, we need to shift right by (8-N) and zero low elements
-        __m512i shifted = _mm512_maskz_alignr_epi64(
-            (0xFF << word_shift),  // mask: keep upper (8-word_shift) elements
-            v, v,
-            8 - word_shift  // alignr index
-        );
-        store(data, shifted);
+        for (int i = 7; i >= word_shift; --i) {
+            data[i] = data[i - word_shift];
+        }
+        for (int i = 0; i < word_shift; ++i) {
+            data[i] = 0;
+        }
     }
 
     if (bit_shift == 0) return;
@@ -107,16 +104,14 @@ BITCAL_FORCEINLINE void shift_right_512(uint64_t* data, int count) noexcept {
     const int word_shift = count / 64;
     const int bit_shift = count % 64;
 
-    // Use AVX-512 alignr for word-level shift (if word_shift > 0)
+    // Word-level shift using scalar loop (alignr requires compile-time constant)
     if (word_shift > 0) {
-        __m512i v = load(data);
-        // For right shift by N words, shift left by N and zero high elements
-        __m512i shifted = _mm512_maskz_alignr_epi64(
-            (0xFF >> word_shift),  // mask: keep lower (8-word_shift) elements
-            v, v,
-            word_shift  // alignr index
-        );
-        store(data, shifted);
+        for (int i = 0; i < 8 - word_shift; ++i) {
+            data[i] = data[i + word_shift];
+        }
+        for (int i = 8 - word_shift; i < 8; ++i) {
+            data[i] = 0;
+        }
     }
 
     if (bit_shift == 0) return;
