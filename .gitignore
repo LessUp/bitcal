@@ -53,3 +53,6 @@ _book/
 # BMad Method V6
 _bmad/
 _bmad-output/
+
+# OMC (oh-my-claudecode) local state
+.omc/
