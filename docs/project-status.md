@@ -18,9 +18,9 @@ BitCal 正在从“功能仍可扩展的库仓库”收敛为“稳定、可归�
 
 1. `AGENTS.md`
 2. `CLAUDE.md`
-3. `openspec/changes/finalize-bitcal/proposal.md`
-4. `openspec/changes/finalize-bitcal/design.md`
-5. `openspec/changes/finalize-bitcal/tasks.md`
+3. `openspec/changes/archive/2026-04-26-finalize-bitcal/proposal.md`
+4. `openspec/changes/archive/2026-04-26-finalize-bitcal/design.md`
+5. `openspec/changes/archive/2026-04-26-finalize-bitcal/tasks.md`
 6. `docs/README.md`
 7. `CMakeLists.txt`
 8. `tests/test_bitcal.cpp`

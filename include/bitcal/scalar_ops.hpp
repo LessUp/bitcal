@@ -114,28 +114,33 @@ BITCAL_FORCEINLINE uint64_t reverse_bits(uint64_t x) noexcept {
 template<size_t N>
 BITCAL_FORCEINLINE void shift_left_array(uint64_t* data, int count) noexcept {
     static_assert(N > 0, "Array size must be positive");
-    
+
     if (count <= 0) return;
     if (count >= 64) {
         const int word_shift = count / 64;
         const int bit_shift = count % 64;
-        
+
         if (word_shift >= static_cast<int>(N)) {
             std::memset(data, 0, N * sizeof(uint64_t));
             return;
         }
-        
+
         for (int i = N - 1; i >= word_shift; --i) {
             data[i] = data[i - word_shift];
         }
         for (int i = 0; i < word_shift; ++i) {
             data[i] = 0;
         }
-        
+
+        // Early return when no bit-level shift needed
+        // This also ensures bit_shift ∈ [1, 63] for the code below,
+        // preventing potential shift-by-64 UB in `data[i] >> (64 - count)`
         if (bit_shift == 0) return;
         count = bit_shift;
     }
-    
+
+    // At this point: count ∈ [1, 63]
+    // Therefore (64 - count) ∈ [1, 63], safe for shift operations
     uint64_t carry = 0;
     for (size_t i = 0; i < N; ++i) {
         uint64_t next_carry = data[i] >> (64 - count);
@@ -147,28 +152,33 @@ BITCAL_FORCEINLINE void shift_left_array(uint64_t* data, int count) noexcept {
 template<size_t N>
 BITCAL_FORCEINLINE void shift_right_array(uint64_t* data, int count) noexcept {
     static_assert(N > 0, "Array size must be positive");
-    
+
     if (count <= 0) return;
     if (count >= 64) {
         const int word_shift = count / 64;
         const int bit_shift = count % 64;
-        
+
         if (word_shift >= static_cast<int>(N)) {
             std::memset(data, 0, N * sizeof(uint64_t));
             return;
         }
-        
+
         for (size_t i = 0; i < N - word_shift; ++i) {
             data[i] = data[i + word_shift];
         }
         for (size_t i = N - word_shift; i < N; ++i) {
             data[i] = 0;
         }
-        
+
+        // Early return when no bit-level shift needed
+        // This also ensures bit_shift ∈ [1, 63] for the code below,
+        // preventing potential shift-by-64 UB in `data[i] << (64 - count)`
         if (bit_shift == 0) return;
         count = bit_shift;
     }
-    
+
+    // At this point: count ∈ [1, 63]
+    // Therefore (64 - count) ∈ [1, 63], safe for shift operations
     uint64_t carry = 0;
     for (int i = N - 1; i >= 0; --i) {
         uint64_t next_carry = data[i] << (64 - count);
@@ -265,12 +275,12 @@ template<size_t N>
 BITCAL_FORCEINLINE void set_range(uint64_t* data, size_t start, size_t end) noexcept {
     if (start >= end || start >= N * 64) return;
     if (end > N * 64) end = N * 64;
-    
+
     size_t start_word = start / 64;
     size_t end_word = (end - 1) / 64;
     size_t start_bit = start % 64;
     size_t end_bit = (end - 1) % 64 + 1;
-    
+
     if (start_word == end_word) {
         size_t num_bits = end_bit - start_bit;
         uint64_t mask = (num_bits == 64) ? ~0ULL : ((1ULL << num_bits) - 1) << start_bit;
@@ -288,12 +298,12 @@ template<size_t N>
 BITCAL_FORCEINLINE void clear_range(uint64_t* data, size_t start, size_t end) noexcept {
     if (start >= end || start >= N * 64) return;
     if (end > N * 64) end = N * 64;
-    
+
     size_t start_word = start / 64;
     size_t end_word = (end - 1) / 64;
     size_t start_bit = start % 64;
     size_t end_bit = (end - 1) % 64 + 1;
-    
+
     if (start_word == end_word) {
         size_t num_bits = end_bit - start_bit;
         uint64_t mask = (num_bits == 64) ? ~0ULL : ((1ULL << num_bits) - 1) << start_bit;
@@ -311,12 +321,12 @@ template<size_t N>
 BITCAL_FORCEINLINE void flip_range(uint64_t* data, size_t start, size_t end) noexcept {
     if (start >= end || start >= N * 64) return;
     if (end > N * 64) end = N * 64;
-    
+
     size_t start_word = start / 64;
     size_t end_word = (end - 1) / 64;
     size_t start_bit = start % 64;
     size_t end_bit = (end - 1) % 64 + 1;
-    
+
     if (start_word == end_word) {
         size_t num_bits = end_bit - start_bit;
         uint64_t mask = (num_bits == 64) ? ~0ULL : ((1ULL << num_bits) - 1) << start_bit;
