@@ -29,10 +29,10 @@
 int main() {
     bitcal::bit256 a(0xDEADBEEF);
     bitcal::bit256 b(0xCAFEBABE);
-    
+
     auto c = a & b;           // SIMD-accelerated AND (~2.1ns)
     auto pop = c.popcount();  // Hardware popcount
-    
+
     return 0;
 }
 ```
@@ -127,45 +127,45 @@ int main() {
     // Create bit arrays with different widths
     bitcal::bit256 a(0xFF00FF00FF00FF00);
     bitcal::bit256 b(0x0FF00FF00FF00FF0);
-    
+
     // Bitwise operations (automatically SIMD-accelerated)
     auto c = a & b;              // AND
-    auto d = a | b;              // OR  
+    auto d = a | b;              // OR
     auto e = a ^ b;              // XOR
     auto f = ~a;                 // NOT (accelerated via SIMD)
     auto g = a.andnot(b);        // a & ~b (~2× faster than separate ops)
-    
+
     // Compound assignments
     a &= b;                      // AND in-place
     b |= a;                      // OR in-place
-    
+
     // Shifts
     a <<= 10;                    // Left shift
     b >>= 5;                     // Right shift
-    
+
     // Bit counting operations
     uint64_t ones = a.popcount();
     int lz = a.count_leading_zeros();   // CLZ
     int tz = a.count_trailing_zeros();  // CTZ
-    
+
     // Single bit operations
     a.set_bit(42, true);         // Set bit 42
     bool bit = a.get_bit(42);    // Read bit 42
     a.flip_bit(42);              // Toggle bit 42
-    
+
     // Bit manipulation
     a.reverse();                 // Reverse all bits
     a.clear();                   // Set all bits to zero
-    
+
     // Direct word access (for interop with C APIs)
     uint64_t* data = a.data();   // 64-byte aligned pointer
     uint64_t word = a[0];        // Access first 64-bit word
-    
+
     // Comparisons
     if (a == b) { /* ... */ }
     if (a != b) { /* ... */ }
     if (a.is_zero()) { /* all bits are zero */ }
-    
+
     std::cout << "Popcount: " << ones << std::endl;
     return 0;
 }
@@ -274,29 +274,29 @@ See [`examples/`](examples/) for concrete implementations.
 bitcal::bit256 make_mask(int prefix_len) {
     if (prefix_len <= 0) return bitcal::bit256(0);
     if (prefix_len >= 256) return ~bitcal::bit256(0);
-    
+
     // Calculate whole words and remaining bits
     int whole_words = prefix_len / 64;
     int remain_bits = prefix_len % 64;
-    
+
     bitcal::bit256 mask;
     uint64_t* data = mask.data();
-    
+
     // Fill whole words with ones
     for (int i = 0; i < whole_words; ++i) {
         data[3 - i] = UINT64_MAX;  // Big-endian word order for CIDR
     }
-    
+
     // Set remaining bits in the next word
     if (remain_bits > 0) {
         data[3 - whole_words] = UINT64_MAX << (64 - remain_bits);
     }
-    
+
     // Clear remaining words
     for (int i = whole_words + (remain_bits > 0 ? 1 : 0); i < 4; ++i) {
         data[3 - i] = 0;
     }
-    
+
     return mask;
 }
 ```

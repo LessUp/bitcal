@@ -29,10 +29,10 @@
 int main() {
     bitcal::bit256 a(0xDEADBEEF);
     bitcal::bit256 b(0xCAFEBABE);
-    
+
     auto c = a & b;           // SIMD 加速的与运算（~2.1ns）
     auto pop = c.popcount();  // 硬件 popcount
-    
+
     return 0;
 }
 ```
@@ -127,45 +127,45 @@ int main() {
     // 创建不同位宽的位数组
     bitcal::bit256 a(0xFF00FF00FF00FF00);
     bitcal::bit256 b(0x0FF00FF00FF00FF0);
-    
+
     // 位运算（自动 SIMD 加速）
     auto c = a & b;              // 与
     auto d = a | b;              // 或
     auto e = a ^ b;              // 异或
     auto f = ~a;                 // 非（SIMD 加速）
     auto g = a.andnot(b);        // a & ~b（比分步操作快约 2 倍）
-    
+
     // 复合赋值
     a &= b;                      // 与并赋值
     b |= a;                      // 或并赋值
-    
+
     // 位移
     a <<= 10;                    // 左移
     b >>= 5;                     // 右移
-    
+
     // 位计数操作
     uint64_t ones = a.popcount();
     int lz = a.count_leading_zeros();   // 前导零计数
     int tz = a.count_trailing_zeros();  // 尾随零计数
-    
+
     // 单比特操作
     a.set_bit(42, true);         // 设置第 42 位
     bool bit = a.get_bit(42);    // 读取第 42 位
     a.flip_bit(42);              // 翻转第 42 位
-    
+
     // 位操作
     a.reverse();                 // 位反转
     a.clear();                   // 清零
-    
+
     // 直接访问原始数据（用于与 C API 互操作）
     uint64_t* data = a.data();   // 64 字节对齐的指针
     uint64_t word = a[0];        // 访问第一个 64 位字
-    
+
     // 比较
     if (a == b) { /* ... */ }
     if (a != b) { /* ... */ }
     if (a.is_zero()) { /* 所有位均为零 */ }
-    
+
     std::cout << "Popcount: " << ones << std::endl;
     return 0;
 }
@@ -274,29 +274,29 @@ BitCal 在需要高性能位操作的场景中表现出色：
 bitcal::bit256 make_mask(int prefix_len) {
     if (prefix_len <= 0) return bitcal::bit256(0);
     if (prefix_len >= 256) return ~bitcal::bit256(0);
-    
+
     // 计算完整字和剩余位
     int whole_words = prefix_len / 64;
     int remain_bits = prefix_len % 64;
-    
+
     bitcal::bit256 mask;
     uint64_t* data = mask.data();
-    
+
     // 填充完整的字为全1
     for (int i = 0; i < whole_words; ++i) {
         data[3 - i] = UINT64_MAX;  // CIDR 使用大端字序
     }
-    
+
     // 在下一个字中设置剩余位
     if (remain_bits > 0) {
         data[3 - whole_words] = UINT64_MAX << (64 - remain_bits);
     }
-    
+
     // 清空剩余的字
     for (int i = whole_words + (remain_bits > 0 ? 1 : 0); i < 4; ++i) {
         data[3 - i] = 0;
     }
-    
+
     return mask;
 }
 ```

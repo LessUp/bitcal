@@ -26,7 +26,7 @@
 
 - **ANDNOT 运算** — 使用原生 SIMD 指令的 `bitarray::andnot(mask)`
   - SSE: `_mm_andnot_si128`
-  - AVX: `_mm256_andnot_si256`  
+  - AVX: `_mm256_andnot_si256`
   - NEON: `vbicq_u64`
 - **统一二元运算分派** — `dispatch_binop<Op>` 模板，减少约 40% 代码重复
 - **bit1024 单元测试** — 1024 位运算的完整测试覆盖

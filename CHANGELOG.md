@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **ANDNOT operation** — `bitarray::andnot(mask)` using native SIMD instructions
   - SSE: `_mm_andnot_si128`
-  - AVX: `_mm256_andnot_si256`  
+  - AVX: `_mm256_andnot_si256`
   - NEON: `vbicq_u64`
 - **Unified binary operation dispatch** — `dispatch_binop<Op>` template reduces code duplication by ~40%
 - **bit1024 unit tests** — Full test coverage for 1024-bit operations

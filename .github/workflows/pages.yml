@@ -24,10 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      
+
       - name: Build Site
         run: |
           mkdir -p _site
@@ -36,17 +36,17 @@ jobs:
           # Copy static files
           cp index.html _site/
           cp 404.html _site/
-          
+
           # Copy docs (HTML files now pre-built)
           cp -r docs _site/
-          
+
           # Verify structure
           echo "=== Site Structure ==="
           find _site -name "*.html" | head -30
           echo ""
           echo "Total HTML files:"
           find _site -name "*.html" | wc -l
-          
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:

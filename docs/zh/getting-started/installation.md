@@ -236,14 +236,14 @@ make -j$(nproc)
 int main() {
     std::cout << "BitCal v2.1.0 安装测试\n";
     std::cout << "======================\n\n";
-    
+
     // 测试基本运算
     bitcal::bit256 a(0xFFFFFFFF);
     bitcal::bit256 b(0xAAAAAAAA);
-    
+
     auto result = a & b;
     std::cout << "与运算: " << result.popcount() << " 个位被设置\n";
-    
+
     // 显示检测到的后端
     std::cout << "SIMD 后端: ";
     switch (bitcal::get_default_backend()) {
@@ -253,12 +253,12 @@ int main() {
         default:                          std::cout << "Scalar";
     }
     std::cout << "\n";
-    
+
     // 类型信息
     std::cout << "\n类型信息:\n";
     std::cout << "  bit256 位宽: " << bitcal::bit256::bits << "\n";
     std::cout << "  bit256 字数: " << bitcal::bit256::u64_count << "\n";
-    
+
     std::cout << "\n✓ 所有测试通过！\n";
     return 0;
 }
@@ -302,7 +302,7 @@ fatal error: immintrin.h: No such file or directory
    ```bash
    # GCC/Clang x86
    g++ -std=c++17 -mavx2 -O2 program.cpp
-   
+
    # GCC ARM
    g++ -std=c++17 -march=armv8-a+simd -O2 program.cpp
    ```

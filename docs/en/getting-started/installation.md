@@ -236,14 +236,14 @@ Create `test_install.cpp`:
 int main() {
     std::cout << "BitCal v2.1.0 Installation Test\n";
     std::cout << "================================\n\n";
-    
+
     // Test basic operations
     bitcal::bit256 a(0xFFFFFFFF);
     bitcal::bit256 b(0xAAAAAAAA);
-    
+
     auto result = a & b;
     std::cout << "AND operation: " << result.popcount() << " bits set\n";
-    
+
     // Display detected backend
     std::cout << "SIMD Backend: ";
     switch (bitcal::get_default_backend()) {
@@ -253,12 +253,12 @@ int main() {
         default:                          std::cout << "Scalar";
     }
     std::cout << "\n";
-    
+
     // Type information
     std::cout << "\nType Information:\n";
     std::cout << "  bit256 bits: " << bitcal::bit256::bits << "\n";
     std::cout << "  bit256 words: " << bitcal::bit256::u64_count << "\n";
-    
+
     std::cout << "\n✓ All tests passed!\n";
     return 0;
 }
@@ -294,7 +294,7 @@ Type Information:
 
 int main() {
     std::cout << "Platform Detection:\n";
-    
+
     #if BITCAL_ARCH_X86
         std::cout << "  Architecture: x86/x86-64\n";
         #if BITCAL_HAS_AVX2
@@ -309,7 +309,7 @@ int main() {
             std::cout << "  NEON: Available\n";
         #endif
     #endif
-    
+
     return 0;
 }
 ```
@@ -331,7 +331,7 @@ fatal error: immintrin.h: No such file or directory
    ```bash
    # GCC/Clang x86
    g++ -std=c++17 -mavx2 -O2 program.cpp
-   
+
    # GCC ARM
    g++ -std=c++17 -march=armv8-a+simd -O2 program.cpp
    ```

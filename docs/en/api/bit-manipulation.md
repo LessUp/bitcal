@@ -124,7 +124,7 @@ void reverse() {
     for (size_t i = 0; i < u64_count; ++i) {
         data_[i] = reverse_bits_64(data_[i]);
     }
-    
+
     // Step 2: Swap words from both ends
     for (size_t i = 0, j = u64_count - 1; i < j; ++i, --j) {
         std::swap(data_[i], data_[j]);

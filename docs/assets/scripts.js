@@ -12,7 +12,7 @@
         init() {
             const saved = localStorage.getItem('bitcal-theme') || 'dark';
             this.set(saved);
-            
+
             // Setup toggle buttons
             document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
                 btn.addEventListener('click', () => this.toggle());
@@ -22,7 +22,7 @@
         set(theme) {
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('bitcal-theme', theme);
-            
+
             // Update all toggle icons
             document.querySelectorAll('[data-theme-icon]').forEach(icon => {
                 icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
@@ -45,7 +45,7 @@
             // Detect language from URL or localStorage
             const pathLang = window.location.pathname.includes('/zh/') ? 'zh' : 'en';
             this.currentLang = pathLang;
-            
+
             // Update all lang toggle buttons
             document.querySelectorAll('[data-lang-toggle]').forEach(btn => {
                 btn.addEventListener('click', () => this.toggle());
@@ -55,7 +55,7 @@
         toggle() {
             const current = window.location.pathname.includes('/zh/') ? 'zh' : 'en';
             const target = current === 'en' ? 'zh' : 'en';
-            
+
             // Replace language in URL
             let newPath = window.location.pathname;
             if (current === 'en') {
@@ -67,7 +67,7 @@
                 newPath = newPath.replace('/docs/zh/', '/docs/en/');
                 newPath = newPath.replace('/zh/', '/');
             }
-            
+
             // Fallback to home if path doesn't exist
             window.location.href = newPath || (target === 'zh' ? './zh/' : './');
         },
@@ -100,10 +100,10 @@
             headings.forEach((heading, index) => {
                 const id = heading.id || `heading-${index}`;
                 heading.id = id;
-                
+
                 const level = parseInt(heading.tagName[1]);
                 const text = heading.textContent;
-                
+
                 html += `<li class="toc-h${level}"><a href="#${id}" data-toc-link>${text}</a></li>`;
             });
 
@@ -127,7 +127,7 @@
 
         setupObserver(headings) {
             const tocLinks = document.querySelectorAll('[data-toc-link]');
-            
+
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -166,7 +166,7 @@
                 btn.className = 'btn btn-sm btn-secondary copy-btn';
                 btn.innerHTML = '<i class="fas fa-copy"></i>';
                 btn.title = 'Copy to clipboard';
-                
+
                 btn.addEventListener('click', async () => {
                     const code = pre.querySelector('code') || pre;
                     try {
@@ -194,7 +194,7 @@
         init() {
             const toggle = document.querySelector('[data-mobile-toggle]');
             const sidebar = document.querySelector('.sidebar');
-            
+
             if (!toggle || !sidebar) return;
 
             toggle.addEventListener('click', () => {
@@ -226,7 +226,7 @@
         async init() {
             const searchInput = document.querySelector('.search-input');
             const searchResults = document.querySelector('.search-results');
-            
+
             if (!searchInput) return;
 
             // Load search index
@@ -274,12 +274,12 @@
                 .map(item => {
                     let score = 0;
                     const text = (item.title + ' ' + item.content).toLowerCase();
-                    
+
                     terms.forEach(term => {
                         if (item.title.toLowerCase().includes(term)) score += 10;
                         if (text.includes(term)) score += 1;
                     });
-                    
+
                     return { ...item, score };
                 })
                 .filter(item => item.score > 0)

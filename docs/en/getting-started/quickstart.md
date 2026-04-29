@@ -24,17 +24,17 @@ int main() {
     // Create two 256-bit bit arrays
     bitcal::bit256 a(0xDEADBEEF);
     bitcal::bit256 b(0xCAFEBABE);
-    
+
     // SIMD-accelerated bitwise operations
     auto c = a & b;  // AND
     auto d = a | b;  // OR
     auto e = a ^ b;  // XOR
-    
+
     // Count set bits (popcount)
     std::cout << "a & b has " << c.popcount() << " bits set\n";
     std::cout << "a | b has " << d.popcount() << " bits set\n";
     std::cout << "a ^ b has " << e.popcount() << " bits differ\n";
-    
+
     return 0;
 }
 ```
@@ -164,7 +164,7 @@ uint64_t ones = arr.popcount();
 // Leading zeros
 int lz = arr.count_leading_zeros();
 
-// Trailing zeros  
+// Trailing zeros
 int tz = arr.count_trailing_zeros();
 ```
 
@@ -303,12 +303,12 @@ class UserPermissions {
     Bitmap permissions_;
 public:
     enum Permission { READ = 0, WRITE = 1, EXECUTE = 2, ADMIN = 3 };
-    
+
     void grant(Permission p) { permissions_.set_bit(p, true); }
     void revoke(Permission p) { permissions_.set_bit(p, false); }
     bool has(Permission p) const { return permissions_.get_bit(p); }
     bool none() const { return permissions_.is_zero(); }
-    
+
     Bitmap get() const { return permissions_; }
     void merge(const UserPermissions& other) {
         permissions_ |= other.permissions_;
@@ -317,18 +317,18 @@ public:
 
 int main() {
     UserPermissions alice, bob;
-    
+
     alice.grant(UserPermissions::READ);
     alice.grant(UserPermissions::WRITE);
-    
+
     bob.grant(UserPermissions::EXECUTE);
-    
+
     std::cout << "Alice has " << alice.get().popcount() << " permissions\n";
-    
+
     // Union of permissions
     alice.merge(bob);
     std::cout << "After merge: " << alice.get().popcount() << " permissions\n";
-    
+
     return 0;
 }
 ```

@@ -167,14 +167,14 @@ Check which backend is being used:
 
 int main() {
     // Check default backend
-    std::cout << "Default backend: " 
+    std::cout << "Default backend: "
               << static_cast<int>(bitcal::get_default_backend()) << std::endl;
-    
+
     // Check bitarray's backend
     bitcal::bit256 arr;
-    std::cout << "Array backend: " 
+    std::cout << "Array backend: "
               << static_cast<int>(decltype(arr)::backend) << std::endl;
-    
+
     return 0;
 }
 ```

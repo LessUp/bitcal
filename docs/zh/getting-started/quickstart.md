@@ -24,17 +24,17 @@ int main() {
     // 创建两个 256 位位数组
     bitcal::bit256 a(0xDEADBEEF);
     bitcal::bit256 b(0xCAFEBABE);
-    
+
     // SIMD 加速的位运算
     auto c = a & b;  // 与运算
     auto d = a | b;  // 或运算
     auto e = a ^ b;  // 异或运算
-    
+
     // 统计置位数量（popcount）
     std::cout << "a & b 有 " << c.popcount() << " 个位被设置\n";
     std::cout << "a | b 有 " << d.popcount() << " 个位被设置\n";
     std::cout << "a ^ b 有 " << e.popcount() << " 个位不同\n";
-    
+
     return 0;
 }
 ```
@@ -303,12 +303,12 @@ class UserPermissions {
     Bitmap permissions_;
 public:
     enum Permission { READ = 0, WRITE = 1, EXECUTE = 2, ADMIN = 3 };
-    
+
     void grant(Permission p) { permissions_.set_bit(p, true); }
     void revoke(Permission p) { permissions_.set_bit(p, false); }
     bool has(Permission p) const { return permissions_.get_bit(p); }
     bool none() const { return permissions_.is_zero(); }
-    
+
     Bitmap get() const { return permissions_; }
     void merge(const UserPermissions& other) {
         permissions_ |= other.permissions_;
@@ -317,18 +317,18 @@ public:
 
 int main() {
     UserPermissions alice, bob;
-    
+
     alice.grant(UserPermissions::READ);
     alice.grant(UserPermissions::WRITE);
-    
+
     bob.grant(UserPermissions::EXECUTE);
-    
+
     std::cout << "Alice 有 " << alice.get().popcount() << " 个权限\n";
-    
+
     // 权限并集
     alice.merge(bob);
     std::cout << "合并后: " << alice.get().popcount() << " 个权限\n";
-    
+
     return 0;
 }
 ```

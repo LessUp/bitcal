@@ -59,9 +59,9 @@ BITCAL_FORCEINLINE void shift_left_128(uint64_t* data, int count) noexcept {
         data[0] = data[1] = 0;
         return;
     }
-    
+
     __m128i v = load(data);
-    
+
     if (count >= 64) {
         __m128i low = _mm_slli_si128(v, 8);
         v = _mm_slli_epi64(low, count - 64);
@@ -71,7 +71,7 @@ BITCAL_FORCEINLINE void shift_left_128(uint64_t* data, int count) noexcept {
         v = _mm_slli_epi64(v, count);
         v = _mm_or_si128(v, high_part);
     }
-    
+
     store(data, v);
 }
 
@@ -81,9 +81,9 @@ BITCAL_FORCEINLINE void shift_right_128(uint64_t* data, int count) noexcept {
         data[0] = data[1] = 0;
         return;
     }
-    
+
     __m128i v = load(data);
-    
+
     if (count >= 64) {
         __m128i high = _mm_srli_si128(v, 8);
         v = _mm_srli_epi64(high, count - 64);
@@ -93,7 +93,7 @@ BITCAL_FORCEINLINE void shift_right_128(uint64_t* data, int count) noexcept {
         v = _mm_srli_epi64(v, count);
         v = _mm_or_si128(v, low_part);
     }
-    
+
     store(data, v);
 }
 
@@ -121,7 +121,7 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
         data[0] = data[1] = data[2] = data[3] = 0;
         return;
     }
-    
+
     if (count >= 128) {
         data[3] = data[1];
         data[2] = data[0];
@@ -130,7 +130,7 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
         count -= 128;
         if (count <= 0) return;
     }
-    
+
     if (count >= 64) {
         data[3] = data[2];
         data[2] = data[1];
@@ -139,24 +139,24 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
         count -= 64;
         if (count <= 0) return;
     }
-    
+
     __m128i lo = load(data);
     __m128i hi = load(data + 2);
-    
+
     uint64_t cross_carry = data[1] >> (64 - count);
-    
+
     __m128i lo_carry = _mm_slli_si128(lo, 8);
     lo_carry = _mm_srli_epi64(lo_carry, 64 - count);
     lo = _mm_slli_epi64(lo, count);
     lo = _mm_or_si128(lo, lo_carry);
-    
+
     __m128i hi_carry = _mm_slli_si128(hi, 8);
     hi_carry = _mm_srli_epi64(hi_carry, 64 - count);
     hi = _mm_slli_epi64(hi, count);
     hi = _mm_or_si128(hi, hi_carry);
-    
+
     hi = _mm_or_si128(hi, _mm_set_epi64x(0, static_cast<int64_t>(cross_carry)));
-    
+
     store(data, lo);
     store(data + 2, hi);
 }
@@ -167,7 +167,7 @@ BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
         data[0] = data[1] = data[2] = data[3] = 0;
         return;
     }
-    
+
     if (count >= 128) {
         data[0] = data[2];
         data[1] = data[3];
@@ -176,7 +176,7 @@ BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
         count -= 128;
         if (count <= 0) return;
     }
-    
+
     if (count >= 64) {
         data[0] = data[1];
         data[1] = data[2];
@@ -185,24 +185,24 @@ BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
         count -= 64;
         if (count <= 0) return;
     }
-    
+
     __m128i lo = load(data);
     __m128i hi = load(data + 2);
-    
+
     uint64_t cross_carry = data[2] << (64 - count);
-    
+
     __m128i lo_carry = _mm_srli_si128(lo, 8);
     lo_carry = _mm_slli_epi64(lo_carry, 64 - count);
     lo = _mm_srli_epi64(lo, count);
     lo = _mm_or_si128(lo, lo_carry);
-    
+
     __m128i hi_carry = _mm_srli_si128(hi, 8);
     hi_carry = _mm_slli_epi64(hi_carry, 64 - count);
     hi = _mm_srli_epi64(hi, count);
     hi = _mm_or_si128(hi, hi_carry);
-    
+
     lo = _mm_or_si128(lo, _mm_set_epi64x(static_cast<int64_t>(cross_carry), 0));
-    
+
     store(data, lo);
     store(data + 2, hi);
 }

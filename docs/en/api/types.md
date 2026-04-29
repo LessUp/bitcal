@@ -355,7 +355,7 @@ struct bitarray_traits<bitarray<Bits, Backend>> {
     static constexpr size_t bits = Bits;
     static constexpr size_t u64_count = Bits / 64;
     static constexpr simd_backend backend = Backend;
-    
+
     using word_type = uint64_t;
     using backend_type = /* implementation-defined */;
 };
@@ -389,7 +389,7 @@ void print_array_info(const char* name) {
 void print_hex(const bitcal::bit256& arr) {
     std::cout << "0x";
     for (int i = 3; i >= 0; --i) {
-        std::cout << std::hex << std::setfill('0') << std::setw(16) 
+        std::cout << std::hex << std::setfill('0') << std::setw(16)
                   << arr[i];
     }
     std::cout << std::dec << "\n";
@@ -401,26 +401,26 @@ int main() {
     print_array_info<bitcal::bit128>("bit128");
     print_array_info<bitcal::bit256>("bit256");
     print_array_info<bitcal::bit1024>("bit1024");
-    
+
     // Custom type
     using custom_512 = bitcal::bitarray<512, bitcal::simd_backend::scalar>;
     print_array_info<custom_512>("bitarray<512, scalar>");
-    
+
     // Construction and access
     bitcal::bit256 a;  // Default: all zeros
     print_hex(a);      // 0x00000000000000000000000000000000
-    
+
     bitcal::bit256 b(0xDEADBEEF);
     print_hex(b);      // 0x000000000000000000000000DEADBEEF
-    
+
     // Word access
     b[1] = 0xCAFEBABE;
     print_hex(b);      // 0x00000000CAFEBABE00000000DEADBEEF
-    
+
     // Type traits
     static_assert(bitcal::is_bitarray_v<bitcal::bit256>);
     static_assert(bitcal::bitarray_traits<bitcal::bit256>::bits == 256);
-    
+
     std::cout << "\n✓ All type operations successful\n";
     return 0;
 }

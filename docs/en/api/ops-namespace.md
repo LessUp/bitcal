@@ -113,7 +113,7 @@ int main() {
 ```cpp
 struct MyBitmap {
     uint64_t data[8];  // 512 bits
-    
+
     uint64_t count_bits() const {
         return bitcal::ops::popcount<512>(data);
     }

@@ -66,21 +66,21 @@ public:
     BITCAL_FORCEINLINE void clear() noexcept {
         std::memset(data_, 0, sizeof(data_));
     }
-    
+
     // 直接暴露底层的 word 数组（uint64_t），便于与外部算法对接。
     BITCAL_FORCEINLINE uint64_t* data() noexcept { return data_; }
     BITCAL_FORCEINLINE const uint64_t* data() const noexcept { return data_; }
-    
+
     BITCAL_FORCEINLINE uint64_t operator[](size_t index) const noexcept {
         assert(index < u64_count);
         return data_[index];
     }
-    
+
     BITCAL_FORCEINLINE uint64_t& operator[](size_t index) noexcept {
         assert(index < u64_count);
         return data_[index];
     }
-    
+
     // 读取单个位（0..Bits-1）。
     [[nodiscard]] BITCAL_FORCEINLINE bool get_bit(size_t bit_index) const noexcept {
         assert(bit_index < Bits);
@@ -88,7 +88,7 @@ public:
         const size_t bit_offset = bit_index % 64;
         return (data_[word_idx] >> bit_offset) & 1;
     }
-    
+
     // 设置单个位；value=false 表示清除该位。
     BITCAL_FORCEINLINE void set_bit(size_t bit_index, bool value = true) noexcept {
         assert(bit_index < Bits);
@@ -100,7 +100,7 @@ public:
             data_[word_idx] &= ~(1ULL << bit_offset);
         }
     }
-    
+
     // 翻转单个位。
     BITCAL_FORCEINLINE void flip_bit(size_t bit_index) noexcept {
         assert(bit_index < Bits);
@@ -108,7 +108,7 @@ public:
         const size_t bit_offset = bit_index % 64;
         data_[word_idx] ^= (1ULL << bit_offset);
     }
-    
+
     // 左移 count 位（超出位宽的部分被丢弃）。
     BITCAL_FORCEINLINE void shift_left(int count) noexcept {
         if constexpr (Bits == 64) {
@@ -153,7 +153,7 @@ public:
             scalar::shift_left_array<u64_count>(data_, count);
         }
     }
-    
+
     // 右移 count 位（超出位宽的部分被丢弃）。
     BITCAL_FORCEINLINE void shift_right(int count) noexcept {
         if constexpr (Bits == 64) {
@@ -198,7 +198,7 @@ public:
             scalar::shift_right_array<u64_count>(data_, count);
         }
     }
-    
+
     BITCAL_FORCEINLINE bitarray operator&(const bitarray& other) const noexcept {
         bitarray result;
         dispatch_binop<binop::op_and>(*this, other, result);
@@ -271,22 +271,22 @@ public:
         }
         return result;
     }
-    
+
     BITCAL_FORCEINLINE bitarray& operator&=(const bitarray& other) noexcept {
         dispatch_binop<binop::op_and>(*this, other, *this);
         return *this;
     }
-    
+
     BITCAL_FORCEINLINE bitarray& operator|=(const bitarray& other) noexcept {
         dispatch_binop<binop::op_or>(*this, other, *this);
         return *this;
     }
-    
+
     BITCAL_FORCEINLINE bitarray& operator^=(const bitarray& other) noexcept {
         dispatch_binop<binop::op_xor>(*this, other, *this);
         return *this;
     }
-    
+
     BITCAL_FORCEINLINE bitarray& operator<<=(int count) noexcept {
         shift_left(count);
         return *this;
@@ -355,7 +355,7 @@ public:
         }
         return Bits;
     }
-    
+
     // 位反转：bit0 <-> bit(Bits-1)。
     BITCAL_FORCEINLINE void reverse() noexcept {
         if constexpr (Bits == 64) {
@@ -372,7 +372,7 @@ public:
             }
         }
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bool is_zero() const noexcept {
         if constexpr (Bits == 64) {
             return data_[0] == 0;
@@ -419,7 +419,7 @@ public:
             return true;
         }
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bool operator==(const bitarray& other) const noexcept {
         if constexpr (Bits == 64) {
             return data_[0] == other.data_[0];
@@ -436,52 +436,52 @@ public:
             return scalar::equals_array<u64_count>(data_, other.data_);
         }
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bool operator!=(const bitarray& other) const noexcept {
         return !(*this == other);
     }
-    
+
     // ============================================================================
     // Find first/last set bit
     // ============================================================================
-    
+
     /// Find the position of the first (lowest index) set bit
     /// @return Position (0-indexed) of first set bit, or -1 if all bits are zero
     [[nodiscard]] BITCAL_FORCEINLINE int find_first_set() const noexcept {
         return scalar::find_first_set<u64_count>(data_);
     }
-    
+
     /// Find the position of the last (highest index) set bit
     /// @return Position (0-indexed) of last set bit, or -1 if all bits are zero
     [[nodiscard]] BITCAL_FORCEINLINE int find_last_set() const noexcept {
         return scalar::find_last_set<u64_count>(data_);
     }
-    
+
     // ============================================================================
     // Range operations
     // ============================================================================
-    
+
     /// Set all bits in the range [start, end)
     /// @param start Start bit position (inclusive)
     /// @param end End bit position (exclusive)
     BITCAL_FORCEINLINE void set_range(size_t start, size_t end) noexcept {
         scalar::set_range<u64_count>(data_, start, end);
     }
-    
+
     /// Clear all bits in the range [start, end)
     /// @param start Start bit position (inclusive)
     /// @param end End bit position (exclusive)
     BITCAL_FORCEINLINE void clear_range(size_t start, size_t end) noexcept {
         scalar::clear_range<u64_count>(data_, start, end);
     }
-    
+
     /// Flip all bits in the range [start, end)
     /// @param start Start bit position (inclusive)
     /// @param end End bit position (exclusive)
     BITCAL_FORCEINLINE void flip_range(size_t start, size_t end) noexcept {
         scalar::flip_range<u64_count>(data_, start, end);
     }
-    
+
     // ============================================================================
     // Comparison operations
     // ============================================================================
@@ -533,27 +533,27 @@ public:
             return true;
         }
     }
-    
+
     /// Check if any bit is set
     [[nodiscard]] BITCAL_FORCEINLINE bool any() const noexcept {
         return !is_zero();
     }
-    
+
     /// Check if no bits are set
     [[nodiscard]] BITCAL_FORCEINLINE bool none() const noexcept {
         return is_zero();
     }
-    
+
     /// Count the number of set bits (alias for popcount)
     [[nodiscard]] BITCAL_FORCEINLINE uint64_t count() const noexcept {
         return popcount();
     }
-    
+
     /// Return the number of bits in the bitarray
     [[nodiscard]] static constexpr size_t size() noexcept {
         return Bits;
     }
-    
+
     /// Test if a bit is set (alias for get_bit)
     [[nodiscard]] BITCAL_FORCEINLINE bool test(size_t bit_index) const noexcept {
         return get_bit(bit_index);
@@ -561,9 +561,9 @@ public:
 
 private:
     alignas(get_optimal_alignment<Bits>()) uint64_t data_[u64_count];
-    
+
     enum class binop { op_and, op_or, op_xor, op_andnot };
-    
+
     template<binop Op>
     static BITCAL_FORCEINLINE void dispatch_binop(const bitarray& a, const bitarray& b, bitarray& out) noexcept {
         if constexpr (Bits == 64) {
@@ -667,26 +667,26 @@ public:
     // Direct access to underlying value
     [[nodiscard]] BITCAL_FORCEINLINE uint64_t* data() noexcept { return &value_; }
     [[nodiscard]] BITCAL_FORCEINLINE const uint64_t* data() const noexcept { return &value_; }
-    
+
     // Single element access (for API compatibility)
     [[nodiscard]] BITCAL_FORCEINLINE uint64_t operator[](size_t index) const noexcept {
         (void)index;  // Always 0 for bit64
         assert(index == 0);
         return value_;
     }
-    
+
     BITCAL_FORCEINLINE uint64_t& operator[](size_t index) noexcept {
         (void)index;
         assert(index == 0);
         return value_;
     }
-    
+
     // Bit operations
     [[nodiscard]] BITCAL_FORCEINLINE bool get_bit(size_t bit_index) const noexcept {
         assert(bit_index < 64);
         return (value_ >> bit_index) & 1;
     }
-    
+
     BITCAL_FORCEINLINE void set_bit(size_t bit_index, bool val = true) noexcept {
         assert(bit_index < 64);
         if (val) {
@@ -695,119 +695,119 @@ public:
             value_ &= ~(1ULL << bit_index);
         }
     }
-    
+
     BITCAL_FORCEINLINE void flip_bit(size_t bit_index) noexcept {
         assert(bit_index < 64);
         value_ ^= (1ULL << bit_index);
     }
-    
+
     // Shift operations
     BITCAL_FORCEINLINE void shift_left(int count) noexcept {
         value_ = scalar::shift_left(value_, count);
     }
-    
+
     BITCAL_FORCEINLINE void shift_right(int count) noexcept {
         value_ = scalar::shift_right(value_, count);
     }
-    
+
     BITCAL_FORCEINLINE void clear() noexcept { value_ = 0; }
-    
+
     // Bitwise operators
     [[nodiscard]] BITCAL_FORCEINLINE bitarray operator&(const bitarray& other) const noexcept {
         return bitarray(value_ & other.value_);
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bitarray operator|(const bitarray& other) const noexcept {
         return bitarray(value_ | other.value_);
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bitarray operator^(const bitarray& other) const noexcept {
         return bitarray(value_ ^ other.value_);
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bitarray operator~() const noexcept {
         return bitarray(~value_);
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bitarray andnot(const bitarray& mask) const noexcept {
         return bitarray(scalar::bit_andnot(value_, mask.value_));
     }
-    
+
     // Assignment operators
     BITCAL_FORCEINLINE bitarray& operator&=(const bitarray& other) noexcept {
         value_ &= other.value_;
         return *this;
     }
-    
+
     BITCAL_FORCEINLINE bitarray& operator|=(const bitarray& other) noexcept {
         value_ |= other.value_;
         return *this;
     }
-    
+
     BITCAL_FORCEINLINE bitarray& operator^=(const bitarray& other) noexcept {
         value_ ^= other.value_;
         return *this;
     }
-    
+
     BITCAL_FORCEINLINE bitarray& operator<<=(int count) noexcept {
         shift_left(count);
         return *this;
     }
-    
+
     BITCAL_FORCEINLINE bitarray& operator>>=(int count) noexcept {
         shift_right(count);
         return *this;
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bitarray operator<<(int count) const noexcept {
         return bitarray(scalar::shift_left(value_, count));
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bitarray operator>>(int count) const noexcept {
         return bitarray(scalar::shift_right(value_, count));
     }
-    
+
     // Counting operations
     [[nodiscard]] BITCAL_FORCEINLINE uint64_t popcount() const noexcept {
         return scalar::popcount(value_);
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE int count_leading_zeros() const noexcept {
         return scalar::count_leading_zeros(value_);
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE int count_trailing_zeros() const noexcept {
         return scalar::count_trailing_zeros(value_);
     }
-    
+
     // Other operations
     BITCAL_FORCEINLINE void reverse() noexcept {
         value_ = scalar::reverse_bits(value_);
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bool is_zero() const noexcept {
         return value_ == 0;
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bool operator==(const bitarray& other) const noexcept {
         return value_ == other.value_;
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bool operator!=(const bitarray& other) const noexcept {
         return value_ != other.value_;
     }
-    
+
     // Find first/last set bit
     [[nodiscard]] BITCAL_FORCEINLINE int find_first_set() const noexcept {
         if (value_ == 0) return -1;
         return scalar::count_trailing_zeros(value_);
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE int find_last_set() const noexcept {
         if (value_ == 0) return -1;
         return 63 - scalar::count_leading_zeros(value_);
     }
-    
+
     // Range operations
     BITCAL_FORCEINLINE void set_range(size_t start, size_t end) noexcept {
         if (start >= end || start >= 64) return;
@@ -821,7 +821,7 @@ public:
         }
         value_ |= mask;
     }
-    
+
     BITCAL_FORCEINLINE void clear_range(size_t start, size_t end) noexcept {
         if (start >= end || start >= 64) return;
         if (end > 64) end = 64;
@@ -834,7 +834,7 @@ public:
         }
         value_ &= ~mask;
     }
-    
+
     BITCAL_FORCEINLINE void flip_range(size_t start, size_t end) noexcept {
         if (start >= end || start >= 64) return;
         if (end > 64) end = 64;
@@ -847,32 +847,32 @@ public:
         }
         value_ ^= mask;
     }
-    
+
     // Additional query methods
     [[nodiscard]] BITCAL_FORCEINLINE bool all() const noexcept {
         return value_ == ~0ULL;
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bool any() const noexcept {
         return value_ != 0;
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bool none() const noexcept {
         return value_ == 0;
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE uint64_t count() const noexcept {
         return popcount();
     }
-    
+
     [[nodiscard]] static constexpr size_t size() noexcept {
         return 64;
     }
-    
+
     [[nodiscard]] BITCAL_FORCEINLINE bool test(size_t bit_index) const noexcept {
         return get_bit(bit_index);
     }
-    
+
     // Explicit conversion to uint64_t
     [[nodiscard]] explicit constexpr operator uint64_t() const noexcept {
         return value_;
