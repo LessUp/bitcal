@@ -134,6 +134,18 @@ struct has_test : std::false_type {};
 template<typename T>
 struct has_test<T, std::void_t<decltype(std::declval<const T&>().test(size_t{}))>> : std::true_type {};
 
+template<typename T, typename = void>
+struct has_size : std::false_type {};
+
+template<typename T>
+struct has_size<T, std::void_t<decltype(std::declval<const T&>().size())>> : std::true_type {};
+
+template<typename T, typename = void>
+struct has_explicit_uint64_conversion : std::false_type {};
+
+template<typename T>
+struct has_explicit_uint64_conversion<T, std::void_t<decltype(static_cast<uint64_t>(std::declval<const T&>()))>> : std::true_type {};
+
 static_assert(!has_set_range<bitcal::bit256>::value, "set_range should not remain public");
 static_assert(!has_clear_range<bitcal::bit256>::value, "clear_range should not remain public");
 static_assert(!has_flip_range<bitcal::bit256>::value, "flip_range should not remain public");
@@ -144,11 +156,12 @@ static_assert(!has_any<bitcal::bit256>::value, "any should not remain public");
 static_assert(!has_none<bitcal::bit256>::value, "none should not remain public");
 static_assert(!has_count<bitcal::bit256>::value, "count should not remain public");
 static_assert(!has_test<bitcal::bit256>::value, "test should not remain public");
+static_assert(!has_size<bitcal::bit256>::value, "size should not remain public");
+static_assert(!has_explicit_uint64_conversion<bitcal::bit64>::value, "bit64 to uint64_t conversion should not remain public");
 
 bool test_retained_public_contract() {
     bitcal::bit256 a;
     ASSERT_TRUE(a.is_zero());
-    ASSERT_EQ(bitcal::bit256::size(), 256);
 
     a.set_bit(0, true);
     a.set_bit(63, true);
@@ -989,7 +1002,6 @@ bool test_bit64_specialization() {
     // Basic operations
     bitcal::bit64 a(0xDEADBEEFCAFEBABEULL);
     ASSERT_EQ(a.popcount(), 46ULL);  // 0xDEADBEEFCAFEBABE has 46 bits set
-    ASSERT_EQ(static_cast<uint64_t>(a), 0xDEADBEEFCAFEBABEULL);
 
     // Bit operations
     bitcal::bit64 b;
@@ -1015,10 +1027,6 @@ bool test_bit64_specialization() {
     bitcal::bit64 f(0);
     ASSERT_TRUE(f.is_zero());
     ASSERT_EQ(f.popcount(), 0ULL);
-
-    // Size
-    ASSERT_EQ(bitcal::bit64::size(), 64);
-    ASSERT_EQ(b.size(), 64);
 
     return true;
 }
