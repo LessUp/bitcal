@@ -31,7 +31,6 @@ static int g_fail = 0;
     else { std::cout << "FAIL" << std::endl; ++g_fail; } \
 } while(0)
 
-
 // ============================================================================
 // Theme-Oriented Test Organization
 // ============================================================================
@@ -292,7 +291,6 @@ bool test_bit64_basic() {
     return true;
 }
 
-
 bool test_bit64_shift_left() {
     bitcal::bit64 a(1);
     a.shift_left(10);
@@ -305,7 +303,6 @@ bool test_bit64_shift_left() {
     return true;
 }
 
-
 bool test_bit64_shift_right() {
     bitcal::bit64 a(1024);
     a.shift_right(10);
@@ -316,7 +313,6 @@ bool test_bit64_shift_right() {
     ASSERT_TRUE(b.is_zero());
     return true;
 }
-
 
 bool test_bit64_bitwise_ops() {
     // 使用 set_bit 设置位模式，而非直接赋值数组
@@ -344,14 +340,12 @@ bool test_bit64_bitwise_ops() {
     return true;
 }
 
-
 bool test_bit64_popcount() {
     ASSERT_EQ(bitcal::bit64(0).popcount(), 0ULL);
     ASSERT_EQ(bitcal::bit64(0xFFFFFFFFFFFFFFFFULL).popcount(), 64ULL);
     ASSERT_EQ(bitcal::bit64(0xAAAAAAAAAAAAAAAAULL).popcount(), 32ULL);
     return true;
 }
-
 
 bool test_bit64_clz_ctz() {
     bitcal::bit64 a(0);
@@ -366,7 +360,6 @@ bool test_bit64_clz_ctz() {
     return true;
 }
 
-
 bool test_bit64_bit_ops() {
     bitcal::bit64 a;
     a.set_bit(0); ASSERT_TRUE(a.get_bit(0));
@@ -375,7 +368,6 @@ bool test_bit64_bit_ops() {
     a.flip_bit(63); ASSERT_TRUE(!a.get_bit(63));
     return true;
 }
-
 
 bool test_bit64_reverse() {
     bitcal::bit64 a(0x0000000000000001ULL);
@@ -388,7 +380,6 @@ bool test_bit64_reverse() {
     ASSERT_TRUE(b.get_bit(56));  // bit 0 -> bit 63, bit 7 -> bit 56
     return true;
 }
-
 
 bool test_bit64_compound_assignment() {
     bitcal::bit64 a(0xFF00), b(0xF0F0);
@@ -408,7 +399,6 @@ bool test_bit64_compound_assignment() {
     return true;
 }
 
-
 // ---- 128-bit Core Behavior ----
 
 bool test_bit128_basic() {
@@ -424,7 +414,6 @@ bool test_bit128_basic() {
     return true;
 }
 
-
 bool test_bit128_shift_left() {
     bitcal::bit128 a;
     // 设置低 64 位的所有位
@@ -439,7 +428,6 @@ bool test_bit128_shift_left() {
     return true;
 }
 
-
 bool test_bit128_shift_right() {
     bitcal::bit128 a;
     // 设置高 64 位的所有位
@@ -450,7 +438,6 @@ bool test_bit128_shift_right() {
     for (int i = 64; i < 128; ++i) ASSERT_TRUE(!a.get_bit(i));
     return true;
 }
-
 
 bool test_bit128_shift_cross_carry() {
     bitcal::bit128 a;
@@ -466,7 +453,6 @@ bool test_bit128_shift_cross_carry() {
     ASSERT_TRUE(!b.get_bit(64));
     return true;
 }
-
 
 bool test_bit128_bitwise_ops() {
     bitcal::bit128 a, b;
@@ -489,7 +475,6 @@ bool test_bit128_bitwise_ops() {
     return true;
 }
 
-
 // ---- 256-bit Core Behavior ----
 
 bool test_bit256_basic() {
@@ -503,7 +488,6 @@ bool test_bit256_basic() {
     return true;
 }
 
-
 bool test_bit256_shift_128() {
     bitcal::bit256 a;
     // 设置低 64 位
@@ -514,7 +498,6 @@ bool test_bit256_shift_128() {
     for (int i = 0; i < 128; ++i) ASSERT_TRUE(!a.get_bit(i));
     return true;
 }
-
 
 bool test_bit256_shift_cross_carry() {
     // shift left by 1: carry from word 0 -> 1
@@ -550,7 +533,6 @@ bool test_bit256_shift_cross_carry() {
     return true;
 }
 
-
 bool test_bit256_shift_boundary() {
     // shift by exactly 64
     bitcal::bit256 a;
@@ -581,7 +563,6 @@ bool test_bit256_shift_boundary() {
     return true;
 }
 
-
 bool test_bit256_popcount() {
     bitcal::bit256 a;
     // 设置所有位
@@ -589,7 +570,6 @@ bool test_bit256_popcount() {
     ASSERT_EQ(a.popcount(), 256ULL);
     return true;
 }
-
 
 bool test_bit256_equality() {
     // Use helper to verify basic equality contracts
@@ -601,7 +581,6 @@ bool test_bit256_equality() {
     ASSERT_TRUE(a != c);
     return true;
 }
-
 
 // ---- 512-bit Core Behavior ----
 
@@ -615,7 +594,6 @@ bool test_bit512_basic() {
     }
     return true;
 }
-
 
 bool test_bit512_shift_cross_carry() {
     // word 3 -> word 4 (cross 256-bit boundary)
@@ -643,7 +621,6 @@ bool test_bit512_shift_cross_carry() {
     return true;
 }
 
-
 bool test_bit512_shift_boundary() {
     bitcal::bit512 a;
     a.set_bit(0, true);
@@ -657,7 +634,6 @@ bool test_bit512_shift_boundary() {
     return true;
 }
 
-
 // ---- 1024-bit Core Behavior ----
 
 bool test_bit1024_basic() {
@@ -669,7 +645,6 @@ bool test_bit1024_basic() {
     }
     return true;
 }
-
 
 bool test_bit1024_shift_cross_carry() {
     // word 7 -> word 8 (cross 512-bit boundary)
@@ -697,7 +672,6 @@ bool test_bit1024_shift_cross_carry() {
     return true;
 }
 
-
 bool test_bit1024_shift_boundary() {
     bitcal::bit1024 a;
     a.set_bit(0, true);
@@ -711,7 +685,6 @@ bool test_bit1024_shift_boundary() {
     return true;
 }
 
-
 bool test_bit1024_popcount() {
     bitcal::bit1024 a;
     // 设置所有位
@@ -723,7 +696,6 @@ bool test_bit1024_popcount() {
     ASSERT_EQ(b.popcount(), 1ULL);
     return true;
 }
-
 
 bool test_bit1024_bitwise_ops() {
     bitcal::bit1024 a, b;
@@ -749,7 +721,6 @@ bool test_bit1024_bitwise_ops() {
     return true;
 }
 
-
 bool test_bit1024_is_zero() {
     bitcal::bit1024 a;
     ASSERT_TRUE(a.is_zero());
@@ -764,7 +735,6 @@ bool test_bit1024_is_zero() {
     return true;
 }
 
-
 bool test_bit1024_equality() {
     // Use helper to verify basic equality contracts
     ASSERT_TRUE(verify_equality_basics<bitcal::bit1024>(123, 456));
@@ -776,15 +746,12 @@ bool test_bit1024_equality() {
     return true;
 }
 
-
 // ============================================================================
 // BACKEND SEAM CHARACTERIZATION
 // ============================================================================
 // Verify consistency between scalar and SIMD backends, fallback behavior,
 // and the backend abstraction layer at key boundaries (small widths, large widths).
 // ============================================================================
-
-
 
 bool test_backend_consistency() {
     // Test that scalar backend produces correct results
@@ -819,7 +786,6 @@ bool test_backend_consistency() {
 
     return true;
 }
-
 
 bool test_cross_backend_consistency() {
     // Test that different backends produce identical results
@@ -894,7 +860,6 @@ bool test_cross_backend_consistency() {
     return true;
 }
 
-
 bool test_small_width_backend_fallback_consistency() {
     // Characterization test: verify that small bit widths (64) behave consistently
     // across scalar and SIMD backends, ensuring fallback paths work correctly.
@@ -954,7 +919,6 @@ bool test_small_width_backend_fallback_consistency() {
 
     return true;
 }
-
 
 bool test_large_width_1024_fallback_characterization() {
     // Characterization test: verify that large bit widths (1024) that don't have
@@ -1060,15 +1024,12 @@ bool test_large_width_1024_fallback_characterization() {
     return true;
 }
 
-
 // ============================================================================
 // SPECIALIZATION & DEFAULT BACKEND
 // ============================================================================
 // Verify bit64 specialization and default backend requirements.
 // These tests lock the default backend choice for bit64.
 // ============================================================================
-
-
 
 bool test_bit64_specialization() {
     // Basic operations
@@ -1102,7 +1063,6 @@ bool test_bit64_specialization() {
 
     return true;
 }
-
 
 bool test_bit64_default_backend_contract() {
     // Runtime verification that bit64 and bitarray<64, simd_backend::scalar> 
@@ -1149,15 +1109,12 @@ bool test_bit64_default_backend_contract() {
     return true;
 }
 
-
 // ============================================================================
 // ABSTRACT OPERATIONS
 // ============================================================================
 // Verify shift and bitwise operations that are not dependent on internal layout.
 // These tests use only public APIs and verify abstract mathematical properties.
 // ============================================================================
-
-
 
 bool test_abstract_shift_left() {
     // 测试不依赖内部 word 布局，只通过公开接口验证
@@ -1184,7 +1141,6 @@ bool test_abstract_shift_left() {
     return true;
 }
 
-
 bool test_abstract_shift_right() {
     // 测试不依赖内部 word 布局
     
@@ -1200,15 +1156,12 @@ bool test_abstract_shift_right() {
     return true;
 }
 
-
 // ============================================================================
 // BOUNDARY CONDITIONS & MATHEMATICAL PROPERTIES
 // ============================================================================
 // Edge cases, limits, and mathematical properties verification.
 // Tests shift boundaries, bitwise laws, and comprehensive edge conditions.
 // ============================================================================
-
-
 
 bool test_shift_boundary_conditions() {
     // Test shift equal to bit width
@@ -1263,7 +1216,6 @@ bool test_shift_boundary_conditions() {
     return true;
 }
 
-
 bool test_bitwise_mathematical_properties() {
     // Test commutativity: a & b == b & a
     bitcal::bit256 a, b;
@@ -1304,7 +1256,6 @@ bool test_bitwise_mathematical_properties() {
     return true;
 }
 
-
 bool test_large_shifts() {
     // Test shift by exact word boundaries (64, 128, 192 bits for 256-bit)
     bitcal::bit256 a;
@@ -1341,7 +1292,6 @@ bool test_large_shifts() {
 
     return true;
 }
-
 
 bool test_comprehensive_shift_boundaries() {
     // 测试所有关键边界值
@@ -1391,14 +1341,11 @@ bool test_comprehensive_shift_boundaries() {
     return true;
 }
 
-
 // ============================================================================
 // MISCELLANEOUS OPERATIONS
 // ============================================================================
 // Operation-specific tests for andnot, not, is_zero, and reverse.
 // ============================================================================
-
-
 
 bool test_andnot_64() {
     bitcal::bit64 a(0xFF00FF00FF00FF00ULL);
@@ -1410,7 +1357,6 @@ bool test_andnot_64() {
     ASSERT_EQ(r.popcount(), bitcal::bit64(expected).popcount());
     return true;
 }
-
 
 bool test_andnot_256() {
     bitcal::bit256 a, mask;
@@ -1427,7 +1373,6 @@ bool test_andnot_256() {
     return true;
 }
 
-
 bool test_not_128() {
     bitcal::bit128 a;
     // 设置低 64 位的偶数位
@@ -1440,7 +1385,6 @@ bool test_not_128() {
     return true;
 }
 
-
 bool test_not_256() {
     bitcal::bit256 a;
     ASSERT_TRUE(a.is_zero());
@@ -1449,7 +1393,6 @@ bool test_not_256() {
     ASSERT_EQ(r.popcount(), 256ULL);
     return true;
 }
-
 
 bool test_is_zero_various() {
     bitcal::bit64 a; ASSERT_TRUE(a.is_zero());
@@ -1462,7 +1405,6 @@ bool test_is_zero_various() {
     return true;
 }
 
-
 bool test_reverse_256() {
     bitcal::bit256 a;
     a.set_bit(0, true);
@@ -1471,7 +1413,6 @@ bool test_reverse_256() {
     ASSERT_TRUE(!a.get_bit(0));
     return true;
 }
-
 
 bool test_popcount_edge_cases() {
     // 单个位设置 - verify single bit popcount
@@ -1493,14 +1434,11 @@ bool test_popcount_edge_cases() {
     return true;
 }
 
-
 // ============================================================================
 // STATIC VALIDATION
 // ============================================================================
 // Compile-time contracts and type requirements.
 // ============================================================================
-
-
 
 bool test_static_assert_validation() {
     // These compile-time checks verify the static_assert in bitarray template
@@ -1525,7 +1463,6 @@ bool test_static_assert_validation() {
 
     return true;
 }
-
 
 // ============================================================================
 // Theme-based Test Runners
