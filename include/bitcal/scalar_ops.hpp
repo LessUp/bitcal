@@ -323,7 +323,5 @@ BITCAL_FORCEINLINE bool all_array(const uint64_t* data) noexcept {
     return true;
 }
 
-
-
 }
 }
