@@ -106,14 +106,16 @@ struct simd_ops_base {
     }
 };
 
-} // namespace detail
-
 // ============================================================================
-// Scalar backend - 通用实现（适用于所有位宽）
+// Shared scalar fallback helper for large-width bit arrays
 // ============================================================================
+// This template provides the fallback implementation for any bit width
+// that doesn't have a SIMD-optimized backend. It is reused by both the
+// scalar backend and the generic fallback template for unsupported
+// bit width + backend combinations.
 
 template<size_t Bits>
-struct ops<Bits, simd_backend::scalar> {
+struct scalar_fallback_ops {
     static constexpr size_t N = Bits / 64;
 
     // ===== 位运算 =====
@@ -175,6 +177,17 @@ struct ops<Bits, simd_backend::scalar> {
     static BITCAL_FORCEINLINE uint64_t popcount(const uint64_t* data) noexcept {
         return scalar::popcount_array<N>(data);
     }
+};
+
+} // namespace detail
+
+// ============================================================================
+// Scalar backend - 通用实现（适用于所有位宽）
+// ============================================================================
+
+template<size_t Bits>
+struct ops<Bits, simd_backend::scalar> : detail::scalar_fallback_ops<Bits> {
+    // Inherits all scalar fallback operations for this bit width
 };
 
 // ============================================================================
