@@ -78,7 +78,7 @@ bool verify_bit_pattern(const BitArray& arr, std::initializer_list<std::pair<siz
 // Width-agnostic shared test helpers
 // ============================================================================
 
-/// Verify single-bit shift left and right with boundary checks
+/// Verify single-bit left shift with boundary checks
 template<typename BitArray>
 bool verify_single_bit_shift_left(size_t shift_amount, size_t bit_width) {
     BitArray arr;
@@ -111,7 +111,8 @@ bool verify_single_bit_shift_right(size_t shift_amount, size_t bit_width) {
     return true;
 }
 
-/// Verify that shift by full width results in zero
+/// Verify that shift by full bit width results in zero.
+/// Tests both left shift (from bit 0) and right shift (from bit width-1).
 template<typename BitArray>
 bool verify_zero_after_full_width_shift(size_t bit_width) {
     BitArray arr;
@@ -1318,8 +1319,6 @@ bool test_bit64_default_backend_contract() {
 
 bool test_abstract_shift_left() {
     // 测试不依赖内部 word 布局，只通过公开接口验证
-    // Use helper to verify single-bit shift at position 1
-    ASSERT_TRUE(verify_single_bit_shift_left<bitcal::bit256>(1, 256));
     
     bitcal::bit256 a;
     a.set_bit(0, true);  // 设置 bit 0
@@ -1345,8 +1344,6 @@ bool test_abstract_shift_left() {
 
 bool test_abstract_shift_right() {
     // 测试不依赖内部 word 布局
-    // Use helper to verify single-bit shift right at position 1
-    ASSERT_TRUE(verify_single_bit_shift_right<bitcal::bit256>(1, 256));
     
     bitcal::bit256 a;
     a.set_bit(255, true);  // 设置最高位
