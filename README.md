@@ -182,161 +182,20 @@ Custom widths (multiple of 64):
 bitcal::bitarray<2048> custom;
 ```
 
-## 📖 API Overview
+## 📚 Documentation & API
 
-### Constructors
-```cpp
-bitcal::bit256 a;                    // Zero-initialized
-bitcal::bit256 b(0xDEADBEEF);        // Set lower 64 bits
-bitcal::bit256 c = b;                // Copy
-```
+The `bitarray<Bits>` template provides bitwise operators (`&`, `|`, `^`, `~`, `<<`, `>>`), bit counting (`popcount`, CLZ/CTZ), single-bit manipulation (`get_bit`, `set_bit`, `flip_bit`), and direct word access. See the [API reference](https://lessup.github.io/bitcal/en/api/) for full details.
 
-### Bitwise Operators
-```cpp
-a & b    // AND        a &= b    // AND-assign
-a | b    // OR         a |= b    // OR-assign
-a ^ b    // XOR        a ^= b    // XOR-assign
-~a       // NOT
-a.andnot(b)  // Optimized a & ~b
-```
-
-### Shift Operators
-```cpp
-a << n   // Left shift      a <<= n   // Left shift-assign
-a >> n   // Right shift     a >>= n   // Right shift-assign
-```
-
-### Bit Counting
-```cpp
-a.popcount()              // Count set bits
-a.count_leading_zeros()   // Count leading zeros
-a.count_trailing_zeros()  // Count trailing zeros
-```
-
-### Single Bit Operations
-```cpp
-a.get_bit(index)          // Read bit (0-indexed from LSB)
-a.set_bit(index, value)   // Set/clear bit
-a.flip_bit(index)         // Toggle bit
-```
-
-### State & Comparison
-```cpp
-a.is_zero()               // Check if all bits are zero
-a.clear()                 // Set all bits to zero
-a == b                    // Equality comparison
-a != b                    // Inequality comparison
-```
-
-### Data Access
-```cpp
-a.data()                  // Direct pointer to 64-bit words
-a[index]                  // Access 64-bit word at index
-a.bits                    // Compile-time bit count (static)
-a.u64_count               // Number of 64-bit words (static)
-```
-
-### Bit Manipulation
-```cpp
-a.reverse()               // Reverse bit order
-```
-
-### Force Specific Backend
-```cpp
-bitcal::bitarray<256, bitcal::simd_backend::avx512> force_avx512;
-bitcal::bitarray<256, bitcal::simd_backend::avx2>   force_avx2;
-bitcal::bitarray<256, bitcal::simd_backend::sse2>   force_sse2;
-bitcal::bitarray<256, bitcal::simd_backend::neon>   force_neon;
-bitcal::bitarray<256, bitcal::simd_backend::scalar> force_scalar;
-```
-
-## 💡 Use Cases
-
-BitCal is suitable for:
-
-- **Bitsets**: Compact boolean storage (64× space reduction vs `bool[]`)
-- **Bloom filters**: Probabilistic data structures with SIMD-accelerated hash mixing
-- **Network masks**: Fast CIDR/subnet calculations
-- **Cryptography**: Block cipher bit operations with hardware popcount
-- **Data compression**: Efficient bit packing/unpacking with cross-word shifts
-- **Graphics**: Parallel processing of pixel masks
-
-See [`examples/`](examples/) for concrete implementations.
-
-## 📊 Performance
-
-BitCal uses compile-time SIMD dispatch to accelerate bit operations on supported platforms. Actual performance varies by CPU, operation type, and compiler optimization settings.
-
-For optimal performance:
-
-```bash
-# GCC/Clang: Enable all CPU features and maximum optimization
-g++ -std=c++17 -O3 -march=native -DNDEBUG your_program.cpp
-
-# MSVC: Enable AVX2 and maximum optimization
-cl /std:c++17 /O2 /arch:AVX2 /DNDEBUG your_program.cpp
-```
-
-Run `./benchmarks/bench_bitcal` in your environment to measure actual performance. Backend selection is automatic based on compiler flags and CPU features detected at compile time.
-
-## 📚 Documentation
-
-Full documentation and API reference: **[https://lessup.github.io/bitcal/](https://lessup.github.io/bitcal/)**
-
-Key topics:
-- [API Reference](https://lessup.github.io/bitcal/en/api/) — Types, operations, backend selection
-- [Architecture](https://lessup.github.io/bitcal/en/architecture/) — Design principles, SIMD dispatch, platform support
-- [Getting Started](https://lessup.github.io/bitcal/en/getting-started/) — Installation, quick start, build options
+Complete documentation at **[https://lessup.github.io/bitcal/](https://lessup.github.io/bitcal/)** includes architecture, performance benchmarking, and platform-specific notes.
 
 ## 🌍 Platform Support
 
-BitCal supports:
-
-- **Linux**: x86-64 and ARM (32/64-bit) with GCC 7+ or Clang 6+
-- **Windows**: x86-64 with MSVC 2017+ or MinGW
-- **macOS**: x86-64 and ARM64 (Apple Silicon) with Apple Clang
-
-**Requirements**: C++17 or later; CMake 3.16+ for building tests/benchmarks
-
-All platforms are validated in CI. See [platform support docs](https://lessup.github.io/bitcal/en/architecture/platform-support.html) for details.
-
-## 🔨 Build & Test
-
-BitCal is header-only; simply include `<bitcal/bitcal.hpp>`. To build and run tests:
-
-```bash
-mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON
-cmake --build . -j$(nproc)
-./tests/test_bitcal
-```
-
-For benchmarks, add `-DBITCAL_BUILD_EXAMPLES=ON` and run `./benchmarks/bench_bitcal`.
-
-## 📝 Changelog & Version History
-
-See [CHANGELOG.md](CHANGELOG.md) for version history.
-
-**Current stable release: 3.0.0** (2026-05-08)
-
-- Contracted public API to retained `bitarray` surface
-- Removed `bitcal::ops`, type traits, and `bit64` conversion helpers
-- Stable maintenance posture; breaking changes require major version bump
+**Linux**, **Windows**, **macOS** on x86-64 and ARM with C++17 or later. See [CHANGELOG.md](CHANGELOG.md) for version history and [platform docs](https://lessup.github.io/bitcal/en/architecture/platform-support.html) for CI validation details
 
 ## 🤝 Contributing
 
-Contributions are welcome within the 3.0 contract boundary. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-For significant API changes or architectural shifts, please open an issue first to discuss scope and impact.
+Contributions are welcome within the 3.0 contract boundary. For significant changes, open an issue first. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## 📄 License
 
 MIT License — see [LICENSE](LICENSE) for details.
-
----
-
-<p align="center">
-  <a href="https://github.com/LessUp/bitcal">⭐ Star on GitHub</a> •
-  <a href="https://github.com/LessUp/bitcal/issues">🐛 Report Issue</a> •
-  <a href="https://github.com/LessUp/bitcal/discussions">💬 Discussions</a>
-</p>

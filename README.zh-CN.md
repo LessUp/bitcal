@@ -182,161 +182,20 @@ int main() {
 bitcal::bitarray<2048> custom;
 ```
 
-## 📖 API 概览
+## 📚 文档与 API
 
-### 构造函数
-```cpp
-bitcal::bit256 a;                    // 初始化为零
-bitcal::bit256 b(0xDEADBEEF);        // 设置低 64 位
-bitcal::bit256 c = b;                // 拷贝
-```
+`bitarray<Bits>` 模板提供位运算操作符（`&`、`|`、`^`、`~`、`<<`、`>>`），位计数（`popcount`、CLZ/CTZ），单比特操作（`get_bit`、`set_bit`、`flip_bit`）和直接字访问。完整细节见 [API 参考](https://lessup.github.io/bitcal/zh/api/)。
 
-### 位运算操作符
-```cpp
-a & b    // 与运算        a &= b    // 与运算并赋值
-a | b    // 或运算        a |= b    // 或运算并赋值
-a ^ b    // 异或          a ^= b    // 异或并赋值
-~a       // 非运算
-a.andnot(b)  // 优化的 a & ~b
-```
-
-### 位移操作符
-```cpp
-a << n   // 左移          a <<= n   // 左移并赋值
-a >> n   // 右移          a >>= n   // 右移并赋值
-```
-
-### 位计数
-```cpp
-a.popcount()              // 统计置位数量
-a.count_leading_zeros()   // 前导零计数
-a.count_trailing_zeros()  // 尾随零计数
-```
-
-### 单比特操作
-```cpp
-a.get_bit(index)          // 读取位（从 LSB 开始 0 索引）
-a.set_bit(index, value)   // 设置/清零位
-a.flip_bit(index)         // 翻转位
-```
-
-### 状态与比较
-```cpp
-a.is_zero()               // 检查是否全为零
-a.clear()                 // 清零
-a == b                    // 相等比较
-a != b                    // 不等比较
-```
-
-### 数据访问
-```cpp
-a.data()                  // 64 位字数组指针
-a[index]                  // 访问第 index 个 64 位字
-a.bits                    // 编译期位宽常量
-a.u64_count               // 64 位字数量（编译期常量）
-```
-
-### 位操作
-```cpp
-a.reverse()               // 位序反转
-```
-
-### 强制指定后端
-```cpp
-bitcal::bitarray<256, bitcal::simd_backend::avx512> force_avx512;
-bitcal::bitarray<256, bitcal::simd_backend::avx2>   force_avx2;
-bitcal::bitarray<256, bitcal::simd_backend::sse2>   force_sse2;
-bitcal::bitarray<256, bitcal::simd_backend::neon>   force_neon;
-bitcal::bitarray<256, bitcal::simd_backend::scalar> force_scalar;
-```
-
-## 💡 使用场景
-
-BitCal 适用于：
-
-- **位集合**：压缩布尔存储（相比 `bool[]` 空间减少 64 倍）
-- **布隆过滤器**：SIMD 加速哈希混合的概率数据结构
-- **网络掩码**：快速 CIDR/子网计算
-- **密码学**：硬件 popcount 支持的分组密码位运算
-- **数据压缩**：高效跨字位移的位打包/解包
-- **图形处理**：像素掩码并行处理
-
-查看 [`examples/`](examples/) 获取具体实现。
-
-## 📊 性能
-
-BitCal 使用编译期 SIMD 分派在支持平台上加速位操作。实际性能因 CPU、操作类型和编译器优化设置而异。
-
-为获得最佳性能：
-
-```bash
-# GCC/Clang：启用所有 CPU 特性与最大优化
-g++ -std=c++17 -O3 -march=native -DNDEBUG your_program.cpp
-
-# MSVC：启用 AVX2 与最大优化
-cl /std:c++17 /O2 /arch:AVX2 /DNDEBUG your_program.cpp
-```
-
-在你的环境中运行 `./benchmarks/bench_bitcal` 测量实际性能。后端选择基于编译器选项与编译期检测的 CPU 特性自动完成。
-
-## 📚 文档
-
-完整文档与 API 参考：**[https://lessup.github.io/bitcal/](https://lessup.github.io/bitcal/)**
-
-主要主题：
-- [API 参考（英文）](https://lessup.github.io/bitcal/en/api/) — 类型、操作、后端选择
-- [架构设计（中文）](https://lessup.github.io/bitcal/zh/architecture/) — 设计原则、SIMD 分派、平台支持
-- [入门指南（中文）](https://lessup.github.io/bitcal/zh/getting-started/) — 安装、快速开始、构建选项
+完整文档位于 **[https://lessup.github.io/bitcal/](https://lessup.github.io/bitcal/)**，包含架构设计、性能基准与平台特定说明。
 
 ## 🌍 平台支持
 
-BitCal 支持：
-
-- **Linux**：x86-64 和 ARM（32/64 位），GCC 7+ 或 Clang 6+
-- **Windows**：x86-64，MSVC 2017+ 或 MinGW
-- **macOS**：x86-64 和 ARM64（Apple Silicon），Apple Clang
-
-**系统要求**：C++17 或更高版本；CMake 3.16+（仅用于构建测试/基准测试）
-
-所有平台已在 CI 中验证。详见[平台支持文档](https://lessup.github.io/bitcal/zh/architecture/platform-support.html)。
-
-## 🔨 构建与测试
-
-BitCal 是纯头文件库；只需 include `<bitcal/bitcal.hpp>`。如需构建和运行测试：
-
-```bash
-mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON
-cmake --build . -j$(nproc)
-./tests/test_bitcal
-```
-
-如需基准测试，添加 `-DBITCAL_BUILD_EXAMPLES=ON` 并运行 `./benchmarks/bench_bitcal`。
-
-## 📝 更新日志与版本历史
-
-详见 [CHANGELOG.zh-CN.md](CHANGELOG.zh-CN.md) 了解版本历史。
-
-**当前稳定版本：3.0.0**（2026-05-08）
-
-- 公开 API 收敛到保留的 `bitarray` 表面
-- 移除 `bitcal::ops`、类型 traits 与 `bit64` 转换辅助
-- 稳定维护状态；破坏性变更需主版本号升级
+**Linux**、**Windows**、**macOS**，支持 x86-64 与 ARM，C++17 或更高版本。版本历史见 [CHANGELOG.zh-CN.md](CHANGELOG.zh-CN.md)，CI 验证细节见[平台文档](https://lessup.github.io/bitcal/zh/architecture/platform-support.html)
 
 ## 🤝 参与贡献
 
-欢迎在 3.0 契约边界内贡献。贡献指南见 [CONTRIBUTING.md](CONTRIBUTING.md)。
-
-对于重大 API 变更或架构调整，请先开 issue 讨论范围和影响。
+欢迎在 3.0 契约边界内贡献。对于重大变更，请先开 issue 讨论。贡献指南见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## 📄 许可证
 
 MIT 许可证 — 详见 [LICENSE](LICENSE)。
-
----
-
-<p align="center">
-  <a href="https://github.com/LessUp/bitcal">⭐ GitHub 星标</a> •
-  <a href="https://github.com/LessUp/bitcal/issues">🐛 提交问题</a> •
-  <a href="https://github.com/LessUp/bitcal/discussions">💬 讨论区</a>
-</p>
