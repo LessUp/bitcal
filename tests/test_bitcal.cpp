@@ -74,6 +74,75 @@ bool verify_bit_pattern(const BitArray& arr, std::initializer_list<std::pair<siz
     return true;
 }
 
+// ============================================================================
+// Width-agnostic shared test helpers
+// ============================================================================
+
+/// Verify single-bit shift left and right with boundary checks
+template<typename BitArray>
+bool verify_single_bit_shift_left(size_t shift_amount, size_t bit_width) {
+    BitArray arr;
+    arr.set_bit(0, true);
+    arr.shift_left(shift_amount);
+    
+    if (shift_amount >= bit_width) {
+        if (!arr.is_zero()) return false;
+    } else {
+        if (!arr.get_bit(shift_amount)) return false;
+        if (shift_amount > 0 && arr.get_bit(shift_amount - 1)) return false;
+    }
+    return true;
+}
+
+/// Verify single-bit shift right with boundary checks
+template<typename BitArray>
+bool verify_single_bit_shift_right(size_t shift_amount, size_t bit_width) {
+    BitArray arr;
+    arr.set_bit(bit_width - 1, true);
+    arr.shift_right(shift_amount);
+    
+    if (shift_amount >= bit_width) {
+        if (!arr.is_zero()) return false;
+    } else {
+        size_t expected_pos = bit_width - 1 - shift_amount;
+        if (!arr.get_bit(expected_pos)) return false;
+        if (shift_amount > 0 && arr.get_bit(expected_pos + 1)) return false;
+    }
+    return true;
+}
+
+/// Verify that shift by full width results in zero
+template<typename BitArray>
+bool verify_zero_after_full_width_shift(size_t bit_width) {
+    BitArray arr;
+    arr.set_bit(0, true);
+    arr.shift_left(bit_width);
+    if (!arr.is_zero()) return false;
+    
+    arr.set_bit(bit_width - 1, true);
+    arr.shift_right(bit_width);
+    if (!arr.is_zero()) return false;
+    
+    return true;
+}
+
+/// Verify constructed value has expected popcount
+template<typename BitArray, typename ValueType>
+bool verify_constructed_value_popcount(ValueType value, uint64_t expected_popcount) {
+    BitArray arr(value);
+    return arr.popcount() == expected_popcount;
+}
+
+/// Verify equality of constructed arrays
+template<typename BitArray>
+bool verify_equality_basics(uint64_t value_a, uint64_t value_b) {
+    BitArray a(value_a), b(value_b), c(value_a);
+    if (!(a == c)) return false;
+    if (a == b && value_a != value_b) return false;
+    if (a != b && value_a == value_b) return false;
+    return true;
+}
+
 template<typename T, typename = void>
 struct has_set_range : std::false_type {};
 
@@ -331,11 +400,8 @@ bool test_bit128_shift_left() {
     for (int i = 64; i < 128; ++i) ASSERT_TRUE(a.get_bit(i));
     for (int i = 0; i < 64; ++i) ASSERT_TRUE(!a.get_bit(i));
 
-    bitcal::bit128 b;
-    b.set_bit(0, true);
-    b.shift_left(10);
-    ASSERT_TRUE(b.get_bit(10));
-    ASSERT_TRUE(!b.get_bit(0));
+    // Use helper to verify single-bit shift behavior
+    ASSERT_TRUE(verify_single_bit_shift_left<bitcal::bit128>(10, 128));
     return true;
 }
 
@@ -438,6 +504,9 @@ bool test_bit256_shift_cross_carry() {
     d.shift_right(1);
     ASSERT_TRUE(d.get_bit(127));
     ASSERT_TRUE(!d.get_bit(128));
+    
+    // Use helper for single-bit shift verification
+    ASSERT_TRUE(verify_single_bit_shift_right<bitcal::bit256>(1, 256));
     return true;
 }
 
@@ -466,11 +535,8 @@ bool test_bit256_shift_boundary() {
     ASSERT_TRUE(e.get_bit(255));
     ASSERT_TRUE(!e.get_bit(254));
 
-    // shift by 256 = all zero
-    bitcal::bit256 f;
-    f.set_bit(0, true);
-    f.shift_left(256);
-    ASSERT_TRUE(f.is_zero());
+    // Use helper to verify full-width shift results in zero
+    ASSERT_TRUE(verify_zero_after_full_width_shift<bitcal::bit256>(256));
     return true;
 }
 
@@ -483,8 +549,13 @@ bool test_bit256_popcount() {
 }
 
 bool test_bit256_equality() {
+    // Use helper to verify basic equality contracts
+    ASSERT_TRUE(verify_equality_basics<bitcal::bit256>(123, 456));
+    
+    // Additional explicit test
     bitcal::bit256 a(123), b(123), c(456);
-    ASSERT_TRUE(a == b); ASSERT_TRUE(a != c);
+    ASSERT_TRUE(a == b);
+    ASSERT_TRUE(a != c);
     return true;
 }
 
@@ -535,10 +606,8 @@ bool test_bit512_shift_boundary() {
     ASSERT_TRUE(!a.get_bit(510));
     for (int i = 0; i < 511; ++i) ASSERT_TRUE(!a.get_bit(i));
 
-    bitcal::bit512 b;
-    b.set_bit(0, true);
-    b.shift_left(512);
-    ASSERT_TRUE(b.is_zero());
+    // Use helper to verify full-width shift results in zero
+    ASSERT_TRUE(verify_zero_after_full_width_shift<bitcal::bit512>(512));
     return true;
 }
 
@@ -795,10 +864,8 @@ bool test_bit1024_shift_boundary() {
     ASSERT_TRUE(!a.get_bit(1022));
     for (int i = 0; i < 1023; ++i) ASSERT_TRUE(!a.get_bit(i));
 
-    bitcal::bit1024 b;
-    b.set_bit(0, true);
-    b.shift_left(1024);
-    ASSERT_TRUE(b.is_zero());
+    // Use helper to verify full-width shift results in zero
+    ASSERT_TRUE(verify_zero_after_full_width_shift<bitcal::bit1024>(1024));
     return true;
 }
 
@@ -853,6 +920,10 @@ bool test_bit1024_is_zero() {
 }
 
 bool test_bit1024_equality() {
+    // Use helper to verify basic equality contracts
+    ASSERT_TRUE(verify_equality_basics<bitcal::bit1024>(123, 456));
+    
+    // Additional explicit test
     bitcal::bit1024 a(123), b(123), c(456);
     ASSERT_TRUE(a == b);
     ASSERT_TRUE(a != c);
@@ -1254,10 +1325,11 @@ bool test_bit64_default_backend_contract() {
 
 bool test_abstract_shift_left() {
     // 测试不依赖内部 word 布局，只通过公开接口验证
+    // Use helper to verify single-bit shift at position 1
+    ASSERT_TRUE(verify_single_bit_shift_left<bitcal::bit256>(1, 256));
+    
     bitcal::bit256 a;
     a.set_bit(0, true);  // 设置 bit 0
-
-    // 左移 1 位后，bit 1 应该设置，bit 0 应该清除
     a.shift_left(1);
     ASSERT_TRUE(a.get_bit(1));
     ASSERT_TRUE(!a.get_bit(0));
@@ -1272,30 +1344,25 @@ bool test_abstract_shift_left() {
     b.shift_left(1);
     ASSERT_TRUE(b.get_bit(128));  // 应该移到 bit 128
 
-    // 测试边界：左移整个位宽后应该全零
-    bitcal::bit256 c;
-    c.set_bit(0, true);
-    c.shift_left(256);
-    ASSERT_TRUE(c.is_zero());
+    // 测试边界：左移整个位宽后应该全零 - use helper
+    ASSERT_TRUE(verify_zero_after_full_width_shift<bitcal::bit256>(256));
 
     return true;
 }
 
 bool test_abstract_shift_right() {
     // 测试不依赖内部 word 布局
+    // Use helper to verify single-bit shift right at position 1
+    ASSERT_TRUE(verify_single_bit_shift_right<bitcal::bit256>(1, 256));
+    
     bitcal::bit256 a;
     a.set_bit(255, true);  // 设置最高位
-
-    // 右移 1 位后，bit 254 应该设置，bit 255 应该清除
     a.shift_right(1);
     ASSERT_TRUE(a.get_bit(254));
     ASSERT_TRUE(!a.get_bit(255));
 
-    // 测试边界：右移整个位宽后应该全零
-    bitcal::bit256 b;
-    b.set_bit(255, true);
-    b.shift_right(256);
-    ASSERT_TRUE(b.is_zero());
+    // 测试边界：右移整个位宽后应该全零 - use helper
+    ASSERT_TRUE(verify_zero_after_full_width_shift<bitcal::bit256>(256));
 
     return true;
 }
@@ -1353,7 +1420,7 @@ bool test_comprehensive_shift_boundaries() {
 // ========== Popcount edge cases ==========
 
 bool test_popcount_edge_cases() {
-    // 单个位设置
+    // 单个位设置 - verify single bit popcount
     for (int i = 0; i < 64; i += 16) {
         bitcal::bit256 a;
         a.set_bit(i, true);
