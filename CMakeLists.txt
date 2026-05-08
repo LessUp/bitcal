@@ -56,7 +56,9 @@ endif()
 function(bitcal_setup_dev_target target_name)
   target_link_libraries(${target_name} PRIVATE bitcal)
   target_compile_features(${target_name} PRIVATE cxx_std_17)
-  if(BITCAL_SIMD_FLAGS)
+  # Explicit guard: SIMD flags are only applied when BITCAL_NATIVE_ARCH is enabled.
+  # This preserves the coupling between native arch settings and dev target optimization.
+  if(BITCAL_NATIVE_ARCH AND BITCAL_SIMD_FLAGS)
     target_compile_options(${target_name} PRIVATE ${BITCAL_SIMD_FLAGS})
   endif()
 endfunction()
