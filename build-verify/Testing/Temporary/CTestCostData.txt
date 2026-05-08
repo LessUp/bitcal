@@ -1,2 +1,2 @@
-test_bitcal 2 0.00180557
+test_bitcal 6 0.000945038
 ---
