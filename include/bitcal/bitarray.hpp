@@ -9,7 +9,7 @@
 
 namespace bitcal {
 
-template<size_t Bits, simd_backend Backend = (Bits == 64 ? simd_backend::scalar : get_default_backend())>
+template<size_t Bits, simd_backend Backend = get_default_backend()>
 class bitarray {
     static_assert(Bits >= 64, "Bits must be at least 64");
     static_assert(Bits % 64 == 0, "Bits must be a multiple of 64");

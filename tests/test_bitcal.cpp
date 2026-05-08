@@ -1031,6 +1031,57 @@ bool test_bit64_specialization() {
     return true;
 }
 
+// ========== Default backend contract tests ==========
+
+// Lock the contract: bit64 must use get_default_backend() for its backend
+static_assert(bitcal::bit64::backend == bitcal::get_default_backend(),
+              "bit64 default backend must match get_default_backend()");
+
+bool test_bit64_default_backend_contract() {
+    // Runtime verification that bit64 and bitarray<64, simd_backend::scalar> 
+    // behave equivalently for representative operations
+    
+    // Test 1: Construction and initialization
+    bitcal::bit64 a(0xABCDEF0123456789ULL);
+    bitcal::bitarray<64, bitcal::simd_backend::scalar> b(0xABCDEF0123456789ULL);
+    ASSERT_EQ(a.popcount(), b.popcount());
+    
+    // Test 2: Bit manipulation
+    bitcal::bit64 c;
+    bitcal::bitarray<64, bitcal::simd_backend::scalar> d;
+    
+    for (size_t i = 0; i < 64; i += 8) {
+        c.set_bit(i, true);
+        d.set_bit(i, true);
+    }
+    
+    ASSERT_EQ(c.popcount(), d.popcount());
+    
+    for (size_t i = 0; i < 64; i += 8) {
+        ASSERT_EQ(c.get_bit(i), d.get_bit(i));
+    }
+    
+    // Test 3: Bitwise operations
+    bitcal::bit64 e(0xFFFFFFFFU);
+    bitcal::bitarray<64, bitcal::simd_backend::scalar> f(0xFFFFFFFFU);
+    
+    bitcal::bit64 g = e | a;
+    bitcal::bitarray<64, bitcal::simd_backend::scalar> h = f | b;
+    ASSERT_EQ(g.popcount(), h.popcount());
+    
+    // Test 4: Shift operations
+    bitcal::bit64 i(1ULL);
+    bitcal::bitarray<64, bitcal::simd_backend::scalar> j(1ULL);
+    
+    i.shift_left(32);
+    j.shift_left(32);
+    ASSERT_TRUE(i.get_bit(32));
+    ASSERT_TRUE(j.get_bit(32));
+    ASSERT_EQ(i.popcount(), j.popcount());
+    
+    return true;
+}
+
 // ========== Abstract shift tests (not dependent on internal layout) ==========
 
 bool test_abstract_shift_left() {
@@ -1227,6 +1278,9 @@ int main() {
 
     std::cout << std::endl << "[Bit64 Specialization]" << std::endl;
     RUN_TEST(test_bit64_specialization);
+
+    std::cout << std::endl << "[Default Backend Contract]" << std::endl;
+    RUN_TEST(test_bit64_default_backend_contract);
 
     std::cout << std::endl << "[Abstract Shift Tests]" << std::endl;
     RUN_TEST(test_abstract_shift_left);
