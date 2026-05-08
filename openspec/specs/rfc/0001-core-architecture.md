@@ -23,7 +23,7 @@ template<size_t Bits, simd_backend Backend = get_default_backend()>
 class bitarray;
 ```
 
-### Architecture Layers
+### Architecture Layers (contract target vs current repository)
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -32,7 +32,8 @@ class bitarray;
 ├─────────────────────────────────────────────────────────────┤
 │ Retained Public Type Layer                                 │
 │  bitarray<Bits, Backend>, stable aliases, retained methods │
-│  (planned physical home: include/bitcal/bitarray.hpp)      │
+│  (planned physical home for follow-up tasks:               │
+│   include/bitcal/bitarray.hpp)                             │
 ├─────────────────────────────────────────────────────────────┤
 │ Backend Selection / Dispatch Layer                         │
 │  config.hpp, backend_ops.hpp, scalar_ops.hpp               │
@@ -42,18 +43,21 @@ class bitarray;
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### File Structure (contract target)
+### File Structure (contract target for follow-up implementation)
 
 ```text
 include/bitcal/
 ├── bitcal.hpp        # only stable public include
-├── bitarray.hpp      # retained bitarray contract definition
+├── bitarray.hpp      # planned physical home of retained bitarray contract
 ├── config.hpp        # backend enum, default selection, alignment helpers
 ├── backend_ops.hpp   # internal backend dispatch implementations
 └── scalar_ops.hpp    # scalar helpers and fallbacks
 ```
 
 Notes:
+- This file structure is the intended target for later implementation tasks, not a claim that the repository has already completed the split today.
+- The current repository still carries the retained public type layer primarily through `bitcal.hpp`; `bitarray.hpp` is the planned physical home once follow-up implementation work lands.
+- The current implementation layer still includes backend-specific headers such as `sse_ops.hpp`, `avx_ops.hpp`, `avx512_ops.hpp`, and `neon_ops.hpp`; those are part of today's repository reality even though the contracted architecture describes the cleaner retained layering target.
 - `bitarray.hpp` is part of the retained implementation layering, but the stable include seam remains `bitcal.hpp`.
 - `backend_ops.hpp`, `scalar_ops.hpp`, and `config.hpp` may be described architecturally without becoming separate stable public include promises.
 - `simd_traits.hpp` is not part of the retained architecture description.

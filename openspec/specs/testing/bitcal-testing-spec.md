@@ -96,11 +96,11 @@ These may exist temporarily as migration scaffolding, but they MUST NOT block or
 | Platform | Compiler | Architecture | SIMD path | Validation path |
 |----------|----------|--------------|-----------|-----------------|
 | Linux | GCC / Clang | x86-64 | SSE2 / AVX2 / AVX-512 when enabled | Native retained tests |
-| Linux | GCC / Clang | ARM64 | NEON | Native or documented cross-validation |
-| Linux | GCC (cross) | ARM32 | NEON | Cross-compile with documented runtime validation path |
+| Linux | GCC (cross) | ARM64 | NEON | Retained cross-compile build only |
 | Windows | MSVC | x86-64 | SSE2 / AVX2 / AVX-512 when enabled | Native retained tests |
-| macOS | Apple Clang | x86-64 | SSE2 / AVX2 when enabled | Native retained tests |
 | macOS | Apple Clang | ARM64 | NEON | Native retained tests |
+
+Rows not listed above are outside the retained support matrix for final stabilization unless a later workflow adds and keeps a matching validation path.
 
 ## Verification Commands
 

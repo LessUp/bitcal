@@ -68,11 +68,11 @@ Custom widths remain supported when they satisfy the retained width constraint.
 | Platform | Architecture | SIMD path | Status |
 |----------|--------------|-----------|--------|
 | Linux | x86-64 | SSE2 / AVX2 / AVX-512 when enabled | Retained validation path |
-| Linux | ARM64 | NEON | Retained validation path |
-| Linux | ARM32 | NEON | Retained validation path |
+| Linux | ARM64 | NEON | Retained build-only validation path |
 | Windows | x86-64 | SSE2 / AVX2 / AVX-512 when enabled | Retained validation path |
-| macOS | x86-64 | SSE2 / AVX2 when enabled | Retained validation path |
 | macOS | ARM64 | NEON | Retained validation path |
+
+Linux ARM32 and macOS x86-64 are not part of the retained final-stabilization support matrix because the repository no longer keeps a matching CI validation path for them.
 
 ### Performance posture
 - BitCal continues to optimize for zero runtime dispatch overhead.
