@@ -92,11 +92,11 @@ bitarray& operator=(bitarray&& other) noexcept;  // Move assignment
 ### Array Subscript
 
 ```cpp
-uint64_t  operator[](size_t index) const;
-uint64_t& operator[](size_t index);
+uint64_t operator[](size_t index) const;
 ```
 
-Access individual 64-bit words (0-indexed, LSB is word 0).
+**Read-only** access to individual 64-bit words (0-indexed, LSB is word 0).
+For write access, use `set_word()`.
 
 **Preconditions:**
 ```cpp
@@ -106,11 +106,26 @@ assert(index < u64_count);  // UB if violated
 ### Data Pointer
 
 ```cpp
-uint64_t* data() noexcept;
 const uint64_t* data() const noexcept;
 ```
 
-Direct access to underlying storage (64-byte aligned, contiguous).
+**Read-only** access to underlying storage (64-byte aligned, contiguous).
+This protects the internal representation and ensures invariants are maintained.
+
+### Word Access
+
+```cpp
+uint64_t word(size_t index) const noexcept;
+void set_word(size_t index, uint64_t value) noexcept;
+```
+
+Read or write individual 64-bit words. These methods provide controlled access
+to the underlying storage while maintaining encapsulation.
+
+**Preconditions:**
+```cpp
+assert(index < u64_count);  // UB if violated
+```
 
 ### Size Constants
 

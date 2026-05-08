@@ -209,17 +209,20 @@ const uint64_t* data() const noexcept;
 - Pointer is aligned to 64 bytes
 - Points to contiguous `uint64_t` array
 - Valid for `u64_count` elements
+- **Read-only** pointer; use `set_word()` for modifications
 
 **Example:**
 ```cpp
 bitcal::bit256 arr;
-uint64_t* ptr = arr.data();
+const uint64_t* ptr = arr.data();  // Read-only access
 
-// Direct manipulation
-ptr[0] = 0xFFFFFFFFFFFFFFFF;
-std::memcpy(ptr, source, bitcal::bit256::u64_count * sizeof(uint64_t));
+// Read values
+uint64_t first = ptr[0];
 
-// Interoperability with C APIs
+// For modifications, use word() and set_word()
+arr.set_word(0, 0xFFFFFFFFFFFFFFFF);
+
+// Interoperability with C APIs (read-only)
 external_function(ptr, arr.u64_count);
 ```
 

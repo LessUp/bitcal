@@ -1,7 +1,6 @@
 #pragma once
 
 #include "config.hpp"
-#include "simd_traits.hpp"
 
 #if BITCAL_HAS_AVX512
 
@@ -134,8 +133,9 @@ BITCAL_FORCEINLINE void shift_right_512(uint64_t* data, int count) noexcept {
     store(data, v);
 }
 
-// 256-bit operations using VL (Vector Length) extensions
-BITCAL_FORCEINLINE void shift_left_256_vl(uint64_t* data, int count) noexcept {
+// 256-bit shift operations using VL (Vector Length) extensions
+// Note: Function naming follows unified convention: shift_left_<bits> and shift_right_<bits>
+BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
     if (count <= 0) return;
     if (count >= 256) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), _mm256_setzero_si256());
@@ -172,7 +172,7 @@ BITCAL_FORCEINLINE void shift_left_256_vl(uint64_t* data, int count) noexcept {
     _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), v);
 }
 
-BITCAL_FORCEINLINE void shift_right_256_vl(uint64_t* data, int count) noexcept {
+BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
     if (count <= 0) return;
     if (count >= 256) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), _mm256_setzero_si256());

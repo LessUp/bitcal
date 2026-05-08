@@ -1,7 +1,6 @@
 #pragma once
 
 #include "config.hpp"
-#include "simd_traits.hpp"
 
 #if BITCAL_HAS_SSE2
 
@@ -290,6 +289,27 @@ BITCAL_FORCEINLINE bool all_256(const uint64_t* data) noexcept {
     __m128i all_ones = _mm_set1_epi32(-1);
     __m128i cmp0 = _mm_cmpeq_epi8(v0, all_ones);
     __m128i cmp1 = _mm_cmpeq_epi8(v1, all_ones);
+    return (_mm_movemask_epi8(cmp0) & _mm_movemask_epi8(cmp1)) == 0xFFFF;
+}
+
+// ============================================================================
+// equals() operations - check if two arrays are equal
+// ============================================================================
+
+BITCAL_FORCEINLINE bool equals_128(const uint64_t* a, const uint64_t* b) noexcept {
+    __m128i va = load(a);
+    __m128i vb = load(b);
+    __m128i cmp = _mm_cmpeq_epi8(va, vb);
+    return _mm_movemask_epi8(cmp) == 0xFFFF;
+}
+
+BITCAL_FORCEINLINE bool equals_256(const uint64_t* a, const uint64_t* b) noexcept {
+    __m128i a0 = load(a);
+    __m128i a1 = load(a + 2);
+    __m128i b0 = load(b);
+    __m128i b1 = load(b + 2);
+    __m128i cmp0 = _mm_cmpeq_epi8(a0, b0);
+    __m128i cmp1 = _mm_cmpeq_epi8(a1, b1);
     return (_mm_movemask_epi8(cmp0) & _mm_movemask_epi8(cmp1)) == 0xFFFF;
 }
 

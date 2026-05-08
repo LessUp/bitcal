@@ -202,13 +202,12 @@ if (arr.is_zero()) {   // 快速 SIMD 零值检测
 bitcal::bit256 arr(0xDEADBEEF);
 
 // 直接字访问
-arr[0] = 0x12345678;   // 设置最低 64 位
-arr[1] = 0x9ABCDEF0;   // 设置第 64-127 位
-uint64_t word = arr[0]; // 获取字
+arr.set_word(0, 0x12345678);   // 设置最低 64 位
+arr.set_word(1, 0x9ABCDEF0);   // 设置第 64-127 位
+uint64_t word = arr.word(0);   // 获取字（只读）
 
-// 指针访问
-uint64_t* data = arr.data();
-data[0] = 0xFFFFFFFFFFFFFFFF;
+// 指针访问（只读，用于对接外部 API）
+const uint64_t* data = arr.data();
 
 // 类型信息
 constexpr size_t bits = bitcal::bit256::bits;      // 256

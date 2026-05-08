@@ -1,7 +1,6 @@
 #pragma once
 
 #include "config.hpp"
-#include "simd_traits.hpp"
 
 #if BITCAL_HAS_NEON
 
@@ -463,6 +462,44 @@ BITCAL_FORCEINLINE bool all_512(const uint64_t* data) noexcept {
     for (int i = 0; i < 4; ++i) {
         uint64x2_t v = load(data + i * 2);
         uint64x2_t cmp = vceqq_u64(v, all_ones);
+        mask &= vgetq_lane_u64(cmp, 0) & vgetq_lane_u64(cmp, 1);
+    }
+    return mask == ~0ULL;
+}
+
+// ============================================================================
+// equals() operations - check if two arrays are equal
+// ============================================================================
+
+BITCAL_FORCEINLINE bool equals_128(const uint64_t* a, const uint64_t* b) noexcept {
+    uint64x2_t va = load(a);
+    uint64x2_t vb = load(b);
+    uint64x2_t cmp = vceqq_u64(va, vb);
+    uint64_t lo = vgetq_lane_u64(cmp, 0);
+    uint64_t hi = vgetq_lane_u64(cmp, 1);
+    return (lo & hi) == ~0ULL;
+}
+
+BITCAL_FORCEINLINE bool equals_256(const uint64_t* a, const uint64_t* b) noexcept {
+    uint64x2_t a0 = load(a);
+    uint64x2_t a1 = load(a + 2);
+    uint64x2_t b0 = load(b);
+    uint64x2_t b1 = load(b + 2);
+    uint64x2_t cmp0 = vceqq_u64(a0, b0);
+    uint64x2_t cmp1 = vceqq_u64(a1, b1);
+    uint64_t lo0 = vgetq_lane_u64(cmp0, 0);
+    uint64_t hi0 = vgetq_lane_u64(cmp0, 1);
+    uint64_t lo1 = vgetq_lane_u64(cmp1, 0);
+    uint64_t hi1 = vgetq_lane_u64(cmp1, 1);
+    return (lo0 & hi0 & lo1 & hi1) == ~0ULL;
+}
+
+BITCAL_FORCEINLINE bool equals_512(const uint64_t* a, const uint64_t* b) noexcept {
+    uint64_t mask = ~0ULL;
+    for (int i = 0; i < 4; ++i) {
+        uint64x2_t va = load(a + i * 2);
+        uint64x2_t vb = load(b + i * 2);
+        uint64x2_t cmp = vceqq_u64(va, vb);
         mask &= vgetq_lane_u64(cmp, 0) & vgetq_lane_u64(cmp, 1);
     }
     return mask == ~0ULL;

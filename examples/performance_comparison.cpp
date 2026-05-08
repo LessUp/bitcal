@@ -159,9 +159,6 @@ int main() {
         case bitcal::simd_backend::sse2:
             std::cout << "SSE2" << std::endl;
             break;
-        case bitcal::simd_backend::avx:
-            std::cout << "AVX" << std::endl;
-            break;
         case bitcal::simd_backend::avx2:
             std::cout << "AVX2" << std::endl;
             break;

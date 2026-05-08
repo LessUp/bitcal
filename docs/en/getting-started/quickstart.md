@@ -202,13 +202,12 @@ if (arr.is_zero()) {   // Fast SIMD zero detection
 bitcal::bit256 arr(0xDEADBEEF);
 
 // Direct word access
-arr[0] = 0x12345678;   // Set first 64 bits
-arr[1] = 0x9ABCDEF0;
-uint64_t word = arr[0]; // Get word
+arr.set_word(0, 0x12345678);   // Set first 64 bits
+arr.set_word(1, 0x9ABCDEF0);
+uint64_t word = arr.word(0);   // Get word (read-only)
 
-// Pointer access
-uint64_t* data = arr.data();
-data[0] = 0xFFFFFFFFFFFFFFFF;
+// Pointer access (read-only for external APIs)
+const uint64_t* data = arr.data();
 
 // Type info
 constexpr size_t bits = bitcal::bit256::bits;      // 256

@@ -3,6 +3,66 @@
 #include "config.hpp"
 #include <cstring>
 
+/**
+ * @file scalar_ops.hpp
+ * @brief Reference implementation for all bit operations
+ *
+ * ============================================================================
+ * REFERENCE IMPLEMENTATION - 权威参考实现
+ * ============================================================================
+ *
+ * This file serves as the authoritative reference for all bit operations.
+ * All SIMD backends (SSE2/AVX2/AVX-512/NEON) MUST produce results identical
+ * to this implementation.
+ *
+ * ============================================================================
+ * SHIFT OPERATIONS STRATEGY - 移位操作策略
+ * ============================================================================
+ *
+ * Shift operations use a two-phase strategy:
+ *
+ * Phase 1: Word-level shift (count >= 64)
+ *   - Move whole 64-bit words by (count / 64) positions
+ *   - Zero-fill the vacated positions
+ *   - Early return if no bit-level shift needed (count % 64 == 0)
+ *
+ * Phase 2: Bit-level shift (count < 64 or count % 64 != 0)
+ *   - Shift each word by (count % 64) bits
+ *   - Propagate carry from adjacent word
+ *   - Left shift:  carry = data[i-1] >> (64 - bit_shift)
+ *   - Right shift: carry = data[i+1] << (64 - bit_shift)
+ *   - Formula: result[i] = (data[i] << bit_shift) | carry
+ *
+ * Key invariants:
+ *   - shift_left(count >= Bits)  => all zeros
+ *   - shift_right(count >= Bits) => all zeros
+ *   - shift_left(0)  => no change
+ *   - shift_right(0) => no change
+ *   - bit_shift ∈ [1, 63] for Phase 2, ensuring safe shift operations
+ *
+ * ============================================================================
+ * POPCOUNT STRATEGY - 位计数策略
+ * ============================================================================
+ *
+ * Uses compiler intrinsics when available:
+ *   - GCC/Clang: __builtin_popcountll()
+ *   - MSVC: __popcnt64()
+ *   - Fallback: parallel bit counting algorithm
+ *
+ * ============================================================================
+ * CLZ/CTZ STRATEGY - 前导零/尾部零计数策略
+ * ============================================================================
+ *
+ * Uses compiler intrinsics when available:
+ *   - GCC/Clang: __builtin_clzll() / __builtin_ctzll()
+ *   - MSVC: _BitScanReverse64() / _BitScanForward64()
+ *   - Fallback: bit-by-bit scanning
+ *
+ * Special case: CLZ/CTZ on zero returns Bits (not UB)
+ *
+ * ============================================================================
+ */
+
 namespace bitcal {
 namespace scalar {
 
@@ -239,6 +299,26 @@ template<size_t N>
 BITCAL_FORCEINLINE bool equals_array(const uint64_t* a, const uint64_t* b) noexcept {
     for (size_t i = 0; i < N; ++i) {
         if (a[i] != b[i]) return false;
+    }
+    return true;
+}
+
+// ============================================================================
+// Zero and all checks
+// ============================================================================
+
+template<size_t N>
+BITCAL_FORCEINLINE bool is_zero_array(const uint64_t* data) noexcept {
+    for (size_t i = 0; i < N; ++i) {
+        if (data[i] != 0) return false;
+    }
+    return true;
+}
+
+template<size_t N>
+BITCAL_FORCEINLINE bool all_array(const uint64_t* data) noexcept {
+    for (size_t i = 0; i < N; ++i) {
+        if (data[i] != ~0ULL) return false;
     }
     return true;
 }

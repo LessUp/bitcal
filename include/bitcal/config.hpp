@@ -43,12 +43,6 @@ namespace bitcal {
         #define BITCAL_HAS_SSE2 0
     #endif
 
-    #if defined(__AVX__) || (defined(_MSC_VER) && defined(__AVX__))
-        #define BITCAL_HAS_AVX 1
-    #else
-        #define BITCAL_HAS_AVX 0
-    #endif
-
     #if defined(__AVX2__) || (defined(_MSC_VER) && defined(__AVX2__))
         #define BITCAL_HAS_AVX2 1
     #else
@@ -70,12 +64,10 @@ namespace bitcal {
     #endif
 
     #define BITCAL_HAS_SSE2 0
-    #define BITCAL_HAS_AVX 0
     #define BITCAL_HAS_AVX2 0
     #define BITCAL_HAS_AVX512 0
 #else
     #define BITCAL_HAS_SSE2 0
-    #define BITCAL_HAS_AVX 0
     #define BITCAL_HAS_AVX2 0
     #define BITCAL_HAS_AVX512 0
     #define BITCAL_HAS_NEON 0
@@ -124,7 +116,6 @@ constexpr size_t bitcal_alignment = get_optimal_alignment<Bits>();
 enum class simd_backend {
     scalar,
     sse2,
-    avx,
     avx2,
     avx512,
     neon
@@ -138,8 +129,6 @@ BITCAL_CONSTEXPR simd_backend get_default_backend() noexcept {
     return simd_backend::avx512;
 #elif BITCAL_HAS_AVX2
     return simd_backend::avx2;
-#elif BITCAL_HAS_AVX
-    return simd_backend::avx;
 #elif BITCAL_HAS_SSE2
     return simd_backend::sse2;
 #elif BITCAL_HAS_NEON

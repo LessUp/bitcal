@@ -1,7 +1,6 @@
 #pragma once
 
 #include "config.hpp"
-#include "simd_traits.hpp"
 #include "scalar_ops.hpp"  // Required for popcount fallback
 
 #if BITCAL_HAS_AVX2
