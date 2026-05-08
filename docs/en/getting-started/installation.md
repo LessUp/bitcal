@@ -45,6 +45,10 @@ Complete guide for installing BitCal on your system.
 
 ---
 
+## BitCal 3.0 Note
+
+BitCal 3.0.0 is a breaking release. Install snippets below pin the retained `bitarray`-based public API; removed surfaces such as `bitcal::ops`, `is_bitarray`, `is_bitarray_v`, and `bitarray_traits` are not available in this release line.
+
 ## Installation Methods
 
 ### Method 1: Header-Only Copy (Recommended)
@@ -124,7 +128,7 @@ include(FetchContent)
 FetchContent_Declare(
     bitcal
     GIT_REPOSITORY https://github.com/LessUp/bitcal.git
-    GIT_TAG v2.1.0  # Pin to specific version
+    GIT_TAG v3.0.0  # Pin to specific version
     GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(bitcal)
@@ -150,10 +154,10 @@ git submodule update --init
 
 # Pin to specific version
 cd third_party/bitcal
-git checkout v2.1.0
+git checkout v3.0.0
 cd ../..
 git add third_party/bitcal
-git commit -m "Add bitcal v2.1.0 submodule"
+git commit -m "Add bitcal v3.0.0 submodule"
 ```
 
 **In your CMakeLists.txt:**
@@ -234,7 +238,7 @@ Create `test_install.cpp`:
 #include <iostream>
 
 int main() {
-    std::cout << "BitCal v2.1.0 Installation Test\n";
+    std::cout << "BitCal v3.0.0 Installation Test\n";
     std::cout << "================================\n\n";
 
     // Test basic operations
@@ -272,7 +276,7 @@ g++ -std=c++17 -O2 -march=native test_install.cpp -o test_install
 
 **Expected output:**
 ```
-BitCal v2.1.0 Installation Test
+BitCal v3.0.0 Installation Test
 ================================
 
 AND operation: 16 bits set

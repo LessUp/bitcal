@@ -13,6 +13,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-05-08
+
+### ⚠️ Breaking
+
+- Removed the public `bitcal::ops` namespace from the supported API surface
+- Removed public traits `is_bitarray`, `is_bitarray_v`, and `bitarray_traits`
+- Removed the explicit `bit64` conversion convenience from the public contract
+- Narrowed documentation to the retained `bitarray`-based API only
+
+### 🔁 Migration
+
+- Replace `bitcal::ops` calls with `bitarray` member functions such as `popcount()`, `count_leading_zeros()`, `count_trailing_zeros()`, `andnot()`, and `reverse()`
+- Adapt existing `uint64_t` buffers with `set_word()` and extract values with `word()` / `operator[]`
+- Remove dependencies on the deleted public traits and use the documented type aliases or template parameters directly
+
+### 📦 Packaging
+
+- Updated repository install snippets and badges to pin `v3.0.0`
+- Updated `vcpkg.json` package version to `3.0.0`
+
+### 🔗 Links
+
+- **Full Changelog**: [v2.1.0...v3.0.0](https://github.com/LessUp/bitcal/compare/v2.1.0...v3.0.0)
+- **Download**: [v3.0.0 Release](https://github.com/LessUp/bitcal/releases/tag/v3.0.0)
+- **Documentation**: [Docs Landing](docs/index.html)
+
+
 ## [2.1.0] - 2026-04-16
 
 ### 🚀 Highlights
@@ -139,12 +166,14 @@ The original implementation based on inheritance and virtual functions.
 
 | Version | Date | Status | Highlights |
 |---------|------|--------|------------|
+| v3.0.0 | 2026-05-08 | ✅ Stable | Public surface contraction, migration notes |
 | v2.1.0 | 2026-04-16 | ✅ Stable | ANDNOT, performance improvements |
 | v2.0.0 | 2026-01-08 | ✅ Stable | Complete rewrite, header-only |
 | v1.x | 2025 | ⚠️ Legacy | Inheritance-based design |
 
 ---
 
-[Unreleased]: https://github.com/LessUp/bitcal/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/LessUp/bitcal/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/LessUp/bitcal/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/LessUp/bitcal/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/LessUp/bitcal/releases/tag/v2.0.0

@@ -1,57 +1,60 @@
 # Bit Counting
 
+Reference for the retained BitCal 3.0 bit-counting member functions.
+
+> **BitCal 3.0 migration:** the public `bitcal::ops::{popcount,count_leading_zeros,count_trailing_zeros}` helpers were removed. Wrap data in `bitarray` and call the member functions documented here.
+
 ## popcount — Count Set Bits
 
 ```cpp
-uint64_t popcount() const;
+uint64_t popcount() const noexcept;
 ```
 
-Count the number of bits set to 1.
+Counts the number of bits set to `1`.
 
-**Implementation**:
-- Uses `__builtin_popcountll` (GCC/Clang) or `__popcnt64` (MSVC x64)
-- For Bits > 64, accumulates per-word results
+**Implementation:**
+- Uses scalar builtins per 64-bit word
+- Delegates to the selected backend for accumulation
 
-**Example**:
+**Example:**
 
 ```cpp
 bitcal::bit256 a;
-for (size_t i = 0; i < 4; ++i) a[i] = 0xFFFFFFFFFFFFFFFF;
+a.set_word(0, 0xFFFFFFFFFFFFFFFFULL);
+a.set_word(1, 0xFFFFFFFFFFFFFFFFULL);
+a.set_word(2, 0xFFFFFFFFFFFFFFFFULL);
+a.set_word(3, 0xFFFFFFFFFFFFFFFFULL);
 assert(a.popcount() == 256);
 
-bitcal::bit64 b(0xAAAAAAAAAAAAAAAA);
+bitcal::bit64 b(0xAAAAAAAAAAAAAAAAULL);
 assert(b.popcount() == 32);
 ```
 
 ## count_leading_zeros — Leading Zero Count (CLZ)
 
 ```cpp
-int count_leading_zeros() const;
+int count_leading_zeros() const noexcept;
 ```
 
-Count consecutive zeros starting from the most significant bit.
+Counts consecutive zero bits starting from the most significant bit.
 
 | Input | Return Value |
 |-------|--------------|
-| All zeros | Bits |
-| MSB is 1 | 0 |
-
-**Implementation**: Uses `__builtin_clzll` (GCC/Clang) or `_BitScanReverse64` (MSVC)
+| All zeros | `Bits` |
+| MSB is 1 | `0` |
 
 ## count_trailing_zeros — Trailing Zero Count (CTZ)
 
 ```cpp
-int count_trailing_zeros() const;
+int count_trailing_zeros() const noexcept;
 ```
 
-Count consecutive zeros starting from the least significant bit.
+Counts consecutive zero bits starting from the least significant bit.
 
 | Input | Return Value |
 |-------|--------------|
-| All zeros | Bits |
-| LSB is 1 | 0 |
-
-**Implementation**: Uses `__builtin_ctzll` (GCC/Clang) or `_BitScanForward64` (MSVC)
+| All zeros | `Bits` |
+| LSB is 1 | `0` |
 
 ## Complete Example
 
@@ -61,16 +64,16 @@ Count consecutive zeros starting from the least significant bit.
 
 int main() {
     bitcal::bit256 arr;
-    arr[0] = 0x00FFFFFFFFFFFFFFFF;  // 56 trailing zeros, 8 leading zeros
-    arr[3] = 0xFF00000000000000;     // Upper byte set
+    arr.set_word(0, 0x0000000000000100ULL);
+    arr.set_word(3, 0x8000000000000000ULL);
 
-    std::cout << "Popcount: " << arr.popcount() << std::endl;
-    std::cout << "Leading zeros: " << arr.count_leading_zeros() << std::endl;
-    std::cout << "Trailing zeros: " << arr.count_trailing_zeros() << std::endl;
+    std::cout << "Popcount: " << arr.popcount() << "\n";
+    std::cout << "Leading zeros: " << arr.count_leading_zeros() << "\n";
+    std::cout << "Trailing zeros: " << arr.count_trailing_zeros() << "\n";
 
-    // Edge case: all zeros
     bitcal::bit256 zero;
-    std::cout << "CLZ (all zeros): " << zero.count_leading_zeros() << std::endl;  // 256
+    std::cout << "CLZ (all zeros): " << zero.count_leading_zeros() << "\n";
+    std::cout << "CTZ (all zeros): " << zero.count_trailing_zeros() << "\n";
 
     return 0;
 }
@@ -80,54 +83,25 @@ int main() {
 
 | Operation | Complexity | Notes |
 |-----------|------------|-------|
-| popcount | O(Bits/64) | Single instruction per 64-bit word |
-| CLZ/CTZ | O(Bits/64) | Branch-free implementation |
+| `popcount()` | `O(Bits / 64)` | One count per 64-bit word |
+| `count_leading_zeros()` | `O(Bits / 64)` | Scans from the most-significant word |
+| `count_trailing_zeros()` | `O(Bits / 64)` | Scans from the least-significant word |
 
 ## Platform Notes
 
-- **GCC/Clang**: Uses compiler intrinsics for optimal code generation
-- **MSVC**: Uses `_BitScanReverse64` / `_BitScanForward64` on x64
-- **All platforms**: Falls back to portable implementation if intrinsics unavailable
+- GCC/Clang builds use builtin bit-counting operations where available
+- MSVC builds use the matching scalar intrinsics in the implementation layer
+- Return values are width-aware and remain valid for every supported `bitarray<Bits>` specialization
 
-## Functional Interface
+## Migration Notes
+
+If you previously counted bits over a raw `uint64_t*` buffer with removed `bitcal::ops` APIs, adapt the buffer into a `bitarray` and call the member functions instead:
 
 ```cpp
-// Operate on raw uint64_t arrays
-uint64_t bitcal::ops::popcount<256>(const uint64_t* data);
-int bitcal::ops::count_leading_zeros<256>(const uint64_t* data);
-int bitcal::ops::count_trailing_zeros<256>(const uint64_t* data);
+bitcal::bit256 arr;
+for (size_t i = 0; i < bitcal::bit256::u64_count; ++i) {
+    arr.set_word(i, source[i]);
+}
+
+uint64_t ones = arr.popcount();
 ```
-
-Use the functional interface when working with existing data structures without creating `bitarray` objects.
-
-## Algorithm Details
-
-### popcount
-
-Per 64-bit word:
-```cpp
-// GCC/Clang
-__builtin_popcountll(word);
-
-// MSVC x64
-__popcnt64(word);
-```
-
-### CLZ
-
-Per 64-bit word:
-```cpp
-// GCC/Clang
-__builtin_clzll(word);
-
-// MSVC x64
-unsigned long index;
-_BitScanReverse64(&index, word);
-return 63 - index;  // For non-zero word
-```
-
-For multi-word arrays, finds the first non-zero word from MSB and counts leading zeros in that word, plus 64 for each preceding zero word.
-
-### CTZ
-
-Similar to CLZ but searches from LSB.

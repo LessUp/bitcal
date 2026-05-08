@@ -10,7 +10,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
   <a href="https://en.cppreference.com/w/cpp/17"><img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg" alt="C++17"></a>
   <a href="#installation"><img src="https://img.shields.io/badge/header--only-yes-green.svg" alt="Header-only"></a>
-  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/version-2.1.0-blue.svg" alt="Version"></a>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/version-3.0.0-blue.svg" alt="Version"></a>
 </p>
 
 <p align="center">
@@ -62,6 +62,17 @@ int main() {
 - [Project Structure](#-project-structure)
 </details>
 
+## ⚠️ Breaking Changes in 3.0.0
+
+BitCal 3.0.0 contracts the public API around the retained `bitarray` surface.
+
+- Removed public raw-pointer helpers under `bitcal::ops`
+- Removed public traits `is_bitarray`, `is_bitarray_v`, and `bitarray_traits`
+- Removed explicit `bit64` conversion convenience from the public contract
+- Prefer `bitarray` member functions for operations and `word()` / `set_word()` for adapting existing word buffers
+
+See [CHANGELOG.md](CHANGELOG.md) and the API reference for migration details.
+
 ## 🚀 Installation
 
 ### Option 1: Copy Headers (Simplest)
@@ -81,7 +92,7 @@ include(FetchContent)
 FetchContent_Declare(
     bitcal
     GIT_REPOSITORY https://github.com/LessUp/bitcal.git
-    GIT_TAG v2.1.0
+    GIT_TAG v3.0.0
 )
 FetchContent_MakeAvailable(bitcal)
 
@@ -158,7 +169,7 @@ int main() {
     a.clear();                   // Set all bits to zero
 
     // Direct word access (for interop with C APIs)
-    uint64_t* data = a.data();   // 64-byte aligned pointer
+    const uint64_t* data = a.data();   // Read-only aligned pointer
     uint64_t word = a[0];        // Access first 64-bit word
 
     // Comparisons
@@ -280,21 +291,15 @@ bitcal::bit256 make_mask(int prefix_len) {
     int remain_bits = prefix_len % 64;
 
     bitcal::bit256 mask;
-    uint64_t* data = mask.data();
 
     // Fill whole words with ones
     for (int i = 0; i < whole_words; ++i) {
-        data[3 - i] = UINT64_MAX;  // Big-endian word order for CIDR
+        mask.set_word(3 - i, UINT64_MAX);  // Big-endian word order for CIDR
     }
 
     // Set remaining bits in the next word
     if (remain_bits > 0) {
-        data[3 - whole_words] = UINT64_MAX << (64 - remain_bits);
-    }
-
-    // Clear remaining words
-    for (int i = whole_words + (remain_bits > 0 ? 1 : 0); i < 4; ++i) {
-        data[3 - i] = 0;
+        mask.set_word(3 - whole_words, UINT64_MAX << (64 - remain_bits));
     }
 
     return mask;
@@ -351,7 +356,6 @@ BitCal automatically selects the best backend based on compiler flags:
 |----------|---------|-------|-----------|--------|
 | x86-64 | AVX-512 | 512-bit | `-mavx512f` available | Partial support |
 | x86-64 | AVX2 | 256-bit | `-mavx2` available | Full support |
-| x86-64 | AVX | 256-bit | `-mavx` available | Full support |
 | x86-64 | SSE2 | 128-bit | `-msse2` available | Full support |
 | ARM | NEON | 128-bit | ARMv7-A+ or ARM64 | Full support |
 | Any | Scalar | 64-bit | Fallback | Full support |
@@ -364,13 +368,12 @@ BitCal automatically selects the best backend based on compiler flags:
 
 | Topic | Description |
 |-------|-------------|
-| [Types](docs/en/api/types.md) | `bitarray` template and type aliases |
+| [Types](docs/en/api/types.md) | Retained `bitarray` template, aliases, and backend enum |
 | [Core Operations](docs/en/api/core-operations.md) | AND, OR, XOR, NOT, ANDNOT |
 | [Shift Operations](docs/en/api/shift-operations.md) | Left and right shifts |
 | [Bit Counting](docs/en/api/bit-counting.md) | popcount, CLZ, CTZ |
 | [Bit Manipulation](docs/en/api/bit-manipulation.md) | get/set/flip bits, reverse |
 | [SIMD Backend](docs/en/api/simd-backend.md) | Backend selection |
-| [Ops Namespace](docs/en/api/ops-namespace.md) | Low-level API |
 
 ### Architecture
 
@@ -391,7 +394,7 @@ BitCal automatically selects the best backend based on compiler flags:
 | **Exception Safety** | `noexcept` on all hot-path operations | No exceptions thrown from bit operations |
 | **Bounds Checking** | `assert()` in debug builds | Use `NDEBUG` for release builds |
 | **Thread Safety** | Thread-compatible | Different instances: ✅ safe<br>Same instance, read-only: ✅ safe<br>Same instance, read+write: ❌ requires synchronization |
-| **Memory Safety** | 64-byte aligned, no heap allocation | Stack-only, cache-line friendly |
+| **Memory Safety** | Width-aware alignment, no heap allocation | 8/16/32/64-byte alignment depending on bit width |
 
 Full documentation: [https://lessup.github.io/bitcal/](https://lessup.github.io/bitcal/)
 
@@ -440,8 +443,9 @@ cmake --install . --prefix /usr/local
 bitcal/
 ├── include/bitcal/       # Header files (header-only library)
 │   ├── bitcal.hpp        # Main header (include this)
+│   ├── bitarray.hpp      # Core public bitarray template
 │   ├── config.hpp        # Platform detection
-│   ├── simd_traits.hpp   # SIMD type traits
+│   ├── backend_ops.hpp   # Backend dispatch glue
 │   ├── scalar_ops.hpp    # Scalar fallback
 │   ├── sse_ops.hpp       # SSE2 implementation
 │   ├── avx_ops.hpp       # AVX2 implementation
@@ -461,11 +465,11 @@ bitcal/
 bitarray<256> memory layout:
 ┌──────────────────────────────────────────────────────────┐
 │ Alignment │ Word 0 │ Word 1 │ Word 2 │ Word 3 │ Padding │
-│ 64 bytes  │ 0-63   │ 64-127 │128-191 │192-255 │ to 64B  │
+│ 32 bytes  │ 0-63   │ 64-127 │128-191 │192-255 │ to 32B  │
 └──────────────────────────────────────────────────────────┘
 ```
 
-- **Alignment:** 64 bytes (cache-line aligned)
+- **Alignment:** 32 bytes for `bitarray<256>` (width-aware alignment overall)
 - **Endianness:** Little-endian (LSB in `data()[0]`)
 - **Storage:** Contiguous `uint64_t` array
 
@@ -473,12 +477,12 @@ bitarray<256> memory layout:
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
 
-### Latest Release: v2.1.0 (2026-04-16)
+### Latest Release: v3.0.0 (2026-05-08)
 
-- ✨ **New:** ANDNOT operation with native SIMD instructions
-- ⚡ **Performance:** Up to 2.3× faster `is_zero()`, 1.7× faster `~`
-- 🧪 **Testing:** Full bit1024 test coverage
-- 🔧 **Infrastructure:** ARM32 CI support
+- ⚠️ **Breaking:** Removed public `bitcal::ops`, `is_bitarray`, `is_bitarray_v`, and `bitarray_traits`
+- 🔁 **Migration:** Use `bitarray` member functions plus `word()` / `set_word()` for buffer adaptation
+- 📚 **Docs:** API reference now documents only the retained 3.0 public surface
+- 📦 **Packaging:** Install snippets and package metadata now pin to `v3.0.0`
 
 ## 🤝 Contributing
 

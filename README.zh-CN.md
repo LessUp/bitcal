@@ -10,7 +10,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="许可证"></a>
   <a href="https://en.cppreference.com/w/cpp/17"><img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg" alt="C++17"></a>
   <a href="#安装"><img src="https://img.shields.io/badge/header--only-yes-green.svg" alt="纯头文件"></a>
-  <a href="CHANGELOG.zh-CN.md"><img src="https://img.shields.io/badge/version-2.1.0-blue.svg" alt="版本"></a>
+  <a href="CHANGELOG.zh-CN.md"><img src="https://img.shields.io/badge/version-3.0.0-blue.svg" alt="版本"></a>
 </p>
 
 <p align="center">
@@ -62,6 +62,17 @@ int main() {
 - [项目结构](#-项目结构)
 </details>
 
+## ⚠️ 3.0.0 破坏性变更
+
+BitCal 3.0.0 将公开 API 收敛到保留的 `bitarray` 表面。
+
+- 移除了公开的 `bitcal::ops` 原始指针辅助接口
+- 移除了公开 traits：`is_bitarray`、`is_bitarray_v`、`bitarray_traits`
+- 移除了公开契约中的显式 `bit64` 转换便捷入口
+- 如需适配已有 `uint64_t` 缓冲区，请使用 `bitarray` 成员函数以及 `word()` / `set_word()`
+
+迁移细节见 [CHANGELOG.zh-CN.md](CHANGELOG.zh-CN.md) 与 API 参考。
+
 ## 🚀 安装
 
 ### 方式一：复制头文件（最简单）
@@ -81,7 +92,7 @@ include(FetchContent)
 FetchContent_Declare(
     bitcal
     GIT_REPOSITORY https://github.com/LessUp/bitcal.git
-    GIT_TAG v2.1.0
+    GIT_TAG v3.0.0
 )
 FetchContent_MakeAvailable(bitcal)
 
@@ -158,7 +169,7 @@ int main() {
     a.clear();                   // 清零
 
     // 直接访问原始数据（用于与 C API 互操作）
-    uint64_t* data = a.data();   // 64 字节对齐的指针
+    const uint64_t* data = a.data();   // 只读对齐指针
     uint64_t word = a[0];        // 访问第一个 64 位字
 
     // 比较
@@ -280,21 +291,15 @@ bitcal::bit256 make_mask(int prefix_len) {
     int remain_bits = prefix_len % 64;
 
     bitcal::bit256 mask;
-    uint64_t* data = mask.data();
 
     // 填充完整的字为全1
     for (int i = 0; i < whole_words; ++i) {
-        data[3 - i] = UINT64_MAX;  // CIDR 使用大端字序
+        mask.set_word(3 - i, UINT64_MAX);  // CIDR 使用大端字序
     }
 
     // 在下一个字中设置剩余位
     if (remain_bits > 0) {
-        data[3 - whole_words] = UINT64_MAX << (64 - remain_bits);
-    }
-
-    // 清空剩余的字
-    for (int i = whole_words + (remain_bits > 0 ? 1 : 0); i < 4; ++i) {
-        data[3 - i] = 0;
+        mask.set_word(3 - whole_words, UINT64_MAX << (64 - remain_bits));
     }
 
     return mask;
@@ -351,7 +356,6 @@ BitCal 根据编译器选项自动选择最佳后端：
 |------|------|------|----------|------|
 | x86-64 | AVX-512 | 512 位 | `-mavx512f` 可用 | 部分支持 |
 | x86-64 | AVX2 | 256 位 | `-mavx2` 可用 | 完全支持 |
-| x86-64 | AVX | 256 位 | `-mavx` 可用 | 完全支持 |
 | x86-64 | SSE2 | 128 位 | `-msse2` 可用 | 完全支持 |
 | ARM | NEON | 128 位 | ARMv7-A+ 或 ARM64 | 完全支持 |
 | 任意 | 标量 | 64 位 | 回退方案 | 完全支持 |
@@ -362,15 +366,16 @@ BitCal 根据编译器选项自动选择最佳后端：
 
 ### API 参考
 
+> 详细 API 参考当前以英文页为准，避免维护重复镜像。
+
 | 主题 | 描述 |
 |------|------|
-| [类型](docs/zh/api/types.md) | `bitarray` 模板和类型别名 |
-| [核心运算](docs/zh/api/core-operations.md) | 与、或、异或、非、ANDNOT |
-| [位移操作](docs/zh/api/shift-operations.md) | 左移和右移 |
-| [位计数](docs/zh/api/bit-counting.md) | popcount、CLZ、CTZ |
-| [位操作](docs/zh/api/bit-manipulation.md) | 获取/设置/翻转位、反转 |
-| [SIMD 后端](docs/zh/api/simd-backend.md) | 后端选择 |
-| [Ops 命名空间](docs/zh/api/ops-namespace.md) | 底层 API |
+| [类型（英文）](docs/en/api/types.md) | 保留的 `bitarray` 模板、类型别名与后端枚举 |
+| [核心运算（英文）](docs/en/api/core-operations.md) | 与、或、异或、非、ANDNOT |
+| [位移操作（英文）](docs/en/api/shift-operations.md) | 左移和右移 |
+| [位计数（英文）](docs/en/api/bit-counting.md) | popcount、CLZ、CTZ |
+| [位操作（英文）](docs/en/api/bit-manipulation.md) | 获取/设置/翻转位、反转 |
+| [SIMD 后端（英文）](docs/en/api/simd-backend.md) | 后端选择 |
 
 ### 架构设计
 
@@ -391,7 +396,7 @@ BitCal 根据编译器选项自动选择最佳后端：
 | **异常安全** | 所有热路径操作均为 `noexcept` | 位操作不抛出异常 |
 | **边界检查** | 仅在调试构建中使用 `assert()` | 发布构建使用 `NDEBUG` |
 | **线程安全** | 线程兼容 | 不同实例：✅ 安全<br>同实例只读：✅ 安全<br>同实例读写：❌ 需要同步 |
-| **内存安全** | 64 字节对齐，无堆分配 | 纯栈分配，缓存行友好 |
+| **内存安全** | 按位宽选择对齐且无堆分配 | 根据位宽采用 8/16/32/64 字节对齐 |
 
 完整文档：[https://lessup.github.io/bitcal/](https://lessup.github.io/bitcal/)
 
@@ -440,8 +445,9 @@ cmake --install . --prefix /usr/local
 bitcal/
 ├── include/bitcal/       # 头文件（纯头文件库）
 │   ├── bitcal.hpp        # 主头文件（包含这个）
+│   ├── bitarray.hpp      # 核心公开 bitarray 模板
 │   ├── config.hpp        # 平台检测
-│   ├── simd_traits.hpp   # SIMD 类型特征
+│   ├── backend_ops.hpp   # 后端分派胶水层
 │   ├── scalar_ops.hpp    # 标量回退实现
 │   ├── sse_ops.hpp       # SSE2 实现
 │   ├── avx_ops.hpp       # AVX2 实现
@@ -460,12 +466,12 @@ bitcal/
 ```
 bitarray<256> 内存布局：
 ┌──────────────────────────────────────────────────────────┐
-│ 对齐 (64字节) │ 字 0 │ 字 1 │ 字 2 │ 字 3 │ 填充至 64B │
-│ 64 字节       │ 0-63 │64-127│128-191│192-255│          │
+│ 对齐 (32字节) │ 字 0 │ 字 1 │ 字 2 │ 字 3 │ 填充至 32B │
+│ 32 字节       │ 0-63 │64-127│128-191│192-255│          │
 └──────────────────────────────────────────────────────────┘
 ```
 
-- **对齐方式：** 64 字节（缓存行对齐）
+- **对齐方式：** `bitarray<256>` 为 32 字节（整体按位宽自适应对齐）
 - **字节序：** 小端（LSB 在 `data()[0]`）
 - **存储：** 连续的 `uint64_t` 数组
 
@@ -473,12 +479,12 @@ bitarray<256> 内存布局：
 
 详见 [CHANGELOG.zh-CN.md](CHANGELOG.zh-CN.md) 了解版本历史。
 
-### 最新版本：v2.1.0（2026-04-16）
+### 最新版本：v3.0.0（2026-05-08）
 
-- ✨ **新增：** 原生 SIMD 指令的 ANDNOT 运算
-- ⚡ **性能：** `is_zero()` 提速最高 2.3×，`~` 提速 1.7×
-- 🧪 **测试：** bit1024 完整测试覆盖
-- 🔧 **基础设施：** ARM32 CI 支持
+- ⚠️ **破坏性变更：** 移除了公开 `bitcal::ops`、`is_bitarray`、`is_bitarray_v` 与 `bitarray_traits`
+- 🔁 **迁移方式：** 使用 `bitarray` 成员函数，以及 `word()` / `set_word()` 适配已有字缓冲区
+- 📚 **文档收口：** API 参考仅保留 3.0 仍受支持的公开接口
+- 📦 **安装锚点：** 安装示例与包元数据已统一固定到 `v3.0.0`
 
 ## 🤝 参与贡献
 
