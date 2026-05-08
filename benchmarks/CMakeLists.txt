@@ -3,16 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 # Benchmark executable
 add_executable(bitcal_benchmark benchmark_bitcal.cpp)
 
-target_include_directories(bitcal_benchmark PRIVATE
-    ${CMAKE_SOURCE_DIR}/include
-)
-
-target_compile_features(bitcal_benchmark PRIVATE cxx_std_17)
-
-# Add SIMD flags for benchmarks
-if(BITCAL_NATIVE_ARCH AND BITCAL_SIMD_FLAGS)
-    target_compile_options(bitcal_benchmark PRIVATE ${BITCAL_SIMD_FLAGS})
-endif()
+bitcal_setup_dev_target(bitcal_benchmark)
 
 # Try to link against Google Benchmark if available
 find_package(benchmark QUIET)
