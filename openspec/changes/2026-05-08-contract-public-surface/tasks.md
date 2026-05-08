@@ -6,12 +6,12 @@
 
 ## 2. Header and implementation contraction
 
-- [ ] 2.1 将 retained `bitarray` 接口迁移到 `include/bitcal/bitarray.hpp`
-- [ ] 2.2 让 `include/bitcal/bitcal.hpp` 退化为唯一稳定 umbrella include，并清理不再保留的 helper surface
-- [ ] 2.3 删除或内部化 `bitcal::ops`、type traits 与未保留 convenience API
+- [x] 2.1 将 retained `bitarray` 接口迁移到 `include/bitcal/bitarray.hpp`
+- [x] 2.2 让 `include/bitcal/bitcal.hpp` 退化为唯一稳定 umbrella include，并清理不再保留的 helper surface
+- [x] 2.3 删除或内部化 `bitcal::ops`、type traits 与未保留 convenience API
 
 ## 3. Verification and release alignment
 
-- [ ] 3.1 按 retained public contract 更新测试，仅保留公开表面的验证入口
-- [ ] 3.2 更新用户文档与迁移说明，明确 2.x → 3.0.0 breaking changes
-- [ ] 3.3 对齐版本语义、发布说明与其他仓库锚点到 3.0.0
+- [x] 3.1 按 retained public contract 更新测试，仅保留公开表面的验证入口
+- [x] 3.2 更新用户文档与迁移说明，明确 2.x → 3.0.0 breaking changes
+- [x] 3.3 对齐版本语义、发布说明与其他仓库锚点到 3.0.0
