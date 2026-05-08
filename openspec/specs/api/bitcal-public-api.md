@@ -261,6 +261,11 @@ Count consecutive zeros from most significant bit.
 - `Bits` if all zeros
 - `0` if MSB is 1
 
+**Backend Support:**
+- All backends provide CLZ operations through the unified backend interface
+- AVX-512 backends can leverage hardware instructions (e.g., `_mm512_lzcnt_epi64`)
+- Scalar backends use compiler intrinsics (`__builtin_clzll` / `_BitScanReverse64`)
+
 ### count_trailing_zeros
 
 ```cpp
@@ -272,6 +277,10 @@ Count consecutive zeros from least significant bit.
 **Returns:**
 - `Bits` if all zeros
 - `0` if LSB is 1
+
+**Backend Support:**
+- All backends provide CTZ operations through the unified backend interface
+- Scalar backends use compiler intrinsics (`__builtin_ctzll` / `_BitScanForward64`)
 
 ## Single Bit Operations
 

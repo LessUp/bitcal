@@ -857,6 +857,158 @@ bool test_cross_backend_consistency() {
     return true;
 }
 
+// ========== Enhanced cross-backend consistency tests ==========
+
+// Helper function to compare bitarrays with different backends
+template<typename BA1, typename BA2>
+bool bitarray_equal(const BA1& a, const BA2& b) {
+    static_assert(BA1::bits == BA2::bits, "Bit widths must match");
+    for (size_t i = 0; i < BA1::u64_count; ++i) {
+        if (a.word(i) != b.word(i)) return false;
+    }
+    return true;
+}
+
+bool test_backend_consistency_comprehensive() {
+    // Comprehensive backend consistency test with direct comparison
+    using scalar_bit256 = bitcal::bitarray<256, bitcal::simd_backend::scalar>;
+    using auto_bit256 = bitcal::bit256;
+    
+    // Test 1: Bitwise operations with direct equality
+    {
+        scalar_bit256 sa, sb;
+        auto_bit256 aa, ab;
+        
+        for (int i = 0; i < 256; i += 7) {
+            sa.set_bit(i, true);
+            aa.set_bit(i, true);
+        }
+        for (int i = 3; i < 256; i += 11) {
+            sb.set_bit(i, true);
+            ab.set_bit(i, true);
+        }
+        
+        // AND
+        scalar_bit256 scalar_and = sa & sb;
+        auto_bit256 auto_and = aa & ab;
+        ASSERT_TRUE(bitarray_equal(scalar_and, auto_and));
+        
+        // OR
+        scalar_bit256 scalar_or = sa | sb;
+        auto_bit256 auto_or = aa | ab;
+        ASSERT_TRUE(bitarray_equal(scalar_or, auto_or));
+        
+        // XOR
+        scalar_bit256 scalar_xor = sa ^ sb;
+        auto_bit256 auto_xor = aa ^ ab;
+        ASSERT_TRUE(bitarray_equal(scalar_xor, auto_xor));
+        
+        // NOT
+        scalar_bit256 scalar_not = ~sa;
+        auto_bit256 auto_not = ~aa;
+        ASSERT_TRUE(bitarray_equal(scalar_not, auto_not));
+    }
+    
+    // Test 2: CLZ/CTZ consistency
+    {
+        scalar_bit256 sa;
+        auto_bit256 aa;
+        
+        for (int i = 0; i < 256; i += 13) {
+            sa.set_bit(i, true);
+            aa.set_bit(i, true);
+        }
+        
+        ASSERT_EQ(sa.count_leading_zeros(), aa.count_leading_zeros());
+        ASSERT_EQ(sa.count_trailing_zeros(), aa.count_trailing_zeros());
+        
+        // Test all-zeros
+        scalar_bit256 sz;
+        auto_bit256 az;
+        ASSERT_EQ(sz.count_leading_zeros(), az.count_leading_zeros());
+        ASSERT_EQ(sz.count_trailing_zeros(), az.count_trailing_zeros());
+        
+        // Test single MSB
+        scalar_bit256 smsb;
+        auto_bit256 amsb;
+        smsb.set_bit(255, true);
+        amsb.set_bit(255, true);
+        ASSERT_EQ(smsb.count_leading_zeros(), amsb.count_leading_zeros());
+        ASSERT_EQ(smsb.count_trailing_zeros(), amsb.count_trailing_zeros());
+    }
+    
+    // Test 3: Shift boundary cases
+    {
+        scalar_bit256 sa;
+        auto_bit256 aa;
+        
+        for (int i = 0; i < 256; i += 5) {
+            sa.set_bit(i, true);
+            aa.set_bit(i, true);
+        }
+        
+        // Test various shift amounts
+        int shift_amounts[] = {0, 1, 63, 64, 127, 128, 192, 255, 256};
+        for (int shift : shift_amounts) {
+            scalar_bit256 sl = sa;
+            auto_bit256 al = aa;
+            sl.shift_left(shift);
+            al.shift_left(shift);
+            ASSERT_TRUE(bitarray_equal(sl, al));
+            
+            scalar_bit256 sr = sa;
+            auto_bit256 ar = aa;
+            sr.shift_right(shift);
+            ar.shift_right(shift);
+            ASSERT_TRUE(bitarray_equal(sr, ar));
+        }
+    }
+    
+    // Test 4: 512-bit consistency
+    {
+        using scalar_bit512 = bitcal::bitarray<512, bitcal::simd_backend::scalar>;
+        using auto_bit512 = bitcal::bit512;
+        
+        scalar_bit512 sa, sb;
+        auto_bit512 aa, ab;
+        
+        for (int i = 0; i < 512; i += 17) {
+            sa.set_bit(i, true);
+            sb.set_bit(i, true);
+            aa.set_bit(i, true);
+            ab.set_bit(i, true);
+        }
+        
+        // Bitwise
+        scalar_bit512 scalar_and = sa & sb;
+        auto_bit512 auto_and = aa & ab;
+        ASSERT_TRUE(bitarray_equal(scalar_and, auto_and));
+        
+        scalar_bit512 scalar_or = sa | sb;
+        auto_bit512 auto_or = aa | ab;
+        ASSERT_TRUE(bitarray_equal(scalar_or, auto_or));
+        
+        scalar_bit512 scalar_xor = sa ^ sb;
+        auto_bit512 auto_xor = aa ^ ab;
+        ASSERT_TRUE(bitarray_equal(scalar_xor, auto_xor));
+        
+        scalar_bit512 scalar_not = ~sa;
+        auto_bit512 auto_not = ~aa;
+        ASSERT_TRUE(bitarray_equal(scalar_not, auto_not));
+        
+        // Count
+        ASSERT_EQ(sa.popcount(), aa.popcount());
+        ASSERT_EQ(sa.count_leading_zeros(), aa.count_leading_zeros());
+        ASSERT_EQ(sa.count_trailing_zeros(), aa.count_trailing_zeros());
+        
+        // Query
+        ASSERT_EQ(sa.is_zero(), aa.is_zero());
+        ASSERT_EQ(sa.all(), aa.all());
+    }
+    
+    return true;
+}
+
 // ========== Type traits tests ==========
 
 bool test_type_traits() {
@@ -1294,6 +1446,7 @@ int main() {
     std::cout << std::endl << "[Backend Consistency]" << std::endl;
     RUN_TEST(test_backend_consistency);
     RUN_TEST(test_cross_backend_consistency);
+    RUN_TEST(test_backend_consistency_comprehensive);
 
     std::cout << std::endl << "[Type Traits]" << std::endl;
     RUN_TEST(test_type_traits);

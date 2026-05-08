@@ -285,6 +285,27 @@ BITCAL_FORCEINLINE uint64_t popcount_array(const uint64_t* data) noexcept {
 }
 
 template<size_t N>
+BITCAL_FORCEINLINE int count_leading_zeros_array(const uint64_t* data) noexcept {
+    for (int i = N - 1; i >= 0; --i) {
+        if (data[i] != 0) {
+            int clz = count_leading_zeros(data[i]);
+            return (N - 1 - i) * 64 + clz;
+        }
+    }
+    return N * 64;
+}
+
+template<size_t N>
+BITCAL_FORCEINLINE int count_trailing_zeros_array(const uint64_t* data) noexcept {
+    for (size_t i = 0; i < N; ++i) {
+        if (data[i] != 0) {
+            return static_cast<int>(i * 64 + count_trailing_zeros(data[i]));
+        }
+    }
+    return N * 64;
+}
+
+template<size_t N>
 BITCAL_FORCEINLINE void reverse_bits_array(const uint64_t* in, uint64_t* out) noexcept {
     for (size_t i = 0; i < N; ++i) {
         out[N - 1 - i] = reverse_bits(in[i]);

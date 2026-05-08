@@ -214,23 +214,12 @@ public:
 
     // 前导零计数（CLZ）。
     [[nodiscard]] BITCAL_FORCEINLINE int count_leading_zeros() const noexcept {
-        for (int i = u64_count - 1; i >= 0; --i) {
-            if (data_[i] != 0) {
-                int clz = scalar::count_leading_zeros(data_[i]);
-                return (u64_count - 1 - i) * 64 + clz;
-            }
-        }
-        return Bits;
+        return backend::ops<Bits, Backend>::count_leading_zeros(data_);
     }
 
     // 尾部零计数（CTZ）。
     [[nodiscard]] BITCAL_FORCEINLINE int count_trailing_zeros() const noexcept {
-        for (size_t i = 0; i < u64_count; ++i) {
-            if (data_[i] != 0) {
-                return i * 64 + scalar::count_trailing_zeros(data_[i]);
-            }
-        }
-        return Bits;
+        return backend::ops<Bits, Backend>::count_trailing_zeros(data_);
     }
 
     // 位反转：bit0 <-> bit(Bits-1)。
