@@ -52,7 +52,7 @@ include/bitcal/
 └── neon_ops.hpp            # ARM NEON implementation
 ```
 
-**Public-facing headers:** `bitcal.hpp`, `bitarray.hpp`, and `config.hpp`.
+**Stable public include seam:** `bitcal.hpp`. `bitarray.hpp` and `config.hpp` are physical headers in the implementation layout, not additional retained entry points.
 
 ---
 
@@ -82,7 +82,7 @@ The default template parameter selects a backend at compile time:
 
 ```cpp
 template<size_t Bits,
-         simd_backend Backend = (Bits == 64 ? simd_backend::scalar : get_default_backend())>
+         simd_backend Backend = get_default_backend()>
 class bitarray;
 ```
 

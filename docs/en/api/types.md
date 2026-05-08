@@ -22,7 +22,7 @@ The core class template for all public BitCal operations.
 ```cpp
 namespace bitcal {
     template<size_t Bits,
-             simd_backend Backend = (Bits == 64 ? simd_backend::scalar : get_default_backend())>
+             simd_backend Backend = get_default_backend()>
     class bitarray;
 }
 ```

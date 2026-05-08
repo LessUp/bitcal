@@ -52,7 +52,7 @@ include/bitcal/
 └── neon_ops.hpp            # ARM NEON 实现
 ```
 
-**公开头文件：** `bitcal.hpp`、`bitarray.hpp`、`config.hpp`。
+**稳定公开 include seam：** `bitcal.hpp`。`bitarray.hpp` 与 `config.hpp` 属于物理实现头布局，不是额外保留的公开入口。
 
 ---
 
@@ -82,7 +82,7 @@ include/bitcal/
 
 ```cpp
 template<size_t Bits,
-         simd_backend Backend = (Bits == 64 ? simd_backend::scalar : get_default_backend())>
+         simd_backend Backend = get_default_backend()>
 class bitarray;
 ```
 
