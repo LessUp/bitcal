@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cstring>
 #include <initializer_list>
+#include <type_traits>
+#include <utility>
 
 static int g_pass = 0;
 static int g_fail = 0;
@@ -69,6 +71,105 @@ bool verify_bit_pattern(const BitArray& arr, std::initializer_list<std::pair<siz
     for (const auto& [pos, val] : expected) {
         if (arr.get_bit(pos) != val) return false;
     }
+    return true;
+}
+
+template<typename T, typename = void>
+struct has_set_range : std::false_type {};
+
+template<typename T>
+struct has_set_range<T, std::void_t<decltype(std::declval<T&>().set_range(size_t{}, size_t{}))>> : std::true_type {};
+
+template<typename T, typename = void>
+struct has_clear_range : std::false_type {};
+
+template<typename T>
+struct has_clear_range<T, std::void_t<decltype(std::declval<T&>().clear_range(size_t{}, size_t{}))>> : std::true_type {};
+
+template<typename T, typename = void>
+struct has_flip_range : std::false_type {};
+
+template<typename T>
+struct has_flip_range<T, std::void_t<decltype(std::declval<T&>().flip_range(size_t{}, size_t{}))>> : std::true_type {};
+
+template<typename T, typename = void>
+struct has_find_first_set : std::false_type {};
+
+template<typename T>
+struct has_find_first_set<T, std::void_t<decltype(std::declval<const T&>().find_first_set())>> : std::true_type {};
+
+template<typename T, typename = void>
+struct has_find_last_set : std::false_type {};
+
+template<typename T>
+struct has_find_last_set<T, std::void_t<decltype(std::declval<const T&>().find_last_set())>> : std::true_type {};
+
+template<typename T, typename = void>
+struct has_all : std::false_type {};
+
+template<typename T>
+struct has_all<T, std::void_t<decltype(std::declval<const T&>().all())>> : std::true_type {};
+
+template<typename T, typename = void>
+struct has_any : std::false_type {};
+
+template<typename T>
+struct has_any<T, std::void_t<decltype(std::declval<const T&>().any())>> : std::true_type {};
+
+template<typename T, typename = void>
+struct has_none : std::false_type {};
+
+template<typename T>
+struct has_none<T, std::void_t<decltype(std::declval<const T&>().none())>> : std::true_type {};
+
+template<typename T, typename = void>
+struct has_count : std::false_type {};
+
+template<typename T>
+struct has_count<T, std::void_t<decltype(std::declval<const T&>().count())>> : std::true_type {};
+
+template<typename T, typename = void>
+struct has_test : std::false_type {};
+
+template<typename T>
+struct has_test<T, std::void_t<decltype(std::declval<const T&>().test(size_t{}))>> : std::true_type {};
+
+static_assert(!has_set_range<bitcal::bit256>::value, "set_range should not remain public");
+static_assert(!has_clear_range<bitcal::bit256>::value, "clear_range should not remain public");
+static_assert(!has_flip_range<bitcal::bit256>::value, "flip_range should not remain public");
+static_assert(!has_find_first_set<bitcal::bit256>::value, "find_first_set should not remain public");
+static_assert(!has_find_last_set<bitcal::bit256>::value, "find_last_set should not remain public");
+static_assert(!has_all<bitcal::bit256>::value, "all should not remain public");
+static_assert(!has_any<bitcal::bit256>::value, "any should not remain public");
+static_assert(!has_none<bitcal::bit256>::value, "none should not remain public");
+static_assert(!has_count<bitcal::bit256>::value, "count should not remain public");
+static_assert(!has_test<bitcal::bit256>::value, "test should not remain public");
+
+bool test_retained_public_contract() {
+    bitcal::bit256 a;
+    ASSERT_TRUE(a.is_zero());
+    ASSERT_EQ(bitcal::bit256::size(), 256);
+
+    a.set_bit(0, true);
+    a.set_bit(63, true);
+    a.set_bit(200, true);
+    ASSERT_TRUE(a.get_bit(0));
+    ASSERT_TRUE(a.get_bit(63));
+    ASSERT_TRUE(a.get_bit(200));
+    ASSERT_EQ(a.popcount(), 3ULL);
+
+    bitcal::bit256 b(0x3ULL);
+    b.shift_left(64);
+    ASSERT_TRUE(b.get_bit(64));
+    ASSERT_TRUE(b.get_bit(65));
+    ASSERT_EQ(b.popcount(), 2ULL);
+
+    bitcal::bit256 combined = a | b;
+    ASSERT_TRUE((combined & b) == b);
+    ASSERT_TRUE((combined ^ b) == a);
+
+    combined.clear();
+    ASSERT_TRUE(combined.is_zero());
     return true;
 }
 
@@ -253,10 +354,12 @@ bool test_bit128_shift_cross_carry() {
 
 bool test_bit128_bitwise_ops() {
     bitcal::bit128 a, b;
-    // 使用 set_range 设置位模式
-    a.set_range(0, 64);  // 设置低 64 位
-
-    b.set_range(32, 96);  // 设置 bits 32-95
+    for (size_t i = 0; i < 64; ++i) {
+        a.set_bit(i, true);
+    }
+    for (size_t i = 32; i < 96; ++i) {
+        b.set_bit(i, true);
+    }
 
     // 使用 popcount 验证操作结果
     auto and_result = a & b;
@@ -838,42 +941,19 @@ bool test_cross_backend_consistency() {
     aa_shift_r.shift_right(23);
     ASSERT_EQ(sa_shift_r.popcount(), aa_shift_r.popcount());
 
-    // Test all() and is_zero()
-    ASSERT_EQ(sa.all(), aa.all());
+    // Test zero / all-ones states with retained methods only
     ASSERT_EQ(sa.is_zero(), aa.is_zero());
 
-    // Test with all-ones
     scalar_bit256 scalar_ones = ~scalar_bit256();
     auto_bit256 auto_ones = ~auto_bit256();
-    ASSERT_EQ(scalar_ones.all(), auto_ones.all());
+    ASSERT_EQ(scalar_ones.popcount(), auto_ones.popcount());
     ASSERT_EQ(scalar_ones.is_zero(), auto_ones.is_zero());
 
-    // Test with all-zeros
     scalar_bit256 scalar_zeros;
     auto_bit256 auto_zeros;
-    ASSERT_EQ(scalar_zeros.all(), auto_zeros.all());
+    ASSERT_EQ(scalar_zeros.popcount(), auto_zeros.popcount());
     ASSERT_EQ(scalar_zeros.is_zero(), auto_zeros.is_zero());
 
-    return true;
-}
-
-// ========== Type traits tests ==========
-
-bool test_type_traits() {
-    // Test is_bitarray
-    static_assert(bitcal::is_bitarray_v<bitcal::bit64>, "bit64 should be a bitarray");
-    static_assert(bitcal::is_bitarray_v<bitcal::bit256>, "bit256 should be a bitarray");
-    static_assert(bitcal::is_bitarray_v<bitcal::bit1024>, "bit1024 should be a bitarray");
-    static_assert(!bitcal::is_bitarray_v<int>, "int should not be a bitarray");
-    static_assert(!bitcal::is_bitarray_v<uint64_t>, "uint64_t should not be a bitarray");
-
-    // Test bitarray_traits
-    static_assert(bitcal::bitarray_traits<bitcal::bit256>::bits == 256, "bit256 should have 256 bits");
-    static_assert(bitcal::bitarray_traits<bitcal::bit256>::u64_count == 4, "bit256 should have 4 words");
-    static_assert(bitcal::bitarray_traits<bitcal::bit512>::u64_count == 8, "bit512 should have 8 words");
-    static_assert(bitcal::bitarray_traits<bitcal::bit64>::u64_count == 1, "bit64 should have 1 word");
-
-    ASSERT_TRUE(true);  // If we get here, all static_asserts passed
     return true;
 }
 
@@ -903,86 +983,6 @@ bool test_static_assert_validation() {
     return true;
 }
 
-// ========== Find First/Last Set tests ==========
-
-bool test_find_first_set() {
-    bitcal::bit256 a;
-    a.set_bit(132, true);
-    ASSERT_EQ(a.find_first_set(), 132);
-
-    bitcal::bit64 b;
-    b.set_bit(3, true);
-    ASSERT_EQ(b.find_first_set(), 3);
-
-    bitcal::bit64 c;
-    ASSERT_EQ(c.find_first_set(), -1);
-
-    bitcal::bit64 d;
-    d.set_bit(0, true);
-    ASSERT_EQ(d.find_first_set(), 0);
-
-    return true;
-}
-
-bool test_find_last_set() {
-    bitcal::bit256 a;
-    a.set_bit(71, true);
-    ASSERT_EQ(a.find_last_set(), 71);
-
-    bitcal::bit64 b;
-    b.set_bit(63, true);
-    ASSERT_EQ(b.find_last_set(), 63);
-
-    bitcal::bit64 c;
-    ASSERT_EQ(c.find_last_set(), -1);
-
-    bitcal::bit64 d;
-    d.set_bit(0, true);
-    ASSERT_EQ(d.find_last_set(), 0);
-
-    return true;
-}
-
-// ========== Range operations tests ==========
-
-bool test_range_operations() {
-    // Test set_range
-    bitcal::bit256 a;
-    a.set_range(10, 20);
-    ASSERT_TRUE(a.get_bit(10));
-    ASSERT_TRUE(a.get_bit(19));
-    ASSERT_TRUE(!a.get_bit(9));
-    ASSERT_TRUE(!a.get_bit(20));
-    ASSERT_EQ(a.popcount(), 10);
-
-    // Test clear_range
-    bitcal::bit256 b;
-    b.set_range(0, 256);  // 设置所有位
-    b.clear_range(10, 20);
-    ASSERT_TRUE(!b.get_bit(10));
-    ASSERT_TRUE(!b.get_bit(19));
-    ASSERT_TRUE(b.get_bit(9));
-    ASSERT_TRUE(b.get_bit(20));
-    ASSERT_EQ(b.popcount(), 246);  // 256 - 10
-
-    // Test flip_range
-    bitcal::bit256 c;
-    c.set_range(0, 32);  // Lower 32 bits set
-    c.flip_range(0, 16);
-    ASSERT_EQ(c.popcount(), 16);  // Upper 16 bits of first 32 still set
-
-    // Test cross-word range
-    bitcal::bit256 d;
-    d.set_range(60, 68);  // 60-63 in word 0, 64-67 in word 1
-    ASSERT_TRUE(d.get_bit(60));
-    ASSERT_TRUE(d.get_bit(63));
-    ASSERT_TRUE(d.get_bit(64));
-    ASSERT_TRUE(d.get_bit(67));
-    ASSERT_EQ(d.popcount(), 8);
-
-    return true;
-}
-
 // ========== Bit64 specialization tests ==========
 
 bool test_bit64_specialization() {
@@ -995,75 +995,30 @@ bool test_bit64_specialization() {
     bitcal::bit64 b;
     b.set_bit(5);
     ASSERT_TRUE(b.get_bit(5));
-    b.clear_range(0, 64);
+    b.clear();
     ASSERT_TRUE(b.is_zero());
 
     // Popcount
     bitcal::bit64 c(0xFFFFFFFFFFFFFFFFULL);
-    ASSERT_EQ(c.popcount(), 64);
-    ASSERT_EQ(c.count(), 64);
+    ASSERT_EQ(c.popcount(), 64ULL);
 
-    // Find first/last set
+    // Single-bit access
     bitcal::bit64 d;
     d.set_bit(4, true);
-    ASSERT_EQ(d.find_first_set(), 4);
-    ASSERT_EQ(d.find_last_set(), 4);
+    ASSERT_TRUE(d.get_bit(4));
+    ASSERT_EQ(d.popcount(), 1ULL);
 
-    // Query methods
+    // Zero / non-zero queries
     bitcal::bit64 e(0xFFFFFFFFFFFFFFFFULL);
-    ASSERT_TRUE(e.all());
-    ASSERT_TRUE(e.any());
-    ASSERT_TRUE(!e.none());
+    ASSERT_TRUE(!e.is_zero());
 
     bitcal::bit64 f(0);
-    ASSERT_TRUE(!f.all());
-    ASSERT_TRUE(!f.any());
-    ASSERT_TRUE(f.none());
+    ASSERT_TRUE(f.is_zero());
+    ASSERT_EQ(f.popcount(), 0ULL);
 
     // Size
     ASSERT_EQ(bitcal::bit64::size(), 64);
     ASSERT_EQ(b.size(), 64);
-
-    return true;
-}
-
-// ========== Query methods tests ==========
-
-bool test_query_methods() {
-    // all(), any(), none()
-    bitcal::bit256 a;
-    a = ~a;  // 设置所有位
-    ASSERT_TRUE(a.all());
-    ASSERT_TRUE(a.any());
-    ASSERT_TRUE(!a.none());
-
-    bitcal::bit256 b;
-    b.set_bit(128, true);
-    ASSERT_TRUE(!b.all());
-    ASSERT_TRUE(b.any());
-    ASSERT_TRUE(!b.none());
-
-    bitcal::bit256 c;
-    ASSERT_TRUE(!c.all());
-    ASSERT_TRUE(!c.any());
-    ASSERT_TRUE(c.none());
-
-    // count() - alias for popcount
-    bitcal::bit256 d;
-    d.set_range(0, 32);
-    ASSERT_EQ(d.count(), 32);
-    ASSERT_EQ(d.count(), d.popcount());
-
-    // size()
-    ASSERT_EQ(bitcal::bit64::size(), 64);
-    ASSERT_EQ(bitcal::bit256::size(), 256);
-    ASSERT_EQ(bitcal::bit1024::size(), 1024);
-
-    // test() - alias for get_bit
-    bitcal::bit256 e;
-    e.set_bit(100);
-    ASSERT_TRUE(e.test(100));
-    ASSERT_TRUE(!e.test(101));
 
     return true;
 }
@@ -1190,45 +1145,6 @@ bool test_popcount_edge_cases() {
     return true;
 }
 
-// ========== all() / any() / none() edge cases ==========
-
-bool test_all_any_none_edge_cases() {
-    // 单个位设置
-    bitcal::bit256 single_bit;
-    single_bit.set_bit(100, true);
-    ASSERT_TRUE(!single_bit.all());
-    ASSERT_TRUE(single_bit.any());
-    ASSERT_TRUE(!single_bit.none());
-
-    // 最高位设置
-    bitcal::bit256 high_bit;
-    high_bit.set_bit(255, true);
-    ASSERT_TRUE(!high_bit.all());
-    ASSERT_TRUE(high_bit.any());
-    ASSERT_TRUE(!high_bit.none());
-
-    // 全零
-    bitcal::bit256 zero;
-    ASSERT_TRUE(!zero.all());
-    ASSERT_TRUE(!zero.any());
-    ASSERT_TRUE(zero.none());
-
-    // 全一
-    bitcal::bit256 ones = ~bitcal::bit256();
-    ASSERT_TRUE(ones.all());
-    ASSERT_TRUE(ones.any());
-    ASSERT_TRUE(!ones.none());
-
-    // 只差一个位就是全一
-    bitcal::bit256 almost_all = ones;
-    almost_all.set_bit(100, false);
-    ASSERT_TRUE(!almost_all.all());
-    ASSERT_TRUE(almost_all.any());
-    ASSERT_TRUE(!almost_all.none());
-
-    return true;
-}
-
 // ========== main ==========
 
 int main() {
@@ -1295,24 +1211,14 @@ int main() {
     RUN_TEST(test_backend_consistency);
     RUN_TEST(test_cross_backend_consistency);
 
-    std::cout << std::endl << "[Type Traits]" << std::endl;
-    RUN_TEST(test_type_traits);
+    std::cout << std::endl << "[Retained Contract]" << std::endl;
+    RUN_TEST(test_retained_public_contract);
 
     std::cout << std::endl << "[Static Assert Validation]" << std::endl;
     RUN_TEST(test_static_assert_validation);
 
-    std::cout << std::endl << "[Find First/Last Set]" << std::endl;
-    RUN_TEST(test_find_first_set);
-    RUN_TEST(test_find_last_set);
-
-    std::cout << std::endl << "[Range Operations]" << std::endl;
-    RUN_TEST(test_range_operations);
-
     std::cout << std::endl << "[Bit64 Specialization]" << std::endl;
     RUN_TEST(test_bit64_specialization);
-
-    std::cout << std::endl << "[Query Methods]" << std::endl;
-    RUN_TEST(test_query_methods);
 
     std::cout << std::endl << "[Abstract Shift Tests]" << std::endl;
     RUN_TEST(test_abstract_shift_left);
@@ -1323,9 +1229,6 @@ int main() {
 
     std::cout << std::endl << "[Popcount Edge Cases]" << std::endl;
     RUN_TEST(test_popcount_edge_cases);
-
-    std::cout << std::endl << "[All/Any/None Edge Cases]" << std::endl;
-    RUN_TEST(test_all_any_none_edge_cases);
 
     std::cout << std::endl << "==============================" << std::endl;
     std::cout << "Total: " << (g_pass + g_fail)
