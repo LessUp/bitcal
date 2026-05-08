@@ -970,6 +970,68 @@ bool test_cross_backend_consistency() {
     return true;
 }
 
+// ========== Small width backend fallback consistency (seam characterization) ==========
+
+bool test_small_width_backend_fallback_consistency() {
+    // Characterization test: verify that small bit widths (64) behave consistently
+    // across scalar and SIMD backends, ensuring fallback paths work correctly.
+    // This test ensures the backend adapter layer preserves semantics for unsupported
+    // width/backend combinations.
+    
+    // Test scalar 64-bit operations
+    using scalar_bit64 = bitcal::bitarray<64, bitcal::simd_backend::scalar>;
+    scalar_bit64 scalar64;
+    scalar64.set_bit(0, true);
+    scalar64.set_bit(63, true);
+    ASSERT_EQ(scalar64.popcount(), 2ULL);
+    
+#if BITCAL_HAS_SSE2
+    // SSE2 doesn't have a dedicated 64-bit specialization, should fall back to scalar
+    using sse2_bit64 = bitcal::bitarray<64, bitcal::simd_backend::sse2>;
+    sse2_bit64 sse2_64;
+    sse2_64.set_bit(0, true);
+    sse2_64.set_bit(63, true);
+    // Verify behavior is consistent with scalar via public interface
+    ASSERT_EQ(sse2_64.popcount(), scalar64.popcount());
+    ASSERT_EQ(sse2_64.is_zero(), scalar64.is_zero());
+#endif
+
+#if BITCAL_HAS_AVX2
+    // AVX2 doesn't have a dedicated 64-bit specialization, should fall back to scalar
+    using avx2_bit64 = bitcal::bitarray<64, bitcal::simd_backend::avx2>;
+    avx2_bit64 avx2_64;
+    avx2_64.set_bit(0, true);
+    avx2_64.set_bit(63, true);
+    // Verify behavior is consistent with scalar via public interface
+    ASSERT_EQ(avx2_64.popcount(), scalar64.popcount());
+    ASSERT_EQ(avx2_64.is_zero(), scalar64.is_zero());
+#endif
+
+#if BITCAL_HAS_AVX512
+    // AVX512 doesn't have a dedicated 64-bit specialization, should fall back to scalar
+    using avx512_bit64 = bitcal::bitarray<64, bitcal::simd_backend::avx512>;
+    avx512_bit64 avx512_64;
+    avx512_64.set_bit(0, true);
+    avx512_64.set_bit(63, true);
+    // Verify behavior is consistent with scalar via public interface
+    ASSERT_EQ(avx512_64.popcount(), scalar64.popcount());
+    ASSERT_EQ(avx512_64.is_zero(), scalar64.is_zero());
+#endif
+
+#if BITCAL_HAS_NEON
+    // NEON doesn't have a dedicated 64-bit specialization, should fall back to scalar
+    using neon_bit64 = bitcal::bitarray<64, bitcal::simd_backend::neon>;
+    neon_bit64 neon_64;
+    neon_64.set_bit(0, true);
+    neon_64.set_bit(63, true);
+    // Verify behavior is consistent with scalar via public interface
+    ASSERT_EQ(neon_64.popcount(), scalar64.popcount());
+    ASSERT_EQ(neon_64.is_zero(), scalar64.is_zero());
+#endif
+
+    return true;
+}
+
 // ========== Static assert validation tests ==========
 
 bool test_static_assert_validation() {
@@ -1269,6 +1331,7 @@ int main() {
     std::cout << std::endl << "[Backend Consistency]" << std::endl;
     RUN_TEST(test_backend_consistency);
     RUN_TEST(test_cross_backend_consistency);
+    RUN_TEST(test_small_width_backend_fallback_consistency);
 
     std::cout << std::endl << "[Retained Contract]" << std::endl;
     RUN_TEST(test_retained_public_contract);

@@ -51,6 +51,64 @@ template<size_t Bits, simd_backend Backend>
 struct ops;
 
 // ============================================================================
+// Internal helper namespace for backend specialization generation
+// ============================================================================
+
+namespace detail {
+
+// Base template for SIMD backend operations. Takes a traits type that specifies
+// the backend-specific function names for a given width.
+// This reduces duplication across backend/width specializations.
+template<typename OpTraits>
+struct simd_ops_base {
+    static BITCAL_FORCEINLINE void bit_and(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
+        OpTraits::bit_and(a, b, out);
+    }
+
+    static BITCAL_FORCEINLINE void bit_or(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
+        OpTraits::bit_or(a, b, out);
+    }
+
+    static BITCAL_FORCEINLINE void bit_xor(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
+        OpTraits::bit_xor(a, b, out);
+    }
+
+    static BITCAL_FORCEINLINE void bit_not(const uint64_t* in, uint64_t* out) noexcept {
+        OpTraits::bit_not(in, out);
+    }
+
+    static BITCAL_FORCEINLINE void bit_andnot(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
+        OpTraits::bit_andnot(a, b, out);
+    }
+
+    static BITCAL_FORCEINLINE void shift_left(uint64_t* data, int count) noexcept {
+        OpTraits::shift_left(data, count);
+    }
+
+    static BITCAL_FORCEINLINE void shift_right(uint64_t* data, int count) noexcept {
+        OpTraits::shift_right(data, count);
+    }
+
+    static BITCAL_FORCEINLINE bool is_zero(const uint64_t* data) noexcept {
+        return OpTraits::is_zero(data);
+    }
+
+    static BITCAL_FORCEINLINE bool all(const uint64_t* data) noexcept {
+        return OpTraits::all(data);
+    }
+
+    static BITCAL_FORCEINLINE bool equals(const uint64_t* a, const uint64_t* b) noexcept {
+        return OpTraits::equals(a, b);
+    }
+
+    static BITCAL_FORCEINLINE uint64_t popcount(const uint64_t* data) noexcept {
+        return OpTraits::popcount(data);
+    }
+};
+
+} // namespace detail
+
+// ============================================================================
 // Scalar backend - 通用实现（适用于所有位宽）
 // ============================================================================
 
@@ -125,99 +183,89 @@ struct ops<Bits, simd_backend::scalar> {
 
 #if BITCAL_HAS_SSE2
 
-template<>
-struct ops<128, simd_backend::sse2> {
+namespace detail {
+
+// Traits for SSE2 128-bit operations
+struct sse2_128_traits {
     static BITCAL_FORCEINLINE void bit_and(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         sse::bit_and_128(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_or(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         sse::bit_or_128(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_xor(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         sse::bit_xor_128(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_not(const uint64_t* in, uint64_t* out) noexcept {
         sse::bit_not_128(in, out);
     }
-
     static BITCAL_FORCEINLINE void bit_andnot(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         sse::bit_andnot_128(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void shift_left(uint64_t* data, int count) noexcept {
         sse::shift_left_128(data, count);
     }
-
     static BITCAL_FORCEINLINE void shift_right(uint64_t* data, int count) noexcept {
         sse::shift_right_128(data, count);
     }
-
     static BITCAL_FORCEINLINE bool is_zero(const uint64_t* data) noexcept {
         return sse::is_zero_128(data);
     }
-
     static BITCAL_FORCEINLINE bool all(const uint64_t* data) noexcept {
         return sse::all_128(data);
     }
-
     static BITCAL_FORCEINLINE bool equals(const uint64_t* a, const uint64_t* b) noexcept {
         return sse::equals_128(a, b);
     }
-
     static BITCAL_FORCEINLINE uint64_t popcount(const uint64_t* data) noexcept {
-        return scalar::popcount_array<2>(data);  // SSE2 没有 popcount 指令，使用 scalar
+        return scalar::popcount_array<2>(data);
     }
 };
 
-template<>
-struct ops<256, simd_backend::sse2> {
+// Traits for SSE2 256-bit operations
+struct sse2_256_traits {
     static BITCAL_FORCEINLINE void bit_and(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         sse::bit_and_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_or(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         sse::bit_or_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_xor(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         sse::bit_xor_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_not(const uint64_t* in, uint64_t* out) noexcept {
         sse::bit_not_256(in, out);
     }
-
     static BITCAL_FORCEINLINE void bit_andnot(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         sse::bit_andnot_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void shift_left(uint64_t* data, int count) noexcept {
         sse::shift_left_256(data, count);
     }
-
     static BITCAL_FORCEINLINE void shift_right(uint64_t* data, int count) noexcept {
         sse::shift_right_256(data, count);
     }
-
     static BITCAL_FORCEINLINE bool is_zero(const uint64_t* data) noexcept {
         return sse::is_zero_256(data);
     }
-
     static BITCAL_FORCEINLINE bool all(const uint64_t* data) noexcept {
         return sse::all_256(data);
     }
-
     static BITCAL_FORCEINLINE bool equals(const uint64_t* a, const uint64_t* b) noexcept {
         return sse::equals_256(a, b);
     }
-
     static BITCAL_FORCEINLINE uint64_t popcount(const uint64_t* data) noexcept {
         return scalar::popcount_array<4>(data);
     }
 };
+
+} // namespace detail
+
+template<>
+struct ops<128, simd_backend::sse2> : detail::simd_ops_base<detail::sse2_128_traits> {};
+
+template<>
+struct ops<256, simd_backend::sse2> : detail::simd_ops_base<detail::sse2_256_traits> {};
 
 #endif // BITCAL_HAS_SSE2
 
@@ -227,99 +275,89 @@ struct ops<256, simd_backend::sse2> {
 
 #if BITCAL_HAS_AVX2
 
-template<>
-struct ops<256, simd_backend::avx2> {
+namespace detail {
+
+// Traits for AVX2 256-bit operations
+struct avx2_256_traits {
     static BITCAL_FORCEINLINE void bit_and(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx::bit_and_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_or(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx::bit_or_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_xor(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx::bit_xor_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_not(const uint64_t* in, uint64_t* out) noexcept {
         avx::bit_not_256(in, out);
     }
-
     static BITCAL_FORCEINLINE void bit_andnot(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx::bit_andnot_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void shift_left(uint64_t* data, int count) noexcept {
         avx::shift_left_256(data, count);
     }
-
     static BITCAL_FORCEINLINE void shift_right(uint64_t* data, int count) noexcept {
         avx::shift_right_256(data, count);
     }
-
     static BITCAL_FORCEINLINE bool is_zero(const uint64_t* data) noexcept {
         return avx::is_zero_256(data);
     }
-
     static BITCAL_FORCEINLINE bool all(const uint64_t* data) noexcept {
         return avx::all_256(data);
     }
-
     static BITCAL_FORCEINLINE bool equals(const uint64_t* a, const uint64_t* b) noexcept {
         return avx::equals_256(a, b);
     }
-
     static BITCAL_FORCEINLINE uint64_t popcount(const uint64_t* data) noexcept {
         return avx::popcount_256(data);
     }
 };
 
-template<>
-struct ops<512, simd_backend::avx2> {
+// Traits for AVX2 512-bit operations
+struct avx2_512_traits {
     static BITCAL_FORCEINLINE void bit_and(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx::bit_and_512(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_or(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx::bit_or_512(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_xor(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx::bit_xor_512(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_not(const uint64_t* in, uint64_t* out) noexcept {
         avx::bit_not_512(in, out);
     }
-
     static BITCAL_FORCEINLINE void bit_andnot(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx::bit_andnot_512(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void shift_left(uint64_t* data, int count) noexcept {
         avx::shift_left_512(data, count);
     }
-
     static BITCAL_FORCEINLINE void shift_right(uint64_t* data, int count) noexcept {
         avx::shift_right_512(data, count);
     }
-
     static BITCAL_FORCEINLINE bool is_zero(const uint64_t* data) noexcept {
         return avx::is_zero_512(data);
     }
-
     static BITCAL_FORCEINLINE bool all(const uint64_t* data) noexcept {
         return avx::all_512(data);
     }
-
     static BITCAL_FORCEINLINE bool equals(const uint64_t* a, const uint64_t* b) noexcept {
         return avx::equals_512(a, b);
     }
-
     static BITCAL_FORCEINLINE uint64_t popcount(const uint64_t* data) noexcept {
         return avx::popcount_512(data);
     }
 };
+
+} // namespace detail
+
+template<>
+struct ops<256, simd_backend::avx2> : detail::simd_ops_base<detail::avx2_256_traits> {};
+
+template<>
+struct ops<512, simd_backend::avx2> : detail::simd_ops_base<detail::avx2_512_traits> {};
 
 #endif // BITCAL_HAS_AVX2
 
@@ -329,99 +367,89 @@ struct ops<512, simd_backend::avx2> {
 
 #if BITCAL_HAS_AVX512
 
-template<>
-struct ops<256, simd_backend::avx512> {
+namespace detail {
+
+// Traits for AVX512 256-bit operations
+struct avx512_256_traits {
     static BITCAL_FORCEINLINE void bit_and(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx512::bit_and_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_or(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx512::bit_or_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_xor(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx512::bit_xor_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_not(const uint64_t* in, uint64_t* out) noexcept {
         avx512::bit_not_256(in, out);
     }
-
     static BITCAL_FORCEINLINE void bit_andnot(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx512::bit_andnot_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void shift_left(uint64_t* data, int count) noexcept {
         avx512::shift_left_256(data, count);
     }
-
     static BITCAL_FORCEINLINE void shift_right(uint64_t* data, int count) noexcept {
         avx512::shift_right_256(data, count);
     }
-
     static BITCAL_FORCEINLINE bool is_zero(const uint64_t* data) noexcept {
         return avx512::is_zero_256(data);
     }
-
     static BITCAL_FORCEINLINE bool all(const uint64_t* data) noexcept {
         return avx512::all_256(data);
     }
-
     static BITCAL_FORCEINLINE bool equals(const uint64_t* a, const uint64_t* b) noexcept {
         return avx512::equals_256(a, b);
     }
-
     static BITCAL_FORCEINLINE uint64_t popcount(const uint64_t* data) noexcept {
         return avx512::popcount_256(data);
     }
 };
 
-template<>
-struct ops<512, simd_backend::avx512> {
+// Traits for AVX512 512-bit operations
+struct avx512_512_traits {
     static BITCAL_FORCEINLINE void bit_and(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx512::bit_and_512(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_or(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx512::bit_or_512(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_xor(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx512::bit_xor_512(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_not(const uint64_t* in, uint64_t* out) noexcept {
         avx512::bit_not_512(in, out);
     }
-
     static BITCAL_FORCEINLINE void bit_andnot(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         avx512::bit_andnot_512(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void shift_left(uint64_t* data, int count) noexcept {
         avx512::shift_left_512(data, count);
     }
-
     static BITCAL_FORCEINLINE void shift_right(uint64_t* data, int count) noexcept {
         avx512::shift_right_512(data, count);
     }
-
     static BITCAL_FORCEINLINE bool is_zero(const uint64_t* data) noexcept {
         return avx512::is_zero_512(data);
     }
-
     static BITCAL_FORCEINLINE bool all(const uint64_t* data) noexcept {
         return avx512::all_512(data);
     }
-
     static BITCAL_FORCEINLINE bool equals(const uint64_t* a, const uint64_t* b) noexcept {
         return avx512::equals_512(a, b);
     }
-
     static BITCAL_FORCEINLINE uint64_t popcount(const uint64_t* data) noexcept {
         return avx512::popcount_512(data);
     }
 };
+
+} // namespace detail
+
+template<>
+struct ops<256, simd_backend::avx512> : detail::simd_ops_base<detail::avx512_256_traits> {};
+
+template<>
+struct ops<512, simd_backend::avx512> : detail::simd_ops_base<detail::avx512_512_traits> {};
 
 #endif // BITCAL_HAS_AVX512
 
@@ -431,146 +459,129 @@ struct ops<512, simd_backend::avx512> {
 
 #if BITCAL_HAS_NEON
 
-template<>
-struct ops<128, simd_backend::neon> {
+namespace detail {
+
+// Traits for NEON 128-bit operations
+struct neon_128_traits {
     static BITCAL_FORCEINLINE void bit_and(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         neon::bit_and_128(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_or(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         neon::bit_or_128(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_xor(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         neon::bit_xor_128(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_not(const uint64_t* in, uint64_t* out) noexcept {
         neon::bit_not_128(in, out);
     }
-
     static BITCAL_FORCEINLINE void bit_andnot(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         neon::bit_andnot_128(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void shift_left(uint64_t* data, int count) noexcept {
         neon::shift_left_128(data, count);
     }
-
     static BITCAL_FORCEINLINE void shift_right(uint64_t* data, int count) noexcept {
         neon::shift_right_128(data, count);
     }
-
     static BITCAL_FORCEINLINE bool is_zero(const uint64_t* data) noexcept {
         return neon::is_zero_128(data);
     }
-
     static BITCAL_FORCEINLINE bool all(const uint64_t* data) noexcept {
         return neon::all_128(data);
     }
-
     static BITCAL_FORCEINLINE bool equals(const uint64_t* a, const uint64_t* b) noexcept {
         return neon::equals_128(a, b);
     }
-
     static BITCAL_FORCEINLINE uint64_t popcount(const uint64_t* data) noexcept {
-        return scalar::popcount_array<2>(data);  // NEON 没有 popcount 指令，使用 scalar
+        return scalar::popcount_array<2>(data);
     }
 };
 
-template<>
-struct ops<256, simd_backend::neon> {
+// Traits for NEON 256-bit operations
+struct neon_256_traits {
     static BITCAL_FORCEINLINE void bit_and(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         neon::bit_and_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_or(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         neon::bit_or_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_xor(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         neon::bit_xor_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_not(const uint64_t* in, uint64_t* out) noexcept {
         neon::bit_not_256(in, out);
     }
-
     static BITCAL_FORCEINLINE void bit_andnot(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         neon::bit_andnot_256(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void shift_left(uint64_t* data, int count) noexcept {
         neon::shift_left_256(data, count);
     }
-
     static BITCAL_FORCEINLINE void shift_right(uint64_t* data, int count) noexcept {
         neon::shift_right_256(data, count);
     }
-
     static BITCAL_FORCEINLINE bool is_zero(const uint64_t* data) noexcept {
         return neon::is_zero_256(data);
     }
-
     static BITCAL_FORCEINLINE bool all(const uint64_t* data) noexcept {
         return neon::all_256(data);
     }
-
     static BITCAL_FORCEINLINE bool equals(const uint64_t* a, const uint64_t* b) noexcept {
         return neon::equals_256(a, b);
     }
-
     static BITCAL_FORCEINLINE uint64_t popcount(const uint64_t* data) noexcept {
         return scalar::popcount_array<4>(data);
     }
 };
 
-template<>
-struct ops<512, simd_backend::neon> {
+// Traits for NEON 512-bit operations
+struct neon_512_traits {
     static BITCAL_FORCEINLINE void bit_and(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         neon::bit_and_512(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_or(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         neon::bit_or_512(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_xor(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         neon::bit_xor_512(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void bit_not(const uint64_t* in, uint64_t* out) noexcept {
         neon::bit_not_512(in, out);
     }
-
     static BITCAL_FORCEINLINE void bit_andnot(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
         neon::bit_andnot_512(a, b, out);
     }
-
     static BITCAL_FORCEINLINE void shift_left(uint64_t* data, int count) noexcept {
         neon::shift_left_512(data, count);
     }
-
     static BITCAL_FORCEINLINE void shift_right(uint64_t* data, int count) noexcept {
         neon::shift_right_512(data, count);
     }
-
     static BITCAL_FORCEINLINE bool is_zero(const uint64_t* data) noexcept {
         return neon::is_zero_512(data);
     }
-
     static BITCAL_FORCEINLINE bool all(const uint64_t* data) noexcept {
         return neon::all_512(data);
     }
-
     static BITCAL_FORCEINLINE bool equals(const uint64_t* a, const uint64_t* b) noexcept {
         return neon::equals_512(a, b);
     }
-
     static BITCAL_FORCEINLINE uint64_t popcount(const uint64_t* data) noexcept {
         return scalar::popcount_array<8>(data);
     }
 };
+
+} // namespace detail
+
+template<>
+struct ops<128, simd_backend::neon> : detail::simd_ops_base<detail::neon_128_traits> {};
+
+template<>
+struct ops<256, simd_backend::neon> : detail::simd_ops_base<detail::neon_256_traits> {};
+
+template<>
+struct ops<512, simd_backend::neon> : detail::simd_ops_base<detail::neon_512_traits> {};
 
 #endif // BITCAL_HAS_NEON
 
