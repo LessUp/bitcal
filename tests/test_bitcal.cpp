@@ -1032,6 +1032,112 @@ bool test_small_width_backend_fallback_consistency() {
     return true;
 }
 
+// ========== Large-width 1024-bit fallback characterization test ==========
+
+bool test_large_width_1024_fallback_characterization() {
+    // Characterization test: verify that large bit widths (1024) that don't have
+    // dedicated SIMD optimizations fall back to scalar consistently across all backends.
+    // This test locks the behavior before production refactor.
+    
+    // Create scalar 1024-bit reference
+    using scalar_bit1024 = bitcal::bitarray<1024, bitcal::simd_backend::scalar>;
+    scalar_bit1024 scalar_ref;
+    
+    // Set representative bits at key positions: 0, 511, 1000
+    scalar_ref.set_bit(0, true);
+    scalar_ref.set_bit(511, true);
+    scalar_ref.set_bit(1000, true);
+    
+    // Verify initial state
+    ASSERT_EQ(scalar_ref.popcount(), 3ULL);
+    ASSERT_TRUE(scalar_ref.get_bit(0));
+    ASSERT_TRUE(scalar_ref.get_bit(511));
+    ASSERT_TRUE(scalar_ref.get_bit(1000));
+    ASSERT_TRUE(!scalar_ref.get_bit(1));    // Adjacent bit should not be set
+    ASSERT_TRUE(!scalar_ref.get_bit(510));
+    ASSERT_TRUE(!scalar_ref.get_bit(1001));
+
+#if BITCAL_HAS_SSE2
+    // SSE2 1024-bit should fall back to scalar
+    using sse2_bit1024 = bitcal::bitarray<1024, bitcal::simd_backend::sse2>;
+    sse2_bit1024 sse2_test;
+    sse2_test.set_bit(0, true);
+    sse2_test.set_bit(511, true);
+    sse2_test.set_bit(1000, true);
+    
+    // Verify SSE2 fallback produces same results
+    ASSERT_EQ(sse2_test.popcount(), scalar_ref.popcount());
+    ASSERT_EQ(sse2_test.get_bit(0), scalar_ref.get_bit(0));
+    ASSERT_EQ(sse2_test.get_bit(511), scalar_ref.get_bit(511));
+    ASSERT_EQ(sse2_test.get_bit(1000), scalar_ref.get_bit(1000));
+    
+    // Test shift operation on SSE2 variant
+    sse2_bit1024 sse2_shifted = sse2_test;
+    sse2_shifted.shift_left(5);
+    
+    scalar_bit1024 scalar_shifted = scalar_ref;
+    scalar_shifted.shift_left(5);
+    
+    ASSERT_EQ(sse2_shifted.popcount(), scalar_shifted.popcount());
+#endif
+
+#if BITCAL_HAS_AVX2
+    // AVX2 1024-bit should fall back to scalar
+    using avx2_bit1024 = bitcal::bitarray<1024, bitcal::simd_backend::avx2>;
+    avx2_bit1024 avx2_test;
+    avx2_test.set_bit(0, true);
+    avx2_test.set_bit(511, true);
+    avx2_test.set_bit(1000, true);
+    
+    // Verify AVX2 fallback produces same results
+    ASSERT_EQ(avx2_test.popcount(), scalar_ref.popcount());
+    ASSERT_EQ(avx2_test.get_bit(0), scalar_ref.get_bit(0));
+    ASSERT_EQ(avx2_test.get_bit(511), scalar_ref.get_bit(511));
+    ASSERT_EQ(avx2_test.get_bit(1000), scalar_ref.get_bit(1000));
+    
+    // Test shift operation on AVX2 variant
+    avx2_bit1024 avx2_shifted = avx2_test;
+    avx2_shifted.shift_right(3);
+    
+    scalar_bit1024 scalar_shifted_r = scalar_ref;
+    scalar_shifted_r.shift_right(3);
+    
+    ASSERT_EQ(avx2_shifted.popcount(), scalar_shifted_r.popcount());
+#endif
+
+#if BITCAL_HAS_AVX512
+    // AVX512 1024-bit should fall back to scalar
+    using avx512_bit1024 = bitcal::bitarray<1024, bitcal::simd_backend::avx512>;
+    avx512_bit1024 avx512_test;
+    avx512_test.set_bit(0, true);
+    avx512_test.set_bit(511, true);
+    avx512_test.set_bit(1000, true);
+    
+    // Verify AVX512 fallback produces same results
+    ASSERT_EQ(avx512_test.popcount(), scalar_ref.popcount());
+    ASSERT_EQ(avx512_test.get_bit(0), scalar_ref.get_bit(0));
+    ASSERT_EQ(avx512_test.get_bit(511), scalar_ref.get_bit(511));
+    ASSERT_EQ(avx512_test.get_bit(1000), scalar_ref.get_bit(1000));
+#endif
+
+#if BITCAL_HAS_NEON
+    // NEON 1024-bit should fall back to scalar
+    using neon_bit1024 = bitcal::bitarray<1024, bitcal::simd_backend::neon>;
+    neon_bit1024 neon_test;
+    neon_test.set_bit(0, true);
+    neon_test.set_bit(511, true);
+    neon_test.set_bit(1000, true);
+    
+    // Verify NEON fallback produces same results
+    ASSERT_EQ(neon_test.popcount(), scalar_ref.popcount());
+    ASSERT_EQ(neon_test.get_bit(0), scalar_ref.get_bit(0));
+    ASSERT_EQ(neon_test.get_bit(511), scalar_ref.get_bit(511));
+    ASSERT_EQ(neon_test.get_bit(1000), scalar_ref.get_bit(1000));
+#endif
+
+    return true;
+}
+
 // ========== Static assert validation tests ==========
 
 bool test_static_assert_validation() {
@@ -1332,6 +1438,9 @@ int main() {
     RUN_TEST(test_backend_consistency);
     RUN_TEST(test_cross_backend_consistency);
     RUN_TEST(test_small_width_backend_fallback_consistency);
+
+    std::cout << std::endl << "[Large-Width Fallback Characterization]" << std::endl;
+    RUN_TEST(test_large_width_1024_fallback_characterization);
 
     std::cout << std::endl << "[Retained Contract]" << std::endl;
     RUN_TEST(test_retained_public_contract);
