@@ -96,54 +96,32 @@ int main() {
 
     <section class="performance" style="background: var(--bg-secondary);">
         <div class="section-header">
-            <h2>Performance uplift (AVX2 vs scalar)</h2>
-            <p>Compile-time SIMD dispatch delivers significant speedups on supported hardware.</p>
+            <h2>Retained support boundaries</h2>
+            <p>BitCal 3.0 focuses on a credible, maintainable contract aligned with retained verification paths.</p>
         </div>
-        <div class="perf-container">
-            <div class="perf-item">
-                <div class="perf-info">
-                    <span class="perf-op">popcount</span>
-                    <span class="perf-speedup">5.2×</span>
-                </div>
-                <div class="perf-bar-bg">
-                    <div class="perf-bar" style="width: 87%"></div>
-                </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-layer-group"></i></div>
+                <h3>Fixed widths</h3>
+                <p><code>bit64</code>, <code>bit128</code>, <code>bit256</code>, <code>bit512</code>, <code>bit1024</code>—plus custom multiples of 64 bits.</p>
             </div>
-            <div class="perf-item">
-                <div class="perf-info">
-                    <span class="perf-op">leading_zeros</span>
-                    <span class="perf-speedup">4.1×</span>
-                </div>
-                <div class="perf-bar-bg">
-                    <div class="perf-bar" style="width: 68%"></div>
-                </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-microchip"></i></div>
+                <h3>SIMD dispatch</h3>
+                <p>Compile-time acceleration via SSE2/AVX/AVX2 on x86-64 and NEON on ARM, with portable scalar fallback.</p>
             </div>
-            <div class="perf-item">
-                <div class="perf-info">
-                    <span class="perf-op">shift operations</span>
-                    <span class="perf-speedup">3.8×</span>
-                </div>
-                <div class="perf-bar-bg">
-                    <div class="perf-bar" style="width: 63%"></div>
-                </div>
-            </div>
-            <div class="perf-item">
-                <div class="perf-info">
-                    <span class="perf-op">bitwise ops (AND/OR/XOR)</span>
-                    <span class="perf-speedup">6.0×</span>
-                </div>
-                <div class="perf-bar-bg">
-                    <div class="perf-bar" style="width: 100%"></div>
-                </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-file-code"></i></div>
+                <h3>Single include seam</h3>
+                <p>All public API accessible through <code>&lt;bitcal/bitcal.hpp&gt;</code>—no submodule dependencies or build configuration.</p>
             </div>
         </div>
-        <p class="perf-note">Benchmarks run on 256-bit vectors. Results vary by CPU, compiler, and workload.</p>
     </section>
 
     <section class="platform-matrix">
         <div class="section-header">
             <h2>Platform support</h2>
-            <p>All configurations tested in CI with sanitizers enabled.</p>
+            <p>BitCal is built and tested on Linux, Windows, and macOS. Verification scope is aligned with retained CI workflows.</p>
         </div>
         <div class="platform-table-wrap">
             <table class="platform-table">
@@ -187,11 +165,10 @@ int main() {
             <span class="simd-badge" title="x86 SIMD">SSE2</span>
             <span class="simd-badge" title="x86 SIMD">AVX</span>
             <span class="simd-badge" title="x86 SIMD">AVX2</span>
-            <span class="simd-badge" title="x86 SIMD (partial)">AVX-512*</span>
             <span class="simd-badge" title="ARM SIMD">NEON</span>
             <span class="simd-badge scalar" title="Portable fallback">Scalar</span>
         </div>
-        <p class="simd-note">* AVX-512 support is partial. Scalar fallback ensures portability everywhere.</p>
+        <p class="simd-note">Scalar fallback ensures portability everywhere.</p>
     </section>
 
     <section class="features">
