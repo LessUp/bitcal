@@ -1372,12 +1372,17 @@ bool test_popcount_edge_cases() {
     return true;
 }
 
-// ========== main ==========
+// ========== Theme-based test runners ==========
 
-int main() {
-    std::cout << "=== BitCal Unit Tests ===" << std::endl;
+void run_retained_contract_tests() {
+    std::cout << std::endl << "=== [Retained Public Contract] ===" << std::endl;
+    RUN_TEST(test_retained_public_contract);
+}
 
-    std::cout << std::endl << "[64-bit]" << std::endl;
+void run_width_characterization_tests() {
+    std::cout << std::endl << "=== [Width Characterization] ===" << std::endl;
+    
+    std::cout << std::endl << "  [64-bit]" << std::endl;
     RUN_TEST(test_bit64_basic);
     RUN_TEST(test_bit64_shift_left);
     RUN_TEST(test_bit64_shift_right);
@@ -1388,14 +1393,14 @@ int main() {
     RUN_TEST(test_bit64_reverse);
     RUN_TEST(test_bit64_compound_assignment);
 
-    std::cout << std::endl << "[128-bit]" << std::endl;
+    std::cout << std::endl << "  [128-bit]" << std::endl;
     RUN_TEST(test_bit128_basic);
     RUN_TEST(test_bit128_shift_left);
     RUN_TEST(test_bit128_shift_right);
     RUN_TEST(test_bit128_shift_cross_carry);
     RUN_TEST(test_bit128_bitwise_ops);
 
-    std::cout << std::endl << "[256-bit]" << std::endl;
+    std::cout << std::endl << "  [256-bit]" << std::endl;
     RUN_TEST(test_bit256_basic);
     RUN_TEST(test_bit256_shift_128);
     RUN_TEST(test_bit256_shift_cross_carry);
@@ -1404,12 +1409,12 @@ int main() {
     RUN_TEST(test_bit256_equality);
     RUN_TEST(test_reverse_256);
 
-    std::cout << std::endl << "[512-bit]" << std::endl;
+    std::cout << std::endl << "  [512-bit]" << std::endl;
     RUN_TEST(test_bit512_basic);
     RUN_TEST(test_bit512_shift_cross_carry);
     RUN_TEST(test_bit512_shift_boundary);
 
-    std::cout << std::endl << "[1024-bit]" << std::endl;
+    std::cout << std::endl << "  [1024-bit]" << std::endl;
     RUN_TEST(test_bit1024_basic);
     RUN_TEST(test_bit1024_shift_cross_carry);
     RUN_TEST(test_bit1024_shift_boundary);
@@ -1417,52 +1422,80 @@ int main() {
     RUN_TEST(test_bit1024_bitwise_ops);
     RUN_TEST(test_bit1024_is_zero);
     RUN_TEST(test_bit1024_equality);
+}
 
-    std::cout << std::endl << "[ANDNOT]" << std::endl;
-    RUN_TEST(test_andnot_64);
-    RUN_TEST(test_andnot_256);
-
-    std::cout << std::endl << "[NOT]" << std::endl;
-    RUN_TEST(test_not_128);
-    RUN_TEST(test_not_256);
-
-    std::cout << std::endl << "[is_zero]" << std::endl;
-    RUN_TEST(test_is_zero_various);
-
-    std::cout << std::endl << "[Boundary Conditions]" << std::endl;
-    RUN_TEST(test_shift_boundary_conditions);
-    RUN_TEST(test_bitwise_mathematical_properties);
-    RUN_TEST(test_large_shifts);
-
-    std::cout << std::endl << "[Backend Consistency]" << std::endl;
+void run_backend_seam_tests() {
+    std::cout << std::endl << "=== [Backend Seam Characterization] ===" << std::endl;
     RUN_TEST(test_backend_consistency);
     RUN_TEST(test_cross_backend_consistency);
     RUN_TEST(test_small_width_backend_fallback_consistency);
+}
 
-    std::cout << std::endl << "[Large-Width Fallback Characterization]" << std::endl;
+void run_large_width_fallback_tests() {
+    std::cout << std::endl << "=== [Large-Width Scalar Fallback] ===" << std::endl;
     RUN_TEST(test_large_width_1024_fallback_characterization);
+}
 
-    std::cout << std::endl << "[Retained Contract]" << std::endl;
-    RUN_TEST(test_retained_public_contract);
-
-    std::cout << std::endl << "[Static Assert Validation]" << std::endl;
-    RUN_TEST(test_static_assert_validation);
-
-    std::cout << std::endl << "[Bit64 Specialization]" << std::endl;
+void run_bit64_specialization_tests() {
+    std::cout << std::endl << "=== [Bit64 Specialization & Default Backend] ===" << std::endl;
     RUN_TEST(test_bit64_specialization);
-
-    std::cout << std::endl << "[Default Backend Contract]" << std::endl;
     RUN_TEST(test_bit64_default_backend_contract);
+}
 
-    std::cout << std::endl << "[Abstract Shift Tests]" << std::endl;
+void run_abstract_shift_tests() {
+    std::cout << std::endl << "=== [Abstract Shift Tests] ===" << std::endl;
     RUN_TEST(test_abstract_shift_left);
     RUN_TEST(test_abstract_shift_right);
+}
 
-    std::cout << std::endl << "[Comprehensive Boundary Shifts]" << std::endl;
+void run_comprehensive_boundary_tests() {
+    std::cout << std::endl << "=== [Comprehensive Boundary Tests] ===" << std::endl;
+    RUN_TEST(test_shift_boundary_conditions);
+    RUN_TEST(test_bitwise_mathematical_properties);
+    RUN_TEST(test_large_shifts);
     RUN_TEST(test_comprehensive_shift_boundaries);
+}
 
-    std::cout << std::endl << "[Popcount Edge Cases]" << std::endl;
+void run_popcount_edge_tests() {
+    std::cout << std::endl << "=== [Popcount Edge Cases] ===" << std::endl;
     RUN_TEST(test_popcount_edge_cases);
+}
+
+void run_static_assert_tests() {
+    std::cout << std::endl << "=== [Static Assert Validation] ===" << std::endl;
+    RUN_TEST(test_static_assert_validation);
+}
+
+void run_miscellaneous_operations_tests() {
+    std::cout << std::endl << "=== [Miscellaneous Operations] ===" << std::endl;
+    
+    std::cout << std::endl << "  [ANDNOT]" << std::endl;
+    RUN_TEST(test_andnot_64);
+    RUN_TEST(test_andnot_256);
+
+    std::cout << std::endl << "  [NOT]" << std::endl;
+    RUN_TEST(test_not_128);
+    RUN_TEST(test_not_256);
+
+    std::cout << std::endl << "  [is_zero]" << std::endl;
+    RUN_TEST(test_is_zero_various);
+}
+
+// ========== main ==========
+
+int main() {
+    std::cout << "=== BitCal Unit Tests ===" << std::endl;
+
+    run_retained_contract_tests();
+    run_width_characterization_tests();
+    run_backend_seam_tests();
+    run_large_width_fallback_tests();
+    run_bit64_specialization_tests();
+    run_abstract_shift_tests();
+    run_comprehensive_boundary_tests();
+    run_popcount_edge_tests();
+    run_static_assert_tests();
+    run_miscellaneous_operations_tests();
 
     std::cout << std::endl << "==============================" << std::endl;
     std::cout << "Total: " << (g_pass + g_fail)
