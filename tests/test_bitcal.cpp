@@ -126,13 +126,6 @@ bool verify_zero_after_full_width_shift(size_t bit_width) {
     return true;
 }
 
-/// Verify constructed value has expected popcount
-template<typename BitArray, typename ValueType>
-bool verify_constructed_value_popcount(ValueType value, uint64_t expected_popcount) {
-    BitArray arr(value);
-    return arr.popcount() == expected_popcount;
-}
-
 /// Verify equality of constructed arrays
 template<typename BitArray>
 bool verify_equality_basics(uint64_t value_a, uint64_t value_b) {
