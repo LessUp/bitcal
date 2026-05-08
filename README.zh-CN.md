@@ -190,7 +190,7 @@ bitcal::bitarray<2048> custom;
 
 ## 🌍 平台支持
 
-**Linux**、**Windows**、**macOS**，支持 x86-64 与 ARM，C++17 或更高版本。版本历史见 [CHANGELOG.zh-CN.md](CHANGELOG.zh-CN.md)，CI 验证细节见[平台文档](https://lessup.github.io/bitcal/zh/architecture/platform-support.html)
+**Linux**、**Windows**、**macOS**，支持 x86-64 与 ARM，C++17 或更高版本。版本历史见 [CHANGELOG.zh-CN.md](CHANGELOG.zh-CN.md)，CI 验证细节见 [平台文档](https://lessup.github.io/bitcal/zh/architecture/platform-support.html)。
 
 ## 🤝 参与贡献
 

@@ -190,7 +190,7 @@ Complete documentation at **[https://lessup.github.io/bitcal/](https://lessup.gi
 
 ## 🌍 Platform Support
 
-**Linux**, **Windows**, **macOS** on x86-64 and ARM with C++17 or later. See [CHANGELOG.md](CHANGELOG.md) for version history and [platform docs](https://lessup.github.io/bitcal/en/architecture/platform-support.html) for CI validation details
+**Linux**, **Windows**, **macOS** on x86-64 and ARM with C++17 or later. See [CHANGELOG.md](CHANGELOG.md) for version history and [platform docs](https://lessup.github.io/bitcal/en/architecture/platform-support.html) for CI validation details.
 
 ## 🤝 Contributing
 
