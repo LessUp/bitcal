@@ -1,15 +1,15 @@
 # BitCal
 
 <p align="center">
-  <strong>Modern, Cross-Platform, SIMD-Accelerated Bit Manipulation Library for C++17</strong>
+  <strong>Header-Only C++17 Bit Manipulation Library with Compile-Time SIMD Dispatch</strong>
 </p>
 
 <p align="center">
   <a href="https://github.com/LessUp/bitcal/actions/workflows/ci.yml"><img src="https://github.com/LessUp/bitcal/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://lessup.github.io/bitcal/"><img src="https://img.shields.io/badge/docs-Doxygen-blue.svg" alt="Docs"></a>
+  <a href="https://lessup.github.io/bitcal/"><img src="https://img.shields.io/badge/docs-GitHub_Pages-blue.svg" alt="Docs"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
   <a href="https://en.cppreference.com/w/cpp/17"><img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg" alt="C++17"></a>
-  <a href="#installation"><img src="https://img.shields.io/badge/header--only-yes-green.svg" alt="Header-only"></a>
+  <a href="#-installation"><img src="https://img.shields.io/badge/header--only-yes-green.svg" alt="Header-only"></a>
   <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/version-3.0.0-blue.svg" alt="Version"></a>
 </p>
 
@@ -21,7 +21,7 @@
 
 ## Overview
 
-**BitCal** is a modern, high-performance C++17 header-only library for bit manipulation operations with automatic SIMD acceleration. Leveraging compile-time dispatch via `if constexpr`, BitCal delivers up to **6× performance improvement** over scalar implementations while maintaining zero runtime overhead.
+**BitCal** is a C++17 header-only library for bit manipulation with compile-time SIMD dispatch. It provides the retained `<bitcal/bitcal.hpp>` public surface with `bitarray` template, automatic backend selection (SSE2/AVX2/NEON/scalar), and portable fallback. BitCal 3.0 is in stable maintenance with an archive-ready posture.
 
 ```cpp
 #include <bitcal/bitcal.hpp>
@@ -39,39 +39,24 @@ int main() {
 
 ## ✨ Features
 
-| Feature | Description | Performance Impact |
-|---------|-------------|-------------------|
-| 🚀 **SIMD Acceleration** | Automatic SSE2/AVX2 (x86) or NEON (ARM) selection | Up to 6× faster |
-| ⚡ **Zero Overhead** | Compile-time dispatch with `if constexpr` | No runtime cost |
-| 📦 **Header-Only** | Single `#include <bitcal/bitcal.hpp>` | Zero dependencies |
-| 🔧 **Rich API** | Bitwise ops, shifts, popcount, CLZ/CTZ, bit reversal, ANDNOT | Production-ready |
-| 🌍 **Cross-Platform** | Linux, Windows, macOS on x86-64 and ARM | Universal support |
-| 🏎️ **Type Safety** | Compile-time bit-width validation (`Bits % 64 == 0`) | Catch errors early |
-
-<details>
-<summary>📋 Table of Contents</summary>
-
-- [Installation](#-installation)
-- [Quick Start](#-quick-start)
-- [API Overview](#-api-overview)
-- [Use Cases](#-use-cases)
-- [Performance](#-performance)
-- [Documentation](#-documentation)
-- [Platform Support](#-platform-support)
-- [Build Instructions](#-build-instructions)
-- [Project Structure](#-project-structure)
-</details>
+- **Header-Only**: Single `#include <bitcal/bitcal.hpp>` with zero external dependencies
+- **Compile-Time SIMD Dispatch**: `if constexpr` selects SSE2/AVX2 (x86), NEON (ARM), or portable scalar fallback at compile time
+- **Retained Public Surface**: `bitarray<Bits>` template with member functions for all operations
+- **Rich API**: Bitwise ops, shifts, popcount, CLZ/CTZ, bit reversal, ANDNOT, single-bit manipulation
+- **Cross-Platform**: Linux, Windows, macOS on x86-64 and ARM
+- **Type-Safe**: Compile-time bit-width validation (`Bits % 64 == 0`)
+- **Stable Maintenance**: 3.0 contract is frozen; archive-ready posture
 
 ## ⚠️ Breaking Changes in 3.0.0
 
-BitCal 3.0.0 contracts the public API around the retained `bitarray` surface.
+BitCal 3.0.0 contracts the public API to the retained `bitarray` surface:
 
-- Removed public raw-pointer helpers under `bitcal::ops`
-- Removed public traits `is_bitarray`, `is_bitarray_v`, and `bitarray_traits`
+- Removed public `bitcal::ops` raw-pointer helpers
+- Removed public traits: `is_bitarray`, `is_bitarray_v`, `bitarray_traits`
 - Removed explicit `bit64` conversion convenience from the public contract
-- Prefer `bitarray` member functions for operations and `word()` / `set_word()` for adapting existing word buffers
+- Migration: Use `bitarray` member functions; adapt existing `uint64_t` buffers via `word()` / `set_word()`
 
-See [CHANGELOG.md](CHANGELOG.md) and the API reference for migration details.
+See [CHANGELOG.md](CHANGELOG.md) and the [API reference](https://lessup.github.io/bitcal/) for full migration details.
 
 ## 🚀 Installation
 
@@ -267,235 +252,86 @@ bitcal::bitarray<256, bitcal::simd_backend::scalar> force_scalar;
 
 ## 💡 Use Cases
 
-BitCal excels in scenarios requiring high-performance bit manipulation:
+BitCal is suitable for:
 
-| Use Case | Description | Benefit |
-|----------|-------------|---------|
-| **Bitsets** | Compact boolean storage | 64× space reduction vs `bool[]` |
-| **Bloom Filters** | Probabilistic data structures | SIMD-accelerated hash mixing |
-| **Network Masks** | CIDR/subnet calculations | Fast AND/OR on large masks |
-| **Cryptography** | Block cipher bit ops | Hardware popcount for Hamming distance |
-| **Data Compression** | Bit packing/unpacking | Efficient cross-word shifts |
-| **Graphics** | Mask operations | Parallel processing of pixel masks |
+- **Bitsets**: Compact boolean storage (64× space reduction vs `bool[]`)
+- **Bloom filters**: Probabilistic data structures with SIMD-accelerated hash mixing
+- **Network masks**: Fast CIDR/subnet calculations
+- **Cryptography**: Block cipher bit operations with hardware popcount
+- **Data compression**: Efficient bit packing/unpacking with cross-word shifts
+- **Graphics**: Parallel processing of pixel masks
 
 See [`examples/`](examples/) for concrete implementations.
 
-```cpp
-// Example: Fast CIDR mask generation
-bitcal::bit256 make_mask(int prefix_len) {
-    if (prefix_len <= 0) return bitcal::bit256(0);
-    if (prefix_len >= 256) return ~bitcal::bit256(0);
-
-    // Calculate whole words and remaining bits
-    int whole_words = prefix_len / 64;
-    int remain_bits = prefix_len % 64;
-
-    bitcal::bit256 mask;
-
-    // Fill whole words with ones
-    for (int i = 0; i < whole_words; ++i) {
-        mask.set_word(3 - i, UINT64_MAX);  // Big-endian word order for CIDR
-    }
-
-    // Set remaining bits in the next word
-    if (remain_bits > 0) {
-        mask.set_word(3 - whole_words, UINT64_MAX << (64 - remain_bits));
-    }
-
-    return mask;
-}
-```
-
 ## 📊 Performance
 
-### Compiler Flags
+BitCal uses compile-time SIMD dispatch to accelerate bit operations on supported platforms. Actual performance varies by CPU, operation type, and compiler optimization settings.
 
-For optimal performance, use these compiler flags:
+For optimal performance:
 
 ```bash
-# GCC/Clang
-g++ -std=c++17 -O3 -march=native -DNDEBUG
+# GCC/Clang: Enable all CPU features and maximum optimization
+g++ -std=c++17 -O3 -march=native -DNDEBUG your_program.cpp
 
-# MSVC
-cl /std:c++17 /O2 /arch:AVX2 /DNDEBUG
+# MSVC: Enable AVX2 and maximum optimization
+cl /std:c++17 /O2 /arch:AVX2 /DNDEBUG your_program.cpp
 ```
 
-| Flag | Purpose |
-|------|---------|
-| `-O3` | Maximum optimization |
-| `-march=native` | Enable all CPU features |
-| `-DNDEBUG` | Remove assertions in release |
-
-### Benchmark Results
-
-#### Intel Core i7-12700K @ 3.6GHz (AVX2)
-
-| Operation | Scalar | AVX2 | Speedup |
-|-----------|--------|------|---------|
-| AND-256 | 12.3 ns | 2.1 ns | **5.9×** |
-| XOR-512 | 24.8 ns | 4.3 ns | **5.8×** |
-| Shift Left-256 | 18.6 ns | 5.2 ns | **3.6×** |
-| Popcount-512 | 45.2 ns | 22.3 ns | **2.0×** |
-| is_zero-256 | 4.5 ns | 1.8 ns | **2.5×** |
-
-#### ARM Cortex-A72 @ 2.0GHz (NEON)
-
-| Operation | Scalar | NEON | Speedup |
-|-----------|--------|------|---------|
-| AND-128 | 8.4 ns | 3.2 ns | **2.6×** |
-| XOR-256 | 16.9 ns | 6.8 ns | **2.5×** |
-| Shift Left-128 | 12.3 ns | 6.8 ns | **1.8×** |
-
-> 📈 Run `./benchmarks/bench_bitcal` in your environment to see actual numbers.
-
-### SIMD Backend Selection
-
-BitCal automatically selects the best backend based on compiler flags:
-
-| Platform | Backend | Width | Condition | Status |
-|----------|---------|-------|-----------|--------|
-| x86-64 | AVX-512 | 512-bit | `-mavx512f` available | Partial support |
-| x86-64 | AVX2 | 256-bit | `-mavx2` available | Full support |
-| x86-64 | SSE2 | 128-bit | `-msse2` available | Full support |
-| ARM | NEON | 128-bit | ARMv7-A+ or ARM64 | Full support |
-| Any | Scalar | 64-bit | Fallback | Full support |
-
-> **Note:** AVX-512 support is currently partial. Core operations (AND, OR, XOR, NOT) use AVX-512, while other operations fall back to AVX2.
+Run `./benchmarks/bench_bitcal` in your environment to measure actual performance. Backend selection is automatic based on compiler flags and CPU features detected at compile time.
 
 ## 📚 Documentation
 
-### API Reference
+Full documentation and API reference: **[https://lessup.github.io/bitcal/](https://lessup.github.io/bitcal/)**
 
-| Topic | Description |
-|-------|-------------|
-| [Types](docs/en/api/types.md) | Retained `bitarray` template, aliases, and backend enum |
-| [Core Operations](docs/en/api/core-operations.md) | AND, OR, XOR, NOT, ANDNOT |
-| [Shift Operations](docs/en/api/shift-operations.md) | Left and right shifts |
-| [Bit Counting](docs/en/api/bit-counting.md) | popcount, CLZ, CTZ |
-| [Bit Manipulation](docs/en/api/bit-manipulation.md) | get/set/flip bits, reverse |
-| [SIMD Backend](docs/en/api/simd-backend.md) | Backend selection |
-
-### Architecture
-
-- [Overview](docs/en/architecture/overview.md) - Design principles
-- [SIMD Dispatch](docs/en/architecture/simd-dispatch.md) - Compile-time selection
-- [Platform Support](docs/en/architecture/platform-support.md) - Compatibility matrix
-
-### Getting Started
-
-- [Installation Guide](docs/en/getting-started/installation.md)
-- [Quick Start](docs/en/getting-started/quickstart.md)
-- [Build Options](docs/en/getting-started/build-options.md)
-
-## 🔒 Safety Guarantees
-
-| Aspect | Guarantee | Notes |
-|--------|-----------|-------|
-| **Exception Safety** | `noexcept` on all hot-path operations | No exceptions thrown from bit operations |
-| **Bounds Checking** | `assert()` in debug builds | Use `NDEBUG` for release builds |
-| **Thread Safety** | Thread-compatible | Different instances: ✅ safe<br>Same instance, read-only: ✅ safe<br>Same instance, read+write: ❌ requires synchronization |
-| **Memory Safety** | Width-aware alignment, no heap allocation | 8/16/32/64-byte alignment depending on bit width |
-
-Full documentation: [https://lessup.github.io/bitcal/](https://lessup.github.io/bitcal/)
+Key topics:
+- [API Reference](https://lessup.github.io/bitcal/en/api/) — Types, operations, backend selection
+- [Architecture](https://lessup.github.io/bitcal/en/architecture/) — Design principles, SIMD dispatch, platform support
+- [Getting Started](https://lessup.github.io/bitcal/en/getting-started/) — Installation, quick start, build options
 
 ## 🌍 Platform Support
 
-| Platform | Architecture | Compilers | SIMD | CI Status |
-|----------|--------------|-----------|------|-----------|
-| Linux | x86-64 | GCC 7+, Clang 6+ | SSE2/AVX2 | ✅ Verified |
-| Linux | ARM64 | GCC (cross) | NEON | ✅ Verified |
-| Linux | ARM32 | GCC (cross) | NEON | ✅ Verified |
-| Windows | x86-64 | MSVC 2017+ | SSE2/AVX2 | ✅ Verified |
-| macOS | x86-64 | Apple Clang | SSE2/AVX2 | ✅ Verified |
-| macOS | ARM64 (Apple Silicon) | Apple Clang | NEON | ✅ Verified |
+BitCal supports:
 
-### Requirements
+- **Linux**: x86-64 and ARM (32/64-bit) with GCC 7+ or Clang 6+
+- **Windows**: x86-64 with MSVC 2017+ or MinGW
+- **macOS**: x86-64 and ARM64 (Apple Silicon) with Apple Clang
 
-- **C++17** or later
-- **CMake 3.16+** (for building tests/benchmarks)
-- **Supported Compilers**: GCC 7+, Clang 6+, MSVC 2017+
+**Requirements**: C++17 or later; CMake 3.16+ for building tests/benchmarks
 
-## 🔨 Build Instructions
+All platforms are validated in CI. See [platform support docs](https://lessup.github.io/bitcal/en/architecture/platform-support.html) for details.
 
-### Build Tests and Benchmarks
+## 🔨 Build & Test
+
+BitCal is header-only; simply include `<bitcal/bitcal.hpp>`. To build and run tests:
 
 ```bash
 mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j$(nproc)
-
-# Run tests
+cmake .. -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON
+cmake --build . -j$(nproc)
 ./tests/test_bitcal
-
-# Run benchmarks
-./benchmarks/bench_bitcal
 ```
 
-### Install System-Wide
+For benchmarks, add `-DBITCAL_BUILD_EXAMPLES=ON` and run `./benchmarks/bench_bitcal`.
 
-```bash
-cmake --install . --prefix /usr/local
-```
-
-## 🏗️ Project Structure
-
-```
-bitcal/
-├── include/bitcal/       # Header files (header-only library)
-│   ├── bitcal.hpp        # Stable public include umbrella header
-│   ├── bitarray.hpp      # Implementation header with bitarray template
-│   ├── config.hpp        # Platform detection and backend enum
-│   ├── backend_ops.hpp   # Backend dispatch glue
-│   ├── scalar_ops.hpp    # Scalar fallback
-│   ├── sse_ops.hpp       # SSE2 implementation
-│   ├── avx_ops.hpp       # AVX2 implementation
-│   ├── avx512_ops.hpp    # AVX-512 support
-│   └── neon_ops.hpp      # NEON implementation
-├── docs/                 # Documentation
-│   ├── en/               # English docs
-│   └── zh/               # 中文文档
-├── tests/                # Unit tests
-├── benchmarks/           # Performance benchmarks
-└── examples/             # Example programs
-```
-
-### Memory Layout
-
-```
-bitarray<256> memory layout:
-┌──────────────────────────────────────────────────────────┐
-│ Alignment │ Word 0 │ Word 1 │ Word 2 │ Word 3 │ Padding │
-│ 32 bytes  │ 0-63   │ 64-127 │128-191 │192-255 │ to 32B  │
-└──────────────────────────────────────────────────────────┘
-```
-
-- **Alignment:** 32 bytes for `bitarray<256>` (width-aware alignment overall)
-- **Endianness:** Little-endian (LSB in `data()[0]`)
-- **Storage:** Contiguous `uint64_t` array
-
-## 📝 Changelog
+## 📝 Changelog & Version History
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
 
-### Latest Release: v3.0.0 (2026-05-08)
+**Current stable release: 3.0.0** (2026-05-08)
 
-- ⚠️ **Breaking:** Removed public `bitcal::ops`, `is_bitarray`, `is_bitarray_v`, and `bitarray_traits`
-- 🔁 **Migration:** Use `bitarray` member functions plus `word()` / `set_word()` for buffer adaptation
-- 📚 **Docs:** API reference now documents only the retained 3.0 public surface
-- 📦 **Packaging:** Install snippets and package metadata now pin to `v3.0.0`
+- Contracted public API to retained `bitarray` surface
+- Removed `bitcal::ops`, type traits, and `bit64` conversion helpers
+- Stable maintenance posture; breaking changes require major version bump
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome within the 3.0 contract boundary. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+For significant API changes or architectural shifts, please open an issue first to discuss scope and impact.
 
 ## 📄 License
 
 MIT License — see [LICENSE](LICENSE) for details.
-
-## 🙏 Acknowledgments
-
-- Design inspired by [Boost.SIMD](https://github.com/boostorg/simd) and [xsimd](https://github.com/xtensor-stack/xsimd)
-- Performance testing with [Google Benchmark](https://github.com/google/benchmark)
 
 ---
 
