@@ -41,8 +41,8 @@ BitCal 以较小的公开表面封装后端实现细节：
 
 ```
 include/bitcal/
-├── bitcal.hpp              # 公开聚合头文件
-├── bitarray.hpp            # 公开 bitarray 模板
+├── bitcal.hpp              # 稳定公开聚合头文件
+├── bitarray.hpp            # bitarray 模板的实现头文件
 ├── config.hpp              # 版本宏、后端枚举、平台检测
 ├── backend_ops.hpp         # 位宽/后端分派胶水层
 ├── scalar_ops.hpp          # 标量回退实现
@@ -52,7 +52,7 @@ include/bitcal/
 └── neon_ops.hpp            # ARM NEON 实现
 ```
 
-**稳定公开 include seam：** `bitcal.hpp`。`bitarray.hpp` 与 `config.hpp` 属于物理实现头布局，不是额外保留的公开入口。
+**稳定公开 include seam：** `bitcal.hpp`。`bitarray.hpp` 与 `config.hpp` 是实现头文件，不是额外保留的公开入口。
 
 ---
 

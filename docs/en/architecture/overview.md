@@ -41,8 +41,8 @@ BitCal keeps a small public surface over backend-specific implementation code:
 
 ```
 include/bitcal/
-├── bitcal.hpp              # Public umbrella header
-├── bitarray.hpp            # Public bitarray template
+├── bitcal.hpp              # Stable public umbrella header
+├── bitarray.hpp            # Implementation header with bitarray template
 ├── config.hpp              # Version macros, backend enum, platform detection
 ├── backend_ops.hpp         # Width/backend dispatch glue
 ├── scalar_ops.hpp          # Scalar fallback implementation
@@ -52,7 +52,7 @@ include/bitcal/
 └── neon_ops.hpp            # ARM NEON implementation
 ```
 
-**Stable public include seam:** `bitcal.hpp`. `bitarray.hpp` and `config.hpp` are physical headers in the implementation layout, not additional retained entry points.
+**Stable public include seam:** `bitcal.hpp`. `bitarray.hpp` and `config.hpp` are implementation headers, not additional retained entry points.
 
 ---
 

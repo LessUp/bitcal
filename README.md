@@ -442,9 +442,9 @@ cmake --install . --prefix /usr/local
 ```
 bitcal/
 ├── include/bitcal/       # Header files (header-only library)
-│   ├── bitcal.hpp        # Main header (include this)
-│   ├── bitarray.hpp      # Core public bitarray template
-│   ├── config.hpp        # Platform detection
+│   ├── bitcal.hpp        # Stable public include umbrella header
+│   ├── bitarray.hpp      # Implementation header with bitarray template
+│   ├── config.hpp        # Platform detection and backend enum
 │   ├── backend_ops.hpp   # Backend dispatch glue
 │   ├── scalar_ops.hpp    # Scalar fallback
 │   ├── sse_ops.hpp       # SSE2 implementation

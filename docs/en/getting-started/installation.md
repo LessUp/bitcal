@@ -293,7 +293,6 @@ Type Information:
 
 ```cpp
 #include <bitcal/bitcal.hpp>
-#include <bitcal/config.hpp>
 #include <iostream>
 
 int main() {

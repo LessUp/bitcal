@@ -444,9 +444,9 @@ cmake --install . --prefix /usr/local
 ```
 bitcal/
 ├── include/bitcal/       # 头文件（纯头文件库）
-│   ├── bitcal.hpp        # 主头文件（包含这个）
-│   ├── bitarray.hpp      # 核心公开 bitarray 模板
-│   ├── config.hpp        # 平台检测
+│   ├── bitcal.hpp        # 稳定公开 include 聚合头文件
+│   ├── bitarray.hpp      # bitarray 模板的实现头文件
+│   ├── config.hpp        # 平台检测与后端枚举
 │   ├── backend_ops.hpp   # 后端分派胶水层
 │   ├── scalar_ops.hpp    # 标量回退实现
 │   ├── sse_ops.hpp       # SSE2 实现

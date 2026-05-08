@@ -19,8 +19,8 @@ All retained public APIs live in the `bitcal` namespace.
 `<bitcal/bitcal.hpp>` is the only stable public include seam.
 
 Implementation notes:
-- The retained `bitarray` definition is planned to live in `include/bitcal/bitarray.hpp`.
-- `bitcal/bitarray.hpp`, `config.hpp`, `backend_ops.hpp`, and `scalar_ops.hpp` are not separate stable include contracts.
+- The retained `bitarray` definition lives in `include/bitcal/bitarray.hpp`.
+- `bitcal/bitarray.hpp`, `config.hpp`, `backend_ops.hpp`, and `scalar_ops.hpp` are implementation headers, not separate stable include contracts.
 - Documentation and examples must present the umbrella header as the supported consumption path.
 
 ## Retained Core Types
