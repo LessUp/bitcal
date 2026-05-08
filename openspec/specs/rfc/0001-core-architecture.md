@@ -2,192 +2,136 @@
 
 ## Status
 
-**Accepted** - Implemented in v2.0 and v2.1
+**Accepted** - revised to describe the retained public-surface contraction planned for v3.0.0.
 
 ## Context
 
-BitCal v1.x used an object-oriented inheritance design with runtime dispatch:
+BitCal v2.x evolved into a header-only template library, but the documented architecture drifted away from the repository:
+- the implementation no longer uses `simd_traits.hpp`
+- backend dispatch is centralized in `backend_ops.hpp`
+- the documented backend list still mentions a public `AVX` transitional backend that the implementation no longer exposes
+- `bitcal.hpp` currently mixes retained public API and removable helper surface in a single header
 
-```cpp
-// Old design (v1.x)
-class BitCalBase { virtual uint64_t bitAnd64(...) = 0; };
-class BitCalGpr : public BitCalBase { ... };
-class BitCalXmm : public BitCalBase { ... };
-
-// Runtime dispatch with singleton
-BitCal::getInstance().bitAnd64(a, b);  // Virtual function overhead
-```
-
-This design had several limitations:
-- Virtual function call overhead on every operation
-- Runtime backend selection
-- Difficult to compile for specific SIMD widths
-- Required compilation (not header-only)
-- Complex inheritance hierarchy
+The v3.0.0 contraction keeps the compile-time SIMD architecture, but narrows the public seam and clarifies the internal layering.
 
 ## Decision
 
-Redesign to use C++17 templates with compile-time dispatch:
+BitCal retains a compile-time `bitarray` architecture with a contracted public seam:
 
 ```cpp
-// New design (v2.x)
 template<size_t Bits, simd_backend Backend = get_default_backend()>
-class bitarray { ... };
-
-// Compile-time dispatch - zero overhead
-bitcal::bit256 a, b;
-auto c = a & b;  // Inlined to optimal SIMD instructions
+class bitarray;
 ```
 
 ### Architecture Layers
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
-│                    User API Layer                           │
-│  bitarray<N>, Operators, Type Aliases (bit64, bit256, etc.) │
+│ Stable Public Include Layer                                │
+│  bitcal/bitcal.hpp                                         │
 ├─────────────────────────────────────────────────────────────┤
-│                 Compile-Time Dispatch Layer                 │
-│  if constexpr, Traits, Backend Selection                    │
+│ Retained Public Type Layer                                 │
+│  bitarray<Bits, Backend>, stable aliases, retained methods │
+│  (planned physical home: include/bitcal/bitarray.hpp)      │
 ├─────────────────────────────────────────────────────────────┤
-│                   SIMD Implementation Layer                 │
-│  ├── scalar_ops.hpp  (Portable fallback)                    │
-│  ├── sse_ops.hpp     (x86 SSE2 128-bit)                     │
-│  ├── avx_ops.hpp     (x86 AVX2 256-bit)                     │
-│  └── neon_ops.hpp    (ARM NEON 128-bit)                     │
+│ Backend Selection / Dispatch Layer                         │
+│  config.hpp, backend_ops.hpp, scalar_ops.hpp               │
 ├─────────────────────────────────────────────────────────────┤
-│                   Hardware Instruction Layer                │
-│  SSE2 / AVX / AVX2 / AVX-512 / NEON / Scalar                │
+│ Hardware Instruction Layer                                 │
+│  Scalar / SSE2 / AVX2 / AVX-512 / NEON                     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### File Structure
+### File Structure (contract target)
 
-```
+```text
 include/bitcal/
-├── config.hpp              # Platform detection macros, simd_backend enum
-├── simd_traits.hpp         # SIMD register width, alignment requirements
-├── scalar_ops.hpp          # Portable scalar implementation (baseline)
-├── sse_ops.hpp             # x86 SSE2 128-bit operations
-├── avx_ops.hpp             # x86 AVX2 256-bit operations
-├── neon_ops.hpp            # ARM NEON 128-bit operations
-└── bitcal.hpp              # Main header: aggregates all + bitarray class
+├── bitcal.hpp        # only stable public include
+├── bitarray.hpp      # retained bitarray contract definition
+├── config.hpp        # backend enum, default selection, alignment helpers
+├── backend_ops.hpp   # internal backend dispatch implementations
+└── scalar_ops.hpp    # scalar helpers and fallbacks
 ```
 
-### Key Design Decisions
+Notes:
+- `bitarray.hpp` is part of the retained implementation layering, but the stable include seam remains `bitcal.hpp`.
+- `backend_ops.hpp`, `scalar_ops.hpp`, and `config.hpp` may be described architecturally without becoming separate stable public include promises.
+- `simd_traits.hpp` is not part of the retained architecture description.
 
-#### 1. Template-Based Design
+## Key Design Decisions
+
+### 1. Template-based fixed-width type
 
 ```cpp
 template<size_t Bits, simd_backend Backend>
 class bitarray {
-    alignas(64) uint64_t data_[Bits / 64];
-    // ...
+    // fixed-width contiguous word storage
 };
 ```
 
 **Rationale:**
-- Enables compile-time optimization
-- Type safety through template parameters
-- Allows static assertions for validation
+- preserves compile-time optimization and zero-overhead dispatch
+- keeps width and backend encoded in the type
+- supports a small, explicit retained public API surface
 
-#### 2. Compile-Time Backend Selection
+### 2. Compile-time backend selection
 
-```cpp
-template<size_t Bits>
-constexpr simd_backend select_best_backend() {
-    #if defined(BITCAL_HAS_AVX2) && Bits >= 256
-        return simd_backend::avx2;
-    #elif defined(BITCAL_HAS_SSE2) && Bits >= 128
-        return simd_backend::sse2;
-    #elif defined(BITCAL_HAS_NEON) && Bits >= 128
-        return simd_backend::neon;
-    #else
-        return simd_backend::scalar;
-    #endif
-}
-```
+The retained backend selection order is:
+
+`avx512 -> avx2 -> sse2 -> neon -> scalar`
+
+There is no separate retained `simd_backend::avx` contract.
 
 **Rationale:**
-- Zero runtime overhead
-- Optimal code generation for target platform
-- Graceful fallback when SIMD not available
+- matches the actual enum exposed by `config.hpp`
+- avoids documenting non-existent or transitional backend states
+- keeps public claims aligned with implementation and tests
 
-#### 3. Memory Layout
+### 3. Contracted public seam
 
-```
-bitarray<256, avx2> memory representation:
-┌──────────────────────────────────────────────────────────────────────┐
-│ Alignment  │  Word 0   │  Word 1   │  Word 2   │  Word 3   │ Padding │
-│  64 bytes  │ bits 0-63 │bits 64-127│bits 128-191│bits 192-255│to 64B  │
-└──────────────────────────────────────────────────────────────────────┘
-                    Little-endian: word 0 holds LSB
-```
+- `bitcal/bitcal.hpp` remains the only stable public include.
+- The retained `bitarray` API is separated from removable helper APIs.
+- Helper namespaces, traits, and undocumented convenience methods no longer define the architectural contract.
 
 **Rationale:**
-- 64-byte alignment matches x86 cache line size
-- Contiguous storage enables interoperability with C APIs
-- Little-endian ordering for consistency across platforms
+- narrows the compatibility boundary
+- allows future internal refactors without expanding the public include promise
+- keeps API docs consistent with the retained product posture
 
-#### 4. Forced Inlining
+### 4. Storage contract
 
-```cpp
-#define BITCAL_FORCEINLINE inline __attribute__((always_inline))
-
-class bitarray {
-    BITCAL_FORCEINLINE bitarray operator&(const bitarray& other) const {
-        // ...
-    }
-};
-```
+The retained architecture promises contiguous `uint64_t` word storage with backend-appropriate alignment, not universal 64-byte alignment for every instantiation.
 
 **Rationale:**
-- Eliminates function call overhead
-- Enables compiler to optimize across abstraction boundaries
+- reflects the current width-sensitive alignment logic
+- avoids over-promising memory layout details the implementation does not guarantee uniformly
 
 ## Consequences
 
 ### Positive
-- **Performance:** 5-6× speedup for 256-bit operations (AVX2)
-- **Zero Overhead:** No runtime dispatch cost
-- **Header-Only:** No compilation required for use
-- **Type Safety:** Compile-time validation of bit widths
-- **Simplicity:** Operator overloading provides intuitive API
+- Smaller and clearer retained public surface
+- Architecture docs match current backend naming and file responsibilities
+- Easier to keep API, tests, and docs synchronized around one public seam
 
 ### Trade-offs
-- **Compile Time:** Template instantiation can increase compile time for large projects
-- **Binary Size:** Multiple template instantiations may increase binary size
-- **AVX-512:** Not yet natively supported (falls back to AVX2)
+- 3.0.0 becomes an explicit breaking release
+- Existing consumers of helper APIs or direct internal-header includes need migration
+- The temporary implementation may lag behind the contracted spec until follow-up tasks complete
 
-### Migration Impact
+## Migration Impact
 
-Users must update from v1.x singleton pattern:
-
-```cpp
-// Old code (v1.x)
-uint64_t data[4];
-BitCal::getInstance().bitAnd256(data, other, result);
-
-// New code (v2.x)
-bitcal::bit256 data, other;
-auto result = data & other;
-```
+Consumers should plan for the following 2.x → 3.0.0 changes:
+- include through `<bitcal/bitcal.hpp>` only
+- rely on retained `bitarray` methods and stable aliases
+- stop depending on `bitcal::ops`, public type traits, or undocumented convenience helpers unless a future spec re-adds them
 
 ## Alternatives Considered
 
-### Alternative 1: Runtime Feature Detection
-- Detect CPU capabilities at runtime and select backend
-- **Rejected:** Runtime overhead, complexity
+### Alternative 1: Keep the current umbrella header as a broad compatibility bucket
+- **Rejected:** it preserves drift and forces BitCal to support helper APIs that were never intentionally stabilized.
 
-### Alternative 2: Policy-Based Design
-- Use policy templates for backend selection
-- **Rejected:** More complex for users, marginal benefit
+### Alternative 2: Make every header under `include/bitcal/` a stable public seam
+- **Rejected:** that would increase compatibility burden and block internal cleanup in a header-only library.
 
-### Alternative 3: Separate Types Per Backend
-- `bit256_scalar`, `bit256_sse`, `bit256_avx`
-- **Rejected:** Poor user experience, combinatorial explosion
-
-## References
-
-- [Architecture Overview](../../docs/architecture/overview.md)
-- [SIMD Dispatch](../../docs/architecture/simd-dispatch.md)
-- [Platform Support](../../docs/architecture/platform-support.md)
+### Alternative 3: Delay spec updates until after code refactors
+- **Rejected:** later tasks need a frozen contract first, otherwise tests, docs, and implementation would continue to drift.
