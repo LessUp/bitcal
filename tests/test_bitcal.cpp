@@ -238,6 +238,13 @@ static_assert(!has_test<bitcal::bit256>::value, "test should not remain public")
 static_assert(!has_size<bitcal::bit256>::value, "size should not remain public");
 static_assert(!has_explicit_uint64_conversion<bitcal::bit64>::value, "bit64 to uint64_t conversion should not remain public");
 
+// ============================================================================
+// RETAINED PUBLIC CONTRACT
+// ============================================================================
+// Core, minimal contract that must remain stable across all releases.
+// These define the baseline behavior that external code depends upon.
+// ============================================================================
+
 bool test_retained_public_contract() {
     bitcal::bit256 a;
     ASSERT_TRUE(a.is_zero());
@@ -265,18 +272,6 @@ bool test_retained_public_contract() {
     return true;
 }
 
-// ========== 64-bit tests ==========
-
-// ============================================================================
-// RETAINED PUBLIC CONTRACT
-// ============================================================================
-// Core, minimal contract that must remain stable across all releases.
-// These define the baseline behavior that external code depends upon.
-// ============================================================================
-
-
-
-
 // ============================================================================
 // CORE BEHAVIOR ACROSS WIDTHS
 // ============================================================================
@@ -285,8 +280,6 @@ bool test_retained_public_contract() {
 // ============================================================================
 
 // ---- 64-bit Core Behavior ----
-
-
 
 bool test_bit64_basic() {
     bitcal::bit64 a(0xDEADBEEFCAFEBABE);
@@ -418,8 +411,6 @@ bool test_bit64_compound_assignment() {
 
 // ---- 128-bit Core Behavior ----
 
-
-
 bool test_bit128_basic() {
     bitcal::bit128 a(0xDEADBEEF);
     // 使用 get_bit 验证低位 - DEADBEEF 的二进制
@@ -500,8 +491,6 @@ bool test_bit128_bitwise_ops() {
 
 
 // ---- 256-bit Core Behavior ----
-
-
 
 bool test_bit256_basic() {
     bitcal::bit256 a(0x123456789ABCDEF0ULL);
@@ -616,8 +605,6 @@ bool test_bit256_equality() {
 
 // ---- 512-bit Core Behavior ----
 
-
-
 bool test_bit512_basic() {
     bitcal::bit512 a(0xDEADBEEF);
     // 验证 popcount
@@ -672,8 +659,6 @@ bool test_bit512_shift_boundary() {
 
 
 // ---- 1024-bit Core Behavior ----
-
-
 
 bool test_bit1024_basic() {
     bitcal::bit1024 a(0xDEADBEEF);
