@@ -45,6 +45,10 @@ BitCal 的完整安装指南。
 
 ---
 
+## BitCal 3.0 提示
+
+BitCal 3.0.0 是破坏性版本。以下安装示例固定到保留的 `bitarray` 公开 API；`bitcal::ops`、`is_bitarray`、`is_bitarray_v` 与 `bitarray_traits` 已不再属于该发布线的公开接口。
+
 ## 安装方式
 
 ### 方式一：复制头文件（推荐）
@@ -124,7 +128,7 @@ include(FetchContent)
 FetchContent_Declare(
     bitcal
     GIT_REPOSITORY https://github.com/LessUp/bitcal.git
-    GIT_TAG v2.1.0  # 固定到特定版本
+    GIT_TAG v3.0.0  # 固定到特定版本
     GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(bitcal)
@@ -150,10 +154,10 @@ git submodule update --init
 
 # 固定到特定版本
 cd third_party/bitcal
-git checkout v2.1.0
+git checkout v3.0.0
 cd ../..
 git add third_party/bitcal
-git commit -m "添加 bitcal v2.1.0 子模块"
+git commit -m "添加 bitcal v3.0.0 子模块"
 ```
 
 **在 `CMakeLists.txt` 中：**
@@ -234,7 +238,7 @@ make -j$(nproc)
 #include <iostream>
 
 int main() {
-    std::cout << "BitCal v2.1.0 安装测试\n";
+    std::cout << "BitCal v3.0.0 安装测试\n";
     std::cout << "======================\n\n";
 
     // 测试基本运算
@@ -272,7 +276,7 @@ g++ -std=c++17 -O2 -march=native test_install.cpp -o test_install
 
 **预期输出：**
 ```
-BitCal v2.1.0 安装测试
+BitCal v3.0.0 安装测试
 ======================
 
 与运算: 16 个位被设置

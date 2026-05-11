@@ -44,13 +44,24 @@ if(BITCAL_NATIVE_ARCH)
     set(BITCAL_SIMD_FLAGS -march=native)
   elseif(MSVC)
     # /arch:AVX2 enables AVX/AVX2/SSE* on MSVC
-    include(CheckCXXCompilerFlag)
     check_cxx_compiler_flag("/arch:AVX2" BITCAL_MSVC_HAS_AVX2)
     if(BITCAL_MSVC_HAS_AVX2)
       set(BITCAL_SIMD_FLAGS /arch:AVX2)
     endif()
   endif()
 endif()
+
+# Helper function for dev targets (tests, examples, benchmarks).
+# Applies consistent C++17 requirement, bitcal linking, and optional SIMD flags.
+function(bitcal_setup_dev_target target_name)
+  target_link_libraries(${target_name} PRIVATE bitcal)
+  target_compile_features(${target_name} PRIVATE cxx_std_17)
+  # Explicit guard: SIMD flags are only applied when BITCAL_NATIVE_ARCH is enabled.
+  # This preserves the coupling between native arch settings and dev target optimization.
+  if(BITCAL_NATIVE_ARCH AND BITCAL_SIMD_FLAGS)
+    target_compile_options(${target_name} PRIVATE ${BITCAL_SIMD_FLAGS})
+  endif()
+endfunction()
 
 if(BITCAL_BUILD_TESTS)
   enable_testing()

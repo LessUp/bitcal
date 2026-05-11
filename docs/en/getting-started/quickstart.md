@@ -214,23 +214,22 @@ constexpr size_t bits = bitcal::bit256::bits;      // 256
 constexpr size_t words = bitcal::bit256::u64_count; // 4
 ```
 
-### 7. Low-level API (Ops Namespace)
+### 7. BitCal 3.0 Migration Notes
 
-For raw pointer operations without object overhead:
+BitCal 3.0 removes the old public raw-pointer and trait entry points.
 
 ```cpp
-#include <bitcal/ops.hpp>
+bitcal::bit256 arr;
+for (size_t i = 0; i < bitcal::bit256::u64_count; ++i) {
+    arr.set_word(i, source_words[i]);
+}
 
-uint64_t data[4] = {1, 2, 3, 4};
-
-// Functional API
-uint64_t ones = bitcal::ops::popcount<256>(data);
-int lz = bitcal::ops::count_leading_zeros<256>(data);
-
-// Utility functions
-uint64_t reversed = bitcal::ops::reverse_bits_64(0xF0F0F0F0);
-uint64_t swapped = bitcal::ops::byte_swap_64(0x12345678);
+uint64_t ones = arr.popcount();
+uint64_t first = arr.word(0);
 ```
+
+Use `bitarray` member functions for operations, `set_word()` to populate from existing buffers, and `word()` / `operator[]` for read-only extraction.
+
 
 ---
 

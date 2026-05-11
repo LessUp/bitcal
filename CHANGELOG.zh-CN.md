@@ -13,6 +13,33 @@
 
 ## [未发布]
 
+## [3.0.0] - 2026-05-08
+
+### ⚠️ 破坏性变更
+
+- 从受支持的公开 API 表面移除了 `bitcal::ops` 命名空间
+- 移除了公开 traits：`is_bitarray`、`is_bitarray_v`、`bitarray_traits`
+- 移除了公开契约中的显式 `bit64` 转换便捷入口
+- 文档已收敛为仅描述保留的 `bitarray` 公开 API
+
+### 🔁 迁移说明
+
+- 将 `bitcal::ops` 调用替换为 `bitarray` 成员函数，例如 `popcount()`、`count_leading_zeros()`、`count_trailing_zeros()`、`andnot()`、`reverse()`
+- 对已有 `uint64_t` 缓冲区使用 `set_word()` 赋值，使用 `word()` / `operator[]` 做只读提取
+- 删除对已移除公开 traits 的依赖，直接使用文档化的类型别名或模板参数
+
+### 📦 打包
+
+- 仓库安装示例与徽章已统一固定到 `v3.0.0`
+- `vcpkg.json` 包版本已更新为 `3.0.0`
+
+### 🔗 链接
+
+- **完整变更日志**: [v2.1.0...v3.0.0](https://github.com/LessUp/bitcal/compare/v2.1.0...v3.0.0)
+- **下载**: [v3.0.0 发布](https://github.com/LessUp/bitcal/releases/tag/v3.0.0)
+- **文档**: [文档入口](docs/zh/index.html)
+
+
 ## [2.1.0] - 2026-04-16
 
 ### 🚀 亮点
@@ -139,12 +166,14 @@ v1.x **不再维护**。用户应迁移到 v2.x。
 
 | 版本 | 日期 | 状态 | 亮点 |
 |------|------|------|------|
+| v3.0.0 | 2026-05-08 | ✅ 稳定 | 公开接口收口、迁移说明 |
 | v2.1.0 | 2026-04-16 | ✅ 稳定 | ANDNOT，性能提升 |
 | v2.0.0 | 2026-01-08 | ✅ 稳定 | 完全重写，纯头文件 |
 | v1.x | 2025 | ⚠️ 旧版 | 基于继承的设计 |
 
 ---
 
-[未发布]: https://github.com/LessUp/bitcal/compare/v2.1.0...HEAD
+[未发布]: https://github.com/LessUp/bitcal/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/LessUp/bitcal/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/LessUp/bitcal/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/LessUp/bitcal/releases/tag/v2.0.0

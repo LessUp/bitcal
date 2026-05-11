@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "bitcal",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "A modern C++17 header-only library for high-performance bit operations with automatic SIMD acceleration",
   "homepage": "https://github.com/LessUp/bitcal",
   "license": "MIT",

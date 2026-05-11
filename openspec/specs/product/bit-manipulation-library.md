@@ -1,133 +1,118 @@
 # Product Spec: BitCal - SIMD-Accelerated Bit Manipulation Library
 
-## Overview
+## Product Position
 
-BitCal is a stable, archive-ready, high-performance C++17 header-only library for bit manipulation operations with automatic SIMD acceleration.
+BitCal is a stable, archive-ready, C++17 header-only bit-manipulation library.
 
-## Version
+The planned **v3.0.0** release contracts the public surface so the project retains a smaller, better-defined compatibility boundary centered on `bitarray` and a single stable public include seam.
 
-**Current:** v2.1.0
+## Stable Consumption Model
 
-## Target Users
+```cpp
+#include <bitcal/bitcal.hpp>
+```
 
-- C++ developers requiring high-performance bit manipulation
-- Systems programmers working on compression, cryptography, or databases
-- Developers targeting x86-64 and ARM architectures
+BitCal SHALL present `<bitcal/bitcal.hpp>` as the only stable public include path.
+
+The retained product contract is centered on:
+- `bitarray<Bits, Backend>`
+- stable aliases (`bit64`, `bit128`, `bit256`, `bit512`, `bit1024`)
+- retained bitwise, shift, comparison, zero-state, counting, and single-bit operations
+- retained backend selection through `simd_backend` and `get_default_backend()`
+
+## Product Boundaries
+
+### Retained public capabilities
+- Fixed-width bit arrays with widths that are multiples of 64
+- Compile-time backend selection across `scalar`, `sse2`, `avx2`, `avx512`, and `neon`
+- Header-only consumption through the umbrella include
+- Cross-platform support claims that have a retained validation path
+
+### Removed from the retained public product contract
+- `bitcal::ops` as a public helper namespace
+- public type traits such as `is_bitarray` and `bitarray_traits`
+- undocumented convenience methods not explicitly preserved in the API spec
+- any promise that internal headers are stable include entry points
 
 ## Core Features
 
 ### 1. SIMD Acceleration
-- Automatic SSE2/AVX/AVX2 (x86) or NEON (ARM) selection
-- Partial AVX-512 acceleration for selected operations on supported x86 targets
-- Up to 6× performance improvement over scalar implementations
-- Compile-time dispatch via `if constexpr` for zero runtime overhead
+- Compile-time backend selection with scalar fallback
+- Supported retained backend names: SSE2, AVX2, AVX-512, and NEON as available
+- No retained product claim for a separate transitional `AVX` backend
 
-### 2. Available Bit Widths
+### 2. Retained widths
 
-| Type | Width | Words | Best For |
-|------|-------|-------|----------|
-| `bitcal::bit64` | 64-bit | 1 | Machine word |
-| `bitcal::bit128` | 128-bit | 2 | SSE2/NEON native |
-| `bitcal::bit256` | 256-bit | 4 | AVX2 native |
-| `bitcal::bit512` | 512-bit | 8 | Large parallel ops |
-| `bitcal::bit1024` | 1024-bit | 16 | Very large ops |
+| Type | Width | Words | Typical use |
+|------|-------|-------|-------------|
+| `bitcal::bit64` | 64-bit | 1 | Machine-word operations |
+| `bitcal::bit128` | 128-bit | 2 | SSE2 / NEON-sized workloads |
+| `bitcal::bit256` | 256-bit | 4 | AVX2-sized workloads |
+| `bitcal::bit512` | 512-bit | 8 | Large parallel bit operations |
+| `bitcal::bit1024` | 1024-bit | 16 | Larger fixed-size bitsets |
 
-Custom widths supported (must be multiple of 64).
+Custom widths remain supported when they satisfy the retained width constraint.
 
-### 3. Operations
+### 3. Retained operation families
+- Bitwise operations: AND, OR, XOR, NOT, ANDNOT
+- Shift operations: left/right shifts with retained width-clearing behavior
+- Counting operations: popcount, CLZ, CTZ
+- Bit manipulation: get/set/flip single bits, reverse
+- State operations: equality, inequality, `is_zero()`, `clear()`
+- Data access: `data()`, `word()`, `set_word()`, `operator[]`
 
-#### Bitwise Operations
-- AND, OR, XOR, NOT
-- ANDNOT (optimized `a & ~b`)
+## Support and Validation Posture
 
-#### Shift Operations
-- Left shift (`<<`, `<<=`)
-- Right shift (`>>`, `>>=`)
-- Support for cross-word carry propagation
+### Platform support
 
-#### Bit Counting
-- Population count (popcount)
-- Count leading zeros (CLZ)
-- Count trailing zeros (CTZ)
+| Platform | Architecture | SIMD path | Status |
+|----------|--------------|-----------|--------|
+| Linux | x86-64 | SSE2 / AVX2 / AVX-512 when enabled | Retained validation path |
+| Linux | ARM64 | NEON | Retained build-only validation path |
+| Windows | x86-64 | SSE2 / AVX2 / AVX-512 when enabled | Retained validation path |
+| macOS | ARM64 | NEON | Retained validation path |
 
-#### Bit Manipulation
-- Get/set individual bits
-- Flip individual bits
-- Bit reversal
+Linux ARM32 and macOS x86-64 are not part of the retained final-stabilization support matrix because the repository no longer keeps a matching CI validation path for them.
 
-#### State Detection
-- `is_zero()` - check if all bits are zero
-- `clear()` - set all bits to zero
+### Performance posture
+- BitCal continues to optimize for zero runtime dispatch overhead.
+- Published performance claims must only cover scenarios that still have a retained benchmark or validation path.
+- Contract fidelity is preferred over expanding the feature surface.
 
-### 4. Cross-Platform Support
+## Release and Migration Expectations
 
-| Platform | Architecture | Compilers | SIMD | Status |
-|----------|--------------|-----------|------|--------|
-| Linux | x86-64 | GCC 7+, Clang 6+ | SSE2/AVX2 | ✅ CI-tested |
-| Linux | ARM64 | GCC (cross) | NEON | ✅ Cross-compile validated |
-| Linux | ARM32 | GCC (cross) | NEON | ✅ Cross-compile validated |
-| Windows | x86-64 | MSVC 2017+ | SSE2/AVX2 | ✅ CI-tested |
-| macOS | x86-64 | Apple Clang | SSE2/AVX2 | ✅ CI-tested |
-| macOS | ARM64 (Apple Silicon) | Apple Clang | NEON | ✅ CI-tested |
+- The public-surface contraction is a **breaking release planned as 3.0.0**.
+- Migration-facing documentation must explain removed helper APIs and include-seam expectations.
+- README, Pages, OpenSpec, and version anchors must describe the same retained product boundary.
 
-## Acceptance Criteria
-
-### AC-1: Performance Targets
-- AND/OR/XOR operations on 256-bit: ≥5× speedup vs scalar (AVX2)
-- Shift operations on 256-bit: ≥3× speedup vs scalar (AVX2)
-- Popcount on 512-bit: ≥2× speedup vs scalar
-
-### AC-2: API Completeness
-- All predefined types support all core operations
-- Single bit operations (get/set/flip) work for all bit positions
-- Reverse operation works correctly for all predefined widths
-
-### AC-3: Compilation Requirements
-- Must compile with C++17 or later
-- Must be header-only (no compilation required for use)
-- Zero external dependencies
-
-### AC-4: Platform Compatibility
-- Must pass the retained validation path for every documented support target
-- Must gracefully fall back to scalar when SIMD not available
-- Must handle edge cases (shift by 0, shift by width, negative shift is UB)
-
-## Non-Functional Requirements
-
-### Performance
-- Zero runtime overhead from dispatch (compile-time selection only)
-- All critical paths force-inlined
-- Cache-line aligned memory (64 bytes)
-
-### Code Quality
-- 100% test coverage for all predefined types
-- Retained CI or documented validation on all supported platforms
-- No compiler warnings with `-Wall -Wextra`
-
-### Documentation
-- API reference for all public functions
-- Architecture documentation explaining SIMD dispatch
-- Migration guide for users from previous versions
-
-## Stability and Stewardship Requirements
+## Product Requirements
 
 ### Requirement: Product positioning SHALL prioritize archive-ready stability
-BitCal SHALL define itself as a stable, archive-ready SIMD bit-manipulation library whose documentation, support matrix, and engineering process reflect maintainable long-term stewardship rather than open-ended feature growth.
+BitCal SHALL define itself as a stable, archive-ready SIMD bit-manipulation library whose documentation, support matrix, and engineering process reflect maintainable long-term stewardship.
 
 #### Scenario: Project materials describe BitCal
 - **WHEN** maintainers update README, Pages, or product-facing specs
 - **THEN** those materials MUST describe the project as a stable library with explicit scope, support expectations, and maintenance boundaries
 
+### Requirement: Public surface contraction SHALL ship as a major release
+BitCal SHALL publish the retained public-surface contraction as version 3.0.0 and SHALL describe it as a breaking release.
+
+#### Scenario: Release planning is updated
+- **WHEN** specs, docs, tests, and version semantics are aligned to the contracted API
+- **THEN** the release target MUST be a major version increment
+- **AND** migration-facing materials MUST describe removed or re-scoped public APIs
+
+### Requirement: Product-facing materials SHALL describe the contracted public boundary
+BitCal SHALL present itself as a header-only library with a single stable public include seam and a `bitarray`-centered retained API.
+
+#### Scenario: Product materials describe how BitCal is consumed
+- **WHEN** README, Pages, or product specs summarize the library surface
+- **THEN** they MUST describe `<bitcal/bitcal.hpp>` as the stable include seam
+- **AND** they MUST NOT present removed helper namespaces, traits, or undocumented convenience methods as retained public features
+
 ### Requirement: Platform and performance claims SHALL reflect maintained reality
-BitCal SHALL only publish platform, compiler, and performance claims that are backed by retained workflows, tests, or documented validation procedure.
+BitCal SHALL only publish platform, compiler, and performance claims that are backed by retained workflows, tests, or documented validation procedures.
 
 #### Scenario: A support claim appears in documentation
 - **WHEN** documentation states that a platform, compiler, or performance target is supported
-- **THEN** the repository MUST retain a corresponding validation path or clearly mark the claim as non-guaranteed historical information
-
-## Future Enhancements (Not in Current Scope)
-
-- Broader AVX-512 validation and tuning beyond the currently supported partial path
-- ARM SVE/SVE2 support
-- Dynamic runtime CPU feature detection
-- Bit widths not multiple of 64
+- **THEN** the repository MUST retain a corresponding validation path or clearly mark the claim as historical/non-guaranteed information

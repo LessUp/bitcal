@@ -1,16 +1,16 @@
 # BitCal
 
 <p align="center">
-  <strong>现代化、跨平台、基于 SIMD 指令集加速的高性能 C++17 位运算库</strong>
+  <strong>纯头文件 C++17 位操作库，编译期 SIMD 分派</strong>
 </p>
 
 <p align="center">
   <a href="https://github.com/LessUp/bitcal/actions/workflows/ci.yml"><img src="https://github.com/LessUp/bitcal/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://lessup.github.io/bitcal/"><img src="https://img.shields.io/badge/docs-Doxygen-blue.svg" alt="文档"></a>
+  <a href="https://lessup.github.io/bitcal/"><img src="https://img.shields.io/badge/docs-GitHub_Pages-blue.svg" alt="文档"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="许可证"></a>
   <a href="https://en.cppreference.com/w/cpp/17"><img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg" alt="C++17"></a>
-  <a href="#安装"><img src="https://img.shields.io/badge/header--only-yes-green.svg" alt="纯头文件"></a>
-  <a href="CHANGELOG.zh-CN.md"><img src="https://img.shields.io/badge/version-2.1.0-blue.svg" alt="版本"></a>
+  <a href="#-安装"><img src="https://img.shields.io/badge/header--only-yes-green.svg" alt="纯头文件"></a>
+  <a href="CHANGELOG.zh-CN.md"><img src="https://img.shields.io/badge/version-3.0.0-blue.svg" alt="版本"></a>
 </p>
 
 <p align="center">
@@ -21,7 +21,7 @@
 
 ## 概述
 
-**BitCal** 是一个现代化的 C++17 纯头文件位运算库，提供高性能位操作功能并支持自动 SIMD 加速。通过 `if constexpr` 实现编译期分派，BitCal 相比标量实现可提供高达 **6 倍的性能提升**，同时保持零运行时开销。
+**BitCal** 是 C++17 纯头文件位操作库，提供编译期 SIMD 分派。保留 `<bitcal/bitcal.hpp>` 公开接口与 `bitarray` 模板，自动选择后端（SSE2/AVX2/NEON/标量），并提供可移植回退方案。BitCal 3.0 处于稳定维护与归档就绪状态。
 
 ```cpp
 #include <bitcal/bitcal.hpp>
@@ -39,28 +39,24 @@ int main() {
 
 ## ✨ 特性
 
-| 特性 | 描述 | 性能影响 |
-|------|------|---------|
-| 🚀 **SIMD 加速** | 自动选择 SSE2/AVX2 (x86) 或 NEON (ARM) | 最高快 6 倍 |
-| ⚡ **零开销** | 通过 `if constexpr` 编译期分派 | 无运行时成本 |
-| 📦 **纯头文件** | 单个 `#include <bitcal/bitcal.hpp>` | 零依赖 |
-| 🔧 **丰富的 API** | 位运算、位移、popcount、CLZ/CTZ、位反转、ANDNOT | 生产就绪 |
-| 🌍 **跨平台** | Linux、Windows、macOS，支持 x86-64 和 ARM | 通用支持 |
-| 🏎️ **类型安全** | 编译期位宽验证（`Bits % 64 == 0`） | 尽早捕获错误 |
+- **纯头文件**：单一 `#include <bitcal/bitcal.hpp>`，零外部依赖
+- **编译期 SIMD 分派**：`if constexpr` 在编译期选择 SSE2/AVX2（x86）、NEON（ARM）或可移植标量回退
+- **保留公开接口**：`bitarray<Bits>` 模板及成员函数覆盖所有操作
+- **丰富 API**：位运算、位移、popcount、CLZ/CTZ、位反转、ANDNOT、单比特操作
+- **跨平台**：Linux、Windows、macOS，支持 x86-64 和 ARM
+- **类型安全**：编译期位宽验证（`Bits % 64 == 0`）
+- **稳定维护**：3.0 契约冻结，归档就绪状态
 
-<details>
-<summary>📋 目录</summary>
+## ⚠️ 3.0.0 破坏性变更
 
-- [安装](#-安装)
-- [快速开始](#-快速开始)
-- [API 概览](#-api-概览)
-- [使用场景](#-使用场景)
-- [性能](#-性能)
-- [文档](#-文档)
-- [平台支持](#-平台支持)
-- [构建说明](#-构建说明)
-- [项目结构](#-项目结构)
-</details>
+BitCal 3.0.0 将公开 API 收敛到保留的 `bitarray` 表面：
+
+- 移除了公开的 `bitcal::ops` 原始指针辅助接口
+- 移除了公开 traits：`is_bitarray`、`is_bitarray_v`、`bitarray_traits`
+- 移除了公开契约中的显式 `bit64` 转换便捷入口
+- 迁移方式：使用 `bitarray` 成员函数；通过 `word()` / `set_word()` 适配已有 `uint64_t` 缓冲区
+
+迁移细节见 [CHANGELOG.zh-CN.md](CHANGELOG.zh-CN.md) 与 [API 参考](https://lessup.github.io/bitcal/)。
 
 ## 🚀 安装
 
@@ -81,7 +77,7 @@ include(FetchContent)
 FetchContent_Declare(
     bitcal
     GIT_REPOSITORY https://github.com/LessUp/bitcal.git
-    GIT_TAG v2.1.0
+    GIT_TAG v3.0.0
 )
 FetchContent_MakeAvailable(bitcal)
 
@@ -158,7 +154,7 @@ int main() {
     a.clear();                   // 清零
 
     // 直接访问原始数据（用于与 C API 互操作）
-    uint64_t* data = a.data();   // 64 字节对齐的指针
+    const uint64_t* data = a.data();   // 只读对齐指针
     uint64_t word = a[0];        // 访问第一个 64 位字
 
     // 比较
@@ -186,317 +182,20 @@ int main() {
 bitcal::bitarray<2048> custom;
 ```
 
-## 📖 API 概览
+## 📚 文档与 API
 
-### 构造函数
-```cpp
-bitcal::bit256 a;                    // 初始化为零
-bitcal::bit256 b(0xDEADBEEF);        // 设置低 64 位
-bitcal::bit256 c = b;                // 拷贝
-```
+`bitarray<Bits>` 模板提供位运算操作符（`&`、`|`、`^`、`~`、`<<`、`>>`），位计数（`popcount`、CLZ/CTZ），单比特操作（`get_bit`、`set_bit`、`flip_bit`）和直接字访问。完整细节见 [API 参考](https://lessup.github.io/bitcal/zh/api/)。
 
-### 位运算操作符
-```cpp
-a & b    // 与运算        a &= b    // 与运算并赋值
-a | b    // 或运算        a |= b    // 或运算并赋值
-a ^ b    // 异或          a ^= b    // 异或并赋值
-~a       // 非运算
-a.andnot(b)  // 优化的 a & ~b
-```
-
-### 位移操作符
-```cpp
-a << n   // 左移          a <<= n   // 左移并赋值
-a >> n   // 右移          a >>= n   // 右移并赋值
-```
-
-### 位计数
-```cpp
-a.popcount()              // 统计置位数量
-a.count_leading_zeros()   // 前导零计数
-a.count_trailing_zeros()  // 尾随零计数
-```
-
-### 单比特操作
-```cpp
-a.get_bit(index)          // 读取位（从 LSB 开始 0 索引）
-a.set_bit(index, value)   // 设置/清零位
-a.flip_bit(index)         // 翻转位
-```
-
-### 状态与比较
-```cpp
-a.is_zero()               // 检查是否全为零
-a.clear()                 // 清零
-a == b                    // 相等比较
-a != b                    // 不等比较
-```
-
-### 数据访问
-```cpp
-a.data()                  // 64 位字数组指针
-a[index]                  // 访问第 index 个 64 位字
-a.bits                    // 编译期位宽常量
-a.u64_count               // 64 位字数量（编译期常量）
-```
-
-### 位操作
-```cpp
-a.reverse()               // 位序反转
-```
-
-### 强制指定后端
-```cpp
-bitcal::bitarray<256, bitcal::simd_backend::avx512> force_avx512;
-bitcal::bitarray<256, bitcal::simd_backend::avx2>   force_avx2;
-bitcal::bitarray<256, bitcal::simd_backend::sse2>   force_sse2;
-bitcal::bitarray<256, bitcal::simd_backend::neon>   force_neon;
-bitcal::bitarray<256, bitcal::simd_backend::scalar> force_scalar;
-```
-
-## 💡 使用场景
-
-BitCal 在需要高性能位操作的场景中表现出色：
-
-| 使用场景 | 描述 | 优势 |
-|----------|------|------|
-| **位集合** | 压缩布尔存储 | 相比 `bool[]` 空间减少 64 倍 |
-| **布隆过滤器** | 概率数据结构 | SIMD 加速哈希混合 |
-| **网络掩码** | CIDR/子网计算 | 大掩码快速与或操作 |
-| **密码学** | 分组密码位运算 | 硬件 popcount 用于汉明距离 |
-| **数据压缩** | 位打包/解包 | 高效跨字位移 |
-| **图形处理** | 掩码操作 | 像素掩码并行处理 |
-
-查看 [`examples/`](examples/) 获取具体实现。
-
-```cpp
-// 示例：快速 CIDR 掩码生成
-bitcal::bit256 make_mask(int prefix_len) {
-    if (prefix_len <= 0) return bitcal::bit256(0);
-    if (prefix_len >= 256) return ~bitcal::bit256(0);
-
-    // 计算完整字和剩余位
-    int whole_words = prefix_len / 64;
-    int remain_bits = prefix_len % 64;
-
-    bitcal::bit256 mask;
-    uint64_t* data = mask.data();
-
-    // 填充完整的字为全1
-    for (int i = 0; i < whole_words; ++i) {
-        data[3 - i] = UINT64_MAX;  // CIDR 使用大端字序
-    }
-
-    // 在下一个字中设置剩余位
-    if (remain_bits > 0) {
-        data[3 - whole_words] = UINT64_MAX << (64 - remain_bits);
-    }
-
-    // 清空剩余的字
-    for (int i = whole_words + (remain_bits > 0 ? 1 : 0); i < 4; ++i) {
-        data[3 - i] = 0;
-    }
-
-    return mask;
-}
-```
-
-## 📊 性能
-
-### 编译器优化选项
-
-为获得最佳性能，使用以下编译器选项：
-
-```bash
-# GCC/Clang
-g++ -std=c++17 -O3 -march=native -DNDEBUG
-
-# MSVC
-cl /std:c++17 /O2 /arch:AVX2 /DNDEBUG
-```
-
-| 选项 | 作用 |
-|------|------|
-| `-O3` | 最大优化级别 |
-| `-march=native` | 启用所有 CPU 特性 |
-| `-DNDEBUG` | 发布模式移除断言 |
-
-### 性能测试结果
-
-#### Intel Core i7-12700K @ 3.6GHz (AVX2)
-
-| 运算 | 标量 | AVX2 | 加速比 |
-|------|------|------|--------|
-| 与运算-256 | 12.3 ns | 2.1 ns | **5.9×** |
-| 异或运算-512 | 24.8 ns | 4.3 ns | **5.8×** |
-| 左移-256 | 18.6 ns | 5.2 ns | **3.6×** |
-| 人口计数-512 | 45.2 ns | 22.3 ns | **2.0×** |
-| is_zero-256 | 4.5 ns | 1.8 ns | **2.5×** |
-
-#### ARM Cortex-A72 @ 2.0GHz (NEON)
-
-| 运算 | 标量 | NEON | 加速比 |
-|------|------|------|--------|
-| 与运算-128 | 8.4 ns | 3.2 ns | **2.6×** |
-| 异或运算-256 | 16.9 ns | 6.8 ns | **2.5×** |
-| 左移-128 | 12.3 ns | 6.8 ns | **1.8×** |
-
-> 📈 在你的环境中运行 `./benchmarks/bench_bitcal` 查看实际数据。
-
-### SIMD 后端选择
-
-BitCal 根据编译器选项自动选择最佳后端：
-
-| 平台 | 后端 | 位宽 | 触发条件 | 状态 |
-|------|------|------|----------|------|
-| x86-64 | AVX-512 | 512 位 | `-mavx512f` 可用 | 部分支持 |
-| x86-64 | AVX2 | 256 位 | `-mavx2` 可用 | 完全支持 |
-| x86-64 | AVX | 256 位 | `-mavx` 可用 | 完全支持 |
-| x86-64 | SSE2 | 128 位 | `-msse2` 可用 | 完全支持 |
-| ARM | NEON | 128 位 | ARMv7-A+ 或 ARM64 | 完全支持 |
-| 任意 | 标量 | 64 位 | 回退方案 | 完全支持 |
-
-> **注意：** AVX-512 目前为部分支持。核心运算（与、或、异或、非）使用 AVX-512，其他运算回退至 AVX2。
-
-## 📚 文档
-
-### API 参考
-
-| 主题 | 描述 |
-|------|------|
-| [类型](docs/zh/api/types.md) | `bitarray` 模板和类型别名 |
-| [核心运算](docs/zh/api/core-operations.md) | 与、或、异或、非、ANDNOT |
-| [位移操作](docs/zh/api/shift-operations.md) | 左移和右移 |
-| [位计数](docs/zh/api/bit-counting.md) | popcount、CLZ、CTZ |
-| [位操作](docs/zh/api/bit-manipulation.md) | 获取/设置/翻转位、反转 |
-| [SIMD 后端](docs/zh/api/simd-backend.md) | 后端选择 |
-| [Ops 命名空间](docs/zh/api/ops-namespace.md) | 底层 API |
-
-### 架构设计
-
-- [概述](docs/zh/architecture/overview.md) - 设计原则
-- [SIMD 分派](docs/zh/architecture/simd-dispatch.md) - 编译期选择
-- [平台支持](docs/zh/architecture/platform-support.md) - 兼容性矩阵
-
-### 入门指南
-
-- [安装指南](docs/zh/getting-started/installation.md)
-- [快速开始](docs/zh/getting-started/quickstart.md)
-- [构建选项](docs/zh/getting-started/build-options.md)
-
-## 🔒 安全保证
-
-| 方面 | 保证 | 说明 |
-|------|------|------|
-| **异常安全** | 所有热路径操作均为 `noexcept` | 位操作不抛出异常 |
-| **边界检查** | 仅在调试构建中使用 `assert()` | 发布构建使用 `NDEBUG` |
-| **线程安全** | 线程兼容 | 不同实例：✅ 安全<br>同实例只读：✅ 安全<br>同实例读写：❌ 需要同步 |
-| **内存安全** | 64 字节对齐，无堆分配 | 纯栈分配，缓存行友好 |
-
-完整文档：[https://lessup.github.io/bitcal/](https://lessup.github.io/bitcal/)
+完整文档位于 **[https://lessup.github.io/bitcal/](https://lessup.github.io/bitcal/)**，包含架构设计、性能基准与平台特定说明。
 
 ## 🌍 平台支持
 
-| 平台 | 架构 | 编译器 | SIMD | CI 状态 |
-|------|------|--------|------|---------|
-| Linux | x86-64 | GCC 7+, Clang 6+ | SSE2/AVX2 | ✅ 已验证 |
-| Linux | ARM64 | GCC（交叉编译） | NEON | ✅ 已验证 |
-| Linux | ARM32 | GCC（交叉编译） | NEON | ✅ 已验证 |
-| Windows | x86-64 | MSVC 2017+ | SSE2/AVX2 | ✅ 已验证 |
-| macOS | x86-64 | Apple Clang | SSE2/AVX2 | ✅ 已验证 |
-| macOS | ARM64 (Apple Silicon) | Apple Clang | NEON | ✅ 已验证 |
-
-### 系统要求
-
-- **C++17** 或更高版本
-- **CMake 3.16+**（仅用于构建测试/基准测试）
-- **支持的编译器**：GCC 7+, Clang 6+, MSVC 2017+
-
-## 🔨 构建说明
-
-### 构建测试和基准测试
-
-```bash
-mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j$(nproc)
-
-# 运行测试
-./tests/test_bitcal
-
-# 运行基准测试
-./benchmarks/bench_bitcal
-```
-
-### 系统范围安装
-
-```bash
-cmake --install . --prefix /usr/local
-```
-
-## 🏗️ 项目结构
-
-```
-bitcal/
-├── include/bitcal/       # 头文件（纯头文件库）
-│   ├── bitcal.hpp        # 主头文件（包含这个）
-│   ├── config.hpp        # 平台检测
-│   ├── simd_traits.hpp   # SIMD 类型特征
-│   ├── scalar_ops.hpp    # 标量回退实现
-│   ├── sse_ops.hpp       # SSE2 实现
-│   ├── avx_ops.hpp       # AVX2 实现
-│   ├── avx512_ops.hpp    # AVX-512 支持
-│   └── neon_ops.hpp      # NEON 实现
-├── docs/                 # 文档
-│   ├── en/               # 英文文档
-│   └── zh/               # 中文文档
-├── tests/                # 单元测试
-├── benchmarks/           # 性能基准测试
-└── examples/             # 示例程序
-```
-
-### 内存布局
-
-```
-bitarray<256> 内存布局：
-┌──────────────────────────────────────────────────────────┐
-│ 对齐 (64字节) │ 字 0 │ 字 1 │ 字 2 │ 字 3 │ 填充至 64B │
-│ 64 字节       │ 0-63 │64-127│128-191│192-255│          │
-└──────────────────────────────────────────────────────────┘
-```
-
-- **对齐方式：** 64 字节（缓存行对齐）
-- **字节序：** 小端（LSB 在 `data()[0]`）
-- **存储：** 连续的 `uint64_t` 数组
-
-## 📝 更新日志
-
-详见 [CHANGELOG.zh-CN.md](CHANGELOG.zh-CN.md) 了解版本历史。
-
-### 最新版本：v2.1.0（2026-04-16）
-
-- ✨ **新增：** 原生 SIMD 指令的 ANDNOT 运算
-- ⚡ **性能：** `is_zero()` 提速最高 2.3×，`~` 提速 1.7×
-- 🧪 **测试：** bit1024 完整测试覆盖
-- 🔧 **基础设施：** ARM32 CI 支持
+**Linux**、**Windows**、**macOS**，支持 x86-64 与 ARM，C++17 或更高版本。版本历史见 [CHANGELOG.zh-CN.md](CHANGELOG.zh-CN.md)，CI 验证细节见 [平台文档](https://lessup.github.io/bitcal/zh/architecture/platform-support.html)。
 
 ## 🤝 参与贡献
 
-欢迎贡献！请参阅 [CONTRIBUTING.md](CONTRIBUTING.md) 了解贡献指南。
+欢迎在 3.0 契约边界内贡献。对于重大变更，请先开 issue 讨论。贡献指南见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## 📄 许可证
 
 MIT 许可证 — 详见 [LICENSE](LICENSE)。
-
-## 🙏 致谢
-
-- 设计灵感来源于 [Boost.SIMD](https://github.com/boostorg/simd) 和 [xsimd](https://github.com/xtensor-stack/xsimd)
-- 性能测试使用 [Google Benchmark](https://github.com/google/benchmark)
-
----
-
-<p align="center">
-  <a href="https://github.com/LessUp/bitcal">⭐ GitHub 星标</a> •
-  <a href="https://github.com/LessUp/bitcal/issues">🐛 提交问题</a> •
-  <a href="https://github.com/LessUp/bitcal/discussions">💬 讨论区</a>
-</p>

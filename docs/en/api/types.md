@@ -1,6 +1,8 @@
 # Types Reference
 
-Complete reference for BitCal types, templates, and type aliases.
+Complete reference for the retained BitCal 3.0 public type surface.
+
+> **BitCal 3.0 migration:** `bitcal::ops`, `is_bitarray`, `is_bitarray_v`, `bitarray_traits`, and the explicit `bit64` conversion helper are no longer public API. Use `bitarray` member functions and `word(0)` when you need a 64-bit value.
 
 ## Table of Contents
 
@@ -10,17 +12,17 @@ Complete reference for BitCal types, templates, and type aliases.
 - [Data Access](#data-access)
 - [Static Members](#static-members)
 - [SIMD Backend Enum](#simd-backend-enum)
-- [Type Traits](#type-traits)
 
 ---
 
 ## bitarray Template
 
-The core class template for all bit array operations.
+The core class template for all public BitCal operations.
 
 ```cpp
 namespace bitcal {
-    template<size_t Bits, simd_backend Backend = get_default_backend()>
+    template<size_t Bits,
+             simd_backend Backend = get_default_backend()>
     class bitarray;
 }
 ```
@@ -29,44 +31,44 @@ namespace bitcal {
 
 | Parameter | Type | Constraints | Description |
 |-----------|------|-------------|-------------|
-| `Bits` | `size_t` | Multiple of 64 | Total number of bits |
-| `Backend` | `simd_backend` | Any valid backend | SIMD implementation to use |
+| `Bits` | `size_t` | `Bits >= 64` and a multiple of 64 | Total number of bits |
+| `Backend` | `simd_backend` | Available backend for the target build | Backend selected for operations |
 
 **Static Assertions:**
 ```cpp
-static_assert(Bits % 64 == 0, "Bits must be multiple of 64");
+static_assert(Bits >= 64, "Bits must be at least 64");
+static_assert(Bits % 64 == 0, "Bits must be a multiple of 64");
 ```
 
 ### Memory Layout
 
 ```
-bitarray<256, avx2> memory representation:
+bitarray<256> memory representation:
 ┌──────────────────────────────────────────────────────────────────────┐
 │ Alignment  │  Word 0   │  Word 1   │  Word 2   │  Word 3   │ Padding │
-│  64 bytes  │ bits 0-63 │bits 64-127│bits 128-191│bits 192-255│to 64B  │
+│  32 bytes  │ bits 0-63 │bits 64-127│bits 128-191│bits 192-255│to align│
 └──────────────────────────────────────────────────────────────────────┘
-                    Little-endian: word 0 holds LSB
+                    Little-endian: word 0 holds the LSB range
 ```
 
 **Key Properties:**
-- **Alignment:** 64 bytes (cache-line aligned)
-- **Endianness:** Little-endian (LSB in `data_[0]`)
-- **Storage:** Contiguous `uint64_t` array
-- **Padding:** Extra space to maintain alignment
+- Alignment is selected by `get_optimal_alignment<Bits>()`
+- Storage is contiguous `uint64_t` words
+- The public API exposes read-only raw access through `data()`
 
 ---
 
 ## Predefined Types
 
-Convenience type aliases for common bit widths:
+Convenience aliases for common bit widths:
 
-| Type Alias | Definition | Use Case | Optimal Platform |
-|------------|------------|----------|------------------|
-| `bit64` | `bitarray<64>` | Machine word operations | All platforms |
-| `bit128` | `bitarray<128>` | SSE2/NEON native width | x86-SSE2, ARM-NEON |
-| `bit256` | `bitarray<256>` | AVX2 native width | x86-AVX2 |
-| `bit512` | `bitarray<512>` | Large parallel operations | AVX2 (two registers) |
-| `bit1024` | `bitarray<1024>` | Very large operations | AVX2 (four registers) |
+| Type Alias | Definition | Use Case | Typical Backend |
+|------------|------------|----------|-----------------|
+| `bit64` | `bitarray<64>` | Single-word operations | Scalar |
+| `bit128` | `bitarray<128>` | 128-bit SIMD width | SSE2 / NEON / AVX-512 VL |
+| `bit256` | `bitarray<256>` | 256-bit SIMD width | AVX2 / AVX-512 VL |
+| `bit512` | `bitarray<512>` | Large parallel operations | AVX-512 or looped AVX2 |
+| `bit1024` | `bitarray<1024>` | Very large fixed-width operations | Loop over chosen backend |
 
 ### Declarations
 
@@ -80,35 +82,6 @@ namespace bitcal {
 }
 ```
 
-### Performance Characteristics
-
-```cpp
-// bit64 - Always scalar (single u64)
-bitcal::bit64 a(0xFF);  // Fastest for small data
-
-// bit128 - 128-bit SIMD optimal
-bitcal::bit128 b;  // Single SSE/NEON register
-
-// bit256 - 256-bit SIMD optimal
-bitcal::bit256 c;  // Single AVX register, 2× SSE, or 2× NEON
-
-// bit512 - 512-bit width
-bitcal::bit512 d;  // 2× AVX or 4× SSE/NEON
-
-// bit1024 - Large width
-bitcal::bit1024 e;  // Loop unrolled operations
-```
-
-**Performance Table (Intel i7-12700K, AVX2):**
-
-| Type | AND Latency | Memory | Backend Used |
-|------|-------------|--------|--------------|
-| bit64 | ~1ns | 8 bytes | Scalar |
-| bit128 | ~1.5ns | 16+48 bytes | SSE2 |
-| bit256 | ~2.1ns | 32+32 bytes | AVX2 |
-| bit512 | ~4.2ns | 64 bytes | AVX2 (2 ops) |
-| bit1024 | ~8.5ns | 128 bytes | AVX2 (4 ops) |
-
 ---
 
 ## Constructors
@@ -118,250 +91,131 @@ bitcal::bit1024 e;  // Loop unrolled operations
 Initializes all bits to zero.
 
 ```cpp
-bitarray();
+bitarray() noexcept;
 ```
-
-**Example:**
-```cpp
-bitcal::bit256 arr;  // All 256 bits are 0
-```
-
-**Performance:** Uses SIMD-optimized `clear()` internally.
 
 ### Value Constructor
 
-Initializes the lowest 64 bits, clears the rest.
+Initializes the lowest 64 bits and clears the remaining words.
 
 ```cpp
-explicit bitarray(uint64_t value);
+explicit bitarray(uint64_t value) noexcept;
 ```
 
 | Parameter | Description |
 |-----------|-------------|
-| `value` | Lower 64 bits; upper bits zero-extended |
+| `value` | Stored in word 0; higher words are zero-filled |
 
-**Example:**
-```cpp
-bitcal::bit256 arr(0xDEADBEEF);
-// arr[0] = 0xDEADBEEF
-// arr[1..] = 0
-```
-
-### Copy & Move Constructors
+### Copy and Move Operations
 
 ```cpp
-bitarray(const bitarray& other);           // Copy
-bitarray(bitarray&& other) noexcept;       // Move
-```
-
-Both are trivial and compiler-generated. Move is `noexcept` for exception safety.
-
-### Assignment Operators
-
-```cpp
-bitarray& operator=(const bitarray& other);      // Copy assignment
-bitarray& operator=(bitarray&& other) noexcept;  // Move assignment
+bitarray(const bitarray& other) noexcept = default;
+bitarray(bitarray&& other) noexcept = default;
+bitarray& operator=(const bitarray& other) noexcept = default;
+bitarray& operator=(bitarray&& other) noexcept = default;
 ```
 
 ---
 
 ## Data Access
 
-### Array Subscript Operator
+### Raw Data Pointer
 
-Access individual 64-bit words.
-
-```cpp
-uint64_t  operator[](size_t index) const;
-uint64_t& operator[](size_t index);
-```
-
-| Parameter | Range | Description |
-|-----------|-------|-------------|
-| `index` | `[0, Bits/64 - 1]` | Word index (0 = LSB) |
-
-**Preconditions:**
-```cpp
-assert(index < u64_count);  // UB if violated
-```
-
-**Example:**
-```cpp
-bitcal::bit256 arr(0xDEADBEEF);
-
-arr[0] = 0x12345678;      // Set lowest 64 bits
-arr[1] = 0x9ABCDEF0;      // Set bits 64-127
-arr[2] = arr[0] | arr[1]; // Read-modify-write
-
-uint64_t low = arr[0];    // Read word
-```
-
-### Data Pointer
-
-Direct access to underlying storage.
+Read-only access to the underlying storage.
 
 ```cpp
-uint64_t* data() noexcept;
 const uint64_t* data() const noexcept;
 ```
 
 **Properties:**
-- Pointer is aligned to 64 bytes
-- Points to contiguous `uint64_t` array
-- Valid for `u64_count` elements
-- **Read-only** pointer; use `set_word()` for modifications
+- Pointer remains valid for the lifetime of the object
+- Contains `u64_count` contiguous words
+- Use `set_word()` for mutation rather than writing through the pointer
+
+### Word Access Helpers
+
+```cpp
+uint64_t word(size_t index) const noexcept;
+void set_word(size_t index, uint64_t value) noexcept;
+uint64_t operator[](size_t index) const noexcept;
+```
+
+| API | Description |
+|-----|-------------|
+| `word(index)` | Read a single 64-bit word with bounds assertions in debug builds |
+| `set_word(index, value)` | Replace one 64-bit word |
+| `operator[](index)` | Read-only indexed access |
 
 **Example:**
 ```cpp
-bitcal::bit256 arr;
-const uint64_t* ptr = arr.data();  // Read-only access
+bitcal::bit256 arr(0xDEADBEEF);
+arr.set_word(1, 0xCAFEBABE);
 
-// Read values
-uint64_t first = ptr[0];
-
-// For modifications, use word() and set_word()
-arr.set_word(0, 0xFFFFFFFFFFFFFFFF);
-
-// Interoperability with C APIs (read-only)
-external_function(ptr, arr.u64_count);
-```
-
-### Size Information
-
-```cpp
-static constexpr size_t u64_count = Bits / 64;  // Number of 64-bit words
+uint64_t low = arr.word(0);
+uint64_t high = arr[1];
+const uint64_t* ptr = arr.data();
 ```
 
 ---
 
 ## Static Members
 
-Compile-time constants for type introspection:
+Compile-time constants available on every `bitarray` specialization:
 
 ```cpp
 template<size_t Bits, simd_backend Backend>
 class bitarray {
 public:
-    static constexpr size_t bits = Bits;                    // Total bit width
-    static constexpr size_t u64_count = Bits / 64;          // 64-bit word count
-    static constexpr simd_backend backend = Backend;        // Selected backend
+    static constexpr size_t bits = Bits;
+    static constexpr size_t u64_count = Bits / 64;
+    static constexpr simd_backend backend = Backend;
 };
 ```
 
-**Usage:**
+**Example:**
 ```cpp
 using MyType = bitcal::bit256;
 
 static_assert(MyType::bits == 256);
 static_assert(MyType::u64_count == 4);
-static_assert(MyType::backend == bitcal::simd_backend::avx2 ||
-              MyType::backend == bitcal::simd_backend::sse2);
-
-// Template metaprogramming
-template<typename T>
-using is_bitcal_type = std::bool_constant<
-    requires { typename T::backend; }
->;
 ```
 
 ---
 
 ## SIMD Backend Enum
 
-Enumeration of available SIMD backends.
+Available backend tags:
 
 ```cpp
 namespace bitcal {
     enum class simd_backend {
-        scalar,  // Portable scalar implementation
-        sse2,    // x86 SSE2 (128-bit)
-        avx2,    // x86 AVX2 (256-bit)
-        neon     // ARM NEON (128-bit)
+        scalar,
+        sse2,
+        avx2,
+        avx512,
+        neon
     };
-}
-```
-
-### Backend Selection
-
-```cpp
-// Automatic selection based on compiler flags
-template<size_t Bits>
-constexpr simd_backend select_best_backend() {
-    #if defined(BITCAL_HAS_AVX2) && Bits >= 256
-        return simd_backend::avx2;
-    #elif defined(BITCAL_HAS_SSE2) && Bits >= 128
-        return simd_backend::sse2;
-    #elif defined(BITCAL_HAS_NEON) && Bits >= 128
-        return simd_backend::neon;
-    #else
-        return simd_backend::scalar;
-    #endif
 }
 ```
 
 ### Default Backend
 
 ```cpp
-simd_backend get_default_backend() noexcept;
+constexpr simd_backend get_default_backend() noexcept;
 ```
 
-Returns the backend selected at compile time for the current platform.
+Returns the backend selected at compile time for the current build.
 
 **Example:**
 ```cpp
 auto backend = bitcal::get_default_backend();
 switch (backend) {
-    case bitcal::simd_backend::avx2:  std::cout << "AVX2\n"; break;
-    case bitcal::simd_backend::sse2:  std::cout << "SSE2\n"; break;
-    case bitcal::simd_backend::neon:  std::cout << "NEON\n"; break;
-    default:                          std::cout << "Scalar\n";
+    case bitcal::simd_backend::avx512: std::cout << "AVX-512\n"; break;
+    case bitcal::simd_backend::avx2:   std::cout << "AVX2\n"; break;
+    case bitcal::simd_backend::sse2:   std::cout << "SSE2\n"; break;
+    case bitcal::simd_backend::neon:   std::cout << "NEON\n"; break;
+    default:                           std::cout << "Scalar\n";
 }
-```
-
----
-
-## Type Traits
-
-BitCal provides type traits for template metaprogramming.
-
-### is_bitarray
-
-```cpp
-template<typename T>
-struct is_bitarray : std::false_type {};
-
-template<size_t Bits, simd_backend Backend>
-struct is_bitarray<bitarray<Bits, Backend>> : std::true_type {};
-
-template<typename T>
-inline constexpr bool is_bitarray_v = is_bitarray<T>::value;
-```
-
-**Example:**
-```cpp
-static_assert(bitcal::is_bitarray_v<bitcal::bit256>);
-static_assert(!bitcal::is_bitarray_v<int>);
-
-// SFINAE
-std::enable_if_t<bitcal::is_bitarray_v<T>, void>
-process_bitarray(const T& arr);
-```
-
-### bitarray_traits
-
-```cpp
-template<typename T>
-struct bitarray_traits;
-
-template<size_t Bits, simd_backend Backend>
-struct bitarray_traits<bitarray<Bits, Backend>> {
-    static constexpr size_t bits = Bits;
-    static constexpr size_t u64_count = Bits / 64;
-    static constexpr simd_backend backend = Backend;
-
-    using word_type = uint64_t;
-    using backend_type = /* implementation-defined */;
-};
 ```
 
 ---
@@ -371,60 +225,16 @@ struct bitarray_traits<bitarray<Bits, Backend>> {
 ```cpp
 #include <bitcal/bitcal.hpp>
 #include <iostream>
-#include <iomanip>
-#include <type_traits>
-
-template<typename T>
-void print_array_info(const char* name) {
-    std::cout << name << ":\n";
-    std::cout << "  bits: " << T::bits << "\n";
-    std::cout << "  words: " << T::u64_count << "\n";
-    std::cout << "  backend: ";
-    switch (T::backend) {
-        case bitcal::simd_backend::avx2:  std::cout << "AVX2"; break;
-        case bitcal::simd_backend::sse2:  std::cout << "SSE2"; break;
-        case bitcal::simd_backend::neon:  std::cout << "NEON"; break;
-        default:                          std::cout << "Scalar";
-    }
-    std::cout << "\n\n";
-}
-
-void print_hex(const bitcal::bit256& arr) {
-    std::cout << "0x";
-    for (int i = 3; i >= 0; --i) {
-        std::cout << std::hex << std::setfill('0') << std::setw(16)
-                  << arr[i];
-    }
-    std::cout << std::dec << "\n";
-}
 
 int main() {
-    // Type information
-    print_array_info<bitcal::bit64>("bit64");
-    print_array_info<bitcal::bit128>("bit128");
-    print_array_info<bitcal::bit256>("bit256");
-    print_array_info<bitcal::bit1024>("bit1024");
+    bitcal::bit256 arr(0xDEADBEEF);
+    arr.set_word(1, 0xCAFEBABE);
 
-    // Custom type
-    using custom_512 = bitcal::bitarray<512, bitcal::simd_backend::scalar>;
-    print_array_info<custom_512>("bitarray<512, scalar>");
+    std::cout << "bits: " << bitcal::bit256::bits << "\n";
+    std::cout << "words: " << bitcal::bit256::u64_count << "\n";
+    std::cout << "word0: 0x" << std::hex << arr.word(0) << "\n";
+    std::cout << "word1: 0x" << std::hex << arr[1] << "\n";
 
-    // Construction and access
-    bitcal::bit256 a;  // Default: all zeros
-    print_hex(a);      // 0x00000000000000000000000000000000
-
-    bitcal::bit256 b(0xDEADBEEF);
-    print_hex(b);      // 0x000000000000000000000000DEADBEEF
-
-    // Word access
-    b[1] = 0xCAFEBABE;
-    print_hex(b);      // 0x00000000CAFEBABE00000000DEADBEEF
-
-    // Type traits
-    static_assert(bitcal::is_bitarray_v<bitcal::bit256>);
-    static_assert(bitcal::bitarray_traits<bitcal::bit256>::bits == 256);
-
-    std::cout << "\n✓ All type operations successful\n";
     return 0;
 }
 ```
@@ -433,6 +243,6 @@ int main() {
 
 ## See Also
 
-- [Core Operations](core-operations.md) — Bitwise operations
-- [SIMD Backend](simd-backend.md) — Backend selection details
-- [Architecture Overview](../architecture/overview.md) — Design principles
+- [Core Operations](core-operations.md) — bitwise operators and ANDNOT
+- [Bit Counting](bit-counting.md) — popcount, CLZ, and CTZ
+- [Architecture Overview](../architecture/overview.md) — high-level implementation layout

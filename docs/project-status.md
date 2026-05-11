@@ -59,17 +59,28 @@ BitCal 正在从“功能仍可扩展的库仓库”收敛为“稳定、可归�
 - `_bmad/`：不作为主流程依赖
 - 新增 AI 资产必须先证明能减少维护成本，而不是增加入口数量
 
-## Archive readiness gate
+## Archive readiness criteria
 
-- [x] `openspec/` 成为唯一活动规范源
-- [x] `specs/` 仅保留迁移壳层（已删除，状态正确）
-- [x] 文档与 Pages 不再存在大规模镜像维护（docs/zh/api/ 已清理）
-- [x] GitHub Actions 已收敛为最小可信集合
-- [x] release 策略符合 header-only 事实
-- [x] GitHub about/homepage/topics 已与项目定位一致
-- [x] `AGENTS.md` / `CLAUDE.md` / `.github/copilot-instructions.md` 已对齐
-- [x] 版本源统一到 `include/bitcal/config.hpp`
-- [x] 干净 CMake 目录构建与测试通过
-- [x] GLM 可按本文件阅读顺序继续执行剩余任务
+The following gates must be satisfied before BitCal reaches full archive-ready status:
 
-**状态：项目已完成终局收口，可归档维护。**
+### Structural gates (completed)
+
+- [x] `openspec/` is the only active specification source
+- [x] `specs/` retained as migration shell layer only
+- [x] Documentation and Pages no longer maintain large-scale HTML/Markdown mirrors
+- [x] GitHub Actions converged to minimal trusted set
+- [x] Release strategy aligns with header-only truth
+- [x] GitHub about/homepage/topics aligned with project positioning
+- [x] `AGENTS.md` / `CLAUDE.md` / `.github/copilot-instructions.md` aligned
+- [x] Version source unified to `include/bitcal/config.hpp`
+- [x] Clean CMake build and test passes
+
+### Remaining contract stabilization phases (in progress)
+
+Phase 1-4 tasks are currently active in the `contract-public-surface` branch to:
+- Contract the public API surface and remove deprecated features
+- Align documentation landing pages with current repository truth
+- Consolidate version semantics and release workflows
+- Remove low-value automation sprawl
+
+**Current status:** Repository is in active stabilization. The structural foundations are complete, but contract finalization and documentation alignment phases remain in progress before full archive-ready state is reached.

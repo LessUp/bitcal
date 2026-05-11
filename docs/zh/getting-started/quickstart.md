@@ -214,23 +214,22 @@ constexpr size_t bits = bitcal::bit256::bits;      // 256
 constexpr size_t words = bitcal::bit256::u64_count; // 4
 ```
 
-### 7. 低级 API（ops 命名空间）
+### 7. BitCal 3.0 迁移说明
 
-用于原始指针操作，无对象开销：
+BitCal 3.0 移除了旧的公开原始指针接口与 traits 入口。
 
 ```cpp
-#include <bitcal/ops.hpp>
+bitcal::bit256 arr;
+for (size_t i = 0; i < bitcal::bit256::u64_count; ++i) {
+    arr.set_word(i, source_words[i]);
+}
 
-uint64_t data[4] = {1, 2, 3, 4};
-
-// 函数式 API
-uint64_t ones = bitcal::ops::popcount<256>(data);
-int lz = bitcal::ops::count_leading_zeros<256>(data);
-
-// 工具函数
-uint64_t reversed = bitcal::ops::reverse_bits_64(0xF0F0F0F0);
-uint64_t swapped = bitcal::ops::byte_swap_64(0x12345678);
+uint64_t ones = arr.popcount();
+uint64_t first = arr.word(0);
 ```
+
+位运算请使用 `bitarray` 成员函数；适配现有缓冲区请使用 `set_word()`；只读提取请使用 `word()` / `operator[]`。
+
 
 ---
 

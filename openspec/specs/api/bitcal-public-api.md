@@ -1,14 +1,29 @@
 # API Specification: BitCal Public Interface
 
-## Version
+## Contract Target
 
-v2.1.0
+Planned breaking contract for **v3.0.0**.
+
+This specification freezes the retained public API that BitCal intends to keep after the public-surface contraction. During the transition, implementation and tests may still carry legacy helpers, but only the API described here remains part of the supported compatibility contract.
 
 ## Namespace
 
-All public APIs are in the `bitcal` namespace.
+All retained public APIs live in the `bitcal` namespace.
 
-## Core Types
+## Stable Include Contract
+
+```cpp
+#include <bitcal/bitcal.hpp>
+```
+
+`<bitcal/bitcal.hpp>` is the only stable public include seam.
+
+Implementation notes:
+- The retained `bitarray` definition lives in `include/bitcal/bitarray.hpp`.
+- `bitcal/bitarray.hpp`, `config.hpp`, `backend_ops.hpp`, and `scalar_ops.hpp` are implementation headers, not separate stable include contracts.
+- Documentation and examples must present the umbrella header as the supported consumption path.
+
+## Retained Core Types
 
 ### bitarray Template
 
@@ -20,15 +35,11 @@ namespace bitcal {
 ```
 
 **Template Parameters:**
+
 | Parameter | Type | Constraints | Description |
 |-----------|------|-------------|-------------|
-| `Bits` | `size_t` | Multiple of 64 | Total number of bits |
-| `Backend` | `simd_backend` | Any valid backend | SIMD implementation to use |
-
-**Static Assertions:**
-```cpp
-static_assert(Bits % 64 == 0, "Bits must be multiple of 64");
-```
+| `Bits` | `size_t` | `Bits >= 64` and multiple of 64 | Total number of bits |
+| `Backend` | `simd_backend` | A retained backend enum value | Compile-time backend selection |
 
 ### Predefined Type Aliases
 
@@ -47,405 +58,160 @@ namespace bitcal {
 ```cpp
 namespace bitcal {
     enum class simd_backend {
-        scalar,  // Portable scalar implementation
-        sse2,    // x86 SSE2 (128-bit)
-        avx,     // x86 AVX (256-bit transitional backend)
-        avx2,    // x86 AVX2 (256-bit)
-        avx512,  // x86 AVX-512 (partial support)
-        neon     // ARM NEON (128-bit)
+        scalar,
+        sse2,
+        avx2,
+        avx512,
+        neon
     };
 }
 ```
 
-## Constructors
+`simd_backend::avx` is not part of the retained public contract.
 
-### Default Constructor
-
-```cpp
-bitarray();
-```
-
-Initializes all bits to zero.
-
-### Value Constructor
+### Default Backend Selection
 
 ```cpp
-explicit bitarray(uint64_t value);
-```
-
-Initializes the lowest 64 bits with `value`, clears the rest.
-
-**Parameters:**
-- `value`: Lower 64 bits; upper bits zero-extended
-
-### Copy and Move
-
-```cpp
-bitarray(const bitarray& other);           // Copy constructor
-bitarray(bitarray&& other) noexcept;       // Move constructor
-bitarray& operator=(const bitarray& other);      // Copy assignment
-bitarray& operator=(bitarray&& other) noexcept;  // Move assignment
-```
-
-## Data Access
-
-### Array Subscript
-
-```cpp
-uint64_t operator[](size_t index) const;
-```
-
-**Read-only** access to individual 64-bit words (0-indexed, LSB is word 0).
-For write access, use `set_word()`.
-
-**Preconditions:**
-```cpp
-assert(index < u64_count);  // UB if violated
-```
-
-### Data Pointer
-
-```cpp
-const uint64_t* data() const noexcept;
-```
-
-**Read-only** access to underlying storage (64-byte aligned, contiguous).
-This protects the internal representation and ensures invariants are maintained.
-
-### Word Access
-
-```cpp
-uint64_t word(size_t index) const noexcept;
-void set_word(size_t index, uint64_t value) noexcept;
-```
-
-Read or write individual 64-bit words. These methods provide controlled access
-to the underlying storage while maintaining encapsulation.
-
-**Preconditions:**
-```cpp
-assert(index < u64_count);  // UB if violated
-```
-
-### Size Constants
-
-```cpp
-static constexpr size_t bits = Bits;           // Total bit width
-static constexpr size_t u64_count = Bits / 64; // Number of 64-bit words
-```
-
-## Bitwise Operators
-
-### AND
-
-```cpp
-bitarray operator&(const bitarray& other) const;
-bitarray& operator&=(const bitarray& other);
-```
-
-### OR
-
-```cpp
-bitarray operator|(const bitarray& other) const;
-bitarray& operator|=(const bitarray& other);
-```
-
-### XOR
-
-```cpp
-bitarray operator^(const bitarray& other) const;
-bitarray& operator^=(const bitarray& other);
-```
-
-### NOT
-
-```cpp
-bitarray operator~() const;
-```
-
-Bitwise inversion (accelerated by SIMD XOR with all-ones since v2.1).
-
-## Shift Operators
-
-### Left Shift
-
-```cpp
-bitarray operator<<(int count) const;
-bitarray& operator<<=(int count);
-void shift_left(int count);
-```
-
-Shift bits toward more significant positions, filling with zeros.
-
-### Right Shift
-
-```cpp
-bitarray operator>>(int count) const;
-bitarray& operator>>=(int count);
-void shift_right(int count);
-```
-
-Logical right shift (fill with zeros).
-
-### Boundary Behavior
-
-| Condition | Behavior |
-|-----------|----------|
-| `count == 0` | No operation |
-| `count >= Bits` | All bits cleared |
-| `count < 0` | Undefined behavior |
-
-## Comparison Operators
-
-### Equality
-
-```cpp
-bool operator==(const bitarray& other) const;
-```
-
-### Inequality
-
-```cpp
-bool operator!=(const bitarray& other) const;
-```
-
-## Special Operations
-
-### ANDNOT
-
-```cpp
-bitarray andnot(const bitarray& mask) const;
-```
-
-Computes `*this & ~mask` using native SIMD instructions.
-
-**Performance:** ~2× faster than separate NOT + AND.
-
-### is_zero
-
-```cpp
-bool is_zero() const;
-```
-
-Check if all bits are zero (SIMD-accelerated since v2.1).
-
-### clear
-
-```cpp
-void clear();
-```
-
-Set all bits to zero (uses `std::memset`).
-
-## Bit Counting
-
-### popcount
-
-```cpp
-uint64_t popcount() const;
-```
-
-Count number of bits set to 1.
-
-**Implementation:** Uses `__builtin_popcountll` (GCC/Clang) or `__popcnt64` (MSVC).
-
-### count_leading_zeros
-
-```cpp
-int count_leading_zeros() const;
-```
-
-Count consecutive zeros from most significant bit.
-
-**Returns:**
-- `Bits` if all zeros
-- `0` if MSB is 1
-
-**Backend Support:**
-- All backends provide CLZ operations through the unified backend interface
-- AVX-512 backends can leverage hardware instructions (e.g., `_mm512_lzcnt_epi64`)
-- Scalar backends use compiler intrinsics (`__builtin_clzll` / `_BitScanReverse64`)
-
-### count_trailing_zeros
-
-```cpp
-int count_trailing_zeros() const;
-```
-
-Count consecutive zeros from least significant bit.
-
-**Returns:**
-- `Bits` if all zeros
-- `0` if LSB is 1
-
-**Backend Support:**
-- All backends provide CTZ operations through the unified backend interface
-- Scalar backends use compiler intrinsics (`__builtin_ctzll` / `_BitScanForward64`)
-
-## Single Bit Operations
-
-### get_bit
-
-```cpp
-bool get_bit(size_t bit_index) const;
-```
-
-Read bit at position `bit_index` (0-indexed from LSB).
-
-**Complexity:** O(1)
-
-### set_bit
-
-```cpp
-void set_bit(size_t bit_index, bool value = true);
-```
-
-Set bit at position `bit_index`.
-
-**Parameters:**
-- `bit_index`: Position (0 to Bits-1)
-- `value`: `true` to set, `false` to clear
-
-**Complexity:** O(1)
-
-### flip_bit
-
-```cpp
-void flip_bit(size_t bit_index);
-```
-
-Toggle bit at position `bit_index`.
-
-**Complexity:** O(1)
-
-## Bit Manipulation
-
-### reverse
-
-```cpp
-void reverse();
-```
-
-Reverse all bits: bit 0 swaps with bit (Bits-1), etc.
-
-**Complexity:** O(Bits/64)
-
-**Implementation:** In-place operation (v2.1+).
-
-## Functional API (ops Namespace)
-
-Low-level operations on raw `uint64_t*` pointers:
-
-```cpp
-namespace bitcal::ops {
-    template<size_t Bits>
-    uint64_t popcount(const uint64_t* data);
-
-    template<size_t Bits>
-    int count_leading_zeros(const uint64_t* data);
-
-    template<size_t Bits>
-    int count_trailing_zeros(const uint64_t* data);
-
-    uint64_t reverse_bits_64(uint64_t x);
-    uint64_t byte_swap_64(uint64_t x);
+namespace bitcal {
+    constexpr simd_backend get_default_backend() noexcept;
 }
 ```
 
-## Backend Selection
+Selection priority follows the retained implementation path:
 
-### Automatic Selection
+`avx512 -> avx2 -> sse2 -> neon -> scalar`
 
-```cpp
-simd_backend get_default_backend() noexcept;
-```
-
-Returns optimal backend based on compiler flags.
-
-**Priority:** AVX-512 → AVX2 → AVX → SSE2 → NEON → Scalar
-
-### Manual Specification
+## Retained bitarray Constructors and Constants
 
 ```cpp
-bitcal::bitarray<256, bitcal::simd_backend::avx2> arr;  // Force AVX2
-bitcal::bitarray<128, bitcal::simd_backend::neon> arr;  // Force NEON
-bitcal::bitarray<256, bitcal::simd_backend::scalar> arr; // Force scalar
+bitarray() noexcept;
+explicit bitarray(uint64_t value) noexcept;
+bitarray(const bitarray&) noexcept;
+bitarray(bitarray&&) noexcept;
+bitarray& operator=(const bitarray&) noexcept;
+bitarray& operator=(bitarray&&) noexcept;
+
+static constexpr size_t bits = Bits;
+static constexpr size_t u64_count = Bits / 64;
+static constexpr simd_backend backend = Backend;
 ```
 
-## Type Traits
-
-### is_bitarray
+## Retained Data Access
 
 ```cpp
-template<typename T>
-struct is_bitarray : std::false_type {};
-
-template<size_t Bits, simd_backend Backend>
-struct is_bitarray<bitarray<Bits, Backend>> : std::true_type {};
-
-template<typename T>
-inline constexpr bool is_bitarray_v = is_bitarray<T>::value;
+const uint64_t* data() const noexcept;
+uint64_t word(size_t index) const noexcept;
+void set_word(size_t index, uint64_t value) noexcept;
+uint64_t operator[](size_t index) const noexcept;
 ```
 
-### bitarray_traits
+Contract notes:
+- storage is contiguous `uint64_t` word storage
+- word order is little-endian (`word 0` holds the least significant bits)
+- alignment is implementation-defined but MUST satisfy retained backend requirements for the instantiated width; the API does not promise universal 64-byte alignment for every width
+- index precondition: `index < u64_count`
+
+## Retained Bitwise Operations
 
 ```cpp
-template<typename T>
-struct bitarray_traits;
-
-template<size_t Bits, simd_backend Backend>
-struct bitarray_traits<bitarray<Bits, Backend>> {
-    static constexpr size_t bits = Bits;
-    static constexpr size_t u64_count = Bits / 64;
-    static constexpr simd_backend backend = Backend;
-    using word_type = uint64_t;
-};
+bitarray operator&(const bitarray& other) const noexcept;
+bitarray& operator&=(const bitarray& other) noexcept;
+bitarray operator|(const bitarray& other) const noexcept;
+bitarray& operator|=(const bitarray& other) noexcept;
+bitarray operator^(const bitarray& other) const noexcept;
+bitarray& operator^=(const bitarray& other) noexcept;
+bitarray operator~() const noexcept;
+bitarray andnot(const bitarray& mask) const noexcept;
 ```
 
-## Memory Layout
+## Retained Shift Operations
 
+```cpp
+bitarray operator<<(int count) const noexcept;
+bitarray& operator<<=(int count) noexcept;
+void shift_left(int count) noexcept;
+
+bitarray operator>>(int count) const noexcept;
+bitarray& operator>>=(int count) noexcept;
+void shift_right(int count) noexcept;
 ```
-bitarray<256> memory:
-┌──────────────────────────────────────────────────────────┐
-│ Alignment │ Word 0 │ Word 1 │ Word 2 │ Word 3 │ Padding │
-│ 64 bytes  │ 0-63   │ 64-127 │128-191 │192-255 │ to 64B  │
-└──────────────────────────────────────────────────────────┘
+
+Boundary behavior:
+
+| Condition | Behavior |
+|-----------|----------|
+| `count == 0` | no-op |
+| `count >= Bits` | all bits cleared |
+| `count < 0` | undefined behavior |
+
+## Retained Comparison and State Operations
+
+```cpp
+bool operator==(const bitarray& other) const noexcept;
+bool operator!=(const bitarray& other) const noexcept;
+bool is_zero() const noexcept;
+void clear() noexcept;
 ```
 
-- **Alignment:** 64 bytes (cache-line aligned)
-- **Endianness:** Little-endian (LSB in `data_[0]`)
-- **Storage:** Contiguous `uint64_t` array
+## Retained Counting and Single-Bit Operations
 
-## Error Handling
+```cpp
+uint64_t popcount() const noexcept;
+int count_leading_zeros() const noexcept;
+int count_trailing_zeros() const noexcept;
 
-- No bounds checking on `bit_index` in single bit operations (UB if out of range)
-- Negative shift count is undefined behavior
-- Unsupported backend/width combinations fall back to scalar
+bool get_bit(size_t bit_index) const noexcept;
+void set_bit(size_t bit_index, bool value = true) noexcept;
+void flip_bit(size_t bit_index) noexcept;
+void reverse() noexcept;
+```
 
-## Thread Safety
+Precondition: `bit_index < Bits`
 
-- Different threads on **different** instances: ✅ Thread-safe
-- Read-only access to **shared** instance: ✅ Thread-safe
-- Concurrent read/write on **same** instance: ❌ Requires synchronization
+## Removed from the Retained Public Contract
+
+The following surfaces are intentionally out of contract for v3.0.0 and must not be documented as retained public API unless a later OpenSpec change re-adds them:
+
+- `namespace bitcal::ops`
+- `is_bitarray`, `is_bitarray_v`, `bitarray_traits`
+- `find_first_set()` / `find_last_set()`
+- `set_range()` / `clear_range()` / `flip_range()`
+- `all()` / `any()` / `none()` / `count()` / `size()` / `test()`
+- the `bitarray<64>` specialization's explicit conversion to `uint64_t`
+- any direct-include promise for headers other than `<bitcal/bitcal.hpp>`
+
+These APIs may continue to exist temporarily in implementation during migration, but they are not covered by compatibility, documentation, or retained test requirements.
+
+## Error Handling and Thread Safety
+
+- Out-of-range `index` / `bit_index` usage is undefined behavior outside debug assertions.
+- Negative shift counts are undefined behavior.
+- Unsupported backend and toolchain combinations are outside the retained contract.
+- Different instances may be used concurrently.
+- Concurrent read/write on the same instance requires external synchronization.
 
 ## Contract Governance Requirements
+
+### Requirement: Stable public include SHALL remain the umbrella header
+BitCal SHALL document and verify `<bitcal/bitcal.hpp>` as the only stable public include seam for the retained API.
+
+#### Scenario: Public-facing materials show how to include BitCal
+- **WHEN** examples, documentation, or tests demonstrate public consumption
+- **THEN** they MUST include `<bitcal/bitcal.hpp>`
+- **AND** they MUST NOT describe any other include path as a stable public contract
+
+### Requirement: Retained public API SHALL exclude removed helper surface
+BitCal SHALL keep helper namespaces, traits, and undocumented convenience methods out of the retained 3.0.0 public contract unless they are explicitly re-added through OpenSpec.
+
+#### Scenario: Maintainers review retained public API coverage
+- **WHEN** a symbol or method is not listed in this specification as retained
+- **THEN** it MUST be treated as out of contract for compatibility, testing, and public documentation purposes
 
 ### Requirement: Public API changes SHALL be explicitly versioned and documented
 BitCal SHALL record any breaking public API or behavioral change in its API specification, migration-facing documentation, and canonical versioning source.
 
 #### Scenario: A public API contract changes
-- **WHEN** a method signature, type alias, semantic behavior, or supported contract changes in a breaking way
-- **THEN** the API specification MUST describe the new contract and the project documentation MUST identify the migration implication
-
-### Requirement: Public API documentation SHALL stay synchronized with implementation
-BitCal SHALL keep user-visible API documentation aligned with the implementation and tests that define retained behavior.
-
-#### Scenario: A documented API remains in the project
-- **WHEN** an API surface is documented as supported
-- **THEN** the implementation and test suite MUST still cover that documented behavior or the documentation MUST be removed or corrected
-
-## Backward Compatibility
-
-- v2.1.0 is 100% backward compatible with v2.0.x
-- No breaking changes planned for v2.x series
-- Migration guide available for v1.x → v2.x
+- **WHEN** a method signature, include seam, type alias, semantic behavior, or supported contract changes in a breaking way
+- **THEN** the API specification MUST describe the new contract
+- **AND** the project documentation MUST identify the migration implication
+- **AND** the version target MUST reflect the breaking change

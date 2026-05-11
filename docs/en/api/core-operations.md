@@ -1,88 +1,55 @@
 # Core Operations
 
+Reference for the retained BitCal 3.0 core bitwise surface.
+
+> **BitCal 3.0 migration:** all public core operations are expressed through `bitarray` operators and member functions. The removed `bitcal::ops` namespace is no longer part of the supported public API.
+
 ## Bitwise Operations
 
-All bitwise operations are automatically dispatched to the optimal SIMD implementation.
+All bitwise operations dispatch to the backend chosen for the `bitarray` specialization.
 
 ### AND
 
 ```cpp
-bitarray operator&(const bitarray& other) const;
-bitarray& operator&=(const bitarray& other);
+bitarray operator&(const bitarray& other) const noexcept;
+bitarray& operator&=(const bitarray& other) noexcept;
 ```
-
-Bitwise AND operation.
 
 ### OR
 
 ```cpp
-bitarray operator|(const bitarray& other) const;
-bitarray& operator|=(const bitarray& other);
+bitarray operator|(const bitarray& other) const noexcept;
+bitarray& operator|=(const bitarray& other) noexcept;
 ```
-
-Bitwise OR operation.
 
 ### XOR
 
 ```cpp
-bitarray operator^(const bitarray& other) const;
-bitarray& operator^=(const bitarray& other);
+bitarray operator^(const bitarray& other) const noexcept;
+bitarray& operator^=(const bitarray& other) noexcept;
 ```
-
-Bitwise XOR operation.
 
 ### NOT
 
 ```cpp
-bitarray operator~() const;
+bitarray operator~() const noexcept;
 ```
 
-Bitwise NOT (inversion).
-
-**SIMD Acceleration** (v2.1+):
-- SSE: `_mm_xor_si128`
-- AVX: `_mm256_xor_si256`
-- NEON: `veorq_u64`
+Bitwise inversion of every bit.
 
 ### ANDNOT
 
 ```cpp
-bitarray andnot(const bitarray& mask) const;
+bitarray andnot(const bitarray& mask) const noexcept;
 ```
 
-Computes `*this & ~mask`, faster than performing `~mask` then `&` separately.
-
-**Native SIMD Instructions**:
-| Backend | Instruction |
-|---------|-------------|
-| SSE | `_mm_andnot_si128` |
-| AVX | `_mm256_andnot_si256` |
-| NEON | `vbicq_u64` |
-
-**Example**:
-
-```cpp
-bitcal::bit256 data(0xFFFF0000FFFF0000);
-bitcal::bit256 mask(0xFF00FF00FF00FF00);
-
-auto result = data.andnot(mask);
-// Equivalent to: data & ~mask
-// = 0xFFFF0000FFFF0000 & 0x00FF00FF00FF00FF
-// = 0x00FF000000FF0000
-```
+Computes `*this & ~mask` using the selected backend implementation.
 
 ## Comparison
 
-### Equality
-
 ```cpp
-bool operator==(const bitarray& other) const;
-```
-
-### Inequality
-
-```cpp
-bool operator!=(const bitarray& other) const;
+bool operator==(const bitarray& other) const noexcept;
+bool operator!=(const bitarray& other) const noexcept;
 ```
 
 ## State Detection
@@ -90,35 +57,18 @@ bool operator!=(const bitarray& other) const;
 ### is_zero
 
 ```cpp
-bool is_zero() const;
+bool is_zero() const noexcept;
 ```
 
-Check if all bits are zero.
-
-**SIMD Acceleration** (v2.1+):
-- SSE: `_mm_movemask_epi8` + `_mm_cmpeq_epi8`
-- AVX: `_mm256_testz_si256`
-- NEON: `vceqq_u64` + lane checking
-
-```cpp
-bitcal::bit256 arr;
-if (arr.is_zero()) {
-    std::cout << "All bits are zero\n";
-}
-```
+Returns `true` when every bit is clear.
 
 ### clear
 
 ```cpp
-void clear();
+void clear() noexcept;
 ```
 
-Clear all bits to zero. Internally uses `std::memset`.
-
-```cpp
-bitcal::bit256 arr(0xFFFFFFFF);
-arr.clear();  // All bits become 0
-```
+Clears the entire object to zero.
 
 ## Complete Example
 
@@ -130,37 +80,29 @@ int main() {
     bitcal::bit256 a(0xFF00);
     bitcal::bit256 b(0x0FF0);
 
-    // Basic bitwise operations
-    auto and_result = a & b;    // 0x0F00
-    auto or_result  = a | b;    // 0xFFF0
-    auto xor_result = a ^ b;    // 0xF0F0
-    auto not_result = ~a;       // ~0xFF00
+    auto and_result = a & b;
+    auto or_result = a | b;
+    auto xor_result = a ^ b;
+    auto not_result = ~a;
+    auto andnot_result = a.andnot(b);
 
-    // ANDNOT
-    auto andnot_result = a.andnot(b);  // a & ~b = 0xF000
-
-    // Compound assignments
     a &= b;
     a |= b;
     a ^= b;
 
-    // Comparison
-    if (a == b) {
-        std::cout << "a equals b\n";
+    if (and_result != or_result && !not_result.is_zero()) {
+        std::cout << "core operations succeeded\n";
     }
 
-    // State detection
+    andnot_result.is_zero();
     a.clear();
-    if (a.is_zero()) {
-        std::cout << "a is zero\n";
-    }
-
+    std::cout << std::boolalpha << a.is_zero() << "\n";
     return 0;
 }
 ```
 
 ## Performance Tips
 
-1. **Use ANDNOT** — Approximately 2× faster than separate NOT + AND
-2. **Use is_zero** — SIMD-accelerated, faster than manual loop checking
-3. **Use compound assignments** — `a &= b` may be more efficient than `a = a & b` (avoids temporary objects)
+1. Prefer `andnot()` instead of spelling `a & ~b` when the intent matches
+2. Prefer compound assignments when updating an existing object in place
+3. Keep values in `bitarray` form instead of dropping to ad-hoc raw pointer helpers
