@@ -25,7 +25,7 @@ export default withMermaid(defineConfig({
         nav: [
           { text: '指南', link: '/zh/getting-started/installation', activeMatch: '/zh/getting-started/' },
           { text: '架构', link: '/zh/architecture/overview', activeMatch: '/zh/architecture/' },
-          { text: 'API', link: '/en/api/types', activeMatch: '/en/api/' },
+          { text: 'API', link: '/zh/api/types', activeMatch: '/zh/api/' },
         ],
         sidebar: {
           '/zh/getting-started/': [
@@ -45,6 +45,19 @@ export default withMermaid(defineConfig({
                 { text: '概览', link: '/zh/architecture/overview' },
                 { text: '平台支持', link: '/zh/architecture/platform-support' },
                 { text: 'SIMD 分发', link: '/zh/architecture/simd-dispatch' },
+              ],
+            },
+          ],
+          '/zh/api/': [
+            {
+              text: 'API 参考',
+              items: [
+                { text: '类型', link: '/zh/api/types' },
+                { text: '核心操作', link: '/zh/api/core-operations' },
+                { text: '位操作', link: '/zh/api/bit-manipulation' },
+                { text: '位计数', link: '/zh/api/bit-counting' },
+                { text: '移位操作', link: '/zh/api/shift-operations' },
+                { text: 'SIMD 后端', link: '/zh/api/simd-backend' },
               ],
             },
           ],

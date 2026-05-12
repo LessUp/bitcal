@@ -39,6 +39,14 @@ int main() {
 }
 ```
 
+## Installation
+
+<div class="command-block">
+<code>cp -r include/bitcal /your/project/include/</code>
+</div>
+
+No CMake. No package manager. Just headers.
+
 ## Platform Support
 
 | Platform | Compiler | Status |
@@ -48,3 +56,12 @@ int main() {
 | Windows x64 | MSVC 2017+ | Tested |
 | macOS ARM64 | AppleClang | Tested |
 | Linux ARM64 | Cross-compile | Verified |
+
+## API Reference
+
+Explore the complete [API documentation](./api/types) for:
+- **Types** — bitarray template and predefined aliases
+- **Core Operations** — AND, OR, XOR, NOT, ANDNOT
+- **Bit Counting** — popcount, CLZ, CTZ
+- **Shift Operations** — left and right shifts with carry propagation
+- **SIMD Backend** — backend selection and customization

@@ -39,6 +39,14 @@ int main() {
 }
 ```
 
+## 安装
+
+<div class="command-block">
+<code>cp -r include/bitcal /your/project/include/</code>
+</div>
+
+无需 CMake。无需包管理器。只需头文件。
+
 ## 平台支持
 
 | 平台 | 编译器 | 状态 |
@@ -48,3 +56,12 @@ int main() {
 | Windows x64 | MSVC 2017+ | 已测试 |
 | macOS ARM64 | AppleClang | 已测试 |
 | Linux ARM64 | 交叉编译 | 已验证 |
+
+## API 参考
+
+浏览完整的 [API 文档](./api/types)，包括：
+- **类型** — bitarray 模板和预定义别名
+- **核心操作** — AND、OR、XOR、NOT、ANDNOT
+- **位计数** — popcount、CLZ、CTZ
+- **移位操作** — 带进位传播的左右移位
+- **SIMD 后端** — 后端选择和自定义
