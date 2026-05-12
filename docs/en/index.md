@@ -1,67 +1,107 @@
 ---
 layout: home
-hero:
-  name: BitCal
-  text: Header-only SIMD bit manipulation for C++17
-  tagline: Zero build step. Zero dependencies. Maximum performance.
-  actions:
-    - theme: brand
-      text: Get Started
-      link: /en/getting-started/installation
-    - theme: alt
-      text: GitHub
-      link: https://github.com/LessUp/bitcal
-features:
-  - icon: ⚡
-    title: Header-Only
-    details: Single include seam. No build system needed. Just copy headers and compile.
-  - icon: 🚀
-    title: SIMD Optimized
-    details: Automatic dispatch to SSE2/AVX/AVX2 on x86-64 and NEON on ARM64.
-  - icon: 🎯
-    title: Fixed Widths
-    details: bit64, bit128, bit256, bit512, bit1024, plus custom multiples of 64 bits.
 ---
 
-## Quick Start
-
-```cpp
-#include <bitcal/bitcal.hpp>
-
-int main() {
-    bitcal::bit256 lhs(0xDEADBEEF);
-    bitcal::bit256 rhs(0xCAFEBABE);
-
-    auto masked = lhs.andnot(rhs);
-    auto ones = masked.popcount();
-
-    return static_cast<int>(ones);
-}
-```
-
-## Installation
-
-<div class="command-block">
-<code>cp -r include/bitcal /your/project/include/</code>
+<div class="home-header">
+  <div class="home-header-left">
+    <div class="home-logo">BC</div>
+    <div>
+      <span class="home-title">BitCal</span>
+      <span class="home-subtitle">C++17 SIMD Bit Library</span>
+    </div>
+  </div>
+  <div class="home-nav">
+    <a href="./getting-started/installation">Guides</a>
+    <a href="https://github.com/LessUp/bitcal">GitHub</a>
+    <a href="../zh/">中文</a>
+  </div>
 </div>
 
-No CMake. No package manager. Just headers.
+<div class="home-intro-row">
+  <div class="home-intro">
+    BitCal is a header-only C++17 library for bit manipulation with compile-time SIMD dispatch. Zero build step, zero dependencies, maximum performance.
+  </div>
+  <div class="home-stats">
+    <span><strong>Header-only</strong></span>
+    <span><strong>C++17</strong></span>
+    <span><strong>SIMD</strong></span>
+  </div>
+</div>
 
-## Platform Support
+## Features
 
-| Platform | Compiler | Status |
-|----------|----------|--------|
-| Linux x64 | GCC 7+ | Tested |
-| Linux x64 | Clang 6+ | Tested |
-| Windows x64 | MSVC 2017+ | Tested |
-| macOS ARM64 | AppleClang | Tested |
-| Linux ARM64 | Cross-compile | Verified |
+<div class="feature-map">
+  <div class="feature-card">
+    <div class="feature-card-title">⚡ Header-Only</div>
+    <div class="feature-card-desc">
+      Single include seam. No build system needed. Just copy headers and compile.
+    </div>
+    <div class="feature-tags">
+      <a href="./getting-started/installation" class="feature-tag">Installation</a>
+      <a href="./getting-started/quickstart" class="feature-tag">Quick Start</a>
+    </div>
+  </div>
 
-## API Reference
+  <div class="feature-card">
+    <div class="feature-card-title">🚀 SIMD Optimized</div>
+    <div class="feature-card-desc">
+      Automatic dispatch to SSE2/AVX/AVX2 on x86-64 and NEON on ARM64.
+    </div>
+    <div class="feature-tags">
+      <a href="./architecture/simd-dispatch" class="feature-tag">SIMD Dispatch</a>
+      <a href="./architecture/platform-support" class="feature-tag">Platforms</a>
+    </div>
+  </div>
 
-Explore the complete [API documentation](./api/types) for:
-- **Types** — bitarray template and predefined aliases
-- **Core Operations** — AND, OR, XOR, NOT, ANDNOT
-- **Bit Counting** — popcount, CLZ, CTZ
-- **Shift Operations** — left and right shifts with carry propagation
-- **SIMD Backend** — backend selection and customization
+  <div class="feature-card">
+    <div class="feature-card-title">🎯 Fixed Widths</div>
+    <div class="feature-card-desc">
+      bit64, bit128, bit256, bit512, bit1024, plus custom multiples of 64 bits.
+    </div>
+    <div class="feature-tags">
+      <a href="./api/types" class="feature-tag">Types</a>
+      <a href="./api/core-operations" class="feature-tag">Operations</a>
+    </div>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-card-title">🔧 Rich API</div>
+    <div class="feature-card-desc">
+      Bitwise ops, shifts, popcount, CLZ/CTZ, bit reversal, single-bit manipulation.
+    </div>
+    <div class="feature-tags">
+      <a href="./api/bit-counting" class="feature-tag">Bit Counting</a>
+      <a href="./api/bit-manipulation" class="feature-tag">Manipulation</a>
+    </div>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-card-title">🌍 Cross-Platform</div>
+    <div class="feature-card-desc">
+      Linux, Windows, macOS on x86-64 and ARM with C++17 or later.
+    </div>
+    <div class="feature-tags">
+      <a href="./architecture/platform-support" class="feature-tag">Platform Support</a>
+    </div>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-card-title">🛡️ Type-Safe</div>
+    <div class="feature-card-desc">
+      Compile-time bit-width validation (Bits % 64 == 0) with no runtime overhead.
+    </div>
+    <div class="feature-tags">
+      <a href="./api/types" class="feature-tag">Type System</a>
+    </div>
+  </div>
+</div>
+
+<div class="quick-start">
+  <div class="quick-start-title">Quick Start</div>
+  <div class="quick-start-content">
+    <div class="command-block">
+      <code>cp -r include/bitcal /your/project/include/</code>
+    </div>
+    Then include and compile: <code>#include &lt;bitcal/bitcal.hpp&gt;</code>
+  </div>
+</div>
