@@ -14,13 +14,12 @@ hero:
 
 <script setup>
 import { onMounted } from 'vue'
-import { useRouter, useData } from 'vitepress'
+import { useRouter, useData, withBase } from 'vitepress'
 
 onMounted(() => {
   const router = useRouter()
-  const { base } = useData()
   const lang = navigator.language || navigator.userLanguage
-  const target = lang.startsWith('zh') ? `${base}zh/` : `${base}en/`
-  router.go(target)
+  const target = lang.startsWith('zh') ? '/zh/' : '/en/'
+  router.go(withBase(target))
 })
 </script>
