@@ -1,6 +1,7 @@
 #pragma once
 
 #include "config.hpp"
+
 #include "scalar_ops.hpp"  // Required for popcount fallback
 
 #if BITCAL_HAS_AVX2
@@ -51,7 +52,8 @@ BITCAL_FORCEINLINE __m256i shift_right_64(__m256i a, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 256) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), _mm256_setzero_si256());
         return;
@@ -63,7 +65,8 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
         data[1] = 0;
         data[0] = 0;
         count -= 128;
-        if (count <= 0) return;
+        if (count <= 0)
+            return;
     }
 
     if (count >= 64) {
@@ -72,7 +75,8 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
         data[1] = data[0];
         data[0] = 0;
         count -= 64;
-        if (count <= 0) return;
+        if (count <= 0)
+            return;
     }
 
     __m256i v = load(data);
@@ -86,7 +90,8 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 256) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), _mm256_setzero_si256());
         return;
@@ -98,7 +103,8 @@ BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
         data[2] = 0;
         data[3] = 0;
         count -= 128;
-        if (count <= 0) return;
+        if (count <= 0)
+            return;
     }
 
     if (count >= 64) {
@@ -107,7 +113,8 @@ BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
         data[2] = data[3];
         data[3] = 0;
         count -= 64;
-        if (count <= 0) return;
+        if (count <= 0)
+            return;
     }
 
     __m256i v = load(data);
@@ -139,7 +146,8 @@ BITCAL_FORCEINLINE void bit_xor_256(const uint64_t* a, const uint64_t* b, uint64
 }
 
 BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 512) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), _mm256_setzero_si256());
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data + 4), _mm256_setzero_si256());
@@ -158,7 +166,8 @@ BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
         }
     }
 
-    if (bit_shift == 0) return;
+    if (bit_shift == 0)
+        return;
 
     __m256i lo = load(data);
     __m256i hi = load(data + 4);
@@ -184,7 +193,8 @@ BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_right_512(uint64_t* data, int count) noexcept {
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 512) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), _mm256_setzero_si256());
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data + 4), _mm256_setzero_si256());
@@ -203,7 +213,8 @@ BITCAL_FORCEINLINE void shift_right_512(uint64_t* data, int count) noexcept {
         }
     }
 
-    if (bit_shift == 0) return;
+    if (bit_shift == 0)
+        return;
 
     __m256i lo = load(data);
     __m256i hi = load(data + 4);
@@ -304,10 +315,8 @@ namespace detail {
 // This is stored as a constant for the Harley-Seal SIMD popcount
 BITCAL_FORCEINLINE __m256i popcount_lut() noexcept {
     // 0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4 repeated for 16 bytes
-    return _mm256_setr_epi8(
-        0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
-        0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4
-    );
+    return _mm256_setr_epi8(0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3,
+                            4);
 }
 
 // Mask for low 4 bits of each byte
@@ -351,8 +360,8 @@ BITCAL_FORCEINLINE uint64_t hsum_bytes_256(__m256i v) noexcept {
     // sad1 = [sum0_07, 0, sum1_1617, 0] (64-bit elements)
     // sad2 = [sum0_815, 0, sum1_2431, 0]
     // Total = sad1[0] + sad1[2] + sad2[0] + sad2[2]
-    return _mm256_extract_epi64(sad1, 0) + _mm256_extract_epi64(sad1, 2) +
-           _mm256_extract_epi64(sad2, 0) + _mm256_extract_epi64(sad2, 2);
+    return _mm256_extract_epi64(sad1, 0) + _mm256_extract_epi64(sad1, 2) + _mm256_extract_epi64(sad2, 0) +
+           _mm256_extract_epi64(sad2, 2);
 }
 
 BITCAL_FORCEINLINE uint64_t popcount_256(const uint64_t* data) noexcept {
@@ -375,24 +384,18 @@ BITCAL_FORCEINLINE uint64_t popcount_512(const uint64_t* data) noexcept {
 // Fallback for pre-SSSE3: extract and use scalar popcount
 BITCAL_FORCEINLINE uint64_t popcount_256(const uint64_t* data) noexcept {
     __m256i v = load(data);
-    return scalar::popcount(_mm256_extract_epi64(v, 0)) +
-           scalar::popcount(_mm256_extract_epi64(v, 1)) +
-           scalar::popcount(_mm256_extract_epi64(v, 2)) +
-           scalar::popcount(_mm256_extract_epi64(v, 3));
+    return scalar::popcount(_mm256_extract_epi64(v, 0)) + scalar::popcount(_mm256_extract_epi64(v, 1)) +
+           scalar::popcount(_mm256_extract_epi64(v, 2)) + scalar::popcount(_mm256_extract_epi64(v, 3));
 }
 
 BITCAL_FORCEINLINE uint64_t popcount_512(const uint64_t* data) noexcept {
     __m256i v0 = load(data);
     __m256i v1 = load(data + 4);
 
-    return scalar::popcount(_mm256_extract_epi64(v0, 0)) +
-           scalar::popcount(_mm256_extract_epi64(v0, 1)) +
-           scalar::popcount(_mm256_extract_epi64(v0, 2)) +
-           scalar::popcount(_mm256_extract_epi64(v0, 3)) +
-           scalar::popcount(_mm256_extract_epi64(v1, 0)) +
-           scalar::popcount(_mm256_extract_epi64(v1, 1)) +
-           scalar::popcount(_mm256_extract_epi64(v1, 2)) +
-           scalar::popcount(_mm256_extract_epi64(v1, 3));
+    return scalar::popcount(_mm256_extract_epi64(v0, 0)) + scalar::popcount(_mm256_extract_epi64(v0, 1)) +
+           scalar::popcount(_mm256_extract_epi64(v0, 2)) + scalar::popcount(_mm256_extract_epi64(v0, 3)) +
+           scalar::popcount(_mm256_extract_epi64(v1, 0)) + scalar::popcount(_mm256_extract_epi64(v1, 1)) +
+           scalar::popcount(_mm256_extract_epi64(v1, 2)) + scalar::popcount(_mm256_extract_epi64(v1, 3));
 }
 #endif  // __SSSE3__
 
@@ -445,7 +448,7 @@ BITCAL_FORCEINLINE bool equals_512(const uint64_t* a, const uint64_t* b) noexcep
     return _mm256_testc_si256(combined, _mm256_set1_epi32(-1)) != 0;
 }
 
-}
-}
+}  // namespace avx
+}  // namespace bitcal
 
 #endif

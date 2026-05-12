@@ -42,7 +42,8 @@ BITCAL_FORCEINLINE uint64x2_t shift_right_64(uint64x2_t a, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_left_128(uint64_t* data, int count) noexcept {
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 128) {
         data[0] = data[1] = 0;
         return;
@@ -69,7 +70,8 @@ BITCAL_FORCEINLINE void shift_left_128(uint64_t* data, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_right_128(uint64_t* data, int count) noexcept {
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 128) {
         data[0] = data[1] = 0;
         return;
@@ -114,7 +116,8 @@ BITCAL_FORCEINLINE void bit_xor_128(const uint64_t* a, const uint64_t* b, uint64
 }
 
 BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 256) {
         data[0] = data[1] = data[2] = data[3] = 0;
         return;
@@ -132,7 +135,8 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
         }
     }
 
-    if (bit_shift == 0) return;
+    if (bit_shift == 0)
+        return;
 
     uint64x2_t lo = load(data);
     uint64x2_t hi = load(data + 2);
@@ -156,7 +160,8 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 256) {
         data[0] = data[1] = data[2] = data[3] = 0;
         return;
@@ -174,7 +179,8 @@ BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
         }
     }
 
-    if (bit_shift == 0) return;
+    if (bit_shift == 0)
+        return;
 
     uint64x2_t lo = load(data);
     uint64x2_t hi = load(data + 2);
@@ -225,9 +231,11 @@ BITCAL_FORCEINLINE void bit_xor_256(const uint64_t* a, const uint64_t* b, uint64
 }
 
 BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 512) {
-        for (int i = 0; i < 8; ++i) data[i] = 0;
+        for (int i = 0; i < 8; ++i)
+            data[i] = 0;
         return;
     }
 
@@ -243,7 +251,8 @@ BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
         }
     }
 
-    if (bit_shift == 0) return;
+    if (bit_shift == 0)
+        return;
 
     uint64x2_t v0 = load(data);
     uint64x2_t v1 = load(data + 2);
@@ -281,9 +290,11 @@ BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_right_512(uint64_t* data, int count) noexcept {
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 512) {
-        for (int i = 0; i < 8; ++i) data[i] = 0;
+        for (int i = 0; i < 8; ++i)
+            data[i] = 0;
         return;
     }
 
@@ -299,7 +310,8 @@ BITCAL_FORCEINLINE void shift_right_512(uint64_t* data, int count) noexcept {
         }
     }
 
-    if (bit_shift == 0) return;
+    if (bit_shift == 0)
+        return;
 
     uint64x2_t v0 = load(data);
     uint64x2_t v1 = load(data + 2);
@@ -505,7 +517,7 @@ BITCAL_FORCEINLINE bool equals_512(const uint64_t* a, const uint64_t* b) noexcep
     return mask == ~0ULL;
 }
 
-}
-}
+}  // namespace neon
+}  // namespace bitcal
 
 #endif

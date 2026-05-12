@@ -1,35 +1,43 @@
-#include <bitcal/bitcal.hpp>
-#include <iostream>
 #include <cstring>
+
 #include <initializer_list>
+#include <iostream>
 #include <type_traits>
 #include <utility>
+
+#include <bitcal/bitcal.hpp>
 
 static int g_pass = 0;
 static int g_fail = 0;
 
-#define ASSERT_EQ(a, b) do { \
-    if ((a) != (b)) { \
-        std::cerr << "  FAIL: " << #a << " == " << #b \
-                  << " (got " << (a) << " vs " << (b) << ")" \
-                  << " at " << __FILE__ << ":" << __LINE__ << std::endl; \
-        return false; \
-    } \
-} while(0)
+#define ASSERT_EQ(a, b)                                                                                        \
+    do {                                                                                                       \
+        if ((a) != (b)) {                                                                                      \
+            std::cerr << "  FAIL: " << #a << " == " << #b << " (got " << (a) << " vs " << (b) << ")" << " at " \
+                      << __FILE__ << ":" << __LINE__ << std::endl;                                             \
+            return false;                                                                                      \
+        }                                                                                                      \
+    } while (0)
 
-#define ASSERT_TRUE(expr) do { \
-    if (!(expr)) { \
-        std::cerr << "  FAIL: " << #expr \
-                  << " at " << __FILE__ << ":" << __LINE__ << std::endl; \
-        return false; \
-    } \
-} while(0)
+#define ASSERT_TRUE(expr)                                                                           \
+    do {                                                                                            \
+        if (!(expr)) {                                                                              \
+            std::cerr << "  FAIL: " << #expr << " at " << __FILE__ << ":" << __LINE__ << std::endl; \
+            return false;                                                                           \
+        }                                                                                           \
+    } while (0)
 
-#define RUN_TEST(func) do { \
-    std::cout << "  " << #func << " ... "; \
-    if (func()) { std::cout << "PASS" << std::endl; ++g_pass; } \
-    else { std::cout << "FAIL" << std::endl; ++g_fail; } \
-} while(0)
+#define RUN_TEST(func)                         \
+    do {                                       \
+        std::cout << "  " << #func << " ... "; \
+        if (func()) {                          \
+            std::cout << "PASS" << std::endl;  \
+            ++g_pass;                          \
+        } else {                               \
+            std::cout << "FAIL" << std::endl;  \
+            ++g_fail;                          \
+        }                                      \
+    } while (0)
 
 // ============================================================================
 // Theme-Oriented Test Organization
@@ -51,7 +59,7 @@ static int g_fail = 0;
 // ============================================================================
 
 /// 从位位置列表创建 bitarray（只使用公开接口 set_bit）
-template<typename BitArray>
+template <typename BitArray>
 BitArray make_bitarray(std::initializer_list<size_t> bit_positions) {
     BitArray arr;
     for (size_t pos : bit_positions) {
@@ -61,13 +69,13 @@ BitArray make_bitarray(std::initializer_list<size_t> bit_positions) {
 }
 
 /// 从 uint64_t 值创建 bitarray（使用构造函数）
-template<typename BitArray>
+template <typename BitArray>
 BitArray make_bitarray_from_u64(uint64_t value) {
     return BitArray(value);
 }
 
 /// 设置 bitarray 的所有位
-template<typename BitArray>
+template <typename BitArray>
 void set_all_bits(BitArray& arr) {
     for (size_t i = 0; i < BitArray::bits; ++i) {
         arr.set_bit(i, true);
@@ -75,16 +83,17 @@ void set_all_bits(BitArray& arr) {
 }
 
 /// 检查两个 bitarray 是否相等（使用公开接口）
-template<typename BitArray>
+template <typename BitArray>
 bool arrays_equal(const BitArray& a, const BitArray& b) {
     return a == b;
 }
 
 /// 验证位模式是否匹配预期（使用 get_bit）
-template<typename BitArray>
+template <typename BitArray>
 bool verify_bit_pattern(const BitArray& arr, std::initializer_list<std::pair<size_t, bool>> expected) {
     for (const auto& [pos, val] : expected) {
-        if (arr.get_bit(pos) != val) return false;
+        if (arr.get_bit(pos) != val)
+            return false;
     }
     return true;
 }
@@ -94,135 +103,148 @@ bool verify_bit_pattern(const BitArray& arr, std::initializer_list<std::pair<siz
 // ============================================================================
 
 /// Verify single-bit left shift with boundary checks
-template<typename BitArray>
+template <typename BitArray>
 bool verify_single_bit_shift_left(size_t shift_amount, size_t bit_width) {
     BitArray arr;
     arr.set_bit(0, true);
     arr.shift_left(shift_amount);
-    
+
     if (shift_amount >= bit_width) {
-        if (!arr.is_zero()) return false;
+        if (!arr.is_zero())
+            return false;
     } else {
-        if (!arr.get_bit(shift_amount)) return false;
-        if (shift_amount > 0 && arr.get_bit(shift_amount - 1)) return false;
+        if (!arr.get_bit(shift_amount))
+            return false;
+        if (shift_amount > 0 && arr.get_bit(shift_amount - 1))
+            return false;
     }
     return true;
 }
 
 /// Verify single-bit shift right with boundary checks
-template<typename BitArray>
+template <typename BitArray>
 bool verify_single_bit_shift_right(size_t shift_amount, size_t bit_width) {
     BitArray arr;
     arr.set_bit(bit_width - 1, true);
     arr.shift_right(shift_amount);
-    
+
     if (shift_amount >= bit_width) {
-        if (!arr.is_zero()) return false;
+        if (!arr.is_zero())
+            return false;
     } else {
         size_t expected_pos = bit_width - 1 - shift_amount;
-        if (!arr.get_bit(expected_pos)) return false;
-        if (shift_amount > 0 && arr.get_bit(expected_pos + 1)) return false;
+        if (!arr.get_bit(expected_pos))
+            return false;
+        if (shift_amount > 0 && arr.get_bit(expected_pos + 1))
+            return false;
     }
     return true;
 }
 
 /// Verify that shift by full bit width results in zero.
 /// Tests both left shift (from bit 0) and right shift (from bit width-1).
-template<typename BitArray>
+template <typename BitArray>
 bool verify_zero_after_full_width_shift(size_t bit_width) {
     BitArray arr;
     arr.set_bit(0, true);
     arr.shift_left(bit_width);
-    if (!arr.is_zero()) return false;
-    
+    if (!arr.is_zero())
+        return false;
+
     arr.set_bit(bit_width - 1, true);
     arr.shift_right(bit_width);
-    if (!arr.is_zero()) return false;
-    
+    if (!arr.is_zero())
+        return false;
+
     return true;
 }
 
 /// Verify equality of constructed arrays
-template<typename BitArray>
+template <typename BitArray>
 bool verify_equality_basics(uint64_t value_a, uint64_t value_b) {
     BitArray a(value_a), b(value_b), c(value_a);
-    if (!(a == c)) return false;
-    if (a == b && value_a != value_b) return false;
-    if (a != b && value_a == value_b) return false;
+    if (!(a == c))
+        return false;
+    if (a == b && value_a != value_b)
+        return false;
+    if (a != b && value_a == value_b)
+        return false;
     return true;
 }
 
-template<typename T, typename = void>
+template <typename T, typename = void>
 struct has_set_range : std::false_type {};
 
-template<typename T>
+template <typename T>
 struct has_set_range<T, std::void_t<decltype(std::declval<T&>().set_range(size_t{}, size_t{}))>> : std::true_type {};
 
-template<typename T, typename = void>
+template <typename T, typename = void>
 struct has_clear_range : std::false_type {};
 
-template<typename T>
-struct has_clear_range<T, std::void_t<decltype(std::declval<T&>().clear_range(size_t{}, size_t{}))>> : std::true_type {};
+template <typename T>
+struct has_clear_range<T, std::void_t<decltype(std::declval<T&>().clear_range(size_t{}, size_t{}))>> : std::true_type {
+};
 
-template<typename T, typename = void>
+template <typename T, typename = void>
 struct has_flip_range : std::false_type {};
 
-template<typename T>
+template <typename T>
 struct has_flip_range<T, std::void_t<decltype(std::declval<T&>().flip_range(size_t{}, size_t{}))>> : std::true_type {};
 
-template<typename T, typename = void>
+template <typename T, typename = void>
 struct has_find_first_set : std::false_type {};
 
-template<typename T>
+template <typename T>
 struct has_find_first_set<T, std::void_t<decltype(std::declval<const T&>().find_first_set())>> : std::true_type {};
 
-template<typename T, typename = void>
+template <typename T, typename = void>
 struct has_find_last_set : std::false_type {};
 
-template<typename T>
+template <typename T>
 struct has_find_last_set<T, std::void_t<decltype(std::declval<const T&>().find_last_set())>> : std::true_type {};
 
-template<typename T, typename = void>
+template <typename T, typename = void>
 struct has_all : std::false_type {};
 
-template<typename T>
+template <typename T>
 struct has_all<T, std::void_t<decltype(std::declval<const T&>().all())>> : std::true_type {};
 
-template<typename T, typename = void>
+template <typename T, typename = void>
 struct has_any : std::false_type {};
 
-template<typename T>
+template <typename T>
 struct has_any<T, std::void_t<decltype(std::declval<const T&>().any())>> : std::true_type {};
 
-template<typename T, typename = void>
+template <typename T, typename = void>
 struct has_none : std::false_type {};
 
-template<typename T>
+template <typename T>
 struct has_none<T, std::void_t<decltype(std::declval<const T&>().none())>> : std::true_type {};
 
-template<typename T, typename = void>
+template <typename T, typename = void>
 struct has_count : std::false_type {};
 
-template<typename T>
+template <typename T>
 struct has_count<T, std::void_t<decltype(std::declval<const T&>().count())>> : std::true_type {};
 
-template<typename T, typename = void>
+template <typename T, typename = void>
 struct has_test : std::false_type {};
 
-template<typename T>
+template <typename T>
 struct has_test<T, std::void_t<decltype(std::declval<const T&>().test(size_t{}))>> : std::true_type {};
 
-template<typename T, typename = void>
+template <typename T, typename = void>
 struct has_size : std::false_type {};
 
-template<typename T>
+template <typename T>
 struct has_size<T, std::void_t<decltype(std::declval<const T&>().size())>> : std::true_type {};
 
-template<typename T, typename = void>
+template <typename T, typename = void>
 struct has_explicit_uint64_conversion : std::false_type {};
 
-template<typename T>
-struct has_explicit_uint64_conversion<T, std::void_t<decltype(static_cast<uint64_t>(std::declval<const T&>()))>> : std::true_type {};
+template <typename T>
+struct has_explicit_uint64_conversion<T, std::void_t<decltype(static_cast<uint64_t>(std::declval<const T&>()))>>
+    : std::true_type {};
 
 static_assert(!has_set_range<bitcal::bit256>::value, "set_range should not remain public");
 static_assert(!has_clear_range<bitcal::bit256>::value, "clear_range should not remain public");
@@ -235,7 +257,8 @@ static_assert(!has_none<bitcal::bit256>::value, "none should not remain public")
 static_assert(!has_count<bitcal::bit256>::value, "count should not remain public");
 static_assert(!has_test<bitcal::bit256>::value, "test should not remain public");
 static_assert(!has_size<bitcal::bit256>::value, "size should not remain public");
-static_assert(!has_explicit_uint64_conversion<bitcal::bit64>::value, "bit64 to uint64_t conversion should not remain public");
+static_assert(!has_explicit_uint64_conversion<bitcal::bit64>::value,
+              "bit64 to uint64_t conversion should not remain public");
 
 // ============================================================================
 // RETAINED PUBLIC CONTRACT
@@ -362,10 +385,14 @@ bool test_bit64_clz_ctz() {
 
 bool test_bit64_bit_ops() {
     bitcal::bit64 a;
-    a.set_bit(0); ASSERT_TRUE(a.get_bit(0));
-    a.set_bit(63); ASSERT_TRUE(a.get_bit(63));
-    a.set_bit(0, false); ASSERT_TRUE(!a.get_bit(0));
-    a.flip_bit(63); ASSERT_TRUE(!a.get_bit(63));
+    a.set_bit(0);
+    ASSERT_TRUE(a.get_bit(0));
+    a.set_bit(63);
+    ASSERT_TRUE(a.get_bit(63));
+    a.set_bit(0, false);
+    ASSERT_TRUE(!a.get_bit(0));
+    a.flip_bit(63);
+    ASSERT_TRUE(!a.get_bit(63));
     return true;
 }
 
@@ -386,13 +413,16 @@ bool test_bit64_compound_assignment() {
     a &= b;
     ASSERT_EQ(a.popcount(), bitcal::bit64(0xF000).popcount());
 
-    a = bitcal::bit64(0xFF00); a |= b;
+    a = bitcal::bit64(0xFF00);
+    a |= b;
     ASSERT_EQ(a.popcount(), bitcal::bit64(0xFFF0).popcount());
 
-    a = bitcal::bit64(0xFF00); a ^= b;
+    a = bitcal::bit64(0xFF00);
+    a ^= b;
     ASSERT_EQ(a.popcount(), bitcal::bit64(0x0FF0).popcount());
 
-    a = bitcal::bit64(1); a <<= 10;
+    a = bitcal::bit64(1);
+    a <<= 10;
     ASSERT_TRUE(a.get_bit(10));
     a >>= 5;
     ASSERT_TRUE(a.get_bit(5));
@@ -417,11 +447,14 @@ bool test_bit128_basic() {
 bool test_bit128_shift_left() {
     bitcal::bit128 a;
     // 设置低 64 位的所有位
-    for (int i = 0; i < 64; ++i) a.set_bit(i, true);
+    for (int i = 0; i < 64; ++i)
+        a.set_bit(i, true);
     a.shift_left(64);
     // 现在高 64 位应该有所有位
-    for (int i = 64; i < 128; ++i) ASSERT_TRUE(a.get_bit(i));
-    for (int i = 0; i < 64; ++i) ASSERT_TRUE(!a.get_bit(i));
+    for (int i = 64; i < 128; ++i)
+        ASSERT_TRUE(a.get_bit(i));
+    for (int i = 0; i < 64; ++i)
+        ASSERT_TRUE(!a.get_bit(i));
 
     // Use helper to verify single-bit shift behavior
     ASSERT_TRUE(verify_single_bit_shift_left<bitcal::bit128>(10, 128));
@@ -431,11 +464,14 @@ bool test_bit128_shift_left() {
 bool test_bit128_shift_right() {
     bitcal::bit128 a;
     // 设置高 64 位的所有位
-    for (int i = 64; i < 128; ++i) a.set_bit(i, true);
+    for (int i = 64; i < 128; ++i)
+        a.set_bit(i, true);
     a.shift_right(64);
     // 现在低 64 位应该有所有位
-    for (int i = 0; i < 64; ++i) ASSERT_TRUE(a.get_bit(i));
-    for (int i = 64; i < 128; ++i) ASSERT_TRUE(!a.get_bit(i));
+    for (int i = 0; i < 64; ++i)
+        ASSERT_TRUE(a.get_bit(i));
+    for (int i = 64; i < 128; ++i)
+        ASSERT_TRUE(!a.get_bit(i));
     return true;
 }
 
@@ -491,11 +527,14 @@ bool test_bit256_basic() {
 bool test_bit256_shift_128() {
     bitcal::bit256 a;
     // 设置低 64 位
-    for (int i = 0; i < 64; ++i) a.set_bit(i, true);
+    for (int i = 0; i < 64; ++i)
+        a.set_bit(i, true);
     a.shift_left(128);
     // 验证移位结果
-    for (int i = 128; i < 192; ++i) ASSERT_TRUE(a.get_bit(i));
-    for (int i = 0; i < 128; ++i) ASSERT_TRUE(!a.get_bit(i));
+    for (int i = 128; i < 192; ++i)
+        ASSERT_TRUE(a.get_bit(i));
+    for (int i = 0; i < 128; ++i)
+        ASSERT_TRUE(!a.get_bit(i));
     return true;
 }
 
@@ -527,7 +566,7 @@ bool test_bit256_shift_cross_carry() {
     d.shift_right(1);
     ASSERT_TRUE(d.get_bit(127));
     ASSERT_TRUE(!d.get_bit(128));
-    
+
     // Use helper for single-bit shift verification
     ASSERT_TRUE(verify_single_bit_shift_right<bitcal::bit256>(1, 256));
     return true;
@@ -566,7 +605,8 @@ bool test_bit256_shift_boundary() {
 bool test_bit256_popcount() {
     bitcal::bit256 a;
     // 设置所有位
-    for (int i = 0; i < 256; ++i) a.set_bit(i, true);
+    for (int i = 0; i < 256; ++i)
+        a.set_bit(i, true);
     ASSERT_EQ(a.popcount(), 256ULL);
     return true;
 }
@@ -574,7 +614,7 @@ bool test_bit256_popcount() {
 bool test_bit256_equality() {
     // Use helper to verify basic equality contracts
     ASSERT_TRUE(verify_equality_basics<bitcal::bit256>(123, 456));
-    
+
     // Additional explicit test
     bitcal::bit256 a(123), b(123), c(456);
     ASSERT_TRUE(a == b);
@@ -627,7 +667,8 @@ bool test_bit512_shift_boundary() {
     a.shift_left(511);
     ASSERT_TRUE(a.get_bit(511));
     ASSERT_TRUE(!a.get_bit(510));
-    for (int i = 0; i < 511; ++i) ASSERT_TRUE(!a.get_bit(i));
+    for (int i = 0; i < 511; ++i)
+        ASSERT_TRUE(!a.get_bit(i));
 
     // Use helper to verify full-width shift results in zero
     ASSERT_TRUE(verify_zero_after_full_width_shift<bitcal::bit512>(512));
@@ -678,7 +719,8 @@ bool test_bit1024_shift_boundary() {
     a.shift_left(1023);
     ASSERT_TRUE(a.get_bit(1023));
     ASSERT_TRUE(!a.get_bit(1022));
-    for (int i = 0; i < 1023; ++i) ASSERT_TRUE(!a.get_bit(i));
+    for (int i = 0; i < 1023; ++i)
+        ASSERT_TRUE(!a.get_bit(i));
 
     // Use helper to verify full-width shift results in zero
     ASSERT_TRUE(verify_zero_after_full_width_shift<bitcal::bit1024>(1024));
@@ -688,7 +730,8 @@ bool test_bit1024_shift_boundary() {
 bool test_bit1024_popcount() {
     bitcal::bit1024 a;
     // 设置所有位
-    for (int i = 0; i < 1024; ++i) a.set_bit(i, true);
+    for (int i = 0; i < 1024; ++i)
+        a.set_bit(i, true);
     ASSERT_EQ(a.popcount(), 1024ULL);
 
     bitcal::bit1024 b;
@@ -738,7 +781,7 @@ bool test_bit1024_is_zero() {
 bool test_bit1024_equality() {
     // Use helper to verify basic equality contracts
     ASSERT_TRUE(verify_equality_basics<bitcal::bit1024>(123, 456));
-    
+
     // Additional explicit test
     bitcal::bit1024 a(123), b(123), c(456);
     ASSERT_TRUE(a == b);
@@ -760,8 +803,12 @@ bool test_backend_consistency() {
     // Create scalar version and test operations
     scalar_bit256 sa, sb;
     // 使用 set_bit 设置位
-    sa.set_bit(0, true); sa.set_bit(63, true); sa.set_bit(128, true);
-    sb.set_bit(1, true); sb.set_bit(64, true); sb.set_bit(200, true);
+    sa.set_bit(0, true);
+    sa.set_bit(63, true);
+    sa.set_bit(128, true);
+    sb.set_bit(1, true);
+    sb.set_bit(64, true);
+    sb.set_bit(200, true);
 
     // Test bitwise operations produce non-zero results
     scalar_bit256 and_result = sa & sb;
@@ -865,14 +912,14 @@ bool test_small_width_backend_fallback_consistency() {
     // across scalar and SIMD backends, ensuring fallback paths work correctly.
     // This test ensures the backend adapter layer preserves semantics for unsupported
     // width/backend combinations.
-    
+
     // Test scalar 64-bit operations
     using scalar_bit64 = bitcal::bitarray<64, bitcal::simd_backend::scalar>;
     scalar_bit64 scalar64;
     scalar64.set_bit(0, true);
     scalar64.set_bit(63, true);
     ASSERT_EQ(scalar64.popcount(), 2ULL);
-    
+
 #if BITCAL_HAS_SSE2
     // SSE2 doesn't have a dedicated 64-bit specialization, should fall back to scalar
     using sse2_bit64 = bitcal::bitarray<64, bitcal::simd_backend::sse2>;
@@ -924,22 +971,22 @@ bool test_large_width_1024_fallback_characterization() {
     // Characterization test: verify that large bit widths (1024) that don't have
     // dedicated SIMD optimizations fall back to scalar consistently across all backends.
     // This test locks the behavior before production refactor.
-    
+
     // Create scalar 1024-bit reference
     using scalar_bit1024 = bitcal::bitarray<1024, bitcal::simd_backend::scalar>;
     scalar_bit1024 scalar_ref;
-    
+
     // Set representative bits at key positions: 0, 511, 1000
     scalar_ref.set_bit(0, true);
     scalar_ref.set_bit(511, true);
     scalar_ref.set_bit(1000, true);
-    
+
     // Verify initial state
     ASSERT_EQ(scalar_ref.popcount(), 3ULL);
     ASSERT_TRUE(scalar_ref.get_bit(0));
     ASSERT_TRUE(scalar_ref.get_bit(511));
     ASSERT_TRUE(scalar_ref.get_bit(1000));
-    ASSERT_TRUE(!scalar_ref.get_bit(1));    // Adjacent bit should not be set
+    ASSERT_TRUE(!scalar_ref.get_bit(1));  // Adjacent bit should not be set
     ASSERT_TRUE(!scalar_ref.get_bit(510));
     ASSERT_TRUE(!scalar_ref.get_bit(1001));
 
@@ -950,20 +997,20 @@ bool test_large_width_1024_fallback_characterization() {
     sse2_test.set_bit(0, true);
     sse2_test.set_bit(511, true);
     sse2_test.set_bit(1000, true);
-    
+
     // Verify SSE2 fallback produces same results
     ASSERT_EQ(sse2_test.popcount(), scalar_ref.popcount());
     ASSERT_EQ(sse2_test.get_bit(0), scalar_ref.get_bit(0));
     ASSERT_EQ(sse2_test.get_bit(511), scalar_ref.get_bit(511));
     ASSERT_EQ(sse2_test.get_bit(1000), scalar_ref.get_bit(1000));
-    
+
     // Test shift operation on SSE2 variant
     sse2_bit1024 sse2_shifted = sse2_test;
     sse2_shifted.shift_left(5);
-    
+
     scalar_bit1024 scalar_shifted = scalar_ref;
     scalar_shifted.shift_left(5);
-    
+
     ASSERT_EQ(sse2_shifted.popcount(), scalar_shifted.popcount());
 #endif
 
@@ -974,20 +1021,20 @@ bool test_large_width_1024_fallback_characterization() {
     avx2_test.set_bit(0, true);
     avx2_test.set_bit(511, true);
     avx2_test.set_bit(1000, true);
-    
+
     // Verify AVX2 fallback produces same results
     ASSERT_EQ(avx2_test.popcount(), scalar_ref.popcount());
     ASSERT_EQ(avx2_test.get_bit(0), scalar_ref.get_bit(0));
     ASSERT_EQ(avx2_test.get_bit(511), scalar_ref.get_bit(511));
     ASSERT_EQ(avx2_test.get_bit(1000), scalar_ref.get_bit(1000));
-    
+
     // Test shift operation on AVX2 variant
     avx2_bit1024 avx2_shifted = avx2_test;
     avx2_shifted.shift_right(3);
-    
+
     scalar_bit1024 scalar_shifted_r = scalar_ref;
     scalar_shifted_r.shift_right(3);
-    
+
     ASSERT_EQ(avx2_shifted.popcount(), scalar_shifted_r.popcount());
 #endif
 
@@ -998,7 +1045,7 @@ bool test_large_width_1024_fallback_characterization() {
     avx512_test.set_bit(0, true);
     avx512_test.set_bit(511, true);
     avx512_test.set_bit(1000, true);
-    
+
     // Verify AVX512 fallback produces same results
     ASSERT_EQ(avx512_test.popcount(), scalar_ref.popcount());
     ASSERT_EQ(avx512_test.get_bit(0), scalar_ref.get_bit(0));
@@ -1013,7 +1060,7 @@ bool test_large_width_1024_fallback_characterization() {
     neon_test.set_bit(0, true);
     neon_test.set_bit(511, true);
     neon_test.set_bit(1000, true);
-    
+
     // Verify NEON fallback produces same results
     ASSERT_EQ(neon_test.popcount(), scalar_ref.popcount());
     ASSERT_EQ(neon_test.get_bit(0), scalar_ref.get_bit(0));
@@ -1065,47 +1112,47 @@ bool test_bit64_specialization() {
 }
 
 bool test_bit64_default_backend_contract() {
-    // Runtime verification that bit64 and bitarray<64, simd_backend::scalar> 
+    // Runtime verification that bit64 and bitarray<64, simd_backend::scalar>
     // behave equivalently for representative operations
-    
+
     // Test 1: Construction and initialization
     bitcal::bit64 a(0xABCDEF0123456789ULL);
     bitcal::bitarray<64, bitcal::simd_backend::scalar> b(0xABCDEF0123456789ULL);
     ASSERT_EQ(a.popcount(), b.popcount());
-    
+
     // Test 2: Bit manipulation
     bitcal::bit64 c;
     bitcal::bitarray<64, bitcal::simd_backend::scalar> d;
-    
+
     for (size_t i = 0; i < 64; i += 8) {
         c.set_bit(i, true);
         d.set_bit(i, true);
     }
-    
+
     ASSERT_EQ(c.popcount(), d.popcount());
-    
+
     for (size_t i = 0; i < 64; i += 8) {
         ASSERT_EQ(c.get_bit(i), d.get_bit(i));
     }
-    
+
     // Test 3: Bitwise operations
     bitcal::bit64 e(0xFFFFFFFFU);
     bitcal::bitarray<64, bitcal::simd_backend::scalar> f(0xFFFFFFFFU);
-    
+
     bitcal::bit64 g = e | a;
     bitcal::bitarray<64, bitcal::simd_backend::scalar> h = f | b;
     ASSERT_EQ(g.popcount(), h.popcount());
-    
+
     // Test 4: Shift operations
     bitcal::bit64 i(1ULL);
     bitcal::bitarray<64, bitcal::simd_backend::scalar> j(1ULL);
-    
+
     i.shift_left(32);
     j.shift_left(32);
     ASSERT_TRUE(i.get_bit(32));
     ASSERT_TRUE(j.get_bit(32));
     ASSERT_EQ(i.popcount(), j.popcount());
-    
+
     return true;
 }
 
@@ -1118,7 +1165,7 @@ bool test_bit64_default_backend_contract() {
 
 bool test_abstract_shift_left() {
     // 测试不依赖内部 word 布局，只通过公开接口验证
-    
+
     bitcal::bit256 a;
     a.set_bit(0, true);  // 设置 bit 0
     a.shift_left(1);
@@ -1143,7 +1190,7 @@ bool test_abstract_shift_left() {
 
 bool test_abstract_shift_right() {
     // 测试不依赖内部 word 布局
-    
+
     bitcal::bit256 a;
     a.set_bit(255, true);  // 设置最高位
     a.shift_right(1);
@@ -1220,15 +1267,18 @@ bool test_bitwise_mathematical_properties() {
     // Test commutativity: a & b == b & a
     bitcal::bit256 a, b;
     // 使用 set_bit 设置位模式
-    for (int i = 0; i < 128; ++i) a.set_bit(i, (i % 2) == 0);
-    for (int i = 0; i < 128; ++i) b.set_bit(i, (i % 4) == 0);
+    for (int i = 0; i < 128; ++i)
+        a.set_bit(i, (i % 2) == 0);
+    for (int i = 0; i < 128; ++i)
+        b.set_bit(i, (i % 4) == 0);
     ASSERT_TRUE((a & b) == (b & a));
     ASSERT_TRUE((a | b) == (b | a));
     ASSERT_TRUE((a ^ b) == (b ^ a));
 
     // Test associativity: (a & b) & c == a & (b & c)
     bitcal::bit256 c;
-    for (int i = 0; i < 128; ++i) c.set_bit(i, (i % 8) == 0);
+    for (int i = 0; i < 128; ++i)
+        c.set_bit(i, (i % 8) == 0);
     ASSERT_TRUE(((a & b) & c) == (a & (b & c)));
     ASSERT_TRUE(((a | b) | c) == (a | (b | c)));
     ASSERT_TRUE(((a ^ b) ^ c) == (a ^ (b ^ c)));
@@ -1242,7 +1292,7 @@ bool test_bitwise_mathematical_properties() {
 
     // Test identity: a & all_ones == a, a | all_zeros == a
     bitcal::bit256 all_ones = ~bitcal::bit256();  // 全 1
-    bitcal::bit256 all_zeros;  // 全 0
+    bitcal::bit256 all_zeros;                     // 全 0
     ASSERT_TRUE((a & all_ones) == a);
     ASSERT_TRUE((a | all_zeros) == a);
 
@@ -1329,7 +1379,8 @@ bool test_bit1024_shift_boundary() {
     a.shift_left(1023);
     ASSERT_TRUE(a.get_bit(1023));
     ASSERT_TRUE(!a.get_bit(1022));
-    for (int i = 0; i < 1023; ++i) ASSERT_TRUE(!a.get_bit(i));
+    for (int i = 0; i < 1023; ++i)
+        ASSERT_TRUE(!a.get_bit(i));
 
     bitcal::bit1024 b;
     b.set_bit(0, true);
@@ -1341,7 +1392,8 @@ bool test_bit1024_shift_boundary() {
 bool test_bit1024_popcount() {
     bitcal::bit1024 a;
     // 设置所有位
-    for (int i = 0; i < 1024; ++i) a.set_bit(i, true);
+    for (int i = 0; i < 1024; ++i)
+        a.set_bit(i, true);
     ASSERT_EQ(a.popcount(), 1024ULL);
 
     bitcal::bit1024 b;
@@ -1404,8 +1456,12 @@ bool test_backend_consistency() {
     // Create scalar version and test operations
     scalar_bit256 sa, sb;
     // 使用 set_bit 设置位
-    sa.set_bit(0, true); sa.set_bit(63, true); sa.set_bit(128, true);
-    sb.set_bit(1, true); sb.set_bit(64, true); sb.set_bit(200, true);
+    sa.set_bit(0, true);
+    sa.set_bit(63, true);
+    sa.set_bit(128, true);
+    sb.set_bit(1, true);
+    sb.set_bit(64, true);
+    sb.set_bit(200, true);
 
     // Test bitwise operations produce non-zero results
     scalar_bit256 and_result = sa & sb;
@@ -1512,11 +1568,12 @@ bool test_cross_backend_consistency() {
 // ========== Enhanced cross-backend consistency tests ==========
 
 // Helper function to compare bitarrays with different backends
-template<typename BA1, typename BA2>
+template <typename BA1, typename BA2>
 bool bitarray_equal(const BA1& a, const BA2& b) {
     static_assert(BA1::bits == BA2::bits, "Bit widths must match");
     for (size_t i = 0; i < BA1::u64_count; ++i) {
-        if (a.word(i) != b.word(i)) return false;
+        if (a.word(i) != b.word(i))
+            return false;
     }
     return true;
 }
@@ -1525,12 +1582,12 @@ bool test_backend_consistency_comprehensive() {
     // Comprehensive backend consistency test with direct comparison
     using scalar_bit256 = bitcal::bitarray<256, bitcal::simd_backend::scalar>;
     using auto_bit256 = bitcal::bit256;
-    
+
     // Test 1: Bitwise operations with direct equality
     {
         scalar_bit256 sa, sb;
         auto_bit256 aa, ab;
-        
+
         for (int i = 0; i < 256; i += 7) {
             sa.set_bit(i, true);
             aa.set_bit(i, true);
@@ -1539,47 +1596,47 @@ bool test_backend_consistency_comprehensive() {
             sb.set_bit(i, true);
             ab.set_bit(i, true);
         }
-        
+
         // AND
         scalar_bit256 scalar_and = sa & sb;
         auto_bit256 auto_and = aa & ab;
         ASSERT_TRUE(bitarray_equal(scalar_and, auto_and));
-        
+
         // OR
         scalar_bit256 scalar_or = sa | sb;
         auto_bit256 auto_or = aa | ab;
         ASSERT_TRUE(bitarray_equal(scalar_or, auto_or));
-        
+
         // XOR
         scalar_bit256 scalar_xor = sa ^ sb;
         auto_bit256 auto_xor = aa ^ ab;
         ASSERT_TRUE(bitarray_equal(scalar_xor, auto_xor));
-        
+
         // NOT
         scalar_bit256 scalar_not = ~sa;
         auto_bit256 auto_not = ~aa;
         ASSERT_TRUE(bitarray_equal(scalar_not, auto_not));
     }
-    
+
     // Test 2: CLZ/CTZ consistency
     {
         scalar_bit256 sa;
         auto_bit256 aa;
-        
+
         for (int i = 0; i < 256; i += 13) {
             sa.set_bit(i, true);
             aa.set_bit(i, true);
         }
-        
+
         ASSERT_EQ(sa.count_leading_zeros(), aa.count_leading_zeros());
         ASSERT_EQ(sa.count_trailing_zeros(), aa.count_trailing_zeros());
-        
+
         // Test all-zeros
         scalar_bit256 sz;
         auto_bit256 az;
         ASSERT_EQ(sz.count_leading_zeros(), az.count_leading_zeros());
         ASSERT_EQ(sz.count_trailing_zeros(), az.count_trailing_zeros());
-        
+
         // Test single MSB
         scalar_bit256 smsb;
         auto_bit256 amsb;
@@ -1588,17 +1645,17 @@ bool test_backend_consistency_comprehensive() {
         ASSERT_EQ(smsb.count_leading_zeros(), amsb.count_leading_zeros());
         ASSERT_EQ(smsb.count_trailing_zeros(), amsb.count_trailing_zeros());
     }
-    
+
     // Test 3: Shift boundary cases
     {
         scalar_bit256 sa;
         auto_bit256 aa;
-        
+
         for (int i = 0; i < 256; i += 5) {
             sa.set_bit(i, true);
             aa.set_bit(i, true);
         }
-        
+
         // Test various shift amounts
         int shift_amounts[] = {0, 1, 63, 64, 127, 128, 192, 255, 256};
         for (int shift : shift_amounts) {
@@ -1607,7 +1664,7 @@ bool test_backend_consistency_comprehensive() {
             sl.shift_left(shift);
             al.shift_left(shift);
             ASSERT_TRUE(bitarray_equal(sl, al));
-            
+
             scalar_bit256 sr = sa;
             auto_bit256 ar = aa;
             sr.shift_right(shift);
@@ -1615,49 +1672,49 @@ bool test_backend_consistency_comprehensive() {
             ASSERT_TRUE(bitarray_equal(sr, ar));
         }
     }
-    
+
     // Test 4: 512-bit consistency
     {
         using scalar_bit512 = bitcal::bitarray<512, bitcal::simd_backend::scalar>;
         using auto_bit512 = bitcal::bit512;
-        
+
         scalar_bit512 sa, sb;
         auto_bit512 aa, ab;
-        
+
         for (int i = 0; i < 512; i += 17) {
             sa.set_bit(i, true);
             sb.set_bit(i, true);
             aa.set_bit(i, true);
             ab.set_bit(i, true);
         }
-        
+
         // Bitwise
         scalar_bit512 scalar_and = sa & sb;
         auto_bit512 auto_and = aa & ab;
         ASSERT_TRUE(bitarray_equal(scalar_and, auto_and));
-        
+
         scalar_bit512 scalar_or = sa | sb;
         auto_bit512 auto_or = aa | ab;
         ASSERT_TRUE(bitarray_equal(scalar_or, auto_or));
-        
+
         scalar_bit512 scalar_xor = sa ^ sb;
         auto_bit512 auto_xor = aa ^ ab;
         ASSERT_TRUE(bitarray_equal(scalar_xor, auto_xor));
-        
+
         scalar_bit512 scalar_not = ~sa;
         auto_bit512 auto_not = ~aa;
         ASSERT_TRUE(bitarray_equal(scalar_not, auto_not));
-        
+
         // Count
         ASSERT_EQ(sa.popcount(), aa.popcount());
         ASSERT_EQ(sa.count_leading_zeros(), aa.count_leading_zeros());
         ASSERT_EQ(sa.count_trailing_zeros(), aa.count_trailing_zeros());
-        
+
         // Query
         ASSERT_EQ(sa.is_zero(), aa.is_zero());
         ASSERT_EQ(sa.all(), aa.all());
     }
-    
+
     return true;
 }
 
@@ -1926,10 +1983,8 @@ bool test_abstract_shift_right() {
 
 bool test_comprehensive_shift_boundaries() {
     // 测试所有关键边界值
-    const int boundary_counts[] = {0, 1, 31, 32, 63, 64, 65,
-                                    127, 128, 129,
-                                    191, 192, 193,
-                                    254, 255, 256, 257, 512, 1023};
+    const int boundary_counts[] = {0,   1,   31,  32,  63,  64,  65,  127, 128, 129,
+                                   191, 192, 193, 254, 255, 256, 257, 512, 1023};
 
     for (int count : boundary_counts) {
         // 测试 bit256
@@ -1992,27 +2047,35 @@ bool test_andnot_64() {
 bool test_andnot_256() {
     bitcal::bit256 a, mask;
     // 设置 a 的低 128 位
-    for (int i = 0; i < 128; ++i) a.set_bit(i, true);
+    for (int i = 0; i < 128; ++i)
+        a.set_bit(i, true);
     // 设置 mask 的低 64 位
-    for (int i = 0; i < 64; ++i) mask.set_bit(i, true);
+    for (int i = 0; i < 64; ++i)
+        mask.set_bit(i, true);
 
     auto r = a.andnot(mask);
     // r 应该有 bits 64-127 设置
     ASSERT_EQ(r.popcount(), 64ULL);
-    for (int i = 64; i < 128; ++i) ASSERT_TRUE(r.get_bit(i));
-    for (int i = 0; i < 64; ++i) ASSERT_TRUE(!r.get_bit(i));
+    for (int i = 64; i < 128; ++i)
+        ASSERT_TRUE(r.get_bit(i));
+    for (int i = 0; i < 64; ++i)
+        ASSERT_TRUE(!r.get_bit(i));
     return true;
 }
 
 bool test_not_128() {
     bitcal::bit128 a;
     // 设置低 64 位的偶数位
-    for (int i = 0; i < 64; i += 2) a.set_bit(i, true);
+    for (int i = 0; i < 64; i += 2)
+        a.set_bit(i, true);
     auto r = ~a;
     // 验证反转后的结果
-    for (int i = 0; i < 64; i += 2) ASSERT_TRUE(!r.get_bit(i));
-    for (int i = 1; i < 64; i += 2) ASSERT_TRUE(r.get_bit(i));
-    for (int i = 64; i < 128; ++i) ASSERT_TRUE(r.get_bit(i));  // 高 64 位应该全 1
+    for (int i = 0; i < 64; i += 2)
+        ASSERT_TRUE(!r.get_bit(i));
+    for (int i = 1; i < 64; i += 2)
+        ASSERT_TRUE(r.get_bit(i));
+    for (int i = 64; i < 128; ++i)
+        ASSERT_TRUE(r.get_bit(i));  // 高 64 位应该全 1
     return true;
 }
 
@@ -2026,13 +2089,21 @@ bool test_not_256() {
 }
 
 bool test_is_zero_various() {
-    bitcal::bit64 a; ASSERT_TRUE(a.is_zero());
-    bitcal::bit128 b; ASSERT_TRUE(b.is_zero());
-    bitcal::bit256 c; ASSERT_TRUE(c.is_zero());
-    bitcal::bit512 d; ASSERT_TRUE(d.is_zero());
+    bitcal::bit64 a;
+    ASSERT_TRUE(a.is_zero());
+    bitcal::bit128 b;
+    ASSERT_TRUE(b.is_zero());
+    bitcal::bit256 c;
+    ASSERT_TRUE(c.is_zero());
+    bitcal::bit512 d;
+    ASSERT_TRUE(d.is_zero());
 
-    bitcal::bit256 e; e.set_bit(200, true); ASSERT_TRUE(!e.is_zero());
-    bitcal::bit512 f; f.set_bit(500, true); ASSERT_TRUE(!f.is_zero());
+    bitcal::bit256 e;
+    e.set_bit(200, true);
+    ASSERT_TRUE(!e.is_zero());
+    bitcal::bit512 f;
+    f.set_bit(500, true);
+    ASSERT_TRUE(!f.is_zero());
     return true;
 }
 
@@ -2059,7 +2130,8 @@ bool test_popcount_edge_cases() {
 
     // 交替位模式
     bitcal::bit256 alternating;
-    for (int i = 0; i < 256; i += 2) alternating.set_bit(i, true);
+    for (int i = 0; i < 256; i += 2)
+        alternating.set_bit(i, true);
     ASSERT_EQ(alternating.popcount(), 128ULL);
 
     return true;
@@ -2106,7 +2178,7 @@ void run_retained_contract_tests() {
 
 void run_core_behavior_tests() {
     std::cout << std::endl << "=== [Core Behavior Across Widths] ===" << std::endl;
-    
+
     std::cout << std::endl << "  [64-bit]" << std::endl;
     RUN_TEST(test_bit64_basic);
     RUN_TEST(test_bit64_shift_left);
@@ -2178,7 +2250,7 @@ void run_boundary_condition_tests() {
 
 void run_miscellaneous_operation_tests() {
     std::cout << std::endl << "=== [Miscellaneous Operations] ===" << std::endl;
-    
+
     std::cout << std::endl << "  [ANDNOT]" << std::endl;
     RUN_TEST(test_andnot_64);
     RUN_TEST(test_andnot_256);
@@ -2189,10 +2261,10 @@ void run_miscellaneous_operation_tests() {
 
     std::cout << std::endl << "  [is_zero]" << std::endl;
     RUN_TEST(test_is_zero_various);
-    
+
     std::cout << std::endl << "  [reverse]" << std::endl;
     RUN_TEST(test_reverse_256);
-    
+
     std::cout << std::endl << "  [popcount edge cases]" << std::endl;
     RUN_TEST(test_popcount_edge_cases);
 }
@@ -2219,9 +2291,7 @@ int main() {
     run_static_validation_tests();
 
     std::cout << std::endl << "==============================" << std::endl;
-    std::cout << "Total: " << (g_pass + g_fail)
-              << "  Pass: " << g_pass
-              << "  Fail: " << g_fail << std::endl;
+    std::cout << "Total: " << (g_pass + g_fail) << "  Pass: " << g_pass << "  Fail: " << g_fail << std::endl;
 
     if (g_fail > 0) {
         std::cout << "SOME TESTS FAILED!" << std::endl;

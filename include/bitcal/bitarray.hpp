@@ -1,6 +1,7 @@
 #pragma once
 
 #include "config.hpp"
+
 #include "backend_ops.hpp"
 
 #include <cassert>
@@ -9,36 +10,27 @@
 
 namespace bitcal {
 
-template<size_t Bits, simd_backend Backend = get_default_backend()>
+template <size_t Bits, simd_backend Backend = get_default_backend()>
 class bitarray {
     static_assert(Bits >= 64, "Bits must be at least 64");
     static_assert(Bits % 64 == 0, "Bits must be a multiple of 64");
 
-    static_assert(
-        !(Backend == simd_backend::sse2 && !BITCAL_HAS_SSE2),
-        "SSE2 backend selected but not available. Compile with -msse2 (x86) or use a different backend."
-    );
-    static_assert(
-        !(Backend == simd_backend::avx2 && !BITCAL_HAS_AVX2),
-        "AVX2 backend selected but not available. Compile with -mavx2 (x86) or use a different backend."
-    );
+    static_assert(!(Backend == simd_backend::sse2 && !BITCAL_HAS_SSE2),
+                  "SSE2 backend selected but not available. Compile with -msse2 (x86) or use a different backend.");
+    static_assert(!(Backend == simd_backend::avx2 && !BITCAL_HAS_AVX2),
+                  "AVX2 backend selected but not available. Compile with -mavx2 (x86) or use a different backend.");
     static_assert(
         !(Backend == simd_backend::avx512 && !BITCAL_HAS_AVX512),
-        "AVX-512 backend selected but not available. Compile with -mavx512f (x86) or use a different backend."
-    );
-    static_assert(
-        !(Backend == simd_backend::neon && !BITCAL_HAS_NEON),
-        "NEON backend selected but not available. Use ARM platform or a different backend."
-    );
+        "AVX-512 backend selected but not available. Compile with -mavx512f (x86) or use a different backend.");
+    static_assert(!(Backend == simd_backend::neon && !BITCAL_HAS_NEON),
+                  "NEON backend selected but not available. Use ARM platform or a different backend.");
 
 public:
     static constexpr size_t bits = Bits;
     static constexpr size_t u64_count = Bits / 64;
     static constexpr simd_backend backend = Backend;
 
-    bitarray() noexcept {
-        clear();
-    }
+    bitarray() noexcept { clear(); }
 
     explicit bitarray(uint64_t value) noexcept {
         clear();
@@ -50,9 +42,7 @@ public:
     bitarray& operator=(const bitarray& other) noexcept = default;
     bitarray& operator=(bitarray&& other) noexcept = default;
 
-    BITCAL_FORCEINLINE void clear() noexcept {
-        std::memset(data_, 0, sizeof(data_));
-    }
+    BITCAL_FORCEINLINE void clear() noexcept { std::memset(data_, 0, sizeof(data_)); }
 
     [[nodiscard]] BITCAL_FORCEINLINE const uint64_t* data() const noexcept { return data_; }
 
@@ -96,13 +86,9 @@ public:
         data_[word_idx] ^= (1ULL << bit_offset);
     }
 
-    BITCAL_FORCEINLINE void shift_left(int count) noexcept {
-        shift_impl<shift_dir::left>(count);
-    }
+    BITCAL_FORCEINLINE void shift_left(int count) noexcept { shift_impl<shift_dir::left>(count); }
 
-    BITCAL_FORCEINLINE void shift_right(int count) noexcept {
-        shift_impl<shift_dir::right>(count);
-    }
+    BITCAL_FORCEINLINE void shift_right(int count) noexcept { shift_impl<shift_dir::right>(count); }
 
     [[nodiscard]] BITCAL_FORCEINLINE bitarray operator&(const bitarray& other) const noexcept {
         bitarray result;
@@ -207,9 +193,7 @@ public:
         return backend::ops<Bits, Backend>::equals(data_, other.data_);
     }
 
-    [[nodiscard]] BITCAL_FORCEINLINE bool operator!=(const bitarray& other) const noexcept {
-        return !(*this == other);
-    }
+    [[nodiscard]] BITCAL_FORCEINLINE bool operator!=(const bitarray& other) const noexcept { return !(*this == other); }
 
     // ============================================================================
     // Find first/last set bit
@@ -251,34 +235,22 @@ public:
     // ============================================================================
 
     /// Check if all bits are set (all ones)
-    [[nodiscard]] BITCAL_FORCEINLINE bool all() const noexcept {
-        return backend::ops<Bits, Backend>::all(data_);
-    }
+    [[nodiscard]] BITCAL_FORCEINLINE bool all() const noexcept { return backend::ops<Bits, Backend>::all(data_); }
 
     /// Check if any bit is set
-    [[nodiscard]] BITCAL_FORCEINLINE bool any() const noexcept {
-        return !is_zero();
-    }
+    [[nodiscard]] BITCAL_FORCEINLINE bool any() const noexcept { return !is_zero(); }
 
     /// Check if no bits are set
-    [[nodiscard]] BITCAL_FORCEINLINE bool none() const noexcept {
-        return is_zero();
-    }
+    [[nodiscard]] BITCAL_FORCEINLINE bool none() const noexcept { return is_zero(); }
 
     /// Count the number of set bits (alias for popcount)
-    [[nodiscard]] BITCAL_FORCEINLINE uint64_t count() const noexcept {
-        return popcount();
-    }
+    [[nodiscard]] BITCAL_FORCEINLINE uint64_t count() const noexcept { return popcount(); }
 
     /// Return the number of bits in the bitarray
-    [[nodiscard]] static constexpr size_t size() noexcept {
-        return Bits;
-    }
+    [[nodiscard]] static constexpr size_t size() noexcept { return Bits; }
 
     /// Test if a bit is set (alias for get_bit)
-    [[nodiscard]] BITCAL_FORCEINLINE bool test(size_t bit_index) const noexcept {
-        return get_bit(bit_index);
-    }
+    [[nodiscard]] BITCAL_FORCEINLINE bool test(size_t bit_index) const noexcept { return get_bit(bit_index); }
 
 private:
     alignas(get_optimal_alignment<Bits>()) uint64_t data_[u64_count];
@@ -286,7 +258,7 @@ private:
     enum class binop { op_and, op_or, op_xor, op_andnot };
     enum class shift_dir { left, right };
 
-    template<shift_dir Dir>
+    template <shift_dir Dir>
     BITCAL_FORCEINLINE void shift_impl(int count) noexcept {
         if constexpr (Dir == shift_dir::left) {
             backend::ops<Bits, Backend>::shift_left(data_, count);
@@ -295,7 +267,7 @@ private:
         }
     }
 
-    template<binop Op>
+    template <binop Op>
     static BITCAL_FORCEINLINE void dispatch_binop(const bitarray& a, const bitarray& b, bitarray& out) noexcept {
         if constexpr (Op == binop::op_and) {
             backend::ops<Bits, Backend>::bit_and(a.data_, b.data_, out.data_);
@@ -313,15 +285,14 @@ private:
 // bit64 conversion operator
 // ============================================================================
 
-template<>
+template <>
 class bitarray<64> : public bitarray<64, simd_backend::scalar> {
     using Base = bitarray<64, simd_backend::scalar>;
+
 public:
     using Base::Base;
 
-    [[nodiscard]] explicit BITCAL_FORCEINLINE operator uint64_t() const noexcept {
-        return Base::data()[0];
-    }
+    [[nodiscard]] explicit BITCAL_FORCEINLINE operator uint64_t() const noexcept { return Base::data()[0]; }
 };
 
 using bit64 = bitarray<64>;
@@ -330,4 +301,4 @@ using bit256 = bitarray<256>;
 using bit512 = bitarray<512>;
 using bit1024 = bitarray<1024>;
 
-} // namespace bitcal
+}  // namespace bitcal

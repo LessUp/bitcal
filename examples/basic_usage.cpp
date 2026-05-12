@@ -1,6 +1,7 @@
-#include <bitcal/bitcal.hpp>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+
+#include <bitcal/bitcal.hpp>
 
 void print_hex(const char* name, const bitcal::bit256& arr) {
     std::cout << name << ": ";

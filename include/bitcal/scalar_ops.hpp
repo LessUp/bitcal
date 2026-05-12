@@ -1,6 +1,7 @@
 #pragma once
 
 #include "config.hpp"
+
 #include <cstring>
 
 /**
@@ -67,14 +68,18 @@ namespace bitcal {
 namespace scalar {
 
 BITCAL_FORCEINLINE uint64_t shift_left(uint64_t value, int count) noexcept {
-    if (count <= 0) return value;
-    if (count >= 64) return 0;
+    if (count <= 0)
+        return value;
+    if (count >= 64)
+        return 0;
     return value << count;
 }
 
 BITCAL_FORCEINLINE uint64_t shift_right(uint64_t value, int count) noexcept {
-    if (count <= 0) return value;
-    if (count >= 64) return 0;
+    if (count <= 0)
+        return value;
+    if (count >= 64)
+        return 0;
     return value >> count;
 }
 
@@ -112,7 +117,8 @@ BITCAL_FORCEINLINE uint64_t popcount(uint64_t x) noexcept {
 }
 
 BITCAL_FORCEINLINE int count_leading_zeros(uint64_t x) noexcept {
-    if (x == 0) return 64;
+    if (x == 0)
+        return 64;
 #if defined(__GNUC__) || defined(__clang__)
     return __builtin_clzll(x);
 #elif defined(_MSC_VER) && defined(_M_X64)
@@ -122,7 +128,8 @@ BITCAL_FORCEINLINE int count_leading_zeros(uint64_t x) noexcept {
 #else
     int count = 0;
     for (int i = 63; i >= 0; --i) {
-        if (x & (1ULL << i)) break;
+        if (x & (1ULL << i))
+            break;
         ++count;
     }
     return count;
@@ -130,7 +137,8 @@ BITCAL_FORCEINLINE int count_leading_zeros(uint64_t x) noexcept {
 }
 
 BITCAL_FORCEINLINE int count_trailing_zeros(uint64_t x) noexcept {
-    if (x == 0) return 64;
+    if (x == 0)
+        return 64;
 #if defined(__GNUC__) || defined(__clang__)
     return __builtin_ctzll(x);
 #elif defined(_MSC_VER) && defined(_M_X64)
@@ -140,7 +148,8 @@ BITCAL_FORCEINLINE int count_trailing_zeros(uint64_t x) noexcept {
 #else
     int count = 0;
     for (int i = 0; i < 64; ++i) {
-        if (x & (1ULL << i)) break;
+        if (x & (1ULL << i))
+            break;
         ++count;
     }
     return count;
@@ -153,29 +162,26 @@ BITCAL_FORCEINLINE uint64_t byte_swap(uint64_t x) noexcept {
 #elif defined(_MSC_VER)
     return _byteswap_uint64(x);
 #else
-    return ((x & 0x00000000000000FFULL) << 56) |
-           ((x & 0x000000000000FF00ULL) << 40) |
-           ((x & 0x0000000000FF0000ULL) << 24) |
-           ((x & 0x00000000FF000000ULL) << 8)  |
-           ((x & 0x000000FF00000000ULL) >> 8)  |
-           ((x & 0x0000FF0000000000ULL) >> 24) |
-           ((x & 0x00FF000000000000ULL) >> 40) |
-           ((x & 0xFF00000000000000ULL) >> 56);
+    return ((x & 0x00000000000000FFULL) << 56) | ((x & 0x000000000000FF00ULL) << 40) |
+           ((x & 0x0000000000FF0000ULL) << 24) | ((x & 0x00000000FF000000ULL) << 8) |
+           ((x & 0x000000FF00000000ULL) >> 8) | ((x & 0x0000FF0000000000ULL) >> 24) |
+           ((x & 0x00FF000000000000ULL) >> 40) | ((x & 0xFF00000000000000ULL) >> 56);
 #endif
 }
 
 BITCAL_FORCEINLINE uint64_t reverse_bits(uint64_t x) noexcept {
-    x = ((x & 0x5555555555555555ULL) << 1)  | ((x & 0xAAAAAAAAAAAAAAAAULL) >> 1);
-    x = ((x & 0x3333333333333333ULL) << 2)  | ((x & 0xCCCCCCCCCCCCCCCCULL) >> 2);
-    x = ((x & 0x0F0F0F0F0F0F0F0FULL) << 4)  | ((x & 0xF0F0F0F0F0F0F0F0ULL) >> 4);
+    x = ((x & 0x5555555555555555ULL) << 1) | ((x & 0xAAAAAAAAAAAAAAAAULL) >> 1);
+    x = ((x & 0x3333333333333333ULL) << 2) | ((x & 0xCCCCCCCCCCCCCCCCULL) >> 2);
+    x = ((x & 0x0F0F0F0F0F0F0F0FULL) << 4) | ((x & 0xF0F0F0F0F0F0F0F0ULL) >> 4);
     return byte_swap(x);
 }
 
-template<size_t N>
+template <size_t N>
 BITCAL_FORCEINLINE void shift_left_array(uint64_t* data, int count) noexcept {
     static_assert(N > 0, "Array size must be positive");
 
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 64) {
         const int word_shift = count / 64;
         const int bit_shift = count % 64;
@@ -195,7 +201,8 @@ BITCAL_FORCEINLINE void shift_left_array(uint64_t* data, int count) noexcept {
         // Early return when no bit-level shift needed
         // This also ensures bit_shift ∈ [1, 63] for the code below,
         // preventing potential shift-by-64 UB in `data[i] >> (64 - count)`
-        if (bit_shift == 0) return;
+        if (bit_shift == 0)
+            return;
         count = bit_shift;
     }
 
@@ -209,11 +216,12 @@ BITCAL_FORCEINLINE void shift_left_array(uint64_t* data, int count) noexcept {
     }
 }
 
-template<size_t N>
+template <size_t N>
 BITCAL_FORCEINLINE void shift_right_array(uint64_t* data, int count) noexcept {
     static_assert(N > 0, "Array size must be positive");
 
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 64) {
         const int word_shift = count / 64;
         const int bit_shift = count % 64;
@@ -233,7 +241,8 @@ BITCAL_FORCEINLINE void shift_right_array(uint64_t* data, int count) noexcept {
         // Early return when no bit-level shift needed
         // This also ensures bit_shift ∈ [1, 63] for the code below,
         // preventing potential shift-by-64 UB in `data[i] << (64 - count)`
-        if (bit_shift == 0) return;
+        if (bit_shift == 0)
+            return;
         count = bit_shift;
     }
 
@@ -247,35 +256,35 @@ BITCAL_FORCEINLINE void shift_right_array(uint64_t* data, int count) noexcept {
     }
 }
 
-template<size_t N>
+template <size_t N>
 BITCAL_FORCEINLINE void bit_and_array(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
     for (size_t i = 0; i < N; ++i) {
         out[i] = a[i] & b[i];
     }
 }
 
-template<size_t N>
+template <size_t N>
 BITCAL_FORCEINLINE void bit_or_array(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
     for (size_t i = 0; i < N; ++i) {
         out[i] = a[i] | b[i];
     }
 }
 
-template<size_t N>
+template <size_t N>
 BITCAL_FORCEINLINE void bit_xor_array(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
     for (size_t i = 0; i < N; ++i) {
         out[i] = a[i] ^ b[i];
     }
 }
 
-template<size_t N>
+template <size_t N>
 BITCAL_FORCEINLINE void bit_andnot_array(const uint64_t* a, const uint64_t* b, uint64_t* out) noexcept {
     for (size_t i = 0; i < N; ++i) {
         out[i] = a[i] & ~b[i];
     }
 }
 
-template<size_t N>
+template <size_t N>
 BITCAL_FORCEINLINE uint64_t popcount_array(const uint64_t* data) noexcept {
     uint64_t count = 0;
     for (size_t i = 0; i < N; ++i) {
@@ -284,7 +293,7 @@ BITCAL_FORCEINLINE uint64_t popcount_array(const uint64_t* data) noexcept {
     return count;
 }
 
-template<size_t N>
+template <size_t N>
 BITCAL_FORCEINLINE int count_leading_zeros_array(const uint64_t* data) noexcept {
     for (int i = N - 1; i >= 0; --i) {
         if (data[i] != 0) {
@@ -295,7 +304,7 @@ BITCAL_FORCEINLINE int count_leading_zeros_array(const uint64_t* data) noexcept 
     return N * 64;
 }
 
-template<size_t N>
+template <size_t N>
 BITCAL_FORCEINLINE int count_trailing_zeros_array(const uint64_t* data) noexcept {
     for (size_t i = 0; i < N; ++i) {
         if (data[i] != 0) {
@@ -305,7 +314,7 @@ BITCAL_FORCEINLINE int count_trailing_zeros_array(const uint64_t* data) noexcept
     return N * 64;
 }
 
-template<size_t N>
+template <size_t N>
 BITCAL_FORCEINLINE void reverse_bits_array(const uint64_t* in, uint64_t* out) noexcept {
     for (size_t i = 0; i < N; ++i) {
         out[N - 1 - i] = reverse_bits(in[i]);
@@ -316,10 +325,11 @@ BITCAL_FORCEINLINE void reverse_bits_array(const uint64_t* in, uint64_t* out) no
 // Equality comparison
 // ============================================================================
 
-template<size_t N>
+template <size_t N>
 BITCAL_FORCEINLINE bool equals_array(const uint64_t* a, const uint64_t* b) noexcept {
     for (size_t i = 0; i < N; ++i) {
-        if (a[i] != b[i]) return false;
+        if (a[i] != b[i])
+            return false;
     }
     return true;
 }
@@ -328,21 +338,23 @@ BITCAL_FORCEINLINE bool equals_array(const uint64_t* a, const uint64_t* b) noexc
 // Zero and all checks
 // ============================================================================
 
-template<size_t N>
+template <size_t N>
 BITCAL_FORCEINLINE bool is_zero_array(const uint64_t* data) noexcept {
     for (size_t i = 0; i < N; ++i) {
-        if (data[i] != 0) return false;
+        if (data[i] != 0)
+            return false;
     }
     return true;
 }
 
-template<size_t N>
+template <size_t N>
 BITCAL_FORCEINLINE bool all_array(const uint64_t* data) noexcept {
     for (size_t i = 0; i < N; ++i) {
-        if (data[i] != ~0ULL) return false;
+        if (data[i] != ~0ULL)
+            return false;
     }
     return true;
 }
 
-}
-}
+}  // namespace scalar
+}  // namespace bitcal

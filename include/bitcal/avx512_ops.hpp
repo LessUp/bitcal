@@ -54,7 +54,8 @@ BITCAL_FORCEINLINE __m512i shift_right_64(__m512i a, int count) noexcept {
 
 // 512-bit shift operations - optimized with AVX-512 instructions
 BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 512) {
         store(data, _mm512_setzero_si512());
         return;
@@ -73,16 +74,15 @@ BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
         }
     }
 
-    if (bit_shift == 0) return;
+    if (bit_shift == 0)
+        return;
 
     __m512i v = load(data);
     __m512i v_shifted = _mm512_slli_epi64(v, bit_shift);
 
     // Create carry vector - each element gets the high bits from the previous element
-    __m512i carry = _mm512_permutexvar_epi64(
-        _mm512_set_epi64(6, 5, 4, 3, 2, 1, 0, -1),  // permutation indices
-        v
-    );
+    __m512i carry = _mm512_permutexvar_epi64(_mm512_set_epi64(6, 5, 4, 3, 2, 1, 0, -1),  // permutation indices
+                                             v);
     carry = _mm512_srli_epi64(carry, 64 - bit_shift);
 
     // Mask to zero out the lowest element's carry (no previous element)
@@ -94,7 +94,8 @@ BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_right_512(uint64_t* data, int count) noexcept {
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 512) {
         store(data, _mm512_setzero_si512());
         return;
@@ -113,16 +114,15 @@ BITCAL_FORCEINLINE void shift_right_512(uint64_t* data, int count) noexcept {
         }
     }
 
-    if (bit_shift == 0) return;
+    if (bit_shift == 0)
+        return;
 
     __m512i v = load(data);
     __m512i v_shifted = _mm512_srli_epi64(v, bit_shift);
 
     // Create carry vector - each element gets the low bits from the next element
-    __m512i carry = _mm512_permutexvar_epi64(
-        _mm512_set_epi64(-1, 7, 6, 5, 4, 3, 2, 1),  // permutation indices
-        v
-    );
+    __m512i carry = _mm512_permutexvar_epi64(_mm512_set_epi64(-1, 7, 6, 5, 4, 3, 2, 1),  // permutation indices
+                                             v);
     carry = _mm512_slli_epi64(carry, 64 - bit_shift);
 
     // Mask to zero out the highest element's carry (no next element)
@@ -136,7 +136,8 @@ BITCAL_FORCEINLINE void shift_right_512(uint64_t* data, int count) noexcept {
 // 256-bit shift operations using VL (Vector Length) extensions
 // Note: Function naming follows unified convention: shift_left_<bits> and shift_right_<bits>
 BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 256) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), _mm256_setzero_si256());
         return;
@@ -148,7 +149,8 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
         data[1] = 0;
         data[0] = 0;
         count -= 128;
-        if (count <= 0) return;
+        if (count <= 0)
+            return;
     }
 
     if (count >= 64) {
@@ -157,7 +159,8 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
         data[1] = data[0];
         data[0] = 0;
         count -= 64;
-        if (count <= 0) return;
+        if (count <= 0)
+            return;
     }
 
     __m256i v = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));
@@ -173,7 +176,8 @@ BITCAL_FORCEINLINE void shift_left_256(uint64_t* data, int count) noexcept {
 }
 
 BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
-    if (count <= 0) return;
+    if (count <= 0)
+        return;
     if (count >= 256) {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(data), _mm256_setzero_si256());
         return;
@@ -185,7 +189,8 @@ BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
         data[2] = 0;
         data[3] = 0;
         count -= 128;
-        if (count <= 0) return;
+        if (count <= 0)
+            return;
     }
 
     if (count >= 64) {
@@ -194,7 +199,8 @@ BITCAL_FORCEINLINE void shift_right_256(uint64_t* data, int count) noexcept {
         data[2] = data[3];
         data[3] = 0;
         count -= 64;
-        if (count <= 0) return;
+        if (count <= 0)
+            return;
     }
 
     __m256i v = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));
@@ -276,10 +282,7 @@ BITCAL_FORCEINLINE uint64_t popcount_512(const uint64_t* data) noexcept {
     __m256i lo = _mm512_castsi512_si256(counts);
     __m256i hi = _mm512_extracti64x4_epi64(counts, 1);
     __m256i sum256 = _mm256_add_epi64(lo, hi);
-    __m128i sum128 = _mm_add_epi64(
-        _mm256_castsi256_si128(sum256),
-        _mm256_extracti128_si256(sum256, 1)
-    );
+    __m128i sum128 = _mm_add_epi64(_mm256_castsi256_si128(sum256), _mm256_extracti128_si256(sum256, 1));
     sum128 = _mm_add_epi64(sum128, _mm_unpackhi_epi64(sum128, sum128));
     return _mm_cvtsi128_si64(sum128);
 }
@@ -304,22 +307,16 @@ BITCAL_FORCEINLINE uint64_t popcount_256(const uint64_t* data) noexcept {
 // Fallback: extract and use scalar popcount
 BITCAL_FORCEINLINE uint64_t popcount_512(const uint64_t* data) noexcept {
     __m512i v = load(data);
-    return scalar::popcount(_mm512_extract_epi64(v, 0)) +
-           scalar::popcount(_mm512_extract_epi64(v, 1)) +
-           scalar::popcount(_mm512_extract_epi64(v, 2)) +
-           scalar::popcount(_mm512_extract_epi64(v, 3)) +
-           scalar::popcount(_mm512_extract_epi64(v, 4)) +
-           scalar::popcount(_mm512_extract_epi64(v, 5)) +
-           scalar::popcount(_mm512_extract_epi64(v, 6)) +
-           scalar::popcount(_mm512_extract_epi64(v, 7));
+    return scalar::popcount(_mm512_extract_epi64(v, 0)) + scalar::popcount(_mm512_extract_epi64(v, 1)) +
+           scalar::popcount(_mm512_extract_epi64(v, 2)) + scalar::popcount(_mm512_extract_epi64(v, 3)) +
+           scalar::popcount(_mm512_extract_epi64(v, 4)) + scalar::popcount(_mm512_extract_epi64(v, 5)) +
+           scalar::popcount(_mm512_extract_epi64(v, 6)) + scalar::popcount(_mm512_extract_epi64(v, 7));
 }
 
 BITCAL_FORCEINLINE uint64_t popcount_256(const uint64_t* data) noexcept {
     __m256i v = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));
-    return scalar::popcount(_mm256_extract_epi64(v, 0)) +
-           scalar::popcount(_mm256_extract_epi64(v, 1)) +
-           scalar::popcount(_mm256_extract_epi64(v, 2)) +
-           scalar::popcount(_mm256_extract_epi64(v, 3));
+    return scalar::popcount(_mm256_extract_epi64(v, 0)) + scalar::popcount(_mm256_extract_epi64(v, 1)) +
+           scalar::popcount(_mm256_extract_epi64(v, 2)) + scalar::popcount(_mm256_extract_epi64(v, 3));
 }
 
 #endif  // BITCAL_HAS_VPOPCNTDQ
