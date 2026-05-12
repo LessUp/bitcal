@@ -1,4 +1,6 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
+import llmstxt from 'vitepress-plugin-llms'
 
 const rawBase = process.env.VITEPRESS_BASE
 const base = rawBase
@@ -7,7 +9,7 @@ const base = rawBase
     : `/${rawBase}/`
   : '/'
 
-export default defineConfig({
+export default withMermaid(defineConfig({
   base,
   title: 'BitCal Docs',
   description: 'BitCal - Header-only SIMD bit manipulation for C++17',
@@ -108,5 +110,9 @@ export default defineConfig({
     ],
   },
 
+  vite: {
+    plugins: [llmstxt()],
+  },
+
   ignoreDeadLinks: true,
-})
+}))
