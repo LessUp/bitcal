@@ -193,64 +193,9 @@ public:
         return backend::ops<Bits, Backend>::equals(data_, other.data_);
     }
 
-    [[nodiscard]] BITCAL_FORCEINLINE bool operator!=(const bitarray& other) const noexcept { return !(*this == other); }
-
-    // ============================================================================
-    // Find first/last set bit
-    // ============================================================================
-
-    /// Find the position of the first (lowest index) set bit
-    /// @return Position (0-indexed) of first set bit, or -1 if all bits are zero
-    [[nodiscard]] BITCAL_FORCEINLINE int find_first_set() const noexcept {
-        return scalar::find_first_set<u64_count>(data_);
+    [[nodiscard]] BITCAL_FORCEINLINE bool operator!=(const bitarray& other) const noexcept {
+        return !(*this == other);
     }
-
-    /// Find the position of the last (highest index) set bit
-    /// @return Position (0-indexed) of last set bit, or -1 if all bits are zero
-    [[nodiscard]] BITCAL_FORCEINLINE int find_last_set() const noexcept {
-        return scalar::find_last_set<u64_count>(data_);
-    }
-
-    // ============================================================================
-    // Range operations
-    // ============================================================================
-
-    /// Set all bits in the range [start, end)
-    BITCAL_FORCEINLINE void set_range(size_t start, size_t end) noexcept {
-        scalar::set_range<u64_count>(data_, start, end);
-    }
-
-    /// Clear all bits in the range [start, end)
-    BITCAL_FORCEINLINE void clear_range(size_t start, size_t end) noexcept {
-        scalar::clear_range<u64_count>(data_, start, end);
-    }
-
-    /// Flip all bits in the range [start, end)
-    BITCAL_FORCEINLINE void flip_range(size_t start, size_t end) noexcept {
-        scalar::flip_range<u64_count>(data_, start, end);
-    }
-
-    // ============================================================================
-    // Comparison operations
-    // ============================================================================
-
-    /// Check if all bits are set (all ones)
-    [[nodiscard]] BITCAL_FORCEINLINE bool all() const noexcept { return backend::ops<Bits, Backend>::all(data_); }
-
-    /// Check if any bit is set
-    [[nodiscard]] BITCAL_FORCEINLINE bool any() const noexcept { return !is_zero(); }
-
-    /// Check if no bits are set
-    [[nodiscard]] BITCAL_FORCEINLINE bool none() const noexcept { return is_zero(); }
-
-    /// Count the number of set bits (alias for popcount)
-    [[nodiscard]] BITCAL_FORCEINLINE uint64_t count() const noexcept { return popcount(); }
-
-    /// Return the number of bits in the bitarray
-    [[nodiscard]] static constexpr size_t size() noexcept { return Bits; }
-
-    /// Test if a bit is set (alias for get_bit)
-    [[nodiscard]] BITCAL_FORCEINLINE bool test(size_t bit_index) const noexcept { return get_bit(bit_index); }
 
 private:
     alignas(get_optimal_alignment<Bits>()) uint64_t data_[u64_count];
@@ -279,20 +224,6 @@ private:
             backend::ops<Bits, Backend>::bit_andnot(a.data_, b.data_, out.data_);
         }
     }
-};
-
-// ============================================================================
-// bit64 conversion operator
-// ============================================================================
-
-template <>
-class bitarray<64> : public bitarray<64, simd_backend::scalar> {
-    using Base = bitarray<64, simd_backend::scalar>;
-
-public:
-    using Base::Base;
-
-    [[nodiscard]] explicit BITCAL_FORCEINLINE operator uint64_t() const noexcept { return Base::data()[0]; }
 };
 
 using bit64 = bitarray<64>;
