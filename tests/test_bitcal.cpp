@@ -42,12 +42,12 @@ static int g_fail = 0;
 // ============================================================================
 // Theme-Oriented Test Organization
 // ============================================================================
-// Tests are organized by primary theme (contract/behavior/seam/specialization)
+// Tests are organized by primary theme (contract/behavior/seam/bit64-default-backend)
 // with width variations as substructure. This enables navigating by intent:
 // - RETAINED CONTRACT: minimal, high-stakes public API/behavior contracts
 // - CORE BEHAVIOR: width characterization across all supported widths
 // - BACKEND SEAM: scalar vs SIMD backend consistency & fallback verification
-// - SPECIALIZATION: bit64 specialization and default backend requirements
+// - BIT64 DEFAULT BACKEND: retained bit64 alias and default backend requirements
 // - ABSTRACT OPERATIONS: shift, bitwise, and layout-independent operations
 // - BOUNDARY CONDITIONS: edge cases, limits, and mathematical properties
 // - MISCELLANEOUS: operation-specific tests (andnot, not, is_zero, etc)
@@ -1072,10 +1072,10 @@ bool test_large_width_1024_fallback_characterization() {
 }
 
 // ============================================================================
-// SPECIALIZATION & DEFAULT BACKEND
+// BIT64 & DEFAULT BACKEND
 // ============================================================================
-// Verify bit64 specialization and default backend requirements.
-// These tests lock the default backend choice for bit64.
+// Verify the retained bit64 alias surface and default backend requirements.
+// These tests lock the default-backend contract for bit64 after specialization removal.
 // ============================================================================
 
 bool test_bit64_retained_contract() {
@@ -1093,7 +1093,68 @@ bool test_bit64_retained_contract() {
     return true;
 }
 
+bool test_retained_constants_contract() {
+    using default_bit64 = bitcal::bit64;
+    using scalar_bit192 = bitcal::bitarray<192, bitcal::simd_backend::scalar>;
+
+    static_assert(std::is_same_v<default_bit64, bitcal::bitarray<64, bitcal::get_default_backend()>>,
+                  "bit64 must remain the 64-bit alias on the default backend");
+    static_assert(default_bit64::bits == 64, "bit64 must retain 64 bits");
+    static_assert(default_bit64::u64_count == 1, "bit64 must retain a single uint64_t word");
+    static_assert(default_bit64::backend == bitcal::get_default_backend(),
+                  "bit64 backend must track get_default_backend()");
+    static_assert(scalar_bit192::bits == 192, "custom retained widths must expose bit count");
+    static_assert(scalar_bit192::u64_count == 3, "custom retained widths must expose word count");
+    static_assert(scalar_bit192::backend == bitcal::simd_backend::scalar,
+                  "custom backend selection must remain visible");
+
+    ASSERT_EQ(default_bit64::bits, size_t{64});
+    ASSERT_EQ(default_bit64::u64_count, size_t{1});
+    ASSERT_TRUE(default_bit64::backend == bitcal::get_default_backend());
+    ASSERT_EQ(scalar_bit192::bits, size_t{192});
+    ASSERT_EQ(scalar_bit192::u64_count, size_t{3});
+    ASSERT_TRUE(scalar_bit192::backend == bitcal::simd_backend::scalar);
+
+    return true;
+}
+
+bool test_retained_data_access_contract() {
+    bitcal::bitarray<192, bitcal::simd_backend::scalar> value;
+    value.set_word(0, 0x0123456789ABCDEFULL);
+    value.set_word(1, 0x0F0E0D0C0B0A0908ULL);
+    value.set_word(2, 0xFFEEDDCCBBAA9988ULL);
+
+    const uint64_t* words = value.data();
+    ASSERT_TRUE(words != nullptr);
+    ASSERT_EQ(words[0], 0x0123456789ABCDEFULL);
+    ASSERT_EQ(words[1], 0x0F0E0D0C0B0A0908ULL);
+    ASSERT_EQ(words[2], 0xFFEEDDCCBBAA9988ULL);
+
+    ASSERT_EQ(value[0], 0x0123456789ABCDEFULL);
+    ASSERT_EQ(value[1], 0x0F0E0D0C0B0A0908ULL);
+    ASSERT_EQ(value[2], 0xFFEEDDCCBBAA9988ULL);
+
+    value.set_word(1, 0x8000000000000001ULL);
+    ASSERT_EQ(value.data()[1], 0x8000000000000001ULL);
+    ASSERT_EQ(value.word(1), 0x8000000000000001ULL);
+    ASSERT_EQ(value[1], 0x8000000000000001ULL);
+    ASSERT_TRUE(value.get_bit(64));
+    ASSERT_TRUE(value.get_bit(127));
+
+    return true;
+}
+
 bool test_bit64_default_backend_contract() {
+    using default_bit64 = bitcal::bit64;
+    constexpr bitcal::simd_backend default_backend = bitcal::get_default_backend();
+
+    static_assert(default_bit64::backend == default_backend,
+                  "bit64 backend must remain aligned with get_default_backend()");
+    static_assert(std::is_same_v<default_bit64, bitcal::bitarray<64, default_backend>>,
+                  "bit64 must remain the default-backend 64-bit alias");
+
+    ASSERT_TRUE(default_bit64::backend == default_backend);
+
     // Runtime verification that bit64 and bitarray<64, simd_backend::scalar>
     // behave equivalently for representative operations
 
@@ -1574,9 +1635,11 @@ void run_backend_seam_tests() {
     RUN_TEST(test_large_width_1024_fallback_characterization);
 }
 
-void run_specialization_tests() {
-    std::cout << std::endl << "=== [Specialization & Default Backend] ===" << std::endl;
+void run_bit64_default_backend_tests() {
+    std::cout << std::endl << "=== [Bit64 & Default Backend] ===" << std::endl;
     RUN_TEST(test_bit64_retained_contract);
+    RUN_TEST(test_retained_constants_contract);
+    RUN_TEST(test_retained_data_access_contract);
     RUN_TEST(test_bit64_default_backend_contract);
 }
 
@@ -1630,7 +1693,7 @@ int main() {
     run_retained_contract_tests();
     run_core_behavior_tests();
     run_backend_seam_tests();
-    run_specialization_tests();
+    run_bit64_default_backend_tests();
     run_abstract_operation_tests();
     run_boundary_condition_tests();
     run_miscellaneous_operation_tests();
