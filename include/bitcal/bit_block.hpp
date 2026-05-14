@@ -2,6 +2,7 @@
 
 #include "bit_view.hpp"
 
+#include <cassert>
 #include <array>
 
 namespace bitcal {
@@ -19,6 +20,11 @@ public:
 
     [[nodiscard]] constexpr bit_view view() noexcept { return bit_view(words_.data(), word_count); }
     [[nodiscard]] constexpr const_bit_view view() const noexcept { return const_bit_view(words_.data(), word_count); }
+
+    [[nodiscard]] constexpr std::uint64_t word(const std::size_t index) const noexcept {
+        assert(index < word_count);
+        return words_[index];
+    }
 
 private:
     std::array<std::uint64_t, word_count> words_{};

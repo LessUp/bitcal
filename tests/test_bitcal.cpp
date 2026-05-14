@@ -47,10 +47,22 @@ bool test_vnext_block_view_smoke() {
     return true;
 }
 
+bool test_vnext_algorithm_smoke() {
+    bitcal::bit_block<256> lhs;
+    bitcal::bit_block<256> rhs;
+
+    auto out = bitcal::bit_and<256>(lhs.view(), rhs.view());
+
+    ASSERT_EQ(decltype(out)::word_count, std::size_t{4});
+    ASSERT_EQ(out.word(0), std::uint64_t{0});
+    return true;
+}
+
 int main() {
     std::cout << "=== BitCal vNext test suite ===" << std::endl;
 
     RUN_TEST(test_vnext_block_view_smoke);
+    RUN_TEST(test_vnext_algorithm_smoke);
 
     std::cout << std::endl;
     std::cout << "Passed: " << g_pass << std::endl;
