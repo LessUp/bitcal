@@ -1,110 +1,89 @@
-# Testing Specification: BitCal
+# Testing Specification: BitCal vNext
 
 ## Contract Target
 
-Testing requirements for the planned **v3.0.0** public-surface contraction.
+Testing requirements for the planned **v4.0.0** redesign.
 
-This specification defines the retained validation scope. Legacy tests may continue to exist during transition, but only the behaviors and seams described here remain part of the public contract test matrix.
+This specification defines the target validation scope for BitCal vNext. During transition, older retained tests may continue to exist, but only the behaviors and seams described here define completion for the redesign.
 
 ## Test Strategy
 
-BitCal SHALL validate the retained public contract with three layers:
-1. public API contract tests through `<bitcal/bitcal.hpp>`
-2. implementation regression tests for retained behavior
-3. platform/build verification aligned with the documented support matrix
+BitCal SHALL validate the vNext public contract with three layers:
+1. public contract tests through `<bitcal/bitcal.hpp>`
+2. implementation regression tests for the new block/view/algorithm model
+3. platform/build verification aligned with the x86-64-first support matrix
 
 ## Public Contract Coverage
 
 ### 1. Stable include seam
 
 - [ ] Public contract tests compile through `<bitcal/bitcal.hpp>`
-- [ ] No retained contract test requires a direct include of internal or non-stable headers
+- [ ] No public contract test requires a direct include of internal headers
 
-### 2. Retained type construction and constants
+### 2. Owning block construction and metadata
 
-- [ ] Default constructor initializes all bits to zero
-- [ ] Value constructor initializes the low 64 bits and clears the rest
-- [ ] Copy and move construction/assignment preserve retained behavior
-- [ ] `bits`, `u64_count`, and `backend` remain correct for retained aliases and custom widths
+- [ ] Default `bit_block<Bits>` construction initializes all words to zero
+- [ ] `bits` and `word_count` remain correct for representative widths
+- [ ] `view()` exposes the corresponding public view types
 
-### 3. Retained data access
+### 3. View semantics
 
-- [ ] `data()` exposes contiguous word storage for read-only access
-- [ ] `word()` / `set_word()` operate on valid word indices
-- [ ] `operator[]` provides read-only word access
+- [ ] `bit_view` and `const_bit_view` expose contiguous word storage
+- [ ] `word_count()` matches the owning block width
+- [ ] `word(index)` matches observable stored word values
 
-### 4. Retained bitwise and shift operations
+### 4. Public algorithm smoke coverage
 
-- [ ] `&`, `|`, `^`, `~`, and `andnot()` match retained semantics
-- [ ] compound assignments (`&=`, `|=`, `^=`) preserve retained semantics
-- [ ] left and right shifts handle zero, word-crossing, and width-clearing cases
-- [ ] negative shift counts remain outside contract and are not asserted as supported behavior
+- [ ] `bit_and`, `bit_or`, `bit_xor`, and `bit_andnot` validate representative word patterns
+- [ ] `is_zero`, `equals`, and `popcount` validate representative state and count behavior
+- [ ] shifts validate zero, word-crossing, and width-clearing cases
 
-### 5. Retained comparison, state, and counting operations
+### 5. Representative widths
 
-- [ ] `==` / `!=` validate equality semantics
-- [ ] `is_zero()` and `clear()` validate retained zero-state behavior
-- [ ] `popcount()`, `count_leading_zeros()`, and `count_trailing_zeros()` validate known values and boundary cases
-
-### 6. Retained single-bit operations
-
-- [ ] `get_bit()` reads valid positions
-- [ ] `set_bit()` sets and clears valid positions
-- [ ] `flip_bit()` toggles valid positions
-- [ ] `reverse()` validates representative patterns and involution behavior
-
-### 7. Retained predefined widths
-
-The retained contract suite SHALL cover at least:
-- [ ] `bitcal::bit64`
-- [ ] `bitcal::bit128`
-- [ ] `bitcal::bit256`
-- [ ] `bitcal::bit512`
-- [ ] `bitcal::bit1024`
-- [ ] one custom width that satisfies the retained width constraint
+The vNext contract suite SHALL cover at least:
+- [ ] one 128-bit block
+- [ ] one 256-bit block
+- [ ] one 512-bit block
+- [ ] one custom width satisfying the width constraint
 
 ## Removed Surface Handling
 
-The following are not part of the retained public contract suite for v3.0.0:
-- `bitcal::ops`
-- `is_bitarray`, `is_bitarray_v`, `bitarray_traits`
-- undocumented convenience methods not retained in the API spec
-- any test expectation that another include path is a stable public seam
+The following are not part of vNext public contract completion:
+- the older `bitarray` retained suite as the definition of redesign correctness
+- helper namespaces and traits removed from public contract
+- any assumption that internal headers are stable include seams
 
-These may exist temporarily as migration scaffolding, but they MUST NOT block or define public contract completion.
+These may temporarily exist during migration, but they MUST NOT define vNext completion.
 
 ## Backend and Platform Validation
 
 ### Retained backend names
 
-- [ ] `simd_backend::scalar`
-- [ ] `simd_backend::sse2`
-- [ ] `simd_backend::avx2`
-- [ ] `simd_backend::avx512`
-- [ ] `simd_backend::neon`
-
-`simd_backend::avx` is not part of the retained support matrix.
+- [ ] `backend_kind::scalar`
+- [ ] `backend_kind::sse2`
+- [ ] `backend_kind::avx2`
+- [ ] `backend_kind::avx512`
 
 ### Validation policy
 
-- retained public contract tests verify observable behavior, not internal header topology
-- backend-specific validation may use implementation-aware builds, but support claims must still align with retained documented backends
-- public contract tests should prefer behavior equivalence across supported backend selections
+- public contract tests verify observable behavior, not internal header topology
+- backend-specific validation may use implementation-aware tests, but support claims must align with the documented primary matrix
+- x86-64 is the primary retained evidence path for performance and correctness claims
 
 ### Platform support matrix
 
-| Platform | Compiler | Architecture | SIMD path | Validation path |
-|----------|----------|--------------|-----------|-----------------|
-| Linux | GCC / Clang | x86-64 | SSE2 / AVX2 / AVX-512 when enabled | Native retained tests |
-| Linux | GCC (cross) | ARM64 | NEON | Retained cross-compile build only |
-| Windows | MSVC | x86-64 | SSE2 / AVX2 / AVX-512 when enabled | Native retained tests |
-| macOS | Apple Clang | ARM64 | NEON | Native retained tests |
+| Platform | Compiler | Architecture | Validation path |
+|----------|----------|--------------|-----------------|
+| Linux | GCC / Clang | x86-64 | Primary native tests |
+| Windows | MSVC | x86-64 | Primary native tests |
+| Linux | GCC / Clang | ARM64 | Secondary build/test path as retained |
+| macOS | Apple Clang | ARM64 | Secondary build/test path as retained |
 
-Rows not listed above are outside the retained support matrix for final stabilization unless a later workflow adds and keeps a matching validation path.
+Rows not listed above are outside the intended redesign matrix unless a later change adds and keeps a matching validation path.
 
 ## Verification Commands
 
-BitCal's retained local verification path remains:
+BitCal's vNext local verification path remains a clean CMake build directory:
 
 ```bash
 cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_NATIVE_ARCH=ON
@@ -114,23 +93,24 @@ ctest --test-dir build-test --output-on-failure -C Release
 
 ## Validation Requirements
 
-### Requirement: Testing scope SHALL match the retained public contract
-BitCal SHALL focus automated testing on the public behaviors, include seam, platforms, and invariants that remain part of the maintained contract after the 3.0.0 contraction.
+### Requirement: Testing scope SHALL match the vNext public contract
+BitCal SHALL focus automated testing on the public behaviors, include seam, platforms, and invariants that remain part of the vNext public contract.
 
-#### Scenario: A behavior is retained as supported
-- **WHEN** the project keeps a public operation, include seam, platform claim, or backend guarantee
-- **THEN** the retained test strategy MUST include validation for that contract
+#### Scenario: A behavior is part of the redesign contract
+- **WHEN** the project keeps a public operation, include seam, platform claim, or backend guarantee in vNext
+- **THEN** the test strategy MUST include validation for that contract
 
-### Requirement: Removed public helpers SHALL leave the retained contract suite
-BitCal SHALL stop treating removed helper namespaces, traits, and undocumented convenience methods as part of retained public contract completion.
+### Requirement: Old retained helpers SHALL not define redesign completion
+BitCal SHALL stop treating the older retained helper surface or `bitarray`-centered tests as the definition of vNext completion.
 
-#### Scenario: Maintainers prune tests for 3.0.0
-- **WHEN** a test only exists to validate a removed helper API or non-stable include path
-- **THEN** it MUST be deleted, demoted to non-contract regression coverage, or rewritten against the retained public seam
+#### Scenario: Maintainers review redesign test coverage
+- **WHEN** a test only validates the older public model or a removed helper API
+- **THEN** it MUST be deleted, demoted to migration-only coverage, or rewritten against the vNext public seam
 
-### Requirement: Validation workflows SHALL match the documented support policy
-BitCal SHALL ensure that CI validation, local verification instructions, and testing specs describe the same maintained support matrix.
+### Requirement: Validation workflows SHALL match the x86-64-first support policy
+BitCal SHALL ensure that CI validation, local verification instructions, and testing specs describe the same x86-64-first support matrix.
 
 #### Scenario: Maintainers review support claims
 - **WHEN** support claims are listed in testing specs or documentation
-- **THEN** workflow configuration and verification instructions MUST align with those claims and omit unsupported combinations
+- **THEN** workflow configuration and verification instructions MUST align with those claims
+- **AND** non-primary platforms MUST NOT be described with stronger guarantees than the retained workflows support
