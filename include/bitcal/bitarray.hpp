@@ -10,7 +10,20 @@
 
 namespace bitcal {
 
-template <size_t Bits, simd_backend Backend = get_default_backend()>
+namespace detail {
+
+template <size_t Bits>
+constexpr simd_backend get_bitarray_default_backend() noexcept {
+    if constexpr (Bits == 64) {
+        return simd_backend::scalar;
+    } else {
+        return get_default_backend();
+    }
+}
+
+}  // namespace detail
+
+template <size_t Bits, simd_backend Backend = detail::get_bitarray_default_backend<Bits>()>
 class bitarray {
     static_assert(Bits >= 64, "Bits must be at least 64");
     static_assert(Bits % 64 == 0, "Bits must be a multiple of 64");
@@ -224,6 +237,166 @@ private:
             backend::ops<Bits, Backend>::bit_andnot(a.data_, b.data_, out.data_);
         }
     }
+};
+
+template <>
+class bitarray<64, simd_backend::scalar> {
+public:
+    static constexpr size_t bits = 64;
+    static constexpr size_t u64_count = 1;
+    static constexpr simd_backend backend = simd_backend::scalar;
+
+    bitarray() noexcept { clear(); }
+
+    explicit bitarray(uint64_t value) noexcept : data_{value} {}
+
+    bitarray(const bitarray& other) noexcept = default;
+    bitarray(bitarray&& other) noexcept = default;
+    bitarray& operator=(const bitarray& other) noexcept = default;
+    bitarray& operator=(bitarray&& other) noexcept = default;
+
+    BITCAL_FORCEINLINE void clear() noexcept { data_[0] = 0; }
+
+    [[nodiscard]] BITCAL_FORCEINLINE const uint64_t* data() const noexcept { return data_; }
+
+    [[nodiscard]] BITCAL_FORCEINLINE uint64_t word(size_t index) const noexcept {
+        assert(index < u64_count);
+        return data_[index];
+    }
+
+    BITCAL_FORCEINLINE void set_word(size_t index, uint64_t value) noexcept {
+        assert(index < u64_count);
+        data_[index] = value;
+    }
+
+    [[nodiscard]] BITCAL_FORCEINLINE uint64_t operator[](size_t index) const noexcept {
+        assert(index < u64_count);
+        return data_[index];
+    }
+
+    [[nodiscard]] BITCAL_FORCEINLINE bool get_bit(size_t bit_index) const noexcept {
+        assert(bit_index < bits);
+        return (data_[0] >> bit_index) & 1ULL;
+    }
+
+    BITCAL_FORCEINLINE void set_bit(size_t bit_index, bool value = true) noexcept {
+        assert(bit_index < bits);
+        const uint64_t mask = 1ULL << bit_index;
+        if (value) {
+            data_[0] |= mask;
+        } else {
+            data_[0] &= ~mask;
+        }
+    }
+
+    BITCAL_FORCEINLINE void flip_bit(size_t bit_index) noexcept {
+        assert(bit_index < bits);
+        data_[0] ^= (1ULL << bit_index);
+    }
+
+    BITCAL_FORCEINLINE void shift_left(int count) noexcept {
+        backend::ops<bits, backend>::shift_left(data_, count);
+    }
+
+    BITCAL_FORCEINLINE void shift_right(int count) noexcept {
+        backend::ops<bits, backend>::shift_right(data_, count);
+    }
+
+    [[nodiscard]] BITCAL_FORCEINLINE bitarray operator&(const bitarray& other) const noexcept {
+        bitarray result;
+        backend::ops<bits, backend>::bit_and(data_, other.data_, result.data_);
+        return result;
+    }
+
+    [[nodiscard]] BITCAL_FORCEINLINE bitarray operator|(const bitarray& other) const noexcept {
+        bitarray result;
+        backend::ops<bits, backend>::bit_or(data_, other.data_, result.data_);
+        return result;
+    }
+
+    [[nodiscard]] BITCAL_FORCEINLINE bitarray operator^(const bitarray& other) const noexcept {
+        bitarray result;
+        backend::ops<bits, backend>::bit_xor(data_, other.data_, result.data_);
+        return result;
+    }
+
+    [[nodiscard]] BITCAL_FORCEINLINE bitarray andnot(const bitarray& mask) const noexcept {
+        bitarray result;
+        backend::ops<bits, backend>::bit_andnot(data_, mask.data_, result.data_);
+        return result;
+    }
+
+    [[nodiscard]] BITCAL_FORCEINLINE bitarray operator~() const noexcept {
+        bitarray result;
+        backend::ops<bits, backend>::bit_not(data_, result.data_);
+        return result;
+    }
+
+    BITCAL_FORCEINLINE bitarray& operator&=(const bitarray& other) noexcept {
+        backend::ops<bits, backend>::bit_and(data_, other.data_, data_);
+        return *this;
+    }
+
+    BITCAL_FORCEINLINE bitarray& operator|=(const bitarray& other) noexcept {
+        backend::ops<bits, backend>::bit_or(data_, other.data_, data_);
+        return *this;
+    }
+
+    BITCAL_FORCEINLINE bitarray& operator^=(const bitarray& other) noexcept {
+        backend::ops<bits, backend>::bit_xor(data_, other.data_, data_);
+        return *this;
+    }
+
+    BITCAL_FORCEINLINE bitarray& operator<<=(int count) noexcept {
+        shift_left(count);
+        return *this;
+    }
+
+    BITCAL_FORCEINLINE bitarray& operator>>=(int count) noexcept {
+        shift_right(count);
+        return *this;
+    }
+
+    [[nodiscard]] BITCAL_FORCEINLINE bitarray operator<<(int count) const noexcept {
+        bitarray result(*this);
+        result.shift_left(count);
+        return result;
+    }
+
+    [[nodiscard]] BITCAL_FORCEINLINE bitarray operator>>(int count) const noexcept {
+        bitarray result(*this);
+        result.shift_right(count);
+        return result;
+    }
+
+    [[nodiscard]] BITCAL_FORCEINLINE uint64_t popcount() const noexcept {
+        return backend::ops<bits, backend>::popcount(data_);
+    }
+
+    [[nodiscard]] BITCAL_FORCEINLINE int count_leading_zeros() const noexcept {
+        return backend::ops<bits, backend>::count_leading_zeros(data_);
+    }
+
+    [[nodiscard]] BITCAL_FORCEINLINE int count_trailing_zeros() const noexcept {
+        return backend::ops<bits, backend>::count_trailing_zeros(data_);
+    }
+
+    BITCAL_FORCEINLINE void reverse() noexcept { data_[0] = scalar::reverse_bits(data_[0]); }
+
+    [[nodiscard]] BITCAL_FORCEINLINE bool is_zero() const noexcept {
+        return backend::ops<bits, backend>::is_zero(data_);
+    }
+
+    [[nodiscard]] BITCAL_FORCEINLINE bool operator==(const bitarray& other) const noexcept {
+        return backend::ops<bits, backend>::equals(data_, other.data_);
+    }
+
+    [[nodiscard]] BITCAL_FORCEINLINE bool operator!=(const bitarray& other) const noexcept {
+        return !(*this == other);
+    }
+
+private:
+    alignas(get_optimal_alignment<bits>()) uint64_t data_[u64_count];
 };
 
 using bit64 = bitarray<64>;
