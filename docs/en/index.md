@@ -7,7 +7,7 @@ layout: home
     <div class="home-logo">BC</div>
     <div>
       <span class="home-title">BitCal</span>
-      <span class="home-subtitle">C++17 SIMD Bit Library</span>
+      <span class="home-subtitle">C++23 vNext Bit Library</span>
     </div>
   </div>
   <div class="home-nav">
@@ -19,12 +19,36 @@ layout: home
 
 <div class="home-intro-row">
   <div class="home-intro">
-    BitCal is a header-only C++17 library for bit manipulation with compile-time SIMD dispatch. Zero build step, zero dependencies, maximum performance.
+    BitCal is a header-only C++23 bit manipulation library in active vNext redesign. The current public model is built around bit blocks, bit views, and free algorithms with an x86-64-first performance posture.
   </div>
   <div class="home-stats">
     <span><strong>Header-only</strong></span>
-    <span><strong>C++17</strong></span>
-    <span><strong>SIMD</strong></span>
+    <span><strong>C++23</strong></span>
+    <span><strong>x86-64 First</strong></span>
+  </div>
+</div>
+
+## vNext references
+
+<div class="feature-map">
+  <div class="feature-card">
+    <div class="feature-card-title">📘 Technical Whitepaper</div>
+    <div class="feature-card-desc">
+      Architecture, public model, backend layering, correctness posture, and reproducibility guidance for BitCal vNext.
+    </div>
+    <div class="feature-tags">
+      <a href="./architecture/vnext-whitepaper" class="feature-tag">Whitepaper</a>
+    </div>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-card-title">📈 Performance Baseline</div>
+    <div class="feature-card-desc">
+      Current reproducible benchmark baseline for the vNext public model, including methodology notes and sample numbers.
+    </div>
+    <div class="feature-tags">
+      <a href="./architecture/performance-baseline" class="feature-tag">Baseline Metrics</a>
+    </div>
   </div>
 </div>
 

@@ -7,7 +7,7 @@ layout: home
     <div class="home-logo">BC</div>
     <div>
       <span class="home-title">BitCal</span>
-      <span class="home-subtitle">C++17 SIMD 位操作库</span>
+      <span class="home-subtitle">C++23 vNext 位运算库</span>
     </div>
   </div>
   <div class="home-nav">
@@ -19,12 +19,36 @@ layout: home
 
 <div class="home-intro-row">
   <div class="home-intro">
-    BitCal 是一个头文件式 C++17 位操作库，支持编译时 SIMD 分发。零构建步骤，零依赖，极致性能。
+    BitCal 是一个正在重设计中的头文件式 C++23 位运算库。当前公开模型围绕 bit block、bit view 和自由算法展开，并优先面向 x86-64 性能路径。
   </div>
   <div class="home-stats">
     <span><strong>头文件式</strong></span>
-    <span><strong>C++17</strong></span>
-    <span><strong>SIMD</strong></span>
+    <span><strong>C++23</strong></span>
+    <span><strong>x86-64 优先</strong></span>
+  </div>
+</div>
+
+## vNext 参考
+
+<div class="feature-map">
+  <div class="feature-card">
+    <div class="feature-card-title">📘 技术白皮书</div>
+    <div class="feature-card-desc">
+      介绍 BitCal vNext 的公开模型、后端分层、正确性策略和复现方式。
+    </div>
+    <div class="feature-tags">
+      <a href="./architecture/vnext-whitepaper" class="feature-tag">白皮书</a>
+    </div>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-card-title">📈 性能基线</div>
+    <div class="feature-card-desc">
+      当前 vNext benchmark 的可复现基线、样例结果与方法说明。
+    </div>
+    <div class="feature-tags">
+      <a href="./architecture/performance-baseline" class="feature-tag">性能指标</a>
+    </div>
   </div>
 </div>
 
