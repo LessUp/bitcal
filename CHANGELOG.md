@@ -13,6 +13,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-05-15
+
+### 🚀 Highlights
+
+This release introduces **BitCal vNext**, a complete redesign around C++23 with a new three-layer architecture:
+
+1. **Owning storage** via `bit_block<Bits>`
+2. **Non-owning access** via `bit_view` / `const_bit_view`
+3. **Free algorithms** such as `bit_and<Bits>()` and `and_into()`
+
+### ⚠️ Breaking
+
+- **Language baseline upgraded to C++23** (from C++17)
+- **New public model**: `bit_block` + `bit_view` + free algorithms replace the old `bitarray`-centric model
+- **No compatibility layer**: Old `bitarray` API is not preserved
+- **Platform focus**: x86-64 is now the primary optimization target
+
+### ✨ Added
+
+- `bit_block<Bits>` - owning fixed-width storage with 32-byte alignment on x86-64
+- `bit_view` / `const_bit_view` - non-owning word views for external storage
+- Free algorithms: `bit_and<Bits>()`, `and_into()`, `is_zero()`, `popcount()`
+- AVX2 fast path for `and_into()` kernel
+- Span-based word import/export helpers
+
+### 📚 Documentation
+
+- New vNext Technical Whitepaper
+- Performance Baseline documentation
+
+### 🔧 Internal Architecture
+
+```
+bitcal/bitcal.hpp          # Single stable public include
+├── bit_block.hpp          # Owning storage
+├── bit_view.hpp           # Non-owning views
+├── algorithms.hpp         # Public free algorithms
+└── detail/
+    ├── backend.hpp        # Backend tags
+    └── x64_dispatch.hpp   # x86-64 dispatch layer
+```
+
+### 📊 Performance Baseline
+
+Initial benchmark baseline on x86-64 with AVX2:
+
+| Operation | Result |
+|-----------|--------:|
+| `bit_and<128>` | 9.33 ns/op |
+| `bit_and<256>` | 1.46 ns/op |
+| `bit_and<512>` | 3.22 ns/op |
+
+These are local smoke baselines for future comparison, not final product claims.
+
+### 🔗 Links
+
+- **Full Changelog**: [v3.0.0...v4.0.0](https://github.com/LessUp/bitcal/compare/v3.0.0...v4.0.0)
+- **vNext Whitepaper**: [docs/en/architecture/vnext-whitepaper.md](docs/en/architecture/vnext-whitepaper.md)
+- **Performance Baseline**: [docs/en/architecture/performance-baseline.md](docs/en/architecture/performance-baseline.md)
+
+
 ## [3.0.0] - 2026-05-08
 
 ### ⚠️ Breaking
@@ -166,6 +227,7 @@ The original implementation based on inheritance and virtual functions.
 
 | Version | Date | Status | Highlights |
 |---------|------|--------|------------|
+| v4.0.0 | 2026-05-15 | ✅ Stable | vNext C++23 redesign, new three-layer architecture |
 | v3.0.0 | 2026-05-08 | ✅ Stable | Public surface contraction, migration notes |
 | v2.1.0 | 2026-04-16 | ✅ Stable | ANDNOT, performance improvements |
 | v2.0.0 | 2026-01-08 | ✅ Stable | Complete rewrite, header-only |
@@ -173,7 +235,8 @@ The original implementation based on inheritance and virtual functions.
 
 ---
 
-[Unreleased]: https://github.com/LessUp/bitcal/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/LessUp/bitcal/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/LessUp/bitcal/compare/v3.0.0...v4.0.0
 [3.0.0]: https://github.com/LessUp/bitcal/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/LessUp/bitcal/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/LessUp/bitcal/releases/tag/v2.0.0
