@@ -88,6 +88,25 @@ bool arrays_equal(const BitArray& a, const BitArray& b) {
     return a == b;
 }
 
+/// 验证两个 bitarray 的保留可观察字模式完全一致
+template <typename ExpectedBitArray, typename ActualBitArray>
+bool verify_observable_words_equal(const ExpectedBitArray& expected, const ActualBitArray& actual) {
+    static_assert(ExpectedBitArray::u64_count == ActualBitArray::u64_count,
+                  "Cross-backend comparison requires matching word counts");
+
+    const uint64_t* expected_words = expected.data();
+    const uint64_t* actual_words = actual.data();
+    for (size_t i = 0; i < ExpectedBitArray::u64_count; ++i) {
+        if (expected.word(i) != actual.word(i))
+            return false;
+        if (expected[i] != actual[i])
+            return false;
+        if (expected_words[i] != actual_words[i])
+            return false;
+    }
+    return true;
+}
+
 /// 验证位模式是否匹配预期（使用 get_bit）
 template <typename BitArray>
 bool verify_bit_pattern(const BitArray& arr, std::initializer_list<std::pair<size_t, bool>> expected) {
@@ -839,69 +858,84 @@ bool test_cross_backend_consistency() {
     using scalar_bit256 = bitcal::bitarray<256, bitcal::simd_backend::scalar>;
     using auto_bit256 = bitcal::bit256;  // Uses default (SIMD) backend
 
-    // Initialize both backends with same data using set_bit
+    // Initialize both backends with the same exact word patterns.
     scalar_bit256 sa, sb;
     auto_bit256 aa, ab;
 
-    // 设置相同的位模式
-    for (int i = 0; i < 256; i += 7) {
-        sa.set_bit(i, true);
-        aa.set_bit(i, true);
-    }
-    for (int i = 3; i < 256; i += 11) {
-        sb.set_bit(i, true);
-        ab.set_bit(i, true);
-    }
+    sa.set_word(0, 0x8000000000000001ULL);
+    sa.set_word(1, 0x0123456789ABCDEFULL);
+    sa.set_word(2, 0xFEDCBA9876543210ULL);
+    sa.set_word(3, 0x0000000000000001ULL);
+    aa.set_word(0, 0x8000000000000001ULL);
+    aa.set_word(1, 0x0123456789ABCDEFULL);
+    aa.set_word(2, 0xFEDCBA9876543210ULL);
+    aa.set_word(3, 0x0000000000000001ULL);
 
-    // Test bitwise AND - 验证 popcount 而不是直接比较
+    sb.set_word(0, 0x7FFFFFFFFFFFFFFFULL);
+    sb.set_word(1, 0xF0F0F0F0F0F0F0F0ULL);
+    sb.set_word(2, 0x0F0F0F0F0F0F0F0FULL);
+    sb.set_word(3, 0x8000000000000000ULL);
+    ab.set_word(0, 0x7FFFFFFFFFFFFFFFULL);
+    ab.set_word(1, 0xF0F0F0F0F0F0F0F0ULL);
+    ab.set_word(2, 0x0F0F0F0F0F0F0F0FULL);
+    ab.set_word(3, 0x8000000000000000ULL);
+
+    ASSERT_TRUE(verify_observable_words_equal(sa, aa));
+    ASSERT_TRUE(verify_observable_words_equal(sb, ab));
+
+    // Test representative bitwise operations by exact observable word pattern.
     scalar_bit256 scalar_and = sa & sb;
     auto_bit256 auto_and = aa & ab;
-    ASSERT_EQ(scalar_and.popcount(), auto_and.popcount());
+    ASSERT_TRUE(verify_observable_words_equal(scalar_and, auto_and));
 
-    // Test bitwise OR
     scalar_bit256 scalar_or = sa | sb;
     auto_bit256 auto_or = aa | ab;
-    ASSERT_EQ(scalar_or.popcount(), auto_or.popcount());
+    ASSERT_TRUE(verify_observable_words_equal(scalar_or, auto_or));
 
-    // Test bitwise XOR
     scalar_bit256 scalar_xor = sa ^ sb;
     auto_bit256 auto_xor = aa ^ ab;
-    ASSERT_EQ(scalar_xor.popcount(), auto_xor.popcount());
+    ASSERT_TRUE(verify_observable_words_equal(scalar_xor, auto_xor));
 
-    // Test bitwise NOT
+    scalar_bit256 scalar_andnot = sa.andnot(sb);
+    auto_bit256 auto_andnot = aa.andnot(ab);
+    ASSERT_TRUE(verify_observable_words_equal(scalar_andnot, auto_andnot));
+
     scalar_bit256 scalar_not = ~sa;
     auto_bit256 auto_not = ~aa;
-    ASSERT_EQ(scalar_not.popcount(), auto_not.popcount());
+    ASSERT_TRUE(verify_observable_words_equal(scalar_not, auto_not));
 
     // Test popcount
     ASSERT_EQ(sa.popcount(), aa.popcount());
     ASSERT_EQ(sb.popcount(), ab.popcount());
 
-    // Test shift left
-    scalar_bit256 sa_shift_l = sa;
-    auto_bit256 aa_shift_l = aa;
-    sa_shift_l.shift_left(37);
-    aa_shift_l.shift_left(37);
-    ASSERT_EQ(sa_shift_l.popcount(), aa_shift_l.popcount());
+    // Test boundary-crossing shifts by exact word pattern.
+    for (int shift : {65, 129}) {
+        scalar_bit256 sa_shift_l = sa;
+        auto_bit256 aa_shift_l = aa;
+        sa_shift_l.shift_left(shift);
+        aa_shift_l.shift_left(shift);
+        ASSERT_TRUE(verify_observable_words_equal(sa_shift_l, aa_shift_l));
+    }
 
-    // Test shift right
-    scalar_bit256 sa_shift_r = sa;
-    auto_bit256 aa_shift_r = aa;
-    sa_shift_r.shift_right(23);
-    aa_shift_r.shift_right(23);
-    ASSERT_EQ(sa_shift_r.popcount(), aa_shift_r.popcount());
+    for (int shift : {64, 127}) {
+        scalar_bit256 sa_shift_r = sa;
+        auto_bit256 aa_shift_r = aa;
+        sa_shift_r.shift_right(shift);
+        aa_shift_r.shift_right(shift);
+        ASSERT_TRUE(verify_observable_words_equal(sa_shift_r, aa_shift_r));
+    }
 
     // Test zero / all-ones states with retained methods only
     ASSERT_EQ(sa.is_zero(), aa.is_zero());
 
     scalar_bit256 scalar_ones = ~scalar_bit256();
     auto_bit256 auto_ones = ~auto_bit256();
-    ASSERT_EQ(scalar_ones.popcount(), auto_ones.popcount());
+    ASSERT_TRUE(verify_observable_words_equal(scalar_ones, auto_ones));
     ASSERT_EQ(scalar_ones.is_zero(), auto_ones.is_zero());
 
     scalar_bit256 scalar_zeros;
     auto_bit256 auto_zeros;
-    ASSERT_EQ(scalar_zeros.popcount(), auto_zeros.popcount());
+    ASSERT_TRUE(verify_observable_words_equal(scalar_zeros, auto_zeros));
     ASSERT_EQ(scalar_zeros.is_zero(), auto_zeros.is_zero());
 
     return true;
