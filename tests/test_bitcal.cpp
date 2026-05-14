@@ -58,11 +58,36 @@ bool test_vnext_algorithm_smoke() {
     return true;
 }
 
+bool test_vnext_is_zero_query() {
+    bitcal::bit_block<256> block;
+
+    ASSERT_TRUE(bitcal::is_zero(block.view()));
+
+    auto view = block.view();
+    view.data()[0] = 0x1ULL;
+
+    ASSERT_TRUE(!bitcal::is_zero(block.view()));
+    return true;
+}
+
+bool test_vnext_popcount_counts_bits_across_words() {
+    bitcal::bit_block<256> block;
+    auto view = block.view();
+
+    view.data()[0] = 0b1011ULL;
+    view.data()[3] = 0b1000ULL;
+
+    ASSERT_EQ(bitcal::popcount(block.view()), std::uint64_t{4});
+    return true;
+}
+
 int main() {
     std::cout << "=== BitCal vNext test suite ===" << std::endl;
 
     RUN_TEST(test_vnext_block_view_smoke);
     RUN_TEST(test_vnext_algorithm_smoke);
+    RUN_TEST(test_vnext_is_zero_query);
+    RUN_TEST(test_vnext_popcount_counts_bits_across_words);
 
     std::cout << std::endl;
     std::cout << "Passed: " << g_pass << std::endl;
