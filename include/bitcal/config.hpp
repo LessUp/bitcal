@@ -9,6 +9,10 @@
 #define BITCAL_ARCH_X86 0
 #endif
 
+#if BITCAL_ARCH_X86
+#include <immintrin.h>
+#endif
+
 #if defined(__GNUC__) || defined(__clang__)
 #define BITCAL_FORCEINLINE __attribute__((always_inline)) inline
 #elif defined(_MSC_VER)
@@ -21,6 +25,30 @@
 #define BITCAL_VERSION_MINOR 0
 #define BITCAL_VERSION_PATCH 0
 #define BITCAL_VERSION ((BITCAL_VERSION_MAJOR << 16) | (BITCAL_VERSION_MINOR << 8) | BITCAL_VERSION_PATCH)
+
+#if BITCAL_ARCH_X86
+#if defined(__SSE2__) || defined(_M_X64)
+#define BITCAL_HAS_SSE2 1
+#else
+#define BITCAL_HAS_SSE2 0
+#endif
+
+#if defined(__AVX2__)
+#define BITCAL_HAS_AVX2 1
+#else
+#define BITCAL_HAS_AVX2 0
+#endif
+
+#if defined(__AVX512F__)
+#define BITCAL_HAS_AVX512 1
+#else
+#define BITCAL_HAS_AVX512 0
+#endif
+#else
+#define BITCAL_HAS_SSE2 0
+#define BITCAL_HAS_AVX2 0
+#define BITCAL_HAS_AVX512 0
+#endif
 
 namespace bitcal {
 

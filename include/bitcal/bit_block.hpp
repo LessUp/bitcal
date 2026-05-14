@@ -15,6 +15,11 @@ class bit_block {
 public:
     static constexpr std::size_t bits = Bits;
     static constexpr std::size_t word_count = Bits / 64;
+#if BITCAL_ARCH_X86
+    static constexpr std::size_t storage_alignment = 32;
+#else
+    static constexpr std::size_t storage_alignment = alignof(std::uint64_t);
+#endif
 
     constexpr bit_block() noexcept = default;
 
@@ -27,7 +32,7 @@ public:
     }
 
 private:
-    std::array<std::uint64_t, word_count> words_{};
+    alignas(storage_alignment) std::array<std::uint64_t, word_count> words_{};
 };
 
 }  // namespace bitcal

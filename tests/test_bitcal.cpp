@@ -1,4 +1,5 @@
 #include <cstddef>
+#include <cstdint>
 #include <iostream>
 #include <type_traits>
 
@@ -81,6 +82,42 @@ bool test_vnext_popcount_counts_bits_across_words() {
     return true;
 }
 
+bool test_vnext_and_into_writes_preallocated_output() {
+    bitcal::bit_block<256> lhs;
+    bitcal::bit_block<256> rhs;
+    bitcal::bit_block<256> out;
+
+    auto lhs_view = lhs.view();
+    auto rhs_view = rhs.view();
+    auto out_view = out.view();
+
+    lhs_view.data()[0] = 0b1111ULL;
+    lhs_view.data()[3] = 0xF0ULL;
+    rhs_view.data()[0] = 0b0101ULL;
+    rhs_view.data()[3] = 0xCCULL;
+    out_view.data()[0] = 0xFFFFFFFFFFFFFFFFULL;
+    out_view.data()[3] = 0xFFFFFFFFFFFFFFFFULL;
+
+    bitcal::and_into(lhs.view(), rhs.view(), out.view());
+
+    ASSERT_EQ(out.word(0), std::uint64_t{0b0101ULL});
+    ASSERT_EQ(out.word(3), std::uint64_t{0xC0ULL});
+    return true;
+}
+
+bool test_vnext_block_storage_alignment() {
+    bitcal::bit_block<256> block;
+    const auto address = reinterpret_cast<std::uintptr_t>(block.view().data());
+
+#if BITCAL_ARCH_X86
+    ASSERT_EQ(address % std::uintptr_t{32}, std::uintptr_t{0});
+#else
+    ASSERT_TRUE(address != 0);
+#endif
+
+    return true;
+}
+
 int main() {
     std::cout << "=== BitCal vNext test suite ===" << std::endl;
 
@@ -88,6 +125,8 @@ int main() {
     RUN_TEST(test_vnext_algorithm_smoke);
     RUN_TEST(test_vnext_is_zero_query);
     RUN_TEST(test_vnext_popcount_counts_bits_across_words);
+    RUN_TEST(test_vnext_and_into_writes_preallocated_output);
+    RUN_TEST(test_vnext_block_storage_alignment);
 
     std::cout << std::endl;
     std::cout << "Passed: " << g_pass << std::endl;
