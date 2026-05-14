@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <array>
+#include <span>
 
 namespace bitcal {
 
@@ -23,12 +24,31 @@ public:
 
     constexpr bit_block() noexcept = default;
 
+    [[nodiscard]] static constexpr bit_block from_words(const std::span<const std::uint64_t> words) noexcept {
+        assert(words.size() == word_count);
+
+        bit_block out;
+        for (std::size_t i = 0; i < word_count; ++i) {
+            out.words_[i] = words[i];
+        }
+
+        return out;
+    }
+
     [[nodiscard]] constexpr bit_view view() noexcept { return bit_view(words_.data(), word_count); }
     [[nodiscard]] constexpr const_bit_view view() const noexcept { return const_bit_view(words_.data(), word_count); }
 
     [[nodiscard]] constexpr std::uint64_t word(const std::size_t index) const noexcept {
         assert(index < word_count);
         return words_[index];
+    }
+
+    constexpr void copy_words_to(const std::span<std::uint64_t> out) const noexcept {
+        assert(out.size() == word_count);
+
+        for (std::size_t i = 0; i < word_count; ++i) {
+            out[i] = words_[i];
+        }
     }
 
 private:

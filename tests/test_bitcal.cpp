@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <span>
 #include <type_traits>
 
 #include <bitcal/bitcal.hpp>
@@ -118,6 +119,21 @@ bool test_vnext_block_storage_alignment() {
     return true;
 }
 
+bool test_vnext_block_word_span_interop() {
+    const std::uint64_t input_words[] = {0x1ULL, 0x2ULL, 0x3ULL, 0x4ULL};
+    auto block = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(input_words, 4));
+
+    ASSERT_EQ(block.word(0), std::uint64_t{0x1ULL});
+    ASSERT_EQ(block.word(3), std::uint64_t{0x4ULL});
+
+    std::uint64_t output_words[4] = {};
+    block.copy_words_to(std::span<std::uint64_t>(output_words, 4));
+
+    ASSERT_EQ(output_words[0], std::uint64_t{0x1ULL});
+    ASSERT_EQ(output_words[3], std::uint64_t{0x4ULL});
+    return true;
+}
+
 int main() {
     std::cout << "=== BitCal vNext test suite ===" << std::endl;
 
@@ -127,6 +143,7 @@ int main() {
     RUN_TEST(test_vnext_popcount_counts_bits_across_words);
     RUN_TEST(test_vnext_and_into_writes_preallocated_output);
     RUN_TEST(test_vnext_block_storage_alignment);
+    RUN_TEST(test_vnext_block_word_span_interop);
 
     std::cout << std::endl;
     std::cout << "Passed: " << g_pass << std::endl;
