@@ -1,3 +1,6 @@
 #pragma once
 
-#include "bitarray.hpp"
+#include "config.hpp"
+#include "bit_view.hpp"
+#include "bit_block.hpp"
+#include "algorithms.hpp"
