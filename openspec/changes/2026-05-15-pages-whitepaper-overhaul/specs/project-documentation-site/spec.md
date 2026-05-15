@@ -9,15 +9,15 @@ BitCal SHALL define one maintained source for each documentation artifact, and a
 - **AND** the Pages changelog page MUST be treated as a synchronized or derived navigation entry, not as a separately maintained source
 
 ### Requirement: The public site SHALL separate promotion, academy, guidance, reference, research, and whitepaper content
-BitCal SHALL structure its GitHub Pages experience as a layered entry flow: a root homepage for project promotion, a docs landing page for documentation navigation, an academy layer for explanatory/primer content, and distinct primary section trees for whitepaper, guides, API/reference material, research material, and project-status context. Academy content MUST introduce mental models and route readers into deeper whitepaper/reference material rather than becoming a second canonical home for deep technical body content.
+BitCal SHALL structure its GitHub Pages experience as a layered entry flow: a retained VitePress root entry plus localized homepage or landing surfaces that together provide project promotion, language routing, and documentation navigation; an academy layer for explanatory/primer content; and distinct primary section trees for whitepaper, guides, API/reference material, research material, and project-status context. Academy content MUST introduce mental models and route readers into deeper whitepaper/reference material rather than becoming a second canonical home for deep technical body content. A distinct standalone Docs Landing surface is optional unless a change explicitly places it in scope.
 
 #### Scenario: User lands on the site homepage
 - **WHEN** a new user opens the BitCal Pages site
-- **THEN** the homepage MUST communicate the vNext thesis and route readers into the docs landing page and the primary academy, whitepaper, guides, reference, research, and maintenance paths
+- **THEN** the retained root entry and any localized homepage or landing surface MUST communicate the vNext thesis and route readers into the primary academy, whitepaper, guides, reference, research, and maintenance paths
 
-#### Scenario: User enters the documentation landing page
-- **WHEN** a reader opens the primary documentation entry page
-- **THEN** that page MUST act as the landing layer for the documentation tree
+#### Scenario: User enters the documentation landing surface
+- **WHEN** a reader opens the retained primary documentation entry surface, whether that is the VitePress root entry or a localized homepage / landing page
+- **THEN** that surface MUST act as the landing layer for the documentation tree
 - **AND** it MUST expose the primary academy, whitepaper, guides, reference, research, and project-status sections as distinct navigation paths
 
 #### Scenario: Reader enters Academy
@@ -29,7 +29,7 @@ BitCal SHALL structure its GitHub Pages experience as a layered entry flow: a ro
 BitCal SHALL provide a lightweight reusable VitePress theme-component layer for high-value Pages surfaces so shared presentation patterns can be implemented once while deep technical content remains canonical repository Markdown.
 
 #### Scenario: Maintainers rebuild a high-value audience-facing surface
-- **WHEN** maintainers implement or revise the homepage, docs landing page, whitepaper entry, research entry, or other high-value audience-facing Pages surface
+- **WHEN** maintainers implement or revise the homepage, a retained root/localized home or landing surface, the whitepaper entry, the research entry, or another high-value audience-facing Pages surface
 - **THEN** shared presentation elements such as hero blocks, callouts, and figure chrome MUST come from the reusable theme-component layer
 - **AND** the page's deep technical narrative MUST continue to be maintained in canonical repository Markdown rather than in separately maintained HTML or component-owned duplicates
 

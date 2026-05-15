@@ -44,12 +44,12 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 - 根 `index.html`
 - 作用：项目定位、亮点、支持边界、进入文档与源码的导航
 
-### 3.2 Docs Landing
+### 3.2 Primary Documentation Entry
 
-- `docs/index.html`
-- 作用：文档总览、受众分流、语言入口、主要文档域导航
+- `docs/index.html` 对应的 VitePress 根入口，以及按需承担主要入口职责的本地化首页 / landing surface（如 `docs/zh/index.html`、`docs/en/index.html`）
+- 作用：承担文档总览、受众分流、语言入口与主要文档域导航；除非后续任务明确纳入范围，不要求再单独保留一个独立的 Docs Landing 层
 
-### 3.3 Whitepaper IA
+### 3.3 Primary Pages IA
 
 - Home
 - Academy
@@ -71,7 +71,7 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 
 ## 4. 双语策略
 
-- 本轮 GitHub Pages 镜像的是主要面向受众的导航结构：Home / Docs Landing / Academy / Whitepaper / Guides / Reference / Research / Project Status
+- 本轮 GitHub Pages 镜像的是主要面向受众的导航结构：Home（含 VitePress 根入口与本地化首页 / landing surfaces 承担的 landing role）/ Academy / Whitepaper / Guides / Reference / Research / Project Status
 - `Academy` 在中英文两侧都保留 explanatory / primer 层职责；深度技术正文继续留在 `Whitepaper`、`Guides`、`Reference`、`Research` 等对应 section 的 canonical Markdown 中
 - 深度技术正文可通过共享结构和共享图示资产降低重复成本，并可按 bilingual policy 预先声明受控例外
 - 禁止通过手写 HTML 镜像来维持双语“看起来完整”
@@ -88,5 +88,5 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 
 1. 先按本文件确定保留矩阵
 2. 再删除重复文档与镜像内容
-3. 然后重建首页、landing page 与导航
+3. 然后重建首页、承担 landing role 的入口面与导航
 4. 最后补齐仍需保留的双语入口与维护状态说明
