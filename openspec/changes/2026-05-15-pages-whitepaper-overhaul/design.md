@@ -21,17 +21,27 @@
 - **Why**：仓库中已有 change package 都按 `specs/<capability>/spec.md` 组织；继续使用 `specs/project/project-documentation-site.md` 会让本变更成为异常结构。
 - **Consequence**：后续 review、archive 与 OpenSpec 工具都可以按统一结构读取该变更。
 
-### 2. Task 1 先冻结 Pages contract，后续任务再实现站点改造
-- **Decision**：本设计文档只细化 Task 1 需要先冻结的信息架构分层、双语结构镜像、canonical source/changelog policy 三类约束；导航重写、主题组件和页面迁移仍按 proposal/tasks 在后续任务落实。
-- **Why**：Task 1 的作用是先建立 contract，避免后续导航和内容重写在没有单一真相的情况下继续漂移。
-- **Consequence**：本变更仍保留后续站点重构任务，但这些任务必须受 Task 1 先冻结的 contract 约束。
+### 2. Task 1 先冻结 Pages contract，后续任务只在该 contract 内实现
+- **Decision**：Task 1 不仅冻结信息架构分层、双语结构镜像、canonical source/changelog policy，也明确冻结本次 overhaul 的站点实现基座：继续使用现有 VitePress 渲染管线，并继续以 GitHub Pages 作为发布目标；后续任务只负责在这个基座上实现导航、主题组件和页面迁移。
+- **Why**：Task 1 的作用是先建立 contract，避免后续导航和内容重写在没有单一真相的情况下继续漂移，也避免把“是否换 SSG / 是否换部署平台”重新打开成隐性范围。
+- **Consequence**：本变更后续任务可以调整 VitePress 配置、主题和内容树，但不能把迁移到其他文档框架或其他托管平台视为 Task 1 留下的待定事项。
 
-### 3. 根 changelog 保持 canonical，Pages release-notes 仅作 derived entry pages
+### 3. Theme-component layer 是本变更的既定实现方向
+- **Decision**：后续站点实现必须增加一个小型、可复用的 VitePress theme-component layer，用于承载共享的 hero、callout、figure chrome 等展示骨架；这是一项已锁定的设计决定，不是可选增强，也不是要演化为重型自定义前端应用。
+- **Why**：proposal 与 tasks 已经把导航重组、页面重写和图示治理绑定在同一轮 whitepaper overhaul 中；如果不在 Task 1 明确 theme-component layer，后续实现容易退回到零散 Markdown 特例或失控地扩展为新的站点框架层。
+- **Consequence**：后续任务需要在 VitePress theme 范围内落地薄而稳定的共享组件层，并以它作为白皮书页面与图示呈现复用的唯一承载面。
+
+### 4. 图示策略固定为 theme-aware figures / SVG
+- **Decision**：本变更明确采用 theme-aware figure strategy，并以 SVG 作为白皮书图示的首选格式；图示必须通过主题 token 或样式机制适配 light/dark，而不是默认依赖位图截图、手工维护两套不联动插图，或把配色兼容留作后续再议。
+- **Why**：proposal 已把“theme-aware figure and SVG policy for light/dark readability”列为本次 overhaul 的组成部分；若 Task 1 不先锁定该方向，后续页面重写会重新引入不可维护的图示分叉。
+- **Consequence**：后续任务中的 figure 重建、组件封装和页面迁移都必须围绕 theme-aware SVG 路线执行，并把 light/dark 可读性视为默认验收条件。
+
+### 5. 根 changelog 保持 canonical，Pages release-notes 仅作 derived entry pages
 - **Decision**：`CHANGELOG.md` / `CHANGELOG.zh-CN.md` 继续作为唯一 canonical changelog source；`docs/*/release-notes/changelog.md` 若保留，只能作为面向 Pages 导航的派生入口页。
 - **Why**：这同时满足仓库“单一真相”原则与 Pages 站点对 release-notes 导航的需要，避免手工双轨维护。
 - **Consequence**：`docs/README.md` 需要明确区分 canonical source 与 Pages-derived entry pages，清理规则也应只删除手工镜像或失去同步依据的版本。
 
-### 4. 双语镜像要求绑定主受众导航结构
+### 6. 双语镜像要求绑定主受众导航结构
 - **Decision**：对 Home / Academy / Whitepaper / Guides / Reference / Research / Project Status 这类主阅读路径，英文与中文结构必须同步增删改。
 - **Why**：如果只声明“支持双语”而不约束结构同步，后续站点会再次出现一个语言有入口、另一个语言缺位的漂移问题。
 - **Consequence**：任何主受众 section 的新增、删除、重命名，都需要同步更新另一语言导航，或者先在 policy 中明确例外。
