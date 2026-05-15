@@ -11,6 +11,21 @@ export type ReadingPathItem = {
 defineProps<{
   items: ReadingPathItem[]
 }>()
+
+const externalHrefPattern = /^(?:[a-z]+:)?\/\//i
+
+function resolveReadingPathHref(href: string) {
+  if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || externalHrefPattern.test(href)) {
+    return href
+  }
+
+  const match = href.match(/^([^?#]+)([?#].*)?$/)
+  const path = match?.[1] ?? href
+  const suffix = match?.[2] ?? ''
+  const normalized = path.endsWith('/') || path.endsWith('.html') ? path : `${path}.html`
+
+  return withBase(`${normalized}${suffix}`)
+}
 </script>
 
 <template>
@@ -18,7 +33,7 @@ defineProps<{
     <a
       v-for="item in items"
       :key="item.href"
-      :href="withBase(item.href)"
+      :href="resolveReadingPathHref(item.href)"
       class="bc-reading-card"
     >
       <div class="bc-reading-card-meta">

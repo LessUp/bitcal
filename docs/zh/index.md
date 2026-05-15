@@ -1,131 +1,69 @@
 ---
 layout: home
+hero:
+  name: BitCal vNext
+  text: 头文件式 C++23 位库
+  tagline: 正在围绕 block/view 分离、x86-64 优先验证与可观察的算法契约重建。
+  actions:
+    - theme: brand
+      text: 阅读白皮书
+      link: ./architecture/vnext-whitepaper
+    - theme: alt
+      text: 项目状态
+      link: ./project-status/
+    - theme: alt
+      text: English
+      link: ../en/
 ---
 
-<div class="home-header">
-  <div class="home-header-left">
-    <div class="home-logo">BC</div>
-    <div>
-      <span class="home-title">BitCal</span>
-      <span class="home-subtitle">C++23 vNext 位运算库</span>
-    </div>
-  </div>
-  <div class="home-nav">
-    <a href="./getting-started/installation">指南</a>
-    <a href="https://github.com/LessUp/bitcal">GitHub</a>
-    <a href="../en/">English</a>
-  </div>
-</div>
+<script setup>
+import { withBase } from 'vitepress'
+</script>
 
-<div class="home-intro-row">
-  <div class="home-intro">
-    BitCal 是一个正在重设计中的头文件式 C++23 位运算库。当前公开模型围绕 bit block、bit view 和自由算法展开，并优先面向 x86-64 性能路径。
-  </div>
-  <div class="home-stats">
-    <span><strong>头文件式</strong></span>
-    <span><strong>C++23</strong></span>
-    <span><strong>x86-64 优先</strong></span>
-  </div>
-</div>
+## 从适合你的入口开始
 
-## vNext 参考
+<ReadingPathGrid
+  :items="[
+    {
+      title: '面试官导读',
+      href: './architecture/overview',
+      badge: '快速总览',
+      summary: '先看保留后的架构概览，快速建立 BitCal 过去与 vNext 方向之间的对照，再进入白皮书与项目状态页。'
+    },
+    {
+      title: '高级开发者导读',
+      href: './academy/overview',
+      badge: '概念模型',
+      summary: '从学院入口理解 block/view 分离、分发边界，以及性能结论如何保持为可观察的公开契约。'
+    },
+    {
+      title: '使用者导读',
+      href: './getting-started/installation',
+      badge: '采用路径',
+      summary: '如果你要落地使用，请直接进入安装入口，查看 include seam、迁移姿态与当前仍被维护的上手路径。'
+    }
+  ]"
+/>
 
-<div class="feature-map">
-  <div class="feature-card">
-    <div class="feature-card-title">📘 技术白皮书</div>
-    <div class="feature-card-desc">
-      介绍 BitCal vNext 的公开模型、后端分层、正确性策略和复现方式。
-    </div>
-    <div class="feature-tags">
-      <a href="./architecture/vnext-whitepaper" class="feature-tag">白皮书</a>
-    </div>
-  </div>
+## 证据快照
 
-  <div class="feature-card">
-    <div class="feature-card-title">📈 性能基线</div>
-    <div class="feature-card-desc">
-      当前 vNext benchmark 的可复现基线、样例结果与方法说明。
-    </div>
-    <div class="feature-tags">
-      <a href="./architecture/performance-baseline" class="feature-tag">性能指标</a>
-    </div>
-  </div>
-</div>
+<FigureFrame
+  eyebrow="架构证据"
+  title="首页现在直接对应 BitCal vNext 的分层论点。"
+  caption="BitCal vNext 把 block 与 view 职责拆开，把算法保留在可观察的契约层，并把性能宣称绑定回 x86-64 优先的验证路径。"
+>
 
-## 功能特性
+<img :src="withBase('/figures/bitcal-vnext-layers.svg')" alt="BitCal vNext 分层示意图">
 
-<div class="feature-map">
-  <div class="feature-card">
-    <div class="feature-card-title">⚡ 头文件式</div>
-    <div class="feature-card-desc">
-      单一头文件入口。无需构建系统。只需复制头文件并编译。
-    </div>
-    <div class="feature-tags">
-      <a href="./getting-started/installation" class="feature-tag">安装指南</a>
-      <a href="./getting-started/quickstart" class="feature-tag">快速开始</a>
-    </div>
-  </div>
+</FigureFrame>
 
-  <div class="feature-card">
-    <div class="feature-card-title">🚀 SIMD 优化</div>
-    <div class="feature-card-desc">
-      自动分发到 x86-64 上的 SSE2/AVX/AVX2 和 ARM64 上的 NEON。
-    </div>
-    <div class="feature-tags">
-      <a href="./architecture/simd-dispatch" class="feature-tag">SIMD 分发</a>
-      <a href="./architecture/platform-support" class="feature-tag">平台支持</a>
-    </div>
-  </div>
+## 为什么要有这个站点
 
-  <div class="feature-card">
-    <div class="feature-card-title">🎯 固定位宽</div>
-    <div class="feature-card-desc">
-      bit64、bit128、bit256、bit512、bit1024，以及 64 位的自定义倍数。
-    </div>
-    <div class="feature-tags">
-      <a href="./api/types" class="feature-tag">类型</a>
-      <a href="./api/core-operations" class="feature-tag">操作</a>
-    </div>
-  </div>
+这个站点是 BitCal vNext 的保留阅读层：它负责解释重设计论点、指出证据所在，并把读者路由到仍被维护的章节，而不是继续停留在混杂的新旧时代页面之间。
 
-  <div class="feature-card">
-    <div class="feature-card-title">🔧 丰富 API</div>
-    <div class="feature-card-desc">
-      位运算、移位、popcount、CLZ/CTZ、位反转、单比特操作。
-    </div>
-    <div class="feature-tags">
-      <a href="./api/bit-counting" class="feature-tag">位计数</a>
-      <a href="./api/bit-manipulation" class="feature-tag">位操作</a>
-    </div>
-  </div>
-
-  <div class="feature-card">
-    <div class="feature-card-title">🌍 跨平台</div>
-    <div class="feature-card-desc">
-      Linux、Windows、macOS，支持 x86-64 和 ARM，需要 C++17 或更高版本。
-    </div>
-    <div class="feature-tags">
-      <a href="./architecture/platform-support" class="feature-tag">平台支持</a>
-    </div>
-  </div>
-
-  <div class="feature-card">
-    <div class="feature-card-title">🛡️ 类型安全</div>
-    <div class="feature-card-desc">
-      编译时位宽验证（Bits % 64 == 0），无运行时开销。
-    </div>
-    <div class="feature-tags">
-      <a href="./api/types" class="feature-tag">类型系统</a>
-    </div>
-  </div>
-</div>
-
-<div class="quick-start">
-  <div class="quick-start-title">快速开始</div>
-  <div class="quick-start-content">
-    <div class="command-block">
-      <code>cp -r include/bitcal /your/project/include/</code>
-    </div>
-    然后引入并编译：<code>#include &lt;bitcal/bitcal.hpp&gt;</code>
-  </div>
-</div>
+- [学院](./academy/overview) 负责建立概念模型。
+- [白皮书](./architecture/vnext-whitepaper) 负责陈述架构论点与验证姿态。
+- [指南](./getting-started/installation) 负责安装、快速开始与迁移路径。
+- [参考](./api/overview) 负责定义公开表面与契约。
+- [研究](./research/overview) 负责收口比较材料、引用与方法说明。
+- [项目状态](./project-status/) 负责说明支持边界与维护现实。

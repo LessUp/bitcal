@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" role="img" aria-labelledby="title desc">
+  <title id="title">BitCal vNext layers</title>
+  <desc id="desc">A three-layer diagram showing the public model, observable algorithm contracts, and x86-64-first validation and kernels in BitCal vNext.</desc>
+  <defs>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#60a5fa" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.12" />
+    </filter>
+    <style>
+      .frame { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 2; filter: url(#shadow); }
+      .accent { fill: url(#accent); }
+      .label { fill: #0f172a; font: 700 24px 'Inter', 'Segoe UI', sans-serif; }
+      .body { fill: #334155; font: 500 18px 'Inter', 'Segoe UI', sans-serif; }
+      .small { fill: #475569; font: 500 16px 'Inter', 'Segoe UI', sans-serif; }
+      .line { stroke: #60a5fa; stroke-width: 4; stroke-linecap: round; }
+      .guide { fill: none; stroke: #93c5fd; stroke-width: 2; stroke-dasharray: 8 8; }
+    </style>
+  </defs>
+
+  <rect x="56" y="48" width="848" height="424" rx="32" fill="#e0e7ff" opacity="0.45" />
+
+  <rect class="frame" x="112" y="88" width="736" height="96" rx="24" />
+  <rect class="accent" x="112" y="88" width="736" height="16" rx="24" />
+  <text class="label" x="148" y="138">Public model</text>
+  <text class="body" x="148" y="170">bit_block • bit_view • const_bit_view • stable include seam</text>
+
+  <rect class="frame" x="112" y="214" width="736" height="96" rx="24" />
+  <rect class="accent" x="112" y="214" width="736" height="16" rx="24" />
+  <text class="label" x="148" y="264">Observable algorithm contracts</text>
+  <text class="body" x="148" y="296">free algorithms • explicit boundaries • benchmark and correctness hooks</text>
+
+  <rect class="frame" x="112" y="340" width="736" height="96" rx="24" />
+  <rect class="accent" x="112" y="340" width="736" height="16" rx="24" />
+  <text class="label" x="148" y="390">Validation and kernels</text>
+  <text class="body" x="148" y="422">x86-64-first measurements • ISA-specific kernels • retained support posture</text>
+
+  <line class="line" x1="480" y1="184" x2="480" y2="214" />
+  <line class="line" x1="480" y1="310" x2="480" y2="340" />
+  <path class="guide" d="M 196 138 H 92 V 390 H 112" />
+  <text class="small" x="82" y="244" transform="rotate(-90 82 244)">Evidence path</text>
+
+  <circle cx="804" cy="136" r="22" fill="#dbeafe" stroke="#60a5fa" stroke-width="2" />
+  <text class="small" x="792" y="142">API</text>
+  <circle cx="804" cy="262" r="22" fill="#dbeafe" stroke="#60a5fa" stroke-width="2" />
+  <text class="small" x="782" y="268">Obs.</text>
+  <circle cx="804" cy="388" r="22" fill="#dbeafe" stroke="#60a5fa" stroke-width="2" />
+  <text class="small" x="774" y="394">x86-64</text>
+</svg>
