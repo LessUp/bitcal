@@ -25,7 +25,7 @@ const zhSidebar = {
         { text: '概览', link: '/zh/architecture/overview' },
         { text: 'vNext 白皮书', link: '/zh/architecture/vnext-whitepaper' },
         { text: '平台支持', link: '/zh/architecture/platform-support' },
-        { text: 'SIMD 分派', link: '/zh/architecture/simd-dispatch' },
+        { text: 'SIMD 分发', link: '/zh/architecture/simd-dispatch' },
         { text: '性能基线', link: '/zh/architecture/performance-baseline' },
       ],
     },
@@ -139,16 +139,16 @@ const enSidebar = {
 
 export default withMermaid(defineConfig({
   base,
-  title: 'BitCal Docs',
-  description: 'BitCal - Header-only SIMD bit manipulation for C++17',
+  title: 'BitCal vNext Docs',
+  description: 'BitCal - Header-only C++23 vNext bit library',
 
   locales: {
     zh: {
       label: '简体中文',
       lang: 'zh-CN',
       link: '/zh/',
-      title: 'BitCal 文档',
-      description: 'BitCal - C++17 头文件式 SIMD 位操作库',
+      title: 'BitCal vNext 文档',
+      description: 'BitCal - 头文件式 C++23 vNext 位运算库',
       themeConfig: {
         nav: [
           { text: '学院', link: '/zh/academy/overview', activeMatch: '/zh/academy/' },
@@ -165,8 +165,8 @@ export default withMermaid(defineConfig({
       label: 'English',
       lang: 'en-US',
       link: '/en/',
-      title: 'BitCal Docs',
-      description: 'BitCal - Header-only SIMD bit manipulation for C++17',
+      title: 'BitCal vNext Docs',
+      description: 'BitCal - Header-only C++23 vNext bit library',
       themeConfig: {
         nav: [
           { text: 'Academy', link: '/en/academy/overview', activeMatch: '/en/academy/' },
