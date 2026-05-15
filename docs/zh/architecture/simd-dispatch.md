@@ -29,9 +29,6 @@ bitcal::and_into(lhs.view(), rhs.view(), out.view());
 config.hpp 计算 BITCAL_ARCH_X86 / BITCAL_HAS_SSE2 / BITCAL_HAS_AVX2 / BITCAL_HAS_AVX512
         │
         ▼
-default_backend() 选择 scalar / sse2 / avx2 / avx512
-        │
-        ▼
 自由算法入口
         │
         ▼
@@ -53,7 +50,7 @@ detail::x64_dispatch.hpp
 - `and_into()` 用调试断言检查字数一致
 - 然后转发到 `detail::and_words()`
 - `detail::and_words()` 再转发到 `and_into_x64()`
-- `and_into_x64()` 在 x86-64 且支持时使用 AVX2 循环，否则回退到标量逐字操作
+- `and_into_x64()` 会按当前编译目标/配置宏编译；在 x86-64 且启用 AVX2 时使用向量循环，否则回退到标量逐字操作
 
 ### `is_zero()` 与 `popcount()`
 
@@ -77,7 +74,7 @@ detail::x64_dispatch.hpp
 auto backend = bitcal::default_backend();
 ```
 
-它们适合用来解释一次构建或记录一次 benchmark 运行；除非你愿意自己承担维护成本，否则不要把它们当成把公开 API 分叉成“后端特定业务代码”的理由。
+它们适合用来解释一次构建或记录一次 benchmark 运行。它们只是对同一套编译期目标状态的摘要，并不会在热路径里运行时选择实现；除非你愿意自己承担维护成本，否则不要把它们当成把公开 API 分叉成“后端特定业务代码”的理由。
 
 ## 会影响分发的构建开关
 

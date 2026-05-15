@@ -20,9 +20,11 @@ The repository benchmark executable currently focuses on:
 - `bit_and<128>`
 - `bit_and<256>`
 - `bit_and<512>`
-- printing `default_backend()` alongside the run
+- printing `default_backend()` alongside the run as a diagnostic label for the compile-time target/config summary
 
 Those workloads are intentionally narrow. They verify the current block/view/algorithm story and leave room for future benchmark expansion.
+
+The actual retained write-path benchmark still runs through `bit_and<Bits>()` → `and_into()` → `detail::and_words()` → `detail::x64_dispatch.hpp`. `default_backend()` is only the summary printed next to that run.
 
 ## How to reproduce the baseline
 

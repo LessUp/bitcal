@@ -29,9 +29,6 @@ consumer compile flags / target ISA
 config.hpp computes BITCAL_ARCH_X86 / BITCAL_HAS_SSE2 / BITCAL_HAS_AVX2 / BITCAL_HAS_AVX512
         │
         ▼
-default_backend() chooses scalar / sse2 / avx2 / avx512
-        │
-        ▼
 free algorithm entry point
         │
         ▼
@@ -53,7 +50,7 @@ The write path is currently the clearest example of the backend boundary:
 - `and_into()` validates matching word counts with debug assertions
 - it forwards to `detail::and_words()`
 - `detail::and_words()` forwards to `and_into_x64()`
-- `and_into_x64()` uses an AVX2 loop on x86-64 when available, otherwise scalar word operations
+- `and_into_x64()` is compiled against the active target/config macros and uses an AVX2 loop on x86-64 when enabled, otherwise scalar word operations
 
 ### `is_zero()` and `popcount()`
 
@@ -77,7 +74,7 @@ That buys three things:
 auto backend = bitcal::default_backend();
 ```
 
-Use them to explain a build or record a benchmark run. Do **not** treat them as a reason to fork the public API into backend-specific application code unless you fully own that maintenance burden.
+Use them to explain a build or record a benchmark run. They summarize the same compile-time target state that the algorithms were built with; they do **not** sit in the hot path and choose the implementation at runtime. Do **not** treat them as a reason to fork the public API into backend-specific application code unless you fully own that maintenance burden.
 
 ## Build knobs that affect dispatch
 

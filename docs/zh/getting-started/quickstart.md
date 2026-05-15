@@ -23,14 +23,10 @@ int main() {
     bitcal::bit_block<256> scratch;
     bitcal::and_into(lhs.view(), rhs.view(), scratch.view());
 
-    std::cout << "word0 = 0x" << std::hex << produced.word(0) << "
-";
-    std::cout << "word2 = 0x" << std::hex << produced.word(2) << "
-";
-    std::cout << "popcount = " << std::dec << bitcal::popcount(produced.view()) << "
-";
-    std::cout << "scratch is zero? " << std::boolalpha << bitcal::is_zero(scratch.view()) << "
-";
+    std::cout << "word0 = 0x" << std::hex << produced.word(0) << '\n';
+    std::cout << "word2 = 0x" << std::hex << produced.word(2) << '\n';
+    std::cout << "popcount = " << std::dec << bitcal::popcount(produced.view()) << '\n';
+    std::cout << "scratch is zero? " << std::boolalpha << bitcal::is_zero(scratch.view()) << '\n';
 }
 ```
 

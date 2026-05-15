@@ -20,9 +20,11 @@
 - `bit_and<128>`
 - `bit_and<256>`
 - `bit_and<512>`
-- 同时打印 `default_backend()`
+- 同时打印 `default_backend()`，把它作为编译期目标/配置摘要的诊断标签
 
 这些工作负载是刻意收窄的。它们验证当前 block / view / algorithm 叙事已经打通，同时为后续扩展留下空间。
+
+真正被测的保留写路径仍然是 `bit_and<Bits>()` → `and_into()` → `detail::and_words()` → `detail::x64_dispatch.hpp`。`default_backend()` 只是打印在旁边的摘要信息。
 
 ## 如何复现这条基线
 

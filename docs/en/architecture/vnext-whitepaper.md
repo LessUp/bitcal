@@ -101,8 +101,9 @@ vNext is intentionally x86-64-first.
 Today that means:
 
 - scalar execution always exists as the portability floor
-- x86-64 feature detection drives `default_backend()`
+- compile-time target/config macros decide whether the retained x86-64 write path can use AVX2 or must stay scalar
 - the retained fast path is centered on AVX2-backed `and_into()` / `bit_and<Bits>()`
+- `default_backend()` remains a diagnostic summary of that build posture, not the function that routes `and_into()` / `bit_and<Bits>()`
 - benchmark and correctness claims are grounded in the retained local validation path
 
 This is a priority statement, not a claim that every platform receives the same optimization effort.
