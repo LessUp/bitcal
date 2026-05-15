@@ -8,8 +8,8 @@ BitCal SHALL define one maintained source for each documentation artifact, and a
 - **THEN** the root `CHANGELOG.md` / `CHANGELOG.zh-CN.md` files MUST remain the canonical sources
 - **AND** the Pages changelog page MUST be treated as a synchronized or derived navigation entry, not as a separately maintained source
 
-### Requirement: The public site SHALL separate promotion, guidance, reference, research, and whitepaper content
-BitCal SHALL structure its GitHub Pages experience as a layered entry flow: a root homepage for project promotion, a docs landing page for documentation navigation, and distinct primary section trees for academy, whitepaper, guides, API/reference material, research material, and project-status context.
+### Requirement: The public site SHALL separate promotion, academy, guidance, reference, research, and whitepaper content
+BitCal SHALL structure its GitHub Pages experience as a layered entry flow: a root homepage for project promotion, a docs landing page for documentation navigation, an academy layer for explanatory/primer content, and distinct primary section trees for whitepaper, guides, API/reference material, research material, and project-status context. Academy content MUST introduce mental models and route readers into deeper whitepaper/reference material rather than becoming a second canonical home for deep technical body content.
 
 #### Scenario: User lands on the site homepage
 - **WHEN** a new user opens the BitCal Pages site
@@ -19,6 +19,11 @@ BitCal SHALL structure its GitHub Pages experience as a layered entry flow: a ro
 - **WHEN** a reader opens the primary documentation entry page
 - **THEN** that page MUST act as the landing layer for the documentation tree
 - **AND** it MUST expose the primary academy, whitepaper, guides, reference, research, and project-status sections as distinct navigation paths
+
+#### Scenario: Reader enters Academy
+- **WHEN** a reader opens an Academy entry page
+- **THEN** that page MUST explain the concepts, terminology, or reading path needed to approach the deeper material
+- **AND** any deep technical body content introduced there MUST remain canonical Markdown in the appropriate whitepaper, guides, reference, or research section
 
 ### Requirement: High-value Pages surfaces SHALL use a reusable theme-component layer
 BitCal SHALL provide a lightweight reusable VitePress theme-component layer for high-value Pages surfaces so shared presentation patterns can be implemented once while deep technical content remains canonical repository Markdown.
@@ -42,7 +47,7 @@ BitCal SHALL render whitepaper and other high-value documentation figures throug
 - **AND** its presentation MUST be driven by theme-aware styling or tokens rather than by maintaining separate manually synchronized light-only and dark-only figure copies
 
 ### Requirement: Bilingual maintenance SHALL support mirrored site structure
-BitCal SHALL keep the English and Chinese site trees structurally aligned for all primary audience-facing sections.
+BitCal SHALL keep the English and Chinese site trees structurally aligned for all primary audience-facing sections, while allowing documented bilingual-policy exceptions for deep technical body content below that mirrored navigation layer.
 
 #### Scenario: Maintainers plan bilingual primary navigation
 - **WHEN** maintainers define the Home, Academy, Whitepaper, Guides, Reference, Research, or Project Status reading paths
@@ -52,3 +57,8 @@ BitCal SHALL keep the English and Chinese site trees structurally aligned for al
 - **WHEN** a maintainer adds, removes, or renames a primary audience-facing section in one language tree
 - **THEN** the corresponding section in the other language tree MUST be added, removed, or renamed to preserve mirrored structure
 - **AND** any intentional mismatch MUST be documented in the bilingual policy before the change is published
+
+#### Scenario: Maintainers keep a deep technical body page as an exception
+- **WHEN** maintainers choose not to mirror a deep whitepaper, research, guides, or reference body page across both languages
+- **THEN** the mirrored primary navigation structure MUST still be preserved for the audience-facing section that contains it
+- **AND** the exception MUST be documented in the bilingual policy before publication

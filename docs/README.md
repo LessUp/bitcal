@@ -61,16 +61,19 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 
 ### 3.4 Canonical Content Boundaries
 
+- `Academy` 承担 explanatory / primer layer：介绍核心 mental model、术语和阅读路径，并把读者路由到 `Whitepaper` / `Reference`；它不是深度技术正文的第二 canonical 落点
 - `Guides` 承担安装、快速开始、构建/验证方式与迁移指引
 - `Reference` 面向仍然保留的公开 API，内容必须与 `openspec/specs/api/`、实现和测试一致
-- `Whitepaper` 与 `Research` 负责 vNext 架构叙事、设计依据与方法论材料
+- `Whitepaper` 承担 vNext 架构叙事与体系化技术正文
+- `Research` 负责补充性的设计依据、实验记录与方法论材料
 - `Project Status` 说明支持边界、破坏性变更策略、规范与开发流程入口
 - 历史性或重复性设计说明优先迁出主阅读路径
 
 ## 4. 双语策略
 
-- 本轮 GitHub Pages 面向主要受众的导航结构按中英文镜像维护
-- 深度技术正文以共享结构和共享图示资产降低重复成本，并可按 policy 预先声明受控例外
+- 本轮 GitHub Pages 镜像的是主要面向受众的导航结构：Home / Docs Landing / Academy / Whitepaper / Guides / Reference / Research / Project Status
+- `Academy` 在中英文两侧都保留 explanatory / primer 层职责；深度技术正文继续留在 `Whitepaper`、`Guides`、`Reference`、`Research` 等对应 section 的 canonical Markdown 中
+- 深度技术正文可通过共享结构和共享图示资产降低重复成本，并可按 bilingual policy 预先声明受控例外
 - 禁止通过手写 HTML 镜像来维持双语“看起来完整”
 - release-notes changelog 页若保留，仅作为从根 changelog 同步而来的 Pages 入口，不作为独立 canonical 文档
 
