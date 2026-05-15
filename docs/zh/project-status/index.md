@@ -58,4 +58,4 @@ BitCal 当前处于明确的 vNext 重设计阶段，并面向一个允许破坏
 
 - 如果你正从保留的 `bitarray` 时代迁移，请先看[迁移指南](/zh/getting-started/migration)
 - 如需理解目标公开模型，请看 [vNext 白皮书](/zh/architecture/vnext-whitepaper)
-- 如需先建立概念路线，请看[学院](/zh/academy/)
+- 如需先建立概念路线，请看[学院](/zh/academy/overview)

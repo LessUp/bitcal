@@ -58,4 +58,4 @@ Secondary targets must not receive stronger support or performance claims than t
 
 - Use [Migration Guide](/en/getting-started/migration) if you are updating from the retained `bitarray` era
 - Use [vNext Whitepaper](/en/architecture/vnext-whitepaper) for the intended public model
-- Use [Academy](/en/academy/) for the explanatory route into the redesign
+- Use [Academy](/en/academy/overview) for the explanatory route into the redesign
