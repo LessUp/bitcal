@@ -16,13 +16,8 @@ That sentence drives the public API shape, the validation story, and the perform
 
 - compile-time width via `Bits`
 - contiguous `std::uint64_t` words
+- public metadata through `bits` and `word_count`
 - explicit `view()` accessors for borrowed use
-- span-based import/export helpers for interoperability
-
-```cpp
-std::array<std::uint64_t, 4> words{0xFULL, 0x0ULL, 0xF0ULL, 0x0ULL};
-auto block = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(words));
-```
 
 ### Non-owning view
 
@@ -30,31 +25,51 @@ auto block = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(w
 
 Views matter because BitCal wants algorithm composition to be cheap and explicit:
 
-- algorithms can read or write existing storage
-- callers can preallocate outputs
+- algorithms can read existing storage through `const_bit_view`
+- mutable access stays visible through `bit_view`
 - ownership decisions stay visible in user code
 
 ```cpp
 bitcal::bit_block<256> block;
 auto writable = block.view();
-bitcal::const_bit_view readable = writable;
+writable.data()[0] = 0xFULL;
+
+const auto& block_const = block;
+auto readable = block_const.view();
+auto first = readable.word(0);
 ```
 
-### Free algorithm
+### Free algorithms
 
-Algorithms live as free functions over views and blocks.
+The persistent vNext API contract centers on free functions over views and blocks.
 
 ```cpp
 bitcal::bit_block<256> lhs;
 bitcal::bit_block<256> rhs;
-bitcal::bit_block<256> out;
+const auto& lhs_const = lhs;
+const auto& rhs_const = rhs;
 
-auto produced = bitcal::bit_and<256>(lhs.view(), rhs.view());
-bitcal::and_into(lhs.view(), rhs.view(), out.view());
+auto joined = bitcal::bit_or<256>(lhs_const.view(), rhs_const.view());
+auto diff = bitcal::bit_xor<256>(lhs_const.view(), rhs_const.view());
+auto masked = bitcal::bit_andnot<256>(lhs_const.view(), rhs_const.view());
+auto same = bitcal::equals(lhs_const.view(), rhs_const.view());
+const auto& joined_const = joined;
+const auto& masked_const = masked;
 
-auto zero = bitcal::is_zero(produced.view());
-auto ones = bitcal::popcount(out.view());
+auto shifted = bitcal::shift_left<256>(joined_const.view(), 8);
+const auto& shifted_const = shifted;
+auto empty = bitcal::is_zero(masked_const.view());
+auto ones = bitcal::popcount(shifted_const.view());
 ```
+
+The retained persistent contract includes:
+
+- `bit_and<Bits>()`, `bit_or<Bits>()`, `bit_xor<Bits>()`, `bit_andnot<Bits>()`
+- `equals()`, `is_zero()`, `popcount()`
+- `shift_left<Bits>()`, `shift_right<Bits>()`
+- `backend_kind` as the documented backend vocabulary
+
+Current headers also expose `and_into()` as a write helper, but helper APIs outside `openspec/specs/api/bitcal-public-api.md` are not part of the long-term compatibility promise.
 
 This keeps the contract centered on observable behavior instead of on a large type with an ever-growing member surface.
 
@@ -101,9 +116,9 @@ vNext is intentionally x86-64-first.
 Today that means:
 
 - scalar execution always exists as the portability floor
-- compile-time target/config macros decide whether the retained x86-64 write path can use AVX2 or must stay scalar
-- the retained fast path is centered on AVX2-backed `and_into()` / `bit_and<Bits>()`
-- `default_backend()` remains a diagnostic summary of that build posture, not the function that routes `and_into()` / `bit_and<Bits>()`
+- compile-time target/config macros decide whether retained x86-64 kernels can use AVX2 or must stay scalar
+- the current implementation emphasis is still concentrated on the AND write path and related kernels
+- `backend_kind` names the backend vocabulary visible in the public docs, while backend-selection mechanics remain implementation details unless later specified
 - benchmark and correctness claims are grounded in the retained local validation path
 
 This is a priority statement, not a claim that every platform receives the same optimization effort.
@@ -113,6 +128,7 @@ This is a priority statement, not a claim that every platform receives the same 
 The whitepaper is intentionally narrow. It does **not** promise:
 
 - a compatibility shim for the older public model
+- helper APIs outside the persistent public spec as retained compatibility commitments
 - runtime CPU dispatch as part of the current contract
 - identical optimization depth across every operating system and ISA
 - benchmark numbers divorced from reproducible build settings and hardware context

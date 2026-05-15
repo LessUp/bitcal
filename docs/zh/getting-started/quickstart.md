@@ -5,28 +5,42 @@
 ## 示例程序
 
 ```cpp
-#include <array>
 #include <bitcal/bitcal.hpp>
 #include <cstdint>
+#include <iomanip>
 #include <iostream>
-#include <span>
 
 int main() {
-    const std::array<std::uint64_t, 4> lhs_words{0xFULL, 0x0ULL, 0xF0ULL, 0x0ULL};
-    const std::array<std::uint64_t, 4> rhs_words{0x5ULL, 0x1ULL, 0xCCULL, 0x0ULL};
+    bitcal::bit_block<256> lhs;
+    bitcal::bit_block<256> rhs;
 
-    auto lhs = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(lhs_words));
-    auto rhs = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(rhs_words));
+    auto lhs_words = lhs.view();
+    lhs_words.data()[0] = 0xFULL;
+    lhs_words.data()[2] = 0xF0ULL;
 
-    auto produced = bitcal::bit_and<256>(lhs.view(), rhs.view());
+    auto rhs_words = rhs.view();
+    rhs_words.data()[0] = 0x5ULL;
+    rhs_words.data()[1] = 0x1ULL;
+    rhs_words.data()[2] = 0xCCULL;
+
+    const auto& lhs_const = lhs;
+    const auto& rhs_const = rhs;
+
+    auto produced = bitcal::bit_and<256>(lhs_const.view(), rhs_const.view());
 
     bitcal::bit_block<256> scratch;
-    bitcal::and_into(lhs.view(), rhs.view(), scratch.view());
+    bitcal::and_into(lhs_const.view(), rhs_const.view(), scratch.view());
 
-    std::cout << "word0 = 0x" << std::hex << produced.word(0) << '\n';
-    std::cout << "word2 = 0x" << std::hex << produced.word(2) << '\n';
-    std::cout << "popcount = " << std::dec << bitcal::popcount(produced.view()) << '\n';
-    std::cout << "scratch is zero? " << std::boolalpha << bitcal::is_zero(scratch.view()) << '\n';
+    const auto& produced_const = produced;
+    const auto& scratch_const = scratch;
+
+    std::cout << "word0 = 0x" << std::hex << produced_const.view().word(0) << '\n';
+    std::cout << "word2 = 0x" << std::hex << produced_const.view().word(2) << '\n';
+    std::cout << "popcount = " << std::dec << bitcal::popcount(produced_const.view()) << '\n';
+    std::cout << "scratch equals produced? "
+              << std::boolalpha
+              << bitcal::equals(scratch_const.view(), produced_const.view())
+              << '\n';
 }
 ```
 
@@ -36,7 +50,7 @@ int main() {
 word0 = 0x5
 word2 = 0xc0
 popcount = 4
-scratch is zero? false
+scratch equals produced? true
 ```
 
 ## 编译运行
@@ -56,22 +70,27 @@ g++ -std=c++23 -O3 -march=native quickstart.cpp -I/path/to/bitcal/include -o qui
 
 ### 2. 用 view 借用存储
 
-`view()` 会把 owning block 转成轻量借用句柄，而算法正是消费这个句柄。
+`view()` 会把 owning block 转成轻量借用句柄。持久 API 契约承诺这些 view 具备 `data()`、`word_count()` 与 `word(index)`。
 
-### 3. 选择合适的算法形态
+### 3. 使用持久契约中的算法族
 
-- `bit_and<256>()` 返回新的 owning block
-- `and_into()` 把结果写入现有输出 block
-- `is_zero()` 与 `popcount()` 是基于 view 的只读查询
+- `bit_and<Bits>()`、`bit_or<Bits>()`、`bit_xor<Bits>()`、`bit_andnot<Bits>()` 返回新的 owning result
+- `shift_left<Bits>()` 与 `shift_right<Bits>()` 返回移位后的 owning result
+- `equals()`、`is_zero()`、`popcount()` 回答基于 view 的只读问题
+- 当前头文件还暴露了写入辅助函数 `and_into()`，但它不属于持久 API spec
 
 ## 什么时候用哪种算法
 
 | 需求 | 选择 |
 | --- | --- |
-| 产生一个新的拥有型结果 | `bit_and<Bits>()` |
-| 复用预分配输出缓冲区 | `and_into()` |
-| 只读查询数据 | `is_zero()` / `popcount()` |
-| 对接外部缓冲区 | `bit_block<Bits>::from_words(...)` 与 `copy_words_to(...)` |
+| 产生新的按位结果 | `bit_and<Bits>()`、`bit_or<Bits>()`、`bit_xor<Bits>()`、`bit_andnot<Bits>()` |
+| 产生移位后的 owning result | `shift_left<Bits>()`、`shift_right<Bits>()` |
+| 只读查询数据 | `equals()`、`is_zero()`、`popcount()` |
+| 在当前头文件里复用可写存储 | `and_into()` helper |
+
+## 与 spec 对齐的提醒
+
+持久 API spec 并不承诺 `from_words(...)`、`copy_words_to(...)`、`bit_block::word(...)` 这类辅助接口。优先采用 API 参考页里定义的 block / view / algorithm 模型。
 
 ## 按仓库基线继续验证
 

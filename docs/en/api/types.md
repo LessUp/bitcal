@@ -1,6 +1,6 @@
 # Types Reference
 
-This page defines the vNext public type glossary.
+This page records the persistent vNext type contract rather than every convenience currently visible in headers.
 
 ## Public glossary
 
@@ -9,7 +9,7 @@ This page defines the vNext public type glossary.
 | Owning block | `bit_block<Bits>` | Fixed-width storage that owns contiguous words |
 | Non-owning view | `bit_view` | Mutable borrowed access to words owned elsewhere |
 | Read-only view | `const_bit_view` | Borrowed read-only access |
-| Backend boundary | `backend_kind`, `default_backend()` | Diagnostic surface that describes execution choice without becoming the storage model |
+| Backend boundary | `backend_kind` | Documented backend vocabulary, not the storage model |
 
 ## Stable include
 
@@ -37,59 +37,45 @@ class bit_block;
 | --- | --- |
 | `bit_block<Bits>::bits` | total bit width |
 | `bit_block<Bits>::word_count` | number of 64-bit words |
-| `bit_block<Bits>::storage_alignment` | alignment chosen for the owning storage |
 
-On x86 builds today, `storage_alignment` is 32 bytes. On other builds it falls back to `alignof(std::uint64_t)`.
-
-### Public operations
+### Persistent operations
 
 ```cpp
-constexpr bit_block() noexcept;
-static constexpr bit_block from_words(std::span<const std::uint64_t> words) noexcept;
-constexpr bit_view view() noexcept;
-constexpr const_bit_view view() const noexcept;
-constexpr std::uint64_t word(std::size_t index) const noexcept;
-constexpr void copy_words_to(std::span<std::uint64_t> out) const noexcept;
+bit_block() noexcept;
+bit_view view() noexcept;
+const_bit_view view() const noexcept;
 ```
 
-### Example
-
-```cpp
-std::array<std::uint64_t, 4> words{1, 2, 3, 4};
-auto block = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(words));
-auto first = block.word(0);
-```
+The persistent API spec does **not** promise helper members such as `storage_alignment`, `from_words(...)`, `bit_block::word(...)`, or `copy_words_to(...)`.
 
 ## Non-owning view: `bit_view`
 
 ```cpp
-class bit_view {
-public:
-    constexpr bit_view() noexcept = default;
-    constexpr bit_view(std::uint64_t* data, std::size_t words) noexcept;
-
-    constexpr std::uint64_t* data() noexcept;
-    constexpr const std::uint64_t* data() const noexcept;
-    constexpr std::size_t word_count() const noexcept;
-    constexpr std::uint64_t word(std::size_t index) const noexcept;
-    constexpr operator const_bit_view() const noexcept;
-};
+class bit_view;
 ```
 
-Use `bit_view` when you want a free algorithm to write into existing storage.
+### Persistent view contract
+
+```cpp
+std::uint64_t* data() noexcept;
+std::size_t word_count() const noexcept;
+std::uint64_t word(std::size_t index) const noexcept;
+```
+
+Use `bit_view` when you want algorithms or calling code to mutate existing contiguous word storage.
 
 ## Read-only view: `const_bit_view`
 
 ```cpp
-class const_bit_view {
-public:
-    constexpr const_bit_view() noexcept = default;
-    constexpr const_bit_view(const std::uint64_t* data, std::size_t words) noexcept;
+class const_bit_view;
+```
 
-    constexpr const std::uint64_t* data() const noexcept;
-    constexpr std::size_t word_count() const noexcept;
-    constexpr std::uint64_t word(std::size_t index) const noexcept;
-};
+### Persistent view contract
+
+```cpp
+const std::uint64_t* data() const noexcept;
+std::size_t word_count() const noexcept;
+std::uint64_t word(std::size_t index) const noexcept;
 ```
 
 Use `const_bit_view` for query algorithms and read-only inputs.
@@ -98,10 +84,11 @@ Use `const_bit_view` for query algorithms and read-only inputs.
 
 Views never own memory. The caller is responsible for ensuring the underlying words outlive the view.
 
-In practice, this usually means one of two patterns:
+In practice, the stable pattern is:
 
-- borrow from an owning block via `view()`
-- construct a view over an external buffer that your code already manages
+- own storage in `bit_block<Bits>`
+- borrow through `view()`
+- pass those views into free algorithms
 
 ## Backend boundary
 
@@ -110,23 +97,26 @@ enum class backend_kind {
     scalar,
     sse2,
     avx2,
-    avx512,
+    avx512
 };
-
-constexpr backend_kind default_backend() noexcept;
 ```
 
-These names are useful for diagnostics, testing notes, and benchmark records. They are not the core of the public storage model.
+These names are useful for architecture discussions and validation records. The persistent API spec does not currently promise extra backend-selection helpers.
 
 ## How the pieces fit together
 
 ```cpp
 bitcal::bit_block<256> owned;
 auto writable = owned.view();
-bitcal::const_bit_view readable = writable;
+writable.data()[0] = 0xFULL;
+
+const auto& owned_const = owned;
+auto readable = owned_const.view();
+auto first_word = readable.word(0);
+auto words = readable.word_count();
 ```
 
-That is the whole public type story: own with a block, borrow with views, observe the backend boundary without turning it into the main abstraction.
+That is the public type story promised today: own with a block, borrow with views, and avoid coupling to convenience helpers that are outside the persistent spec.
 
 ## Read next
 

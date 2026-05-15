@@ -11,10 +11,11 @@ This section is the BitCal vNext whitepaper landing. The thesis is simple: keep 
 
 ## Executive summary
 
-- **Owning block:** `bit_block<Bits>` owns fixed-width contiguous `std::uint64_t` storage.
-- **Non-owning view:** `bit_view` and `const_bit_view` let BitCal operate on existing words without copying.
-- **Free algorithm:** functions such as `bit_and<Bits>()`, `and_into()`, `is_zero()`, and `popcount()` define behavior without forcing every operation into one member-heavy type.
-- **Backend boundary:** callers include `<bitcal/bitcal.hpp>` and use the public types; backend selection and ISA-specific kernels stay behind internal implementation headers.
+- **Owning block:** `bit_block<Bits>` owns fixed-width contiguous `std::uint64_t` storage and exposes `view()` accessors plus `bits` / `word_count` metadata.
+- **Non-owning view:** `bit_view` and `const_bit_view` let BitCal operate on contiguous words without changing ownership.
+- **Persistent algorithm contract:** `bit_and<Bits>()`, `bit_or<Bits>()`, `bit_xor<Bits>()`, `bit_andnot<Bits>()`, `equals()`, `shift_left<Bits>()`, `shift_right<Bits>()`, `is_zero()`, and `popcount()` define the retained vNext API surface.
+- **Current helper surface:** today's headers also expose `and_into()` for in-place AND writes, but helper entry points outside the persistent spec should not be treated as long-term compatibility promises.
+- **Backend boundary:** callers include `<bitcal/bitcal.hpp>` and use the public types plus `backend_kind`; backend selection and ISA-specific kernels stay behind internal implementation headers.
 
 ## What changed in vNext
 
@@ -30,16 +31,17 @@ BitCal now documents one mental model from top to bottom:
 
 ```text
 <bitcal/bitcal.hpp>
-├── bit_block<Bits>         owning storage
-├── bit_view                mutable borrowed access
-├── const_bit_view          read-only borrowed access
-├── bit_and<Bits>()         returning free algorithm
-├── and_into()              in-place free algorithm
-├── is_zero()               query algorithm
-└── popcount()              query algorithm
+├── bit_block<Bits>                              owning storage
+├── bit_view / const_bit_view                    borrowed word access
+├── backend_kind                                 documented backend vocabulary
+├── bit_and<Bits>() / bit_or<Bits>()             returning bitwise algorithms
+├── bit_xor<Bits>() / bit_andnot<Bits>()         returning bitwise algorithms
+├── equals() / is_zero() / popcount()            comparison and query algorithms
+├── shift_left<Bits>() / shift_right<Bits>()     returning shift algorithms
+└── current shipped helper: and_into()           implementation helper, not persistent spec
 ```
 
-The implementation may expose diagnostic helpers such as `backend_kind` and `default_backend()`, but those are not invitations to couple application code to ISA-specific internals.
+The persistent compatibility contract is the one described in `openspec/specs/api/bitcal-public-api.md`. Current implementation helpers may exist in headers, but docs should not present them as retained public promises unless OpenSpec adds them to that contract.
 
 ## Validation posture
 

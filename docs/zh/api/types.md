@@ -1,6 +1,6 @@
 # 类型参考
 
-本页定义 vNext 的公开类型术语表。
+本页记录的是持久 vNext 类型契约，而不是把当前头文件里能看到的每个便利 helper 都当成公开承诺。
 
 ## 公开术语表
 
@@ -9,7 +9,7 @@
 | 拥有型 block | `bit_block<Bits>` | 持有固定宽度、连续字数组的存储对象 |
 | 非拥有视图 | `bit_view` | 对外部存储的可写借用访问 |
 | 只读视图 | `const_bit_view` | 对外部存储的只读借用访问 |
-| 后端边界 | `backend_kind`、`default_backend()` | 描述执行选择的诊断表面，但不成为主要存储模型 |
+| 后端边界 | `backend_kind` | 已文档化的后端词汇表，而不是主要存储模型 |
 
 ## 稳定 include 入口
 
@@ -37,59 +37,45 @@ class bit_block;
 | --- | --- |
 | `bit_block<Bits>::bits` | 总位宽 |
 | `bit_block<Bits>::word_count` | 64 位字数量 |
-| `bit_block<Bits>::storage_alignment` | owning storage 采用的对齐值 |
 
-在当前 x86 构建上，`storage_alignment` 为 32 字节；其他构建则回退到 `alignof(std::uint64_t)`。
-
-### 公开操作
+### 持久契约中的操作
 
 ```cpp
-constexpr bit_block() noexcept;
-static constexpr bit_block from_words(std::span<const std::uint64_t> words) noexcept;
-constexpr bit_view view() noexcept;
-constexpr const_bit_view view() const noexcept;
-constexpr std::uint64_t word(std::size_t index) const noexcept;
-constexpr void copy_words_to(std::span<std::uint64_t> out) const noexcept;
+bit_block() noexcept;
+bit_view view() noexcept;
+const_bit_view view() const noexcept;
 ```
 
-### 示例
-
-```cpp
-std::array<std::uint64_t, 4> words{1, 2, 3, 4};
-auto block = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(words));
-auto first = block.word(0);
-```
+持久 API spec **不**承诺 `storage_alignment`、`from_words(...)`、`bit_block::word(...)`、`copy_words_to(...)` 这类辅助成员。
 
 ## 非拥有视图：`bit_view`
 
 ```cpp
-class bit_view {
-public:
-    constexpr bit_view() noexcept = default;
-    constexpr bit_view(std::uint64_t* data, std::size_t words) noexcept;
-
-    constexpr std::uint64_t* data() noexcept;
-    constexpr const std::uint64_t* data() const noexcept;
-    constexpr std::size_t word_count() const noexcept;
-    constexpr std::uint64_t word(std::size_t index) const noexcept;
-    constexpr operator const_bit_view() const noexcept;
-};
+class bit_view;
 ```
 
-当你希望自由算法把结果写入现有存储时，就应该使用 `bit_view`。
+### 持久视图契约
+
+```cpp
+std::uint64_t* data() noexcept;
+std::size_t word_count() const noexcept;
+std::uint64_t word(std::size_t index) const noexcept;
+```
+
+当你希望算法或调用方修改现有连续字存储时，使用 `bit_view`。
 
 ## 只读视图：`const_bit_view`
 
 ```cpp
-class const_bit_view {
-public:
-    constexpr const_bit_view() noexcept = default;
-    constexpr const_bit_view(const std::uint64_t* data, std::size_t words) noexcept;
+class const_bit_view;
+```
 
-    constexpr const std::uint64_t* data() const noexcept;
-    constexpr std::size_t word_count() const noexcept;
-    constexpr std::uint64_t word(std::size_t index) const noexcept;
-};
+### 持久视图契约
+
+```cpp
+const std::uint64_t* data() const noexcept;
+std::size_t word_count() const noexcept;
+std::uint64_t word(std::size_t index) const noexcept;
 ```
 
 当算法只需要读取或查询时，使用 `const_bit_view`。
@@ -98,10 +84,11 @@ public:
 
 视图永远不拥有内存。调用方必须保证底层字数组在视图存活期间一直有效。
 
-实际使用时通常只有两种常见模式：
+稳定用法可以概括成三步：
 
-- 通过 `view()` 从 owning block 借用
-- 在你已经管理生命周期的外部缓冲区上构造视图
+- 用 `bit_block<Bits>` 持有存储
+- 通过 `view()` 借用
+- 把这些 view 传给自由算法
 
 ## 后端边界
 
@@ -110,23 +97,26 @@ enum class backend_kind {
     scalar,
     sse2,
     avx2,
-    avx512,
+    avx512
 };
-
-constexpr backend_kind default_backend() noexcept;
 ```
 
-这些名称适合用于诊断、测试说明和 benchmark 记录，但它们不是公开存储模型的中心。
+这些名称适合用于架构讨论与验证记录。当前持久 API spec 还没有承诺额外的后端选择 helper。
 
 ## 这些类型如何组合
 
 ```cpp
 bitcal::bit_block<256> owned;
 auto writable = owned.view();
-bitcal::const_bit_view readable = writable;
+writable.data()[0] = 0xFULL;
+
+const auto& owned_const = owned;
+auto readable = owned_const.view();
+auto first_word = readable.word(0);
+auto words = readable.word_count();
 ```
 
-这就是完整的公开类型故事：用 block 持有，用 view 借用，观察后端边界，但不要把它变成主抽象。
+今天真正承诺的公开类型故事就是这些：用 block 持有，用 view 借用，不要把 spec 之外的便利 helper 当成持久契约。
 
 ## 下一步
 

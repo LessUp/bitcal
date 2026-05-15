@@ -16,13 +16,8 @@ BitCal vNext 可以用一句话概括：
 
 - 由 `Bits` 固定的编译期宽度
 - 连续的 `std::uint64_t` 字存储
+- 通过 `bits` 与 `word_count` 暴露的公开元数据
 - 显式的 `view()` 借用入口
-- 基于 `span` 的导入/导出辅助接口
-
-```cpp
-std::array<std::uint64_t, 4> words{0xFULL, 0x0ULL, 0xF0ULL, 0x0ULL};
-auto block = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(words));
-```
 
 ### 非拥有视图
 
@@ -30,33 +25,53 @@ auto block = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(w
 
 视图之所以是一等公民，是因为 BitCal 希望算法组合足够便宜且足够显式：
 
-- 算法可以读取或写回现有存储
-- 调用方可以预分配输出缓冲区
+- 算法可以通过 `const_bit_view` 读取现有存储
+- 可变访问通过 `bit_view` 明确保留在调用点
 - 所有权决策在代码中保持可见
 
 ```cpp
 bitcal::bit_block<256> block;
 auto writable = block.view();
-bitcal::const_bit_view readable = writable;
+writable.data()[0] = 0xFULL;
+
+const auto& block_const = block;
+auto readable = block_const.view();
+auto first = readable.word(0);
 ```
 
 ### 自由算法
 
-算法以自由函数的形式作用在 block 与 view 之上。
+持久 vNext API 契约的中心是作用于 view 与 block 的自由函数。
 
 ```cpp
 bitcal::bit_block<256> lhs;
 bitcal::bit_block<256> rhs;
-bitcal::bit_block<256> out;
+const auto& lhs_const = lhs;
+const auto& rhs_const = rhs;
 
-auto produced = bitcal::bit_and<256>(lhs.view(), rhs.view());
-bitcal::and_into(lhs.view(), rhs.view(), out.view());
+auto joined = bitcal::bit_or<256>(lhs_const.view(), rhs_const.view());
+auto diff = bitcal::bit_xor<256>(lhs_const.view(), rhs_const.view());
+auto masked = bitcal::bit_andnot<256>(lhs_const.view(), rhs_const.view());
+auto same = bitcal::equals(lhs_const.view(), rhs_const.view());
+const auto& joined_const = joined;
+const auto& masked_const = masked;
 
-auto zero = bitcal::is_zero(produced.view());
-auto ones = bitcal::popcount(out.view());
+auto shifted = bitcal::shift_left<256>(joined_const.view(), 8);
+const auto& shifted_const = shifted;
+auto empty = bitcal::is_zero(masked_const.view());
+auto ones = bitcal::popcount(shifted_const.view());
 ```
 
-这样可以让契约围绕“可观察行为”展开，而不是围绕一个不断膨胀的成员型对象展开。
+当前保留的持久契约包括：
+
+- `bit_and<Bits>()`、`bit_or<Bits>()`、`bit_xor<Bits>()`、`bit_andnot<Bits>()`
+- `equals()`、`is_zero()`、`popcount()`
+- `shift_left<Bits>()`、`shift_right<Bits>()`
+- 作为公开后端词汇表的 `backend_kind`
+
+当前头文件还暴露了写入辅助函数 `and_into()`，但凡是不在 `openspec/specs/api/bitcal-public-api.md` 里的 helper，都不属于长期兼容承诺。
+
+这样做可以让契约围绕“可观察行为”展开，而不是围绕一个不断膨胀的成员型对象展开。
 
 ## 为什么要这样拆分
 
@@ -101,9 +116,9 @@ vNext 明确是 x86-64-first。
 当前含义是：
 
 - 标量路径永远存在，作为可移植性下限
-- 编译期目标/配置宏决定保留的 x86-64 写路径能否使用 AVX2，否则就停留在标量路径
-- 当前保留的快路径集中在 AVX2 支撑的 `and_into()` / `bit_and<Bits>()`
-- `default_backend()` 只是这套构建姿态的诊断性摘要，并不是 `and_into()` / `bit_and<Bits>()` 真正的路由入口
+- 编译期目标/配置宏决定保留的 x86-64 内核能否使用 AVX2，否则就停留在标量路径
+- 当前实现重心仍主要集中在 AND 写路径及其相关内核上
+- `backend_kind` 负责提供公开文档可见的后端词汇，而具体的后端选择机制仍是实现细节，除非后续 spec 再明确纳入
 - 正确性与基准结论都锚定在仓库内保留的验证路径上
 
 这是一条优先级声明，不意味着每个平台都会得到同等深度的优化承诺。
@@ -113,6 +128,7 @@ vNext 明确是 x86-64-first。
 本白皮书有意保持克制，它**不**承诺：
 
 - 为旧公开模型提供兼容垫片
+- 把持久 public spec 之外的 helper API 说成保留兼容承诺
 - 把运行时 CPU 分发纳入当前契约
 - 为所有操作系统与 ISA 提供同等深度的优化
 - 脱离具体编译设置与硬件上下文单独宣称性能数字
