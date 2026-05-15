@@ -41,7 +41,12 @@
 - **Why**：这同时满足仓库“单一真相”原则与 Pages 站点对 release-notes 导航的需要，避免手工双轨维护。
 - **Consequence**：`docs/README.md` 需要明确区分 canonical source 与 Pages-derived entry pages，清理规则也应只删除手工镜像或失去同步依据的版本。
 
-### 6. 双语镜像要求绑定主受众导航结构
+### 6. 深层技术内容继续以仓库 Markdown 作为 canonical source
+- **Decision**：Whitepaper、guides、reference、research 等深层技术内容继续以仓库内 Markdown 文件作为唯一 canonical source；VitePress theme、导航和最终 Pages HTML 只负责渲染、组织与呈现，不引入独立的 HTML/组件副本作为另一套长期维护真相。
+- **Why**：Task 1 的目标是先冻结文档系统 contract，而仓库文档规则已经要求深内容留在 canonical repository Markdown 中；如果这里不把它写成显式设计决定，后续白皮书改造仍可能在主题组件、定制页面或手工页面里重新制造第二份技术内容真相。
+- **Consequence**：后续任务可以重组导航、重写入口页、增加展示组件和图示包装，但深层技术正文必须仍由仓库 Markdown 承载，`docs/README.md` 也需要把“deep technical content stays canonical in Markdown”写成明确 policy。
+
+### 7. 双语镜像要求绑定主受众导航结构
 - **Decision**：对 Home / Academy / Whitepaper / Guides / Reference / Research / Project Status 这类主阅读路径，英文与中文结构必须同步增删改。
 - **Why**：如果只声明“支持双语”而不约束结构同步，后续站点会再次出现一个语言有入口、另一个语言缺位的漂移问题。
 - **Consequence**：任何主受众 section 的新增、删除、重命名，都需要同步更新另一语言导航，或者先在 policy 中明确例外。
