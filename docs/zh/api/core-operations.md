@@ -1,108 +1,99 @@
 # 核心操作
 
-BitCal 3.0 保留的核心位操作参考。
+本页记录 vNext 当前保留的核心算法表面。
 
-> **BitCal 3.0 迁移说明：** 所有公共核心操作通过 `bitarray` 运算符和成员函数表达。已移除的 `bitcal::ops` 命名空间不再是支持的公共 API。
+## 公开术语表
 
-## 位运算
+| 术语 | 含义 |
+| --- | --- |
+| 拥有型 block | 算法返回或写入的 `bit_block<Bits>` |
+| 非拥有视图 | 传入算法的 `bit_view` / `const_bit_view` |
+| 自由算法 | 例如 `bit_and<Bits>()` 这样的命名空间级函数 |
+| 后端边界 | 这些算法之后的内部执行层 |
 
-所有位运算分发到 `bitarray` 特化所选的后端。
-
-### AND
-
-```cpp
-bitarray operator&(const bitarray& other) const noexcept;
-bitarray& operator&=(const bitarray& other) noexcept;
-```
-
-### OR
+## `and_into()`
 
 ```cpp
-bitarray operator|(const bitarray& other) const noexcept;
-bitarray& operator|=(const bitarray& other) noexcept;
+void and_into(const const_bit_view lhs, const const_bit_view rhs, bit_view out) noexcept;
 ```
 
-### XOR
+### 适用场景
+
+- 你已经有一个输出 block 或外部缓冲区
+- 你希望避免再创建一个新的拥有型结果
+
+### 行为
+
+- 要求 `lhs`、`rhs`、`out` 的字数一致
+- 把按位与结果写入 `out`
+- 在内部跨过后端边界进入当前执行路径
+
+## `bit_and<Bits>()`
 
 ```cpp
-bitarray operator^(const bitarray& other) const noexcept;
-bitarray& operator^=(const bitarray& other) noexcept;
+template <std::size_t Bits>
+[[nodiscard]] bit_block<Bits> bit_and(const const_bit_view lhs, const const_bit_view rhs) noexcept;
 ```
 
-### NOT
+### 适用场景
+
+- 你需要一个新的 owning result block
+- 结果位宽在编译期已知
+
+### 行为
+
+- 要求两个输入视图都匹配 `bit_block<Bits>::word_count`
+- 内部通过新建 owning block 并复用 `and_into()` 完成计算
+
+## `is_zero()`
 
 ```cpp
-bitarray operator~() const noexcept;
+[[nodiscard]] constexpr bool is_zero(const const_bit_view value) noexcept;
 ```
 
-对每一位进行位反转。
+当视图中的每个字都为零时返回 `true`。
 
-### ANDNOT
+## `popcount()`
 
 ```cpp
-bitarray andnot(const bitarray& mask) const noexcept;
+[[nodiscard]] constexpr std::uint64_t popcount(const const_bit_view value) noexcept;
 ```
 
-使用所选后端实现计算 `*this & ~mask`。
+返回整个视图中置位比特的总数。
 
-## 比较
+## 组合示例
 
 ```cpp
-bool operator==(const bitarray& other) const noexcept;
-bool operator!=(const bitarray& other) const noexcept;
+bitcal::bit_block<256> lhs;
+bitcal::bit_block<256> rhs;
+bitcal::bit_block<256> scratch;
+
+auto produced = bitcal::bit_and<256>(lhs.view(), rhs.view());
+bitcal::and_into(lhs.view(), rhs.view(), scratch.view());
+
+auto empty = bitcal::is_zero(produced.view());
+auto ones = bitcal::popcount(scratch.view());
 ```
 
-## 状态检测
+## 如何选择合适的算法形态
 
-### is_zero
+| 需求 | 优先选择 |
+| --- | --- |
+| 返回一个新的拥有型结果 | `bit_and<Bits>()` |
+| 复用现有可写存储 | `and_into()` |
+| 只读零值检查 | `is_zero()` |
+| 只读计数查询 | `popcount()` |
 
-```cpp
-bool is_zero() const noexcept;
-```
+## 关于断言与安全性
 
-当所有位都清零时返回 `true`。
+写路径算法依赖调试断言来保证字数匹配。因此调用方应把位宽匹配视为契约的一部分，而不是可有可无的运行时便利功能。
 
-### clear
+## 后端边界提醒
 
-```cpp
-void clear() noexcept;
-```
+这些算法定义的是公开行为。实际执行它们的 SIMD 内核仍然是实现细节，相关说明见 [SIMD 分发](../architecture/simd-dispatch.md)。
 
-将整个对象清零。
+## 下一步
 
-## 完整示例
-
-```cpp
-#include <bitcal/bitcal.hpp>
-#include <iostream>
-
-int main() {
-    bitcal::bit256 a(0xFF00);
-    bitcal::bit256 b(0x0FF0);
-
-    auto and_result = a & b;
-    auto or_result = a | b;
-    auto xor_result = a ^ b;
-    auto not_result = ~a;
-    auto andnot_result = a.andnot(b);
-
-    a &= b;
-    a |= b;
-    a ^= b;
-
-    if (and_result != or_result && !not_result.is_zero()) {
-        std::cout << "core operations succeeded\n";
-    }
-
-    andnot_result.is_zero();
-    a.clear();
-    std::cout << std::boolalpha << a.is_zero() << "\n";
-    return 0;
-}
-```
-
-## 性能提示
-
-1. 当意图匹配时，优先使用 `andnot()` 而非 `a & ~b`
-2. 就地更新现有对象时，优先使用复合赋值
-3. 保持值为 `bitarray` 形式，而非降级为临时原始指针辅助函数
+- [类型参考](./types.md)
+- [SIMD 分发](../architecture/simd-dispatch.md)
+- [性能基线](../architecture/performance-baseline.md)

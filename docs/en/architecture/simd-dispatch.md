@@ -1,186 +1,98 @@
-# SIMD Dispatch Mechanism
+# SIMD Dispatch
 
-## Compile-time Dispatch
+BitCal vNext treats SIMD dispatch as an internal execution concern behind the public block/view/algorithm model.
 
-BitCal uses C++17 `if constexpr` to select the optimal implementation path at compile time. This dispatch mechanism has **zero runtime overhead**.
+## Public story first
 
-## Binary Operation Dispatch
+Callers do not choose a backend by selecting different public storage types. They:
 
-v2.1 unified `bit_and`/`bit_or`/`bit_xor`/`bit_andnot` into a single template dispatch:
-
-```cpp
-enum class binop { op_and, op_or, op_xor, op_andnot };
-
-template<binop Op>
-static void dispatch_binop(const bitarray& a, const bitarray& b, bitarray& out) {
-    if constexpr (Bits == 64) {
-        // Scalar 64-bit operation
-        if constexpr (Op == binop::op_and) {
-            out.data_[0] = a.data_[0] & b.data_[0];
-        }
-        // ... other operations
-    }
-    else if constexpr (Backend == simd_backend::avx2 && Bits == 256) {
-        // AVX2 256-bit operation
-        if constexpr (Op == binop::op_and) {
-            avx::bit_and_256(a.data_, b.data_, out.data_);
-        }
-        // ... other operations
-    }
-    // ... other backends
-    else {
-        // Scalar array fallback
-        for (size_t i = 0; i < u64_count; ++i) {
-            if constexpr (Op == binop::op_and) {
-                out.data_[i] = a.data_[i] & b.data_[i];
-            }
-            // ... other operations
-        }
-    }
-}
-```
-
-## Shift Operation Dispatch
-
-Shift operations dispatch internally within `shift_left()` / `shift_right()`:
+1. own data in `bit_block<Bits>`
+2. borrow data through `bit_view` / `const_bit_view`
+3. call free algorithms
 
 ```cpp
-void shift_left(int count) {
-    if constexpr (Bits == 64) {
-        // Scalar
-        data_[0] <<= count;
-    }
-    else if constexpr (Backend == simd_backend::avx2 && Bits == 256) {
-        avx::shift_left_256(data_, count);
-    }
-    // ...
-}
+bitcal::bit_block<256> lhs;
+bitcal::bit_block<256> rhs;
+bitcal::bit_block<256> out;
+
+bitcal::and_into(lhs.view(), rhs.view(), out.view());
 ```
 
-## Shift Implementation Strategy
+Everything below that point is the backend boundary.
 
-All SIMD shift operations execute in two phases:
+## Current dispatch flow
 
-1. **Word-shift** (count ≥ 64): Scalar whole-word movement
-2. **Bit-shift** (count < 64): SIMD parallel shift + carry propagation
-
-### AVX2 256-bit Left Shift Example
-
+```text
+consumer compile flags / target ISA
+        │
+        ▼
+config.hpp computes BITCAL_ARCH_X86 / BITCAL_HAS_SSE2 / BITCAL_HAS_AVX2 / BITCAL_HAS_AVX512
+        │
+        ▼
+default_backend() chooses scalar / sse2 / avx2 / avx512
+        │
+        ▼
+free algorithm entry point
+        │
+        ▼
+detail::word_ops.hpp
+        │
+        ▼
+detail::x64_dispatch.hpp
+        │
+        ├── AVX2 word loop on x86-64 when enabled
+        └── scalar fallback otherwise
 ```
-Phase 1: word-shift (scalar)
-  data[3] = data[2], data[2] = data[1], data[1] = data[0], data[0] = 0
 
-Phase 2: bit-shift (AVX2)
-  shifted = _mm256_slli_epi64(v, count)           # Each qword shifts independently
-  carry   = _mm256_permute4x64_epi64(v, 0x93)    # Rotate: [q3,q2,q1,q0] -> [q0,q3,q2,q1]
-  carry   = _mm256_srli_epi64(carry, 64-count)   # Extract carry bits
-  carry   = _mm256_blend_epi32(carry, zero, 0x03) # Clear carry in lowest qword
-  result  = shifted | carry
-```
+## What currently uses the dispatch layer
 
-## Why Not `_mm256_slli_si256`?
+### `and_into()` and `bit_and<Bits>()`
 
-`_mm256_slli_si256` operates **independently on 128-bit lanes** and does not shift across lanes. This is a common AVX2 pitfall.
+The write path is currently the clearest example of the backend boundary:
+
+- `and_into()` validates matching word counts with debug assertions
+- it forwards to `detail::and_words()`
+- `detail::and_words()` forwards to `and_into_x64()`
+- `and_into_x64()` uses an AVX2 loop on x86-64 when available, otherwise scalar word operations
+
+### `is_zero()` and `popcount()`
+
+These queries currently iterate over words directly. They still benefit from the same public model, but they are not trying to present a fully vectorized story yet.
+
+## Why BitCal keeps this boundary
+
+The backend boundary lets BitCal evolve execution details without reshaping application-facing types.
+
+That buys three things:
+
+- the public glossary stays small and teachable
+- x86-64 kernels can improve independently of storage ownership semantics
+- scalar execution remains the portability floor for unsupported targets or generic builds
+
+## Diagnostics, not coupling points
+
+`backend_kind` and `default_backend()` are useful diagnostics:
 
 ```cpp
-// WRONG: Doesn't work as expected
-__m256i shifted = _mm256_slli_si256(v, count);  // Lane-boundary issue
-
-// CORRECT: BitCal's approach
-// Phase 1: Move whole words across lanes (scalar)
-// Phase 2: Shift within lanes + carry propagation (SIMD)
+auto backend = bitcal::default_backend();
 ```
 
-BitCal v2.1 fixed this bug by using the two-phase approach.
+Use them to explain a build or record a benchmark run. Do **not** treat them as a reason to fork the public API into backend-specific application code unless you fully own that maintenance burden.
 
-## Backend-Specific Implementation Files
+## Build knobs that affect dispatch
 
-### scalar_ops.hpp
+| Knob | Effect |
+| --- | --- |
+| `-march=native` | Lets GCC/Clang enable the best instructions for the current machine |
+| `-mavx2` | Forces an AVX2-capable x86 build |
+| `/arch:AVX2` | Enables AVX2-oriented development targets with MSVC |
+| `BITCAL_NATIVE_ARCH=ON` | Applies native CPU flags to repository tests/examples/benchmarks |
+| `BITCAL_NATIVE_ARCH=OFF` | Keeps development targets on a more generic portability path |
 
-Portable fallback using standard C++:
+## What this page does not claim
 
-```cpp
-namespace bitcal::scalar {
-    inline void bit_and_256(uint64_t* out, const uint64_t* a, const uint64_t* b) {
-        for (size_t i = 0; i < 4; ++i) {
-            out[i] = a[i] & b[i];
-        }
-    }
-    // ... other operations
-}
-```
+- no runtime dispatch contract
+- no promise that every query has a dedicated vector kernel today
+- no promise that every non-x86 platform receives a specialized SIMD backend right now
 
-### avx_ops.hpp
-
-AVX2 implementations:
-
-```cpp
-namespace bitcal::avx {
-    inline void bit_and_256(uint64_t* out, const uint64_t* a, const uint64_t* b) {
-        __m256i va = _mm256_load_si256((__m256i*)a);
-        __m256i vb = _mm256_load_si256((__m256i*)b);
-        __m256i vr = _mm256_and_si256(va, vb);
-        _mm256_store_si256((__m256i*)out, vr);
-    }
-    // ... other operations
-}
-```
-
-### neon_ops.hpp
-
-ARM NEON implementations:
-
-```cpp
-namespace bitcal::neon {
-    inline void bit_and_256(uint64_t* out, const uint64_t* a, const uint64_t* b) {
-        uint64x2_t va0 = vld1q_u64(a);
-        uint64x2_t va1 = vld1q_u64(a + 2);
-        uint64x2_t vb0 = vld1q_u64(b);
-        uint64x2_t vb1 = vld1q_u64(b + 2);
-        vst1q_u64(out, vandq_u64(va0, vb0));
-        vst1q_u64(out + 2, vandq_u64(va1, vb1));
-    }
-    // ... other operations
-}
-```
-
-## Register Pressure
-
-The dispatch mechanism is designed to minimize register pressure:
-- Small widths (64-bit): Use scalar registers
-- Medium widths (128/256-bit): Use single SIMD registers
-- Large widths (512/1024-bit): Split into multiple SIMD operations or use scalar loops
-
-## Compilation Flow
-
-1. **Template instantiation**: `bitarray<256, avx2>` instantiates with known `Bits` and `Backend`
-2. **Dispatch elimination**: `if constexpr` selects the active branch, others are discarded
-3. **Inlining**: `BITCAL_FORCEINLINE` propagates through call chain
-4. **Code generation**: Compiler generates optimal machine code for specific width/backend
-
-## Debugging Dispatch
-
-Check which backend is being used:
-
-```cpp
-#include <iostream>
-
-int main() {
-    // Check default backend
-    std::cout << "Default backend: "
-              << static_cast<int>(bitcal::get_default_backend()) << std::endl;
-
-    // Check bitarray's backend
-    bitcal::bit256 arr;
-    std::cout << "Array backend: "
-              << static_cast<int>(decltype(arr)::backend) << std::endl;
-
-    return 0;
-}
-```
-
-## Future Improvements
-
-- AVX-512 support for 512-bit operations
-- SVE/SVE2 support for ARM
-- Dynamic dispatch for runtime CPU feature detection
+For support boundaries, read [Platform Support](./platform-support.md). For the architectural rationale, read the [vNext Whitepaper](./vnext-whitepaper.md).

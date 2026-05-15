@@ -1,349 +1,95 @@
-# Quick Start Guide
+# Quick Start
 
-Get up and running with BitCal in 5 minutes.
+This guide shows the vNext mental model in one small program: **own with a block, borrow with views, compute with free algorithms**.
 
-## Table of Contents
-
-- [First Program](#your-first-bitcal-program)
-- [Core Concepts](#core-concepts)
-- [API Overview](#api-overview)
-- [Performance Tips](#performance-tips)
-- [Next Steps](#next-steps)
-
----
-
-## Your First BitCal Program
-
-### 1. Create `hello_bitcal.cpp`
+## Example program
 
 ```cpp
+#include <array>
 #include <bitcal/bitcal.hpp>
+#include <cstdint>
 #include <iostream>
+#include <span>
 
 int main() {
-    // Create two 256-bit bit arrays
-    bitcal::bit256 a(0xDEADBEEF);
-    bitcal::bit256 b(0xCAFEBABE);
+    const std::array<std::uint64_t, 4> lhs_words{0xFULL, 0x0ULL, 0xF0ULL, 0x0ULL};
+    const std::array<std::uint64_t, 4> rhs_words{0x5ULL, 0x1ULL, 0xCCULL, 0x0ULL};
 
-    // SIMD-accelerated bitwise operations
-    auto c = a & b;  // AND
-    auto d = a | b;  // OR
-    auto e = a ^ b;  // XOR
+    auto lhs = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(lhs_words));
+    auto rhs = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(rhs_words));
 
-    // Count set bits (popcount)
-    std::cout << "a & b has " << c.popcount() << " bits set\n";
-    std::cout << "a | b has " << d.popcount() << " bits set\n";
-    std::cout << "a ^ b has " << e.popcount() << " bits differ\n";
+    auto produced = bitcal::bit_and<256>(lhs.view(), rhs.view());
 
-    return 0;
+    bitcal::bit_block<256> scratch;
+    bitcal::and_into(lhs.view(), rhs.view(), scratch.view());
+
+    std::cout << "word0 = 0x" << std::hex << produced.word(0) << "
+";
+    std::cout << "word2 = 0x" << std::hex << produced.word(2) << "
+";
+    std::cout << "popcount = " << std::dec << bitcal::popcount(produced.view()) << "
+";
+    std::cout << "scratch is zero? " << std::boolalpha << bitcal::is_zero(scratch.view()) << "
+";
 }
 ```
 
-### 2. Compile and Run
+Expected output:
+
+```text
+word0 = 0x5
+word2 = 0xc0
+popcount = 4
+scratch is zero? false
+```
+
+## Build it
 
 ```bash
-g++ -std=c++17 -O2 -march=native hello_bitcal.cpp -o hello_bitcal
-./hello_bitcal
+g++ -std=c++23 -O3 -march=native quickstart.cpp -I/path/to/bitcal/include -o quickstart
+./quickstart
 ```
 
-**Expected Output:**
-```
-a & b has 11 bits set
-a | b has 24 bits set
-a ^ b has 13 bits differ
-```
+On MSVC, use `/std:c++23 /O2 /arch:AVX2` instead of the GCC/Clang flags when you want the AVX2-oriented development path.
 
-> 💡 **Tip:** `-march=native` enables all SIMD instructions supported by your CPU.
+## What happened
 
----
+### 1. Own storage in blocks
 
-## Core Concepts
+`bit_block<256>` owns four contiguous 64-bit words.
 
-### BitArray Types
+### 2. Borrow storage through views
 
-BitCal provides predefined type aliases for common bit widths:
+`view()` turns an owning block into a lightweight borrowed handle. That handle is what algorithms consume.
 
-| Type | Bit Width | Words | Typical Use Case |
-|------|-----------|-------|------------------|
-| `bit64` | 64 | 1 | Machine word |
-| `bit128` | 128 | 2 | SSE2/NEON native |
-| `bit256` | 256 | 4 | AVX2 native |
-| `bit512` | 512 | 8 | Large data |
-| `bit1024` | 1024 | 16 | Very large data |
+### 3. Choose the right algorithm shape
 
-```cpp
-// Predefined types
-bitcal::bit64 small;
-bitcal::bit256 medium;
-bitcal::bit1024 large;
+- `bit_and<256>()` returns a new owning block
+- `and_into()` writes into an existing output block
+- `is_zero()` and `popcount()` are read-only queries over a view
 
-// Custom width (must be multiple of 64)
-bitcal::bitarray<2048> custom;
-```
+## When to use each algorithm style
 
-### SIMD Backend Selection
+| Need | Use |
+| --- | --- |
+| Produce a new owned result | `bit_and<Bits>()` |
+| Reuse a preallocated output buffer | `and_into()` |
+| Inspect data without mutation | `is_zero()` / `popcount()` |
+| Bridge external buffers | `bit_block<Bits>::from_words(...)` and `copy_words_to(...)` |
 
-BitCal automatically selects the optimal backend:
+## Verify against the repository baseline
 
-```cpp
-// Automatic selection
-bitcal::bit256 arr;  // AVX2 on Intel, NEON on ARM
-
-// Explicit backend selection
-bitcal::bitarray<256, bitcal::simd_backend::avx2>   avx_arr;
-bitcal::bitarray<256, bitcal::simd_backend::neon>   neon_arr;
-bitcal::bitarray<256, bitcal::simd_backend::scalar> portable_arr;
-```
-
-**Backend Detection:**
-```cpp
-auto backend = bitcal::get_default_backend();
-std::cout << "Using: " << (backend == bitcal::simd_backend::avx2 ? "AVX2" : "Other");
-```
-
-### Memory Layout
-
-```
-bit256 (4 × 64-bit words):
-┌──────────────────────────────────────────────────────────┐
-│ data_[0] │ data_[1] │ data_[2] │ data_[3] │  ...padding...│
-│ bits 0-63│bits 64-127│bits 128-191│bits 192-255│align to 64B│
-└──────────────────────────────────────────────────────────┘
-     ↓ Low                                              High ↓
-```
-
----
-
-## API Overview
-
-### 1. Bitwise Operations
-
-```cpp
-bitcal::bit256 a(0xFF00);
-bitcal::bit256 b(0x0FF0);
-
-// Binary operations (all return new bitarray)
-auto and_result = a & b;       // 0x0F00
-auto or_result  = a | b;       // 0xFFF0
-auto xor_result = a ^ b;       // 0xF0F0
-auto not_result = ~a;          // ~0xFF00
-auto andnot     = a.andnot(b); // a & ~b = 0xF000 (fast!)
-
-// Compound assignment
-a &= b;  // Same as: a = a & b (may avoid temporary)
-a |= b;
-a ^= b;
-```
-
-### 2. Shift Operations
-
-```cpp
-bitcal::bit256 arr(1);
-
-// Within-word shift (fastest)
-arr <<= 10;            // Left shift
-arr >>= 5;             // Right shift
-
-// Cross-word shift (handles carry)
-arr.shift_left(128);   // Shift across word boundary
-arr.shift_right(64);
-
-// Notes:
-// - shift >= Bits results in zero
-// - Negative shift is undefined
-```
-
-### 3. Bit Counting
-
-```cpp
-bitcal::bit256 arr(0xF0F0F0F0F0F0F0F0);
-
-// Population count (count set bits)
-uint64_t ones = arr.popcount();
-
-// Leading zeros
-int lz = arr.count_leading_zeros();
-
-// Trailing zeros
-int tz = arr.count_trailing_zeros();
-```
-
-### 4. Single Bit Operations
-
-```cpp
-bitcal::bit256 arr;
-
-// Get/Set/Flip
-arr.set_bit(42, true);   // Set bit 42 to 1
-arr.set_bit(42, false);  // Clear bit 42
-bool bit = arr.get_bit(42);   // Read bit 42
-arr.flip_bit(42);        // Toggle bit 42
-
-// Bounds checking: bits [0, Bits-1]
-// Out-of-range access is undefined behavior
-```
-
-### 5. Bulk Operations
-
-```cpp
-bitcal::bit256 arr(0x123456789ABCDEF0);
-
-arr.reverse();         // Reverse all bits
-arr.clear();           // Set all bits to 0 (fast SIMD memset)
-
-if (arr.is_zero()) {   // Fast SIMD zero detection
-    // All bits are zero
-}
-```
-
-### 6. Data Access
-
-```cpp
-bitcal::bit256 arr(0xDEADBEEF);
-
-// Direct word access
-arr.set_word(0, 0x12345678);   // Set first 64 bits
-arr.set_word(1, 0x9ABCDEF0);
-uint64_t word = arr.word(0);   // Get word (read-only)
-
-// Pointer access (read-only for external APIs)
-const uint64_t* data = arr.data();
-
-// Type info
-constexpr size_t bits = bitcal::bit256::bits;      // 256
-constexpr size_t words = bitcal::bit256::u64_count; // 4
-```
-
-### 7. BitCal 3.0 Migration Notes
-
-BitCal 3.0 removes the old public raw-pointer and trait entry points.
-
-```cpp
-bitcal::bit256 arr;
-for (size_t i = 0; i < bitcal::bit256::u64_count; ++i) {
-    arr.set_word(i, source_words[i]);
-}
-
-uint64_t ones = arr.popcount();
-uint64_t first = arr.word(0);
-```
-
-Use `bitarray` member functions for operations, `set_word()` to populate from existing buffers, and `word()` / `operator[]` for read-only extraction.
-
-
----
-
-## Performance Tips
-
-### 1. Compiler Flags Matter
+If you want more than a one-file sanity check, run the retained vNext validation path:
 
 ```bash
-# Fastest on your machine
-g++ -std=c++17 -O3 -march=native program.cpp
-
-# Portable with good performance
-g++ -std=c++17 -O3 -msse2 program.cpp
+cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
+cmake --build build-test --config Release -j"$(nproc)"
+ctest --test-dir build-test --output-on-failure -C Release
+./build-test/benchmarks/bitcal_benchmark
 ```
 
-### 2. Prefer ANDNOT
+## Read next
 
-```cpp
-// Fast (single instruction)
-auto fast = a.andnot(b);  // ~2.1ns
-
-// Slow (two instructions + temporary)
-auto slow = a & ~b;       // ~4.5ns
-```
-
-### 3. Use Compound Assignments
-
-```cpp
-// May avoid temporary object
-a &= b;  // Potentially faster
-
-// Creates temporary
-a = a & b;
-```
-
-### 4. Use is_zero() for Comparisons
-
-```cpp
-// Fast SIMD path (~1.8ns with AVX2)
-if (arr.is_zero()) { ... }
-
-// Slow manual comparison
-bool zero = (arr.popcount() == 0);  // Much slower
-```
-
-### 5. Understand Alignment
-
-```cpp
-// BitCal types are 64-byte aligned
-alignas(64) bitcal::bit256 arr;  // Optimal
-
-// Stack allocation is fine for normal use
-bitcal::bit256 arr;  // Still 64-byte aligned
-```
-
----
-
-## Complete Example: Bitmap Operations
-
-```cpp
-#include <bitcal/bitcal.hpp>
-#include <iostream>
-#include <vector>
-
-// 1024-bit bitmap for tracking 1024 flags
-using Bitmap = bitcal::bit1024;
-
-class UserPermissions {
-    Bitmap permissions_;
-public:
-    enum Permission { READ = 0, WRITE = 1, EXECUTE = 2, ADMIN = 3 };
-
-    void grant(Permission p) { permissions_.set_bit(p, true); }
-    void revoke(Permission p) { permissions_.set_bit(p, false); }
-    bool has(Permission p) const { return permissions_.get_bit(p); }
-    bool none() const { return permissions_.is_zero(); }
-
-    Bitmap get() const { return permissions_; }
-    void merge(const UserPermissions& other) {
-        permissions_ |= other.permissions_;
-    }
-};
-
-int main() {
-    UserPermissions alice, bob;
-
-    alice.grant(UserPermissions::READ);
-    alice.grant(UserPermissions::WRITE);
-
-    bob.grant(UserPermissions::EXECUTE);
-
-    std::cout << "Alice has " << alice.get().popcount() << " permissions\n";
-
-    // Union of permissions
-    alice.merge(bob);
-    std::cout << "After merge: " << alice.get().popcount() << " permissions\n";
-
-    return 0;
-}
-```
-
----
-
-## Next Steps
-
-| Topic | Document | Description |
-|-------|----------|-------------|
-| Complete API | [Types](../api/types.md) | All types and their details |
-| Operations | [Core Operations](../api/core-operations.md) | Bitwise operations reference |
-| Performance | [Architecture](../architecture/overview.md) | Design and optimization |
-| Troubleshooting | [Installation](installation.md) | Common issues and solutions |
-
----
-
-<p align="center">
-  <sub>Ready for the full API reference? → <a href="../api/types.md">Continue to Types</a></sub>
-</p>
+- [Build Options](./build-options.md)
+- [Types Reference](../api/types.md)
+- [Core Operations](../api/core-operations.md)

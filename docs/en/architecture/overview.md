@@ -1,166 +1,55 @@
 # Architecture Overview
 
-This document describes the retained BitCal 3.0 architecture and public-surface boundaries.
+This section is the BitCal vNext whitepaper landing. The thesis is simple: keep ownership explicit, make views first-class, and express work as free algorithms across a narrow header-only boundary.
 
-> **Public contract note:** BitCal 3.0 exposes `bitarray`, the predefined aliases, the backend enum, and the documented member/operator API. Removed raw-pointer helpers and trait shims are implementation details or no longer supported.
+## Reading order
 
-## Table of Contents
+1. [vNext Whitepaper](./vnext-whitepaper.md) — the architectural thesis and public model
+2. [SIMD Dispatch](./simd-dispatch.md) — how algorithms cross the backend boundary
+3. [Platform Support](./platform-support.md) — what is primary, secondary, and intentionally out of contract
+4. [Performance Baseline](./performance-baseline.md) — how to read the retained benchmark evidence
 
-- [Layered Design](#layered-design)
-- [File Structure](#file-structure)
-- [Design Principles](#design-principles)
-- [SIMD Dispatch](#simd-dispatch-mechanism)
-- [Performance Characteristics](#performance-characteristics)
-- [Thread Safety](#thread-safety)
+## Executive summary
 
----
+- **Owning block:** `bit_block<Bits>` owns fixed-width contiguous `std::uint64_t` storage.
+- **Non-owning view:** `bit_view` and `const_bit_view` let BitCal operate on existing words without copying.
+- **Free algorithm:** functions such as `bit_and<Bits>()`, `and_into()`, `is_zero()`, and `popcount()` define behavior without forcing every operation into one member-heavy type.
+- **Backend boundary:** callers include `<bitcal/bitcal.hpp>` and use the public types; backend selection and ISA-specific kernels stay behind internal implementation headers.
 
-## Layered Design
+## What changed in vNext
 
-BitCal keeps a small public surface over backend-specific implementation code:
+BitCal now documents one mental model from top to bottom:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Public API Layer                        │
-│  bitarray<N>, predefined aliases, documented operators     │
-├─────────────────────────────────────────────────────────────┤
-│                 Compile-Time Selection Layer               │
-│  Backend tags, width constraints, get_default_backend()    │
-├─────────────────────────────────────────────────────────────┤
-│                 Backend Dispatch Layer                     │
-│  backend_ops.hpp maps operations onto scalar/SSE/AVX/...   │
-├─────────────────────────────────────────────────────────────┤
-│               ISA-Specific Implementation Layer            │
-│  scalar_ops.hpp / sse_ops.hpp / avx_ops.hpp / ...          │
-└─────────────────────────────────────────────────────────────┘
-```
+- the language baseline is **C++23**
+- delivery remains **header-only**
+- the public model is block/view/algorithm, not one monolithic value type
+- x86-64 is the primary optimization and validation target
+- benchmark claims are treated as reproducible baselines, not evergreen marketing copy
 
----
+## Current retained surface
 
-## File Structure
-
-```
-include/bitcal/
-├── bitcal.hpp              # Stable public umbrella header
-├── bitarray.hpp            # Implementation header with bitarray template
-├── config.hpp              # Version macros, backend enum, platform detection
-├── backend_ops.hpp         # Width/backend dispatch glue
-├── scalar_ops.hpp          # Scalar fallback implementation
-├── sse_ops.hpp             # x86 SSE2 implementation
-├── avx_ops.hpp             # x86 AVX2 implementation
-├── avx512_ops.hpp          # x86 AVX-512 implementation
-└── neon_ops.hpp            # ARM NEON implementation
+```text
+<bitcal/bitcal.hpp>
+├── bit_block<Bits>         owning storage
+├── bit_view                mutable borrowed access
+├── const_bit_view          read-only borrowed access
+├── bit_and<Bits>()         returning free algorithm
+├── and_into()              in-place free algorithm
+├── is_zero()               query algorithm
+└── popcount()              query algorithm
 ```
 
-**Stable public include seam:** `bitcal.hpp`. `bitarray.hpp` and `config.hpp` are implementation headers, not additional retained entry points.
+The implementation may expose diagnostic helpers such as `backend_kind` and `default_backend()`, but those are not invitations to couple application code to ISA-specific internals.
 
----
+## Validation posture
 
-## Design Principles
+The current contract is anchored by the retained repository validation path:
 
-### 1. Header-Only Delivery
-
-Users consume BitCal through a normal include path:
-
-```cpp
-#include <bitcal/bitcal.hpp>
+```bash
+cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
+cmake --build build-test --config Release -j"$(nproc)"
+ctest --test-dir build-test --output-on-failure -C Release
+./build-test/benchmarks/bitcal_benchmark
 ```
 
-### 2. Narrow Public Contract
-
-The supported API is centered on fixed-width value types:
-
-- `bitarray<Bits, Backend>`
-- predefined aliases such as `bit256`
-- operators, counting functions, and bit helpers documented in `docs/en/api/`
-
-Removed surfaces such as `bitcal::ops` and public traits are intentionally absent from the 3.0 contract.
-
-### 3. Compile-Time Backend Selection
-
-The default template parameter selects a backend at compile time:
-
-```cpp
-template<size_t Bits,
-         simd_backend Backend = get_default_backend()>
-class bitarray;
-```
-
-### 4. Backend Specialization Behind One Type
-
-`backend_ops.hpp` keeps the public `bitarray` API stable while routing work to backend-specific implementations.
-
-### 5. Width-Aware Alignment
-
-Alignment scales with bit width:
-
-- 64-bit values use 8-byte alignment
-- 128-bit values use 16-byte alignment
-- 256-bit values use 32-byte alignment
-- 512-bit and larger values use 64-byte alignment
-
----
-
-## SIMD Dispatch Mechanism
-
-### Backend Selection Flow
-
-```
-Compiler flags / target ISA
-         │
-         ▼
-config.hpp defines BITCAL_HAS_* macros
-         │
-         ▼
-get_default_backend() chooses avx512 / avx2 / sse2 / neon / scalar
-         │
-         ▼
-bitarray<Bits, Backend> binds that backend at compile time
-         │
-         ▼
-backend_ops.hpp dispatches each operation to the matching implementation
-```
-
-### Backend Priority
-
-```cpp
-constexpr simd_backend get_default_backend() noexcept {
-#if BITCAL_HAS_AVX512
-    return simd_backend::avx512;
-#elif BITCAL_HAS_AVX2
-    return simd_backend::avx2;
-#elif BITCAL_HAS_SSE2
-    return simd_backend::sse2;
-#elif BITCAL_HAS_NEON
-    return simd_backend::neon;
-#else
-    return simd_backend::scalar;
-#endif
-}
-```
-
----
-
-## Performance Characteristics
-
-| Width | Typical Backend | Notes |
-|-------|-----------------|-------|
-| 64-bit | Scalar | Single-word fast path |
-| 128-bit | SSE2 / NEON / AVX-512 VL | Native 128-bit vector width |
-| 256-bit | AVX2 / AVX-512 VL | Common high-throughput path |
-| 512-bit | AVX-512 or looped AVX2 | Larger fixed-width workloads |
-| 1024-bit | Loop over selected backend | Throughput scales with word count |
-
----
-
-## Thread Safety
-
-### Safe Without Extra Synchronization
-
-- Different threads operating on different `bitarray` instances
-- Read-only access to a shared `bitarray`
-
-### Requires External Synchronization
-
-- Concurrent mutation of the same `bitarray`
-- Mixed read/write access to the same instance
+Use the whitepaper pages to understand the model, then use the guide and reference sections to apply it.

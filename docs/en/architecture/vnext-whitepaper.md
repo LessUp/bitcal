@@ -1,54 +1,86 @@
-# BitCal vNext Technical Whitepaper
+# BitCal vNext Whitepaper
 
-## Summary
+## Thesis
 
-BitCal vNext is a C++23 redesign of the library around three explicit layers:
+BitCal vNext is built around one architectural sentence:
 
-1. **Owning storage** via `bit_block<Bits>`
-2. **Non-owning access** via `bit_view` / `const_bit_view`
-3. **Free algorithms** such as `bit_and<Bits>()` and `and_into()`
+> **Own storage in blocks, borrow storage through views, and express work as free algorithms across a narrow backend boundary.**
 
-The redesign keeps `<bitcal/bitcal.hpp>` as the only stable public include seam while moving backend decisions into internal implementation headers.
-
-## Design goals
-
-- Make the public API easier to compose with modern C++23 code
-- Keep the library header-only
-- Prioritize x86-64 correctness and performance first
-- Avoid carrying an indefinite compatibility layer for the older `bitarray` model
-- Rebuild performance claims from retained benchmark evidence instead of legacy marketing language
+That sentence drives the public API shape, the validation story, and the performance posture.
 
 ## Public model
 
-### `bit_block<Bits>`
+### Owning block
 
-`bit_block<Bits>` is the owning fixed-width storage type. It keeps:
+`bit_block<Bits>` is the owning unit. It gives BitCal a fixed-width storage object with:
 
-- compile-time width
-- contiguous `uint64_t` word layout
-- explicit `view()` accessors
-- span-based import/export helpers for integration with external buffers
+- compile-time width via `Bits`
+- contiguous `std::uint64_t` words
+- explicit `view()` accessors for borrowed use
+- span-based import/export helpers for interoperability
 
-### `bit_view` / `const_bit_view`
+```cpp
+std::array<std::uint64_t, 4> words{0xFULL, 0x0ULL, 0xF0ULL, 0x0ULL};
+auto block = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(words));
+```
 
-Views are the stable, non-owning way to operate on existing storage without copying.
+### Non-owning view
 
-This separation avoids overloading the owning type with every algorithm and makes kernel code easier to reuse.
+`bit_view` and `const_bit_view` let algorithms work on existing buffers without transferring ownership.
 
-### Free algorithms
+Views matter because BitCal wants algorithm composition to be cheap and explicit:
 
-Algorithms are exposed as free functions:
+- algorithms can read or write existing storage
+- callers can preallocate outputs
+- ownership decisions stay visible in user code
 
-- `bit_and<Bits>()`
-- `and_into()`
-- `is_zero()`
-- `popcount()`
+```cpp
+bitcal::bit_block<256> block;
+auto writable = block.view();
+bitcal::const_bit_view readable = writable;
+```
 
-This makes the public contract about **observable behavior** rather than about one large member-heavy class.
+### Free algorithm
 
-## Internal architecture
+Algorithms live as free functions over views and blocks.
 
-Current vNext layering:
+```cpp
+bitcal::bit_block<256> lhs;
+bitcal::bit_block<256> rhs;
+bitcal::bit_block<256> out;
+
+auto produced = bitcal::bit_and<256>(lhs.view(), rhs.view());
+bitcal::and_into(lhs.view(), rhs.view(), out.view());
+
+auto zero = bitcal::is_zero(produced.view());
+auto ones = bitcal::popcount(out.view());
+```
+
+This keeps the contract centered on observable behavior instead of on a large type with an ever-growing member surface.
+
+## Why this split exists
+
+### 1. Ownership should be explicit
+
+When ownership is a real type, callers can see when they allocate, copy, or retain storage. That makes the API easier to reason about and easier to compose with modern standard-library facilities.
+
+### 2. Borrowing should be cheap
+
+A non-owning view is the correct bridge when data already exists elsewhere. BitCal should not require temporary owning objects just to run one algorithm.
+
+### 3. Algorithms should be reusable
+
+Free algorithms make it easy to expose behavior over both owned and borrowed data. They also let the implementation evolve backend kernels without redefining the public storage story.
+
+## Backend boundary
+
+BitCal keeps exactly one stable include seam:
+
+```cpp
+#include <bitcal/bitcal.hpp>
+```
+
+Below that seam, the current implementation separates public model from execution details:
 
 ```text
 bitcal/bitcal.hpp
@@ -60,64 +92,33 @@ bitcal/bitcal.hpp
     └── x64_dispatch.hpp
 ```
 
-### Why hide backend details?
+The boundary matters because BitCal wants to preserve freedom to change internal dispatch and kernel structure without forcing users to rewrite application types.
 
-The public API no longer encodes ISA/backend choices in the type system. Backend selection is an implementation concern so that:
+## x86-64-first validation posture
 
-- public contracts stay stable
-- x86-64 kernels can evolve independently
-- scalar fallbacks remain available without public API churn
+vNext is intentionally x86-64-first.
 
-## x86-64-first kernel posture
+Today that means:
 
-The first internal optimization path is:
+- scalar execution always exists as the portability floor
+- x86-64 feature detection drives `default_backend()`
+- the retained fast path is centered on AVX2-backed `and_into()` / `bit_and<Bits>()`
+- benchmark and correctness claims are grounded in the retained local validation path
 
-- scalar fallback for portability
-- AVX2 fast path for `and_into()`
+This is a priority statement, not a claim that every platform receives the same optimization effort.
 
-Current owner storage also guarantees **32-byte alignment on x86-64**, which is a practical baseline for AVX2-era kernels.
+## What the whitepaper does not promise
 
-AVX-512 remains an optional future extension, not the center of the design.
+The whitepaper is intentionally narrow. It does **not** promise:
 
-## Correctness posture
+- a compatibility shim for the older public model
+- runtime CPU dispatch as part of the current contract
+- identical optimization depth across every operating system and ISA
+- benchmark numbers divorced from reproducible build settings and hardware context
 
-The redesign treats correctness as the precondition for optimization.
+## Validation path
 
-Current retained smoke coverage includes:
-
-- block/view construction
-- free algorithm smoke tests
-- `is_zero()`
-- `popcount()`
-- `and_into()`
-- x86-64 alignment guarantee for owning storage
-- span-based word import/export
-
-## Benchmark posture
-
-The current benchmark page is intentionally labeled as a **baseline**, not a final marketing claim. It exists to:
-
-- verify the benchmark target builds against the new public model
-- provide a reproducible starting point
-- create a stable comparison point before deeper kernel work
-
-Future benchmark work should add:
-
-- scalar vs AVX2 vs AVX-512 comparisons
-- aligned vs unaligned paths
-- owner vs view-oriented workloads
-- real workload traces in addition to synthetic loops
-
-## Current limitations
-
-- The benchmark suite is still a minimal baseline, not a full methodology harness
-- The public algorithm surface is still intentionally small
-- Secondary targets such as ARM64 and macOS are not yet first-class optimization targets
-- More kernel families still need migration from scalar-only placeholders to measured fast paths
-
-## Reproducibility
-
-Build and run the current local baseline with:
+The current repository baseline that supports this narrative is:
 
 ```bash
 cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
@@ -125,3 +126,9 @@ cmake --build build-test --config Release -j"$(nproc)"
 ctest --test-dir build-test --output-on-failure -C Release
 ./build-test/benchmarks/bitcal_benchmark
 ```
+
+## Read next
+
+- [SIMD Dispatch](./simd-dispatch.md) for the current execution path
+- [Platform Support](./platform-support.md) for retained support boundaries
+- [Types Reference](../api/types.md) and [Core Operations](../api/core-operations.md) for the public glossary in reference form

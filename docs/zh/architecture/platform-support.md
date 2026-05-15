@@ -1,56 +1,71 @@
-# 平台兼容性
+# 平台支持
 
-## 操作系统
+本页定义 BitCal vNext 当前保留的平台支持边界。
 
-| OS | 状态 | 说明 |
-|----|------|------|
-| Linux | ✅ 主要目标 | GCC/Clang 完整支持 |
-| Windows | ✅ 支持 | MSVC 2017+ |
-| macOS | ✅ 支持 | Apple Clang |
-| FreeBSD/OpenBSD | ✅ 支持 | GCC/Clang |
+## 契约摘要
 
-## 处理器架构
+| 领域 | 状态 | 含义 |
+| --- | --- | --- |
+| 语言基线 | **必需** | 公开目标与开发目标统一假定 **C++23** |
+| 交付模型 | **稳定** | BitCal 继续保持 **header-only** |
+| 主要优化目标 | **主要** | x86-64，且以后端编译期选择为中心 |
+| 可移植性下限 | **保留** | 当未启用 SIMD 路径时，仍保留标量执行 |
 
-| 架构 | 指令集 | 状态 |
-|------|--------|------|
-| x86-64 | SSE2 / AVX / AVX2 / AVX-512 | ✅ 完整支持 |
-| ARM64 (AArch64) | NEON | ✅ 完整支持 |
-| ARM32 (ARMv7-A) | NEON | ✅ 支持 |
-| 其他 | — | ⚠️ 标量实现 |
+## 设计层面的支持矩阵
 
-## 编译器
+| 目标 | 状态 | 当前承诺 |
+| --- | --- | --- |
+| Linux x86-64 | **主要验证路径** | GCC/Clang 构建、编译期后端选择、保留的正确性与基准验证路径 |
+| Windows x64 | **次要验证路径** | MSVC 下沿用同一公开模型；需要 AVX2 开发目标时使用 `/arch:AVX2` |
+| macOS x86-64 | **次要路径** | 预期 header-only 集成可工作，但它不是项目的优化中心 |
+| 非 x86 目标 | **仅保留可移植下限** | 公开模型仍可能通过标量路径构建，但这些目标不定义 BitCal 的优化契约 |
 
-| 编译器 | 最低版本 | 说明 |
-|--------|----------|------|
-| GCC | 7+ | 推荐 9+ |
-| Clang | 6+ | 推荐 10+ |
-| MSVC | 2017 (19.14+) | v2.1 修复了 SSE2 宏检测 |
-| Apple Clang | — | 随 Xcode 提供 |
+## 后端边界在实践中的含义
 
-## ARM 设备支持
+公开模型不会把后端编码进存储类型本身。调用方只面对：
 
-- Raspberry Pi 3/4/5
-- NVIDIA Jetson series
-- Apple Silicon (M1/M2/M3/M4)
-- AWS Graviton
-- 移动设备处理器
+- `bit_block<Bits>`
+- `bit_view` / `const_bit_view`
+- 自由算法
+- 可选诊断接口，例如 `backend_kind` 与 `default_backend()`
 
-## MSVC 注意事项
+当前后端枚举为：
 
-MSVC 在 x64 模式下保证 SSE2 可用，但不定义 `__SSE2__` 宏。BitCal v2.1 通过检测 `_M_X64` 解决了这个问题。
+```cpp
+enum class backend_kind {
+    scalar,
+    sse2,
+    avx2,
+    avx512,
+};
+```
 
-要启用 AVX2，需在编译时添加 `/arch:AVX2` 标志。CMake 构建系统会自动检测并添加。
+`default_backend()` 会根据当前编译目标标志在编译期选定。就今天而言，非 x86 构建会落到 `scalar`。
 
-## AVX-512 功能分级
+## 编译器预期
 
-| 功能 | 指令集 | 支持状态 |
-|------|--------|----------|
-| 基本位运算 | AVX-512F | ✅ 完整支持 |
-| 512 位位移 | AVX-512F | ✅ 完整支持（v2.2 优化） |
-| Popcount | AVX-512VPOPCNTDQ | ⚠️ 需要特定 CPU |
+| 工具链 | 推荐基线 |
+| --- | --- |
+| GCC / Clang / Apple Clang | `-std=c++23 -O3`，并按需要显式指定 `-march=native` 或 `-mavx2` |
+| MSVC | `/std:c++23 /O2`，需要 AVX2 开发目标时再加 `/arch:AVX2` |
+| CMake 使用者 | 链接 `bitcal` 接口库，并由使用者自己的构建系统决定 CPU 标志 |
 
-### VPOPCNTDQ 兼容性
+仓库内的开发目标会通过 `BITCAL_NATIVE_ARCH` 为测试、示例和 benchmark 添加本机 SIMD 标志；`bitcal` 接口库本身**不会**把这些标志强加给下游项目。
 
-如果 CPU 支持 AVX-512 但不支持 VPOPCNTDQ（如早期 Skylake-X），popcount 会回退到标量实现。支持 VPOPCNTDQ 的 CPU：
-- Intel: Ice Lake 及更新
-- AMD: Zen 4 及更新
+## 刻意不纳入契约的内容
+
+BitCal vNext 目前**不**承诺：
+
+- 运行时 CPU 分发
+- 所有 ISA 都有同等深度的优化
+- 为每个后端分别暴露公开类型家族
+- 脱离保留构建/基准路径单独宣称性能结论
+
+## 验证路径
+
+```bash
+cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
+cmake --build build-test --config Release -j"$(nproc)"
+ctest --test-dir build-test --output-on-failure -C Release
+./build-test/benchmarks/bitcal_benchmark
+```

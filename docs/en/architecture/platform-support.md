@@ -1,156 +1,71 @@
 # Platform Support
 
-## Operating Systems
+This page defines the retained support boundary for BitCal vNext.
 
-| OS | Status | Notes |
-|----|--------|-------|
-| Linux | ✅ Primary target | Full GCC/Clang support |
-| Windows | ✅ Supported | MSVC 2017+ |
-| macOS | ✅ Supported | Apple Clang |
-| FreeBSD/OpenBSD | ✅ Supported | GCC/Clang |
+## Contract summary
 
-## Processor Architectures
+| Area | Status | Meaning |
+| --- | --- | --- |
+| Language baseline | **Required** | Public and development targets assume **C++23** |
+| Delivery model | **Stable** | BitCal remains **header-only** |
+| Primary optimization target | **Primary** | x86-64 with compile-time SIMD selection |
+| Portability floor | **Retained** | Scalar execution remains available when SIMD paths are not enabled |
 
-| Architecture | Instruction Set | Status |
-|--------------|-----------------|--------|
-| x86-64 | SSE2 / AVX / AVX2 / AVX-512 | ✅ Full support |
-| ARM64 (AArch64) | NEON | ✅ Full support |
-| ARM32 (ARMv7-A) | NEON | ✅ Supported |
-| Others | — | ⚠️ Scalar fallback |
+## Supported-by-design matrix
 
-## Compilers
+| Target | Status | What BitCal currently promises |
+| --- | --- | --- |
+| Linux x86-64 | **Primary validated path** | GCC or Clang builds, compile-time backend selection, retained correctness and benchmark path |
+| Windows x64 | **Secondary validated path** | MSVC build with the same public model; `/arch:AVX2` enables AVX2-oriented development targets |
+| macOS x86-64 | **Secondary path** | Header-only integration is expected to work, but it is not the optimization center of the project |
+| Non-x86 targets | **Portable floor only** | Public model may still build through scalar code paths, but these targets do not define BitCal's optimization contract |
 
-| Compiler | Minimum Version | Recommended | Notes |
-|----------|-----------------|-------------|-------|
-| GCC | 7+ | 11+ | Best optimization |
-| Clang | 6+ | 14+ | Good diagnostics |
-| MSVC | 2017 (19.14+) | 2022 | v2.1 fixed SSE2 detection |
-| Apple Clang | — | Latest Xcode | Bundled with Xcode |
+## Backend boundary in practice
 
-## ARM Device Support
+The public model does not encode the backend into storage types. Instead, callers interact with:
 
-Tested and verified on:
+- `bit_block<Bits>`
+- `bit_view` / `const_bit_view`
+- free algorithms
+- optional diagnostics such as `backend_kind` and `default_backend()`
 
-- **Raspberry Pi**: 3, 4, 5 (ARM32/64)
-- **NVIDIA Jetson**: Nano, TX1, TX2, Xavier, Orin
-- **Apple Silicon**: M1, M2, M3, M4
-- **AWS Graviton**: All generations
-- **Mobile**: Various ARM Cortex-A processors
-
-## x86 Feature Detection
-
-### GCC/Clang
-
-Macros automatically defined when corresponding flags are used:
-
-```bash
-g++ -mavx2 ...     # Defines __AVX2__
-g++ -msse2 ...     # Defines __SSE2__
-```
-
-### MSVC
-
-MSVC guarantees SSE2 availability on x64 but does not define `__SSE2__`. BitCal v2.1 detects this via `_M_X64`:
+Current backend kinds are:
 
 ```cpp
-#if defined(_M_X64)
-    // SSE2 is guaranteed on x64
-    #define BITCAL_HAS_SSE2 1
-#endif
+enum class backend_kind {
+    scalar,
+    sse2,
+    avx2,
+    avx512,
+};
 ```
 
-To enable AVX2 with MSVC, add `/arch:AVX2` at compile time. CMake automatically detects and adds this flag.
+`default_backend()` is selected at compile time from the active compiler target flags. On non-x86 builds today, that means `scalar`.
 
-## Cross-Compilation
+## Compiler expectations
 
-### ARM64 from x86 Linux
+| Toolchain | Recommended baseline |
+| --- | --- |
+| GCC / Clang / Apple Clang | `-std=c++23 -O3` plus an explicit target such as `-march=native` or `-mavx2` when appropriate |
+| MSVC | `/std:c++23 /O2` plus `/arch:AVX2` when you want AVX2-enabled development targets |
+| CMake consumers | Link the `bitcal` interface target; choose your own CPU flags in the consumer build |
+
+The repository's development targets use `BITCAL_NATIVE_ARCH` to add native SIMD flags for tests, examples, and benchmarks. The interface library itself does **not** force those flags onto downstream consumers.
+
+## What is intentionally out of contract
+
+BitCal vNext does not currently promise:
+
+- runtime CPU dispatch
+- equal optimization depth across every ISA
+- separate public type families for each backend
+- performance claims detached from the retained build and benchmark path
+
+## Validation path
 
 ```bash
-# Install cross-compiler
-sudo apt-get install g++-aarch64-linux-gnu
-
-# Configure
-cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/arm64-toolchain.cmake ..
-
-# Build
-make
+cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
+cmake --build build-test --config Release -j"$(nproc)"
+ctest --test-dir build-test --output-on-failure -C Release
+./build-test/benchmarks/bitcal_benchmark
 ```
-
-Example toolchain file (`cmake/arm64-toolchain.cmake`):
-
-```cmake
-set(CMAKE_SYSTEM_NAME Linux)
-set(CMAKE_SYSTEM_PROCESSOR aarch64)
-set(CMAKE_C_COMPILER aarch64-linux-gnu-gcc)
-set(CMAKE_CXX_COMPILER aarch64-linux-gnu-g++)
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-```
-
-### ARM32 from x86 Linux
-
-```bash
-sudo apt-get install g++-arm-linux-gnueabihf
-cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/arm32-toolchain.cmake ..
-make
-```
-
-## CI/CD Verification
-
-BitCal is automatically tested on GitHub Actions with the following configurations:
-
-| Platform | Compiler | Architecture | SIMD |
-|----------|----------|--------------|------|
-| Ubuntu | GCC 11 | x86-64 | AVX2 |
-| Ubuntu | Clang 14 | x86-64 | AVX2 |
-| Ubuntu | GCC | ARM64 | NEON |
-| Ubuntu | GCC | ARM32 | NEON |
-| Windows | MSVC 2022 | x86-64 | AVX2 |
-| macOS | Apple Clang | x86-64 | AVX2 |
-| macOS | Apple Clang | ARM64 | NEON |
-
-## Known Issues
-
-### MSVC
-
-- **Fixed in v2.1**: SSE2 macro detection now works correctly on x64
-- AVX2 requires explicit `/arch:AVX2` flag
-
-### ARM
-
-- **Fixed in v2.1**: NEON `vmvnq_u64` changed to `veorq_u64` XOR with all-ones
-- **Fixed in v2.1**: NEON variable shifts now use `vshlq_u64` instead of `vshlq_n_u64`
-
-### AVX-512 Feature Levels
-
-| Feature | Instruction Set | Status |
-|---------|-----------------|--------|
-| Basic bitwise ops | AVX-512F | ✅ Full support |
-| 512-bit shifts | AVX-512F | ✅ Full support (optimized in v2.2) |
-| Popcount | AVX-512VPOPCNTDQ | ⚠️ Requires specific CPU |
-
-#### VPOPCNTDQ Compatibility
-
-If the CPU supports AVX-512 but not VPOPCNTDQ (e.g., early Skylake-X), popcount falls back to scalar implementation. CPUs supporting VPOPCNTDQ:
-- Intel: Ice Lake and newer
-- AMD: Zen 4 and newer
-
-### General
-
-- AVX-512: Falls back to AVX2 (full AVX-512 support planned)
-- Very large bit widths (>8192): May cause stack overflow; consider heap allocation
-
-## Reporting Platform Issues
-
-If you encounter platform-specific issues:
-
-1. Check [GitHub Issues](https://github.com/LessUp/bitcal/issues)
-2. Include compiler version: `gcc --version` or `clang --version`
-3. Include CPU info: `cat /proc/cpuinfo` (Linux) or system profiler
-4. Provide minimal reproducible example
-
-## See Also
-
-- [SIMD Backend](../api/simd-backend.md) — Backend selection
-- [SIMD Dispatch](simd-dispatch.md) — Dispatch mechanism

@@ -1,125 +1,82 @@
 # Build Options
 
-## CMake Options
+This page collects the build knobs that matter for BitCal vNext as a **header-only C++23** library.
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `BITCAL_BUILD_TESTS` | ON | Build unit tests |
-| `BITCAL_BUILD_EXAMPLES` | ON | Build example programs |
-| `BITCAL_BUILD_BENCHMARKS` | OFF | Build performance benchmarks |
-| `BITCAL_NATIVE_ARCH` | ON | Enable `-march=native` or `/arch:AVX2` |
+## Public-consumer defaults
 
-## Compiler Flags
+The `bitcal` CMake target is an `INTERFACE` library with two important behaviors:
 
-### x86/x64 (GCC/Clang)
+1. it publishes the BitCal include directories
+2. it requires **C++23** via `target_compile_features(... cxx_std_23)`
 
-```bash
-# Auto-detect optimal instruction set
-g++ -std=c++17 -O3 -march=native main.cpp
+It does **not** force `-march=native`, `/arch:AVX2`, or similar CPU-specific flags on downstream projects.
 
-# Specify instruction set explicitly
-g++ -std=c++17 -O3 -mavx2 main.cpp   # AVX2
-g++ -std=c++17 -O3 -msse2 main.cpp   # SSE2
-```
+## Repository CMake options
 
-### x86/x64 (MSVC)
+| Option | Default | Purpose |
+| --- | --- | --- |
+| `BITCAL_BUILD_TESTS` | `ON` | Build the retained smoke test executable |
+| `BITCAL_BUILD_EXAMPLES` | `ON` | Build repository example programs |
+| `BITCAL_BUILD_BENCHMARKS` | `OFF` | Build the retained benchmark baseline |
+| `BITCAL_NATIVE_ARCH` | `ON` | Apply native CPU flags to repository tests/examples/benchmarks |
+| `BITCAL_ENABLE_LTO` | `ON` | Enable link-time optimization when supported |
+| `BITCAL_ENABLE_HARDENING` | `OFF` | Add opt-in hardening flags on supported toolchains |
 
-```cmd
-cl /std:c++17 /O2 /arch:AVX2 main.cpp
-```
+## Common build profiles
 
-### ARM (GCC/Clang)
+### Full local validation
 
 ```bash
-# ARM64 with NEON
-g++ -std=c++17 -O3 -march=armv8-a+simd main.cpp
-
-# ARM32 with NEON
-g++ -std=c++17 -O3 -mfpu=neon main.cpp
+cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
+cmake --build build-test --config Release -j"$(nproc)"
+ctest --test-dir build-test --output-on-failure -C Release
+./build-test/benchmarks/bitcal_benchmark
 ```
 
-## Macro Definitions
-
-The following macros are automatically defined by the library:
-
-| Macro | Description |
-|-------|-------------|
-| `BITCAL_ARCH_X86` | x86/x64 architecture |
-| `BITCAL_ARCH_ARM` | ARM architecture |
-| `BITCAL_HAS_SSE2` | SSE2 available |
-| `BITCAL_HAS_AVX` | AVX available |
-| `BITCAL_HAS_AVX2` | AVX2 available |
-| `BITCAL_HAS_AVX512` | AVX-512 available |
-| `BITCAL_HAS_NEON` | NEON available |
-
-You can check these at compile time:
-
-```cpp
-#ifdef BITCAL_HAS_AVX2
-    // AVX2 code path
-#endif
-```
-
-## Alignment Control
-
-```cpp
-// Default 64-byte alignment (cache line)
-// Can be overridden before including:
-#define BITCAL_ALIGNMENT 32
-#include <bitcal/bitcal.hpp>
-```
-
-## Build Examples
+### More portable correctness pass
 
 ```bash
-# Full build
-mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DBITCAL_NATIVE_ARCH=ON ..
-make
-
-# Tests only
-cmake -DBITCAL_BUILD_EXAMPLES=OFF -DBITCAL_BUILD_BENCHMARKS=OFF ..
-make
-./tests/test_bitcal
-
-# Benchmarks
-ccmake -DBITCAL_BUILD_BENCHMARKS=ON ..
-make
-./benchmarks/benchmark_bitcal
+cmake -S . -B build-generic -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=OFF -DBITCAL_BUILD_BENCHMARKS=OFF -DBITCAL_NATIVE_ARCH=OFF
+cmake --build build-generic --config Release -j"$(nproc)"
+ctest --test-dir build-generic --output-on-failure -C Release
 ```
 
-## Debug vs Release
-
-**Release (recommended for production)**:
-```bash
-cmake -DCMAKE_BUILD_TYPE=Release ..
-```
-
-**Debug**:
-```bash
-cmake -DCMAKE_BUILD_TYPE=Debug ..  # Enables assertions
-```
-
-## Cross-Compilation
-
-### ARM64 from x86
+### Install/export package build
 
 ```bash
-cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/arm64-toolchain.cmake ..
+cmake -S . -B build-install -DCMAKE_BUILD_TYPE=Release
+cmake --build build-install --target install
 ```
 
-### ARM32 from x86
+## Compiler flag guidance
 
-```bash
-cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/arm32-toolchain.cmake ..
-```
+| Toolchain | Typical flags |
+| --- | --- |
+| GCC / Clang | `-std=c++23 -O3 -march=native` for local native work; `-std=c++23 -O3 -mavx2` for explicit AVX2 builds |
+| Apple Clang | `-std=c++23 -O3` plus an explicit architecture target when needed |
+| MSVC | `/std:c++23 /O2 /arch:AVX2` when validating the AVX2-oriented path |
 
-## Link-Time Optimization (LTO)
+## Useful compile-time diagnostics
 
-For maximum performance, enable LTO:
+These public macros and helpers are helpful when recording a build or benchmark run:
 
-```bash
-cmake -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON ..
-```
+- `BITCAL_ARCH_X86`
+- `BITCAL_HAS_SSE2`
+- `BITCAL_HAS_AVX2`
+- `BITCAL_HAS_AVX512`
+- `BITCAL_VERSION_MAJOR`, `BITCAL_VERSION_MINOR`, `BITCAL_VERSION_PATCH`
+- `bitcal::default_backend()`
 
-Note: LTO may increase compile time but can improve runtime performance by 5-15%.
+Treat them as diagnostics and validation aids, not as reasons to fragment application code around backend-specific public types.
+
+## Rule of thumb
+
+- use **native** flags when you are measuring or validating on one known machine
+- turn **native** flags off when you want a more conservative portability pass
+- keep the public include stable: `#include <bitcal/bitcal.hpp>`
+
+## Read next
+
+- [Installation](./installation.md)
+- [Quick Start](./quickstart.md)
+- [SIMD Dispatch](../architecture/simd-dispatch.md)

@@ -1,166 +1,55 @@
-# 架构设计概述
+# 架构概览
 
-本文档描述 BitCal 3.0 保留后的架构与公开接口边界。
+本节是 BitCal vNext 的白皮书入口页。核心论点很简单：把所有权说清楚、把视图做成一等公民、把工作表达为自由算法，并把这些能力收敛在一个窄而稳定的 header-only 边界上。
 
-> **公开契约说明：** BitCal 3.0 对外暴露 `bitarray`、预定义类型别名、后端枚举，以及文档中保留的成员/运算符 API。已删除的原始指针辅助接口和公开 traits 不再属于受支持的公开表面。
+## 推荐阅读顺序
 
-## 目录
+1. [vNext 白皮书](./vnext-whitepaper.md) —— 先看架构论点与公开模型
+2. [SIMD 分发](./simd-dispatch.md) —— 再看算法如何跨过后端边界
+3. [平台支持](./platform-support.md) —— 了解什么是主要目标、次要目标与刻意不承诺的范围
+4. [性能基线](./performance-baseline.md) —— 最后看如何解读当前保留的基准证据
 
-- [分层设计](#分层设计)
-- [文件结构](#文件结构)
-- [设计原则](#设计原则)
-- [SIMD 分派机制](#simd-分派机制)
-- [性能特性](#性能特性)
-- [线程安全](#线程安全)
+## 执行摘要
 
----
+- **拥有型 block：** `bit_block<Bits>` 持有固定宽度、连续的 `std::uint64_t` 存储。
+- **非拥有视图：** `bit_view` 与 `const_bit_view` 让 BitCal 能直接操作现有字数组而不必复制。
+- **自由算法：** `bit_and<Bits>()`、`and_into()`、`is_zero()`、`popcount()` 等函数表达行为，而不是把所有能力都塞进一个成员繁重的类型里。
+- **后端边界：** 调用方只需要 `<bitcal/bitcal.hpp>` 与公开类型；后端选择和 ISA 专用内核留在内部实现层。
 
-## 分层设计
+## vNext 的变化
 
-BitCal 以较小的公开表面封装后端实现细节：
+BitCal 现在从首页到深层正文都围绕同一个心智模型：
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      公开 API 层                            │
-│  bitarray<N>、预定义类型别名、文档化运算符与成员函数         │
-├─────────────────────────────────────────────────────────────┤
-│                    编译期选择层                             │
-│  后端标签、位宽约束、get_default_backend()                  │
-├─────────────────────────────────────────────────────────────┤
-│                    后端分派层                               │
-│  backend_ops.hpp 将操作映射到 scalar/SSE/AVX/...           │
-├─────────────────────────────────────────────────────────────┤
-│                  ISA 专用实现层                             │
-│  scalar_ops.hpp / sse_ops.hpp / avx_ops.hpp / ...          │
-└─────────────────────────────────────────────────────────────┘
-```
+- 语言基线是 **C++23**
+- 交付方式仍然是 **header-only**
+- 公开模型是 block / view / algorithm，而不是单体值类型
+- x86-64 是主要优化与验证目标
+- 性能结论被视为可复现基线，而不是长期不变的宣传文案
 
----
+## 当前保留的公开表面
 
-## 文件结构
-
-```
-include/bitcal/
-├── bitcal.hpp              # 稳定公开聚合头文件
-├── bitarray.hpp            # bitarray 模板的实现头文件
-├── config.hpp              # 版本宏、后端枚举、平台检测
-├── backend_ops.hpp         # 位宽/后端分派胶水层
-├── scalar_ops.hpp          # 标量回退实现
-├── sse_ops.hpp             # x86 SSE2 实现
-├── avx_ops.hpp             # x86 AVX2 实现
-├── avx512_ops.hpp          # x86 AVX-512 实现
-└── neon_ops.hpp            # ARM NEON 实现
+```text
+<bitcal/bitcal.hpp>
+├── bit_block<Bits>         拥有型存储
+├── bit_view                可写借用视图
+├── const_bit_view          只读借用视图
+├── bit_and<Bits>()         返回 owning block 的自由算法
+├── and_into()              就地写入的自由算法
+├── is_zero()               查询算法
+└── popcount()              查询算法
 ```
 
-**稳定公开 include seam：** `bitcal.hpp`。`bitarray.hpp` 与 `config.hpp` 是实现头文件，不是额外保留的公开入口。
+实现层可能还会暴露 `backend_kind`、`default_backend()` 之类的诊断辅助接口，但它们不应该成为业务代码绑定 ISA 细节的依据。
 
----
+## 验证姿态
 
-## 设计原则
+当前契约以仓库内保留的验证路径为锚点：
 
-### 1. 纯头文件交付
-
-用户通过正常 include 路径消费 BitCal：
-
-```cpp
-#include <bitcal/bitcal.hpp>
+```bash
+cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
+cmake --build build-test --config Release -j"$(nproc)"
+ctest --test-dir build-test --output-on-failure -C Release
+./build-test/benchmarks/bitcal_benchmark
 ```
 
-### 2. 收口后的公开契约
-
-受支持的 API 围绕固定宽度值类型展开：
-
-- `bitarray<Bits, Backend>`
-- `bit256` 等预定义类型别名
-- `docs/en/api/` 中保留的运算符、计数函数和位操作成员
-
-`bitcal::ops` 与公开 traits 等已删除表面，刻意不再属于 3.0 契约。
-
-### 3. 编译期后端选择
-
-默认模板参数在编译期选择后端：
-
-```cpp
-template<size_t Bits,
-         simd_backend Backend = get_default_backend()>
-class bitarray;
-```
-
-### 4. 单一类型屏蔽后端差异
-
-`backend_ops.hpp` 在保持 `bitarray` 公开 API 稳定的同时，将具体工作路由到不同后端实现。
-
-### 5. 按位宽自适应对齐
-
-对齐按位宽扩展：
-
-- 64 位值使用 8 字节对齐
-- 128 位值使用 16 字节对齐
-- 256 位值使用 32 字节对齐
-- 512 位及以上使用 64 字节对齐
-
----
-
-## SIMD 分派机制
-
-### 后端选择流程
-
-```
-编译器目标 / ISA 标志
-         │
-         ▼
-config.hpp 定义 BITCAL_HAS_* 宏
-         │
-         ▼
-get_default_backend() 选择 avx512 / avx2 / sse2 / neon / scalar
-         │
-         ▼
-bitarray<Bits, Backend> 在编译期绑定后端
-         │
-         ▼
-backend_ops.hpp 将每个操作分派到对应实现
-```
-
-### 后端优先级
-
-```cpp
-constexpr simd_backend get_default_backend() noexcept {
-#if BITCAL_HAS_AVX512
-    return simd_backend::avx512;
-#elif BITCAL_HAS_AVX2
-    return simd_backend::avx2;
-#elif BITCAL_HAS_SSE2
-    return simd_backend::sse2;
-#elif BITCAL_HAS_NEON
-    return simd_backend::neon;
-#else
-    return simd_backend::scalar;
-#endif
-}
-```
-
----
-
-## 性能特性
-
-| 位宽 | 典型后端 | 说明 |
-|------|----------|------|
-| 64 位 | Scalar | 单字快速路径 |
-| 128 位 | SSE2 / NEON / AVX-512 VL | 原生 128 位向量宽度 |
-| 256 位 | AVX2 / AVX-512 VL | 常见高吞吐路径 |
-| 512 位 | AVX-512 或循环 AVX2 | 更大固定宽度工作负载 |
-| 1024 位 | 循环选定后端 | 吞吐随字数扩展 |
-
----
-
-## 线程安全
-
-### 无需额外同步即可安全
-
-- 不同线程操作不同 `bitarray` 实例
-- 对共享 `bitarray` 的只读访问
-
-### 需要外部同步
-
-- 并发修改同一个 `bitarray`
-- 对同一实例进行读写混用
+先用白皮书理解模型，再进入指南与参考页落地使用方式。

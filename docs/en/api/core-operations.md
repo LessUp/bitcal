@@ -1,108 +1,99 @@
 # Core Operations
 
-Reference for the retained BitCal 3.0 core bitwise surface.
+This page documents the retained vNext core algorithm surface.
 
-> **BitCal 3.0 migration:** all public core operations are expressed through `bitarray` operators and member functions. The removed `bitcal::ops` namespace is no longer part of the supported public API.
+## Public glossary
 
-## Bitwise Operations
+| Term | Meaning |
+| --- | --- |
+| Owning block | `bit_block<Bits>` returned or mutated by an algorithm |
+| Non-owning view | `bit_view` / `const_bit_view` passed into an algorithm |
+| Free algorithm | a namespace-level function such as `bit_and<Bits>()` |
+| Backend boundary | the internal execution layer behind those algorithms |
 
-All bitwise operations dispatch to the backend chosen for the `bitarray` specialization.
-
-### AND
-
-```cpp
-bitarray operator&(const bitarray& other) const noexcept;
-bitarray& operator&=(const bitarray& other) noexcept;
-```
-
-### OR
+## `and_into()`
 
 ```cpp
-bitarray operator|(const bitarray& other) const noexcept;
-bitarray& operator|=(const bitarray& other) noexcept;
+void and_into(const const_bit_view lhs, const const_bit_view rhs, bit_view out) noexcept;
 ```
 
-### XOR
+### Use it when
+
+- you already have an output block or external buffer
+- you want to avoid allocating a new owning result
+
+### Behavior
+
+- requires matching word counts for `lhs`, `rhs`, and `out`
+- writes the bitwise AND result into `out`
+- crosses the backend boundary to the current implementation path
+
+## `bit_and<Bits>()`
 
 ```cpp
-bitarray operator^(const bitarray& other) const noexcept;
-bitarray& operator^=(const bitarray& other) noexcept;
+template <std::size_t Bits>
+[[nodiscard]] bit_block<Bits> bit_and(const const_bit_view lhs, const const_bit_view rhs) noexcept;
 ```
 
-### NOT
+### Use it when
+
+- you want a new owning result block
+- the result width is known at compile time
+
+### Behavior
+
+- requires both input views to match `bit_block<Bits>::word_count`
+- internally reuses `and_into()` with a newly created owning block
+
+## `is_zero()`
 
 ```cpp
-bitarray operator~() const noexcept;
+[[nodiscard]] constexpr bool is_zero(const const_bit_view value) noexcept;
 ```
 
-Bitwise inversion of every bit.
+Returns `true` when every word in the view is zero.
 
-### ANDNOT
+## `popcount()`
 
 ```cpp
-bitarray andnot(const bitarray& mask) const noexcept;
+[[nodiscard]] constexpr std::uint64_t popcount(const const_bit_view value) noexcept;
 ```
 
-Computes `*this & ~mask` using the selected backend implementation.
+Returns the total number of set bits across the entire view.
 
-## Comparison
+## Composition example
 
 ```cpp
-bool operator==(const bitarray& other) const noexcept;
-bool operator!=(const bitarray& other) const noexcept;
+bitcal::bit_block<256> lhs;
+bitcal::bit_block<256> rhs;
+bitcal::bit_block<256> scratch;
+
+auto produced = bitcal::bit_and<256>(lhs.view(), rhs.view());
+bitcal::and_into(lhs.view(), rhs.view(), scratch.view());
+
+auto empty = bitcal::is_zero(produced.view());
+auto ones = bitcal::popcount(scratch.view());
 ```
 
-## State Detection
+## Choosing the right shape
 
-### is_zero
+| Need | Prefer |
+| --- | --- |
+| Return a fresh owning result | `bit_and<Bits>()` |
+| Reuse existing writable storage | `and_into()` |
+| Read-only check | `is_zero()` |
+| Read-only counting query | `popcount()` |
 
-```cpp
-bool is_zero() const noexcept;
-```
+## Notes on assertions and safety
 
-Returns `true` when every bit is clear.
+The write-oriented algorithms rely on debug assertions for word-count agreement. That means callers should treat width matching as part of the contract, not as an optional runtime convenience.
 
-### clear
+## Backend boundary reminder
 
-```cpp
-void clear() noexcept;
-```
+These algorithms define the public behavior. The exact SIMD kernel that executes them is intentionally an implementation detail documented in [SIMD Dispatch](../architecture/simd-dispatch.md).
 
-Clears the entire object to zero.
+## Read next
 
-## Complete Example
-
-```cpp
-#include <bitcal/bitcal.hpp>
-#include <iostream>
-
-int main() {
-    bitcal::bit256 a(0xFF00);
-    bitcal::bit256 b(0x0FF0);
-
-    auto and_result = a & b;
-    auto or_result = a | b;
-    auto xor_result = a ^ b;
-    auto not_result = ~a;
-    auto andnot_result = a.andnot(b);
-
-    a &= b;
-    a |= b;
-    a ^= b;
-
-    if (and_result != or_result && !not_result.is_zero()) {
-        std::cout << "core operations succeeded\n";
-    }
-
-    andnot_result.is_zero();
-    a.clear();
-    std::cout << std::boolalpha << a.is_zero() << "\n";
-    return 0;
-}
-```
-
-## Performance Tips
-
-1. Prefer `andnot()` instead of spelling `a & ~b` when the intent matches
-2. Prefer compound assignments when updating an existing object in place
-3. Keep values in `bitarray` form instead of dropping to ad-hoc raw pointer helpers
+- [Types Reference](./types.md)
+- [SIMD Dispatch](../architecture/simd-dispatch.md)
+- [Performance Baseline](../architecture/performance-baseline.md)
