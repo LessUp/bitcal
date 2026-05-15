@@ -47,46 +47,29 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 - `docs/index.html`
 - 作用：文档总览、受众分流、语言入口、主要文档域导航
 
-### 3.3 Getting Started
+### 3.3 Whitepaper IA
 
-- 安装
-- 快速开始
-- 构建/验证方式
+- Home
+- Academy
+- Whitepaper
+- Guides
+- Reference
+- Research
+- Project Status
 
-### 3.4 API Reference
+### 3.4 Canonical Content Boundaries
 
-- 面向仍然保留的公开 API
-- 内容必须与 `openspec/specs/api/`、实现和测试一致
-
-### 3.5 Architecture
-
-- 只保留解释核心 SIMD dispatch、内存布局、平台边界所需的架构文档
+- `Guides` 承担安装、快速开始、构建/验证方式与迁移指引
+- `Reference` 面向仍然保留的公开 API，内容必须与 `openspec/specs/api/`、实现和测试一致
+- `Whitepaper` 与 `Research` 负责 vNext 架构叙事、设计依据与方法论材料
+- `Project Status` 说明支持边界、破坏性变更策略、规范与开发流程入口
 - 历史性或重复性设计说明优先迁出主阅读路径
-
-### 3.6 Project Status
-
-- 明确项目处于“稳定收尾 / 可归档维护”姿态
-- 说明支持边界、破坏性变更策略、规范与开发流程入口
 
 ## 4. 双语策略
 
-### 必须双语
-
-- 仓库入口 README
-- Pages 首页与 docs landing
-- 安装/快速开始
-- 项目状态与维护边界说明
-
-### 优先英文、按需提供中文
-
-- 深度 API 参考
-- 深度架构说明
-- 仅面向维护者的工程细节
-
-### 不再保留的模式
-
-- 为了“看起来完整”而做的全量镜像翻译
-- 中文/英文两套页面长期不同步
+- 本轮 GitHub Pages 主阅读路径按中英文镜像维护
+- 深度技术页面以共享结构和共享图示资产降低重复成本
+- 禁止通过手写 HTML 镜像来维持双语“看起来完整”
 - changelog 在 `docs/` 下继续重复镜像
 
 ## 5. 清理规则
