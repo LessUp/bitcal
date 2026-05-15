@@ -6,7 +6,7 @@
 - [ ] Add the bilingual landing pages and route stubs needed to keep the primary audience-facing structure aligned across English and Chinese
 
 ## Theme Primitives
-- [ ] Introduce reusable theme components and figure tokens for high-value Pages surfaces
+- [x] Introduce reusable theme components and figure tokens for high-value Pages surfaces
 
 ## Content Rewrite
 - [ ] Rewrite the home, academy, whitepaper, research, and project-status entry pages against the frozen contract
