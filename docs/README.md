@@ -42,15 +42,15 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 
 ### 3.1 Home
 
-- 维护源文件：仓库根 `index.html`
-- 对外路由面：`/`
-- 作用：项目定位、亮点、支持边界、进入文档与源码的导航
+- 维护源文件：VitePress 根入口 `docs/index.md`，以及本地化首页 / landing surface `docs/en/index.md`、`docs/zh/index.md`
+- 对外路由面：现有 Pages / VitePress 管线渲染的根入口路由，以及本地化入口 `/en/`、`/zh/`
+- 作用：承载站点首页 / landing layer，提供项目定位、亮点、语言分流、支持边界，以及进入 Academy / Whitepaper / Guides / Reference / Research / Project Status 与源码的导航
 
 ### 3.2 Primary Documentation Entry
 
-- 维护源文件：VitePress 根入口 `docs/index.md`，以及按需承担主要入口职责的本地化首页 `docs/zh/index.md`、`docs/en/index.md`
-- 对外路由面：VitePress 配置 base 下的根入口路由，以及其下的本地化入口 `/zh/`、`/en/`
-- 作用：承担文档总览、受众分流、语言入口与主要文档域导航；除非后续任务明确纳入范围，不要求再单独保留一个独立的 Docs Landing 层
+- 维护源文件：与 3.1 相同，即 `docs/index.md` 与本地化首页 / landing surface `docs/en/index.md`、`docs/zh/index.md`
+- 对外路由面：与 3.1 相同，即现有 Pages / VitePress 管线下的根入口与本地化入口路由
+- 作用：从信息架构角度强调这组 Home surfaces 同时承担 primary documentation entry；除非后续任务明确纳入范围，不要求再单独保留一个独立的 Docs Landing 层
 
 ### 3.3 Primary Pages IA
 
