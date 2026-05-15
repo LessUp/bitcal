@@ -39,6 +39,23 @@ BitCal 当前处于明确的 vNext 重设计阶段，并面向一个允许破坏
 - 文档、规范、代码、benchmark 与版本语义必须一起移动
 - benchmark 可信度优先于过早的平台或性能宣称
 
-## 详细状态页
+## 单一真相入口
 
-这个本地化页面是新的主导航入口。完整的支持与交接细节仍保留在 [/project-status](/project-status) 页面中，可作为详细状态台账查阅。
+- 活动需求：`openspec/`
+- 文档策略：`docs/README.md`
+- 稳定公开 include seam：`<bitcal/bitcal.hpp>`
+- 版本来源：`include/bitcal/config.hpp`
+
+## 当前执行顺序
+
+1. 先在 OpenSpec 中冻结 vNext 契约
+2. 落地可编译的 C++23 公开骨架
+3. 围绕新公开表面重建正确性与 benchmark 可信度
+4. 在重建后的基线上优化 x86-64 内核
+5. 仅在保留验证证据存在后再发布白皮书与指标
+
+## 下一步
+
+- 如果你正从保留的 `bitarray` 时代迁移，请先看[迁移指南](/zh/getting-started/migration)
+- 如需理解目标公开模型，请看 [vNext 白皮书](/zh/architecture/vnext-whitepaper)
+- 如需先建立概念路线，请看[学院](/zh/academy/)

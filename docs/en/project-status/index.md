@@ -39,6 +39,23 @@ Secondary targets must not receive stronger support or performance claims than t
 - docs, specs, code, benchmarks, and version semantics must move together
 - benchmark credibility matters more than premature platform or performance claims
 
-## Detailed status ledger
+## Single sources of truth
 
-This localized page is the primary navigation destination. A retained detailed status ledger remains available at [/project-status](/project-status) for the full support and handoff notes.
+- Active requirements: `openspec/`
+- Documentation policy: `docs/README.md`
+- Stable public include seam: `<bitcal/bitcal.hpp>`
+- Version source: `include/bitcal/config.hpp`
+
+## Current execution order
+
+1. Freeze the vNext contract in OpenSpec
+2. Land a compiling C++23 public skeleton
+3. Rebuild correctness and benchmark truth around the new surface
+4. Optimize x86-64 kernels on top of the rebuilt baseline
+5. Publish whitepaper and metrics only after retained evidence exists
+
+## Next steps
+
+- Use [Migration Guide](/en/getting-started/migration) if you are updating from the retained `bitarray` era
+- Use [vNext Whitepaper](/en/architecture/vnext-whitepaper) for the intended public model
+- Use [Academy](/en/academy/) for the explanatory route into the redesign
