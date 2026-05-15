@@ -30,6 +30,7 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 - 深度内容的 canonical source 应优先收敛到 Markdown
 - 手工维护的 HTML 页面只允许保留在首页/落地页/导航页等确有展示价值的位置
 - 对于同一主题，禁止长期并行维护“手写 Markdown + 手写 HTML”两套内容
+- Mermaid 仍可用于可维护的结构图；但对白皮书等高价值视觉面，优先采用 theme-aware 的 SVG / HTML figure 路径
 
 ### 2.4 渲染与派生
 
@@ -41,12 +42,14 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 
 ### 3.1 Home
 
-- 根 `index.html`
+- 维护源文件：仓库根 `index.html`
+- 对外路由面：`/`
 - 作用：项目定位、亮点、支持边界、进入文档与源码的导航
 
 ### 3.2 Primary Documentation Entry
 
-- `docs/index.html` 对应的 VitePress 根入口，以及按需承担主要入口职责的本地化首页 / landing surface（如 `docs/zh/index.html`、`docs/en/index.html`）
+- 维护源文件：VitePress 根入口 `docs/index.md`，以及按需承担主要入口职责的本地化首页 `docs/zh/index.md`、`docs/en/index.md`
+- 对外路由面：VitePress 配置 base 下的根入口路由，以及其下的本地化入口 `/zh/`、`/en/`
 - 作用：承担文档总览、受众分流、语言入口与主要文档域导航；除非后续任务明确纳入范围，不要求再单独保留一个独立的 Docs Landing 层
 
 ### 3.3 Primary Pages IA
@@ -71,7 +74,7 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 
 ## 4. 双语策略
 
-- 本轮 GitHub Pages 镜像的是主要面向受众的导航结构：Home（含 VitePress 根入口与本地化首页 / landing surfaces 承担的 landing role）/ Academy / Whitepaper / Guides / Reference / Research / Project Status
+- 本轮 GitHub Pages 镜像的是主要面向受众的导航结构：Home（含 `docs/index.md` 与本地化首页所承载的 VitePress 根入口 / 本地化入口路由面）/ Academy / Whitepaper / Guides / Reference / Research / Project Status
 - `Academy` 在中英文两侧都保留 explanatory / primer 层职责；深度技术正文继续留在 `Whitepaper`、`Guides`、`Reference`、`Research` 等对应 section 的 canonical Markdown 中
 - 深度技术正文可通过共享结构和共享图示资产降低重复成本，并可按 bilingual policy 预先声明受控例外
 - 禁止通过手写 HTML 镜像来维持双语“看起来完整”
