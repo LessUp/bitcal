@@ -138,10 +138,11 @@ vNext 明确是 x86-64-first。
 
 ```bash
 cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
-cmake --build build-test --config Release -j"$(nproc)"
+cmake --build build-test --config Release --parallel
 ctest --test-dir build-test --output-on-failure -C Release
-./build-test/benchmarks/bitcal_benchmark
 ```
+
+然后从 `build-test` 构建树中运行生成的 `bitcal_benchmark` 可执行文件；如果使用 multi-config generator，请使用 `Release` 配置对应的输出位置。
 
 ## 下一步阅读
 

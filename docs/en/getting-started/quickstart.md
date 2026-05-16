@@ -94,10 +94,11 @@ If you want more than a one-file sanity check, run the retained vNext validation
 
 ```bash
 cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
-cmake --build build-test --config Release -j"$(nproc)"
+cmake --build build-test --config Release --parallel
 ctest --test-dir build-test --output-on-failure -C Release
-./build-test/benchmarks/bitcal_benchmark
 ```
+
+Then run the generated `bitcal_benchmark` executable from the `build-test` tree. For multi-config generators, use the `Release` output location.
 
 ## Read next
 

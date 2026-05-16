@@ -20,11 +20,11 @@ The repository benchmark executable currently focuses on:
 - `bit_and<128>`
 - `bit_and<256>`
 - `bit_and<512>`
-- printing `default_backend()` alongside the run as a diagnostic label for the compile-time target/config summary
+- when using the fallback non-GBench runner, printing `default_backend()` alongside the run as a diagnostic label for the compile-time target/config summary
 
 Those workloads are intentionally narrow. They verify the current block/view/algorithm story and leave room for future benchmark expansion.
 
-The actual retained write-path benchmark still runs through `bit_and<Bits>()` → `and_into()` → `detail::and_words()` → `detail::x64_dispatch.hpp`. `default_backend()` is only the summary label printed next to that run, not a promise that every step maps 1:1 to the named kernel.
+The actual retained write-path benchmark still runs through `bit_and<Bits>()` → `and_into()` → `detail::and_words()` → `detail::x64_dispatch.hpp`. In the fallback non-GBench path, `default_backend()` is only the summary label printed next to that run, not a promise that every step maps 1:1 to the named kernel.
 
 ## How to reproduce the baseline
 
@@ -52,7 +52,7 @@ A useful baseline record includes:
 - compiler and version
 - CPU / machine name
 - active build flags
-- printed `default_backend()` summary label
+- if present, the printed `default_backend()` summary label
 - ns/op output for each retained workload
 
 That record is meaningful for **same-environment comparison**. It is not enough to support broad marketing claims across every platform.

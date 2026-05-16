@@ -20,11 +20,11 @@
 - `bit_and<128>`
 - `bit_and<256>`
 - `bit_and<512>`
-- 同时打印 `default_backend()`，把它作为编译期目标/配置摘要的诊断标签
+- 在 fallback 的非 GBench 输出里同时打印 `default_backend()`，把它作为编译期目标/配置摘要的诊断标签
 
 这些工作负载是刻意收窄的。它们验证当前 block / view / algorithm 叙事已经打通，同时为后续扩展留下空间。
 
-真正被测的保留写路径仍然是 `bit_and<Bits>()` → `and_into()` → `detail::and_words()` → `detail::x64_dispatch.hpp`。`default_backend()` 只是打印在旁边的摘要标签，不保证每一步都会与这个名字一一对应到同名内核。
+真正被测的保留写路径仍然是 `bit_and<Bits>()` → `and_into()` → `detail::and_words()` → `detail::x64_dispatch.hpp`。在 fallback 的非 GBench 路径里，`default_backend()` 只是打印在旁边的摘要标签，不保证每一步都会与这个名字一一对应到同名内核。
 
 ## 如何复现这条基线
 
@@ -52,7 +52,7 @@ ctest --test-dir build-test --output-on-failure -C Release
 - 编译器及版本
 - CPU / 机器名称
 - 生效的构建标志
-- 打印出来的 `default_backend()` 摘要标签
+- 若输出中存在，则记录打印出来的 `default_backend()` 摘要标签
 - 各保留工作负载的 ns/op 输出
 
 这样的记录只适合做**同环境对比**，不足以支撑脱离上下文的广泛宣传结论。

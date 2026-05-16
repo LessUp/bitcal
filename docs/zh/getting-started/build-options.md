@@ -45,7 +45,7 @@ ctest --test-dir build-generic --output-on-failure -C Release
 ### 安装/导出包构建
 
 ```bash
-cmake -S . -B build-install -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build-install -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HOME/.local"
 cmake --build build-install --config Release --target install --parallel
 ```
 
