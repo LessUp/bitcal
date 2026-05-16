@@ -13,8 +13,8 @@ This section is the BitCal vNext whitepaper landing. The thesis is simple: keep 
 
 - **Owning block:** `bit_block<Bits>` owns fixed-width contiguous `std::uint64_t` storage and exposes `view()` accessors plus `bits` / `word_count` metadata.
 - **Non-owning view:** `bit_view` and `const_bit_view` let BitCal operate on contiguous words without changing ownership.
-- **Persistent algorithm contract:** `bit_and<Bits>()`, `bit_or<Bits>()`, `bit_xor<Bits>()`, `bit_andnot<Bits>()`, `equals()`, `shift_left<Bits>()`, `shift_right<Bits>()`, `is_zero()`, and `popcount()` define the retained vNext API surface.
-- **Current helper surface:** today's headers also expose `and_into()` for in-place AND writes, but helper entry points outside the persistent spec should not be treated as long-term compatibility promises.
+- **Current shipped free algorithms:** `bit_and<Bits>()`, `and_into()`, `is_zero()`, and `popcount()` are the namespace-level algorithms exported today.
+- **Broader redesign note:** names such as `bit_or`, `bit_xor`, `bit_andnot`, `equals`, `shift_left`, and `shift_right` still belong to redesign discussion rather than current shipped free-function docs.
 - **Backend boundary:** callers include `<bitcal/bitcal.hpp>` and use the public types plus `backend_kind`; backend selection and ISA-specific kernels stay behind internal implementation headers.
 
 ## What changed in vNext
@@ -34,14 +34,13 @@ BitCal now documents one mental model from top to bottom:
 ├── bit_block<Bits>                              owning storage
 ├── bit_view / const_bit_view                    borrowed word access
 ├── backend_kind                                 documented backend vocabulary
-├── bit_and<Bits>() / bit_or<Bits>()             returning bitwise algorithms
-├── bit_xor<Bits>() / bit_andnot<Bits>()         returning bitwise algorithms
-├── equals() / is_zero() / popcount()            comparison and query algorithms
-├── shift_left<Bits>() / shift_right<Bits>()     returning shift algorithms
-└── current shipped helper: and_into()           implementation helper, not persistent spec
+├── bit_and<Bits>()                              returning AND results
+├── and_into()                                   reusing writable storage for AND
+├── is_zero() / popcount()                       query algorithms
+└── redesign-only free-function names            not documented as shipped surface
 ```
 
-The persistent compatibility contract is the one described in `openspec/specs/api/bitcal-public-api.md`. Current implementation helpers may exist in headers, but docs should not present them as retained public promises unless OpenSpec adds them to that contract.
+The redesign still aims at a broader block/view/algorithm story, but these docs describe only the free-function names that the public umbrella header exports today.
 
 ## Validation posture
 

@@ -41,7 +41,7 @@ auto first = readable.word(0);
 
 ### Free algorithms
 
-The persistent vNext API contract centers on free functions over views and blocks.
+The redesign direction centers on free functions over views and blocks, but the shipped namespace-level algorithm set is still intentionally narrow today.
 
 ```cpp
 bitcal::bit_block<256> lhs;
@@ -49,27 +49,26 @@ bitcal::bit_block<256> rhs;
 const auto& lhs_const = lhs;
 const auto& rhs_const = rhs;
 
-auto joined = bitcal::bit_or<256>(lhs_const.view(), rhs_const.view());
-auto diff = bitcal::bit_xor<256>(lhs_const.view(), rhs_const.view());
-auto masked = bitcal::bit_andnot<256>(lhs_const.view(), rhs_const.view());
-auto same = bitcal::equals(lhs_const.view(), rhs_const.view());
-const auto& joined_const = joined;
-const auto& masked_const = masked;
+auto produced = bitcal::bit_and<256>(lhs_const.view(), rhs_const.view());
+bitcal::bit_block<256> scratch;
+bitcal::and_into(lhs_const.view(), rhs_const.view(), scratch.view());
 
-auto shifted = bitcal::shift_left<256>(joined_const.view(), 8);
-const auto& shifted_const = shifted;
-auto empty = bitcal::is_zero(masked_const.view());
-auto ones = bitcal::popcount(shifted_const.view());
+const auto& produced_const = produced;
+const auto& scratch_const = scratch;
+
+auto empty = bitcal::is_zero(produced_const.view());
+auto ones = bitcal::popcount(scratch_const.view());
 ```
 
-The retained persistent contract includes:
+The current shipped free-function surface includes:
 
-- `bit_and<Bits>()`, `bit_or<Bits>()`, `bit_xor<Bits>()`, `bit_andnot<Bits>()`
-- `equals()`, `is_zero()`, `popcount()`
-- `shift_left<Bits>()`, `shift_right<Bits>()`
+- `bit_and<Bits>()`
+- `and_into()`
+- `is_zero()`
+- `popcount()`
 - `backend_kind` as the documented backend vocabulary
 
-Current headers also expose `and_into()` as a write helper, but helper APIs outside `openspec/specs/api/bitcal-public-api.md` are not part of the long-term compatibility promise.
+Broader redesign names such as `bit_or`, `bit_xor`, `bit_andnot`, `equals`, `shift_left`, and `shift_right` are not exported today as namespace-level free algorithms, so the docs do not present them as currently usable public surface.
 
 This keeps the contract centered on observable behavior instead of on a large type with an ever-growing member surface.
 

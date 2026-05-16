@@ -18,7 +18,7 @@
 | Linux x86-64 | **主要验证路径** | GCC/Clang 构建、编译期后端选择、保留的正确性与基准验证路径 |
 | Windows x86-64 | **主要验证目标** | MSVC CI 会以原生 build/test 路径验证同一公开模型；需要 AVX2 开发目标时使用 `/arch:AVX2` |
 | macOS ARM64 | **次要验证路径** | Apple Clang CI 会在 Apple Silicon runner 上验证公开模型；这是保留的集成覆盖，不是 x86-64 优化中心 |
-| Linux ARM64 | **保留的次级 build/test 路径** | 保留支持矩阵仍将 ARM64 视为次级验证目标；当前 CI 通过 ARM64 交叉编译构建来落实这一姿态，但它不是保留的 benchmark 可信路径 |
+| Linux ARM64 | **保留的次级 build-only 路径** | 保留支持矩阵仅通过 ARM64 交叉编译构建覆盖来维持可见性；它不是保留的原生测试或 benchmark 可信路径 |
 | 非 x86 目标 | **仅保留可移植下限** | 公开模型仍可能通过标量路径构建，但这些目标不定义 BitCal 的优化契约 |
 
 ## 后端边界在实践中的含义

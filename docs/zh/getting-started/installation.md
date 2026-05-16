@@ -39,15 +39,23 @@ target_link_libraries(my_app PRIVATE bitcal)
 ### 3. 安装后使用导出的包
 
 ```bash
-cmake -S . -B build-install -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build-install -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HOME/.local"
 cmake --build build-install --target install
 ```
+
+用用户本地前缀可以避免权限混淆，也能把导出包放在当前用户可写的路径下。
 
 然后在你自己的项目里：
 
 ```cmake
 find_package(bitcal CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE bitcal::bitcal)
+```
+
+如果你安装到了 `$HOME/.local`，配置消费项目时记得把这个前缀加入 CMake 搜索路径：
+
+```bash
+cmake -S . -B build -DCMAKE_PREFIX_PATH="$HOME/.local"
 ```
 
 ## 编译器建议

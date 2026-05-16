@@ -39,15 +39,23 @@ The `bitcal` target is an `INTERFACE` library. It supplies include directories a
 ### 3. Install and consume the exported package
 
 ```bash
-cmake -S . -B build-install -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build-install -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HOME/.local"
 cmake --build build-install --target install
 ```
+
+Using a user-local prefix avoids permission confusion and keeps the export under a writable path.
 
 Then in your own project:
 
 ```cmake
 find_package(bitcal CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE bitcal::bitcal)
+```
+
+If you installed to `$HOME/.local`, point CMake at that prefix when configuring your consumer project:
+
+```bash
+cmake -S . -B build -DCMAKE_PREFIX_PATH="$HOME/.local"
 ```
 
 ## Compiler guidance

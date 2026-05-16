@@ -18,7 +18,7 @@ This page defines the retained support boundary for BitCal vNext.
 | Linux x86-64 | **Primary validated path** | GCC or Clang builds, compile-time backend selection, retained correctness and benchmark path |
 | Windows x86-64 | **Primary validation target** | MSVC CI runs the same public model as a native build/test path; `/arch:AVX2` enables AVX2-oriented development targets |
 | macOS ARM64 | **Secondary validated path** | Apple Clang CI validates the public model on Apple Silicon runners; this is retained integration coverage, not the x86-64 optimization center |
-| Linux ARM64 | **Retained secondary build/test path** | The retained support matrix keeps ARM64 as a secondary validation target; current CI enforces that posture with an ARM64 cross-compile build, but it is not the retained benchmark truth path |
+| Linux ARM64 | **Retained secondary build-only path** | The retained support matrix keeps ARM64 visible through cross-compile build coverage; it is not a retained native test or benchmark truth path |
 | Non-x86 targets | **Portable floor only** | Public model may still build through scalar code paths, but these targets do not define BitCal's optimization contract |
 
 ## Backend boundary in practice

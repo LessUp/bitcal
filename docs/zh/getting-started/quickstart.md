@@ -1,6 +1,6 @@
 # 快速开始
 
-本页用一个小程序展示 vNext 的心智模型：**用 block 持有数据，用 view 借用数据，用自由算法计算结果**。
+本页用一个小程序展示当前已发货的心智模型：**用 block 持有数据，用 view 借用数据，用今天真实存在的自由算法计算结果**。
 
 ## 示例程序
 
@@ -36,11 +36,8 @@ int main() {
 
     std::cout << "word0 = 0x" << std::hex << produced_const.view().word(0) << '\n';
     std::cout << "word2 = 0x" << std::hex << produced_const.view().word(2) << '\n';
-    std::cout << "popcount = " << std::dec << bitcal::popcount(produced_const.view()) << '\n';
-    std::cout << "scratch equals produced? "
-              << std::boolalpha
-              << bitcal::equals(scratch_const.view(), produced_const.view())
-              << '\n';
+    std::cout << "scratch popcount = " << std::dec << bitcal::popcount(scratch_const.view()) << '\n';
+    std::cout << "produced is zero? " << std::boolalpha << bitcal::is_zero(produced_const.view()) << '\n';
 }
 ```
 
@@ -49,8 +46,8 @@ int main() {
 ```text
 word0 = 0x5
 word2 = 0xc0
-popcount = 4
-scratch equals produced? true
+scratch popcount = 4
+produced is zero? false
 ```
 
 ## 编译运行
@@ -72,25 +69,24 @@ g++ -std=c++23 -O3 -march=native quickstart.cpp -I/path/to/bitcal/include -o qui
 
 `view()` 会把 owning block 转成轻量借用句柄。持久 API 契约承诺这些 view 具备 `data()`、`word_count()` 与 `word(index)`。
 
-### 3. 使用持久契约中的算法族
+### 3. 使用当前已发货的算法族
 
-- `bit_and<Bits>()`、`bit_or<Bits>()`、`bit_xor<Bits>()`、`bit_andnot<Bits>()` 返回新的 owning result
-- `shift_left<Bits>()` 与 `shift_right<Bits>()` 返回移位后的 owning result
-- `equals()`、`is_zero()`、`popcount()` 回答基于 view 的只读问题
-- 当前头文件还暴露了写入辅助函数 `and_into()`，但它不属于持久 API spec
+- `bit_and<Bits>()` 返回新的 AND owning result
+- `and_into()` 复用已有可写存储来写入同样的 AND 结果
+- `is_zero()` 与 `popcount()` 回答基于 view 的只读问题
+- `bit_or`、`bit_xor`、`bit_andnot`、`equals`、`shift_left`、`shift_right` 这些更宽的 redesign 名称并不是当前头文件中的自由算法
 
 ## 什么时候用哪种算法
 
 | 需求 | 选择 |
 | --- | --- |
-| 产生新的按位结果 | `bit_and<Bits>()`、`bit_or<Bits>()`、`bit_xor<Bits>()`、`bit_andnot<Bits>()` |
-| 产生移位后的 owning result | `shift_left<Bits>()`、`shift_right<Bits>()` |
-| 只读查询数据 | `equals()`、`is_zero()`、`popcount()` |
-| 在当前头文件里复用可写存储 | `and_into()` helper |
+| 产生新的 AND 结果 | `bit_and<Bits>()` |
+| 复用可写存储写入 AND | `and_into()` |
+| 只读查询数据 | `is_zero()`、`popcount()` |
 
-## 与 spec 对齐的提醒
+## 表面提醒
 
-持久 API spec 并不承诺 `from_words(...)`、`copy_words_to(...)`、`bit_block::word(...)` 这类辅助接口。优先采用 API 参考页里定义的 block / view / algorithm 模型。
+本页刻意只使用今天已经发货的符号。如果 redesign 材料提到更宽的自由函数家族，请把它理解为前瞻性的架构讨论，而不是当前 quickstart 代码可以直接依赖的表面。
 
 ## 按仓库基线继续验证
 

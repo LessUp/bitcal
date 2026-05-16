@@ -41,7 +41,7 @@ auto first = readable.word(0);
 
 ### 自由算法
 
-持久 vNext API 契约的中心是作用于 view 与 block 的自由函数。
+redesign 的方向确实是让自由函数成为作用于 view 与 block 的中心，但今天已发货的命名空间级算法集合仍然刻意保持得很窄。
 
 ```cpp
 bitcal::bit_block<256> lhs;
@@ -49,27 +49,26 @@ bitcal::bit_block<256> rhs;
 const auto& lhs_const = lhs;
 const auto& rhs_const = rhs;
 
-auto joined = bitcal::bit_or<256>(lhs_const.view(), rhs_const.view());
-auto diff = bitcal::bit_xor<256>(lhs_const.view(), rhs_const.view());
-auto masked = bitcal::bit_andnot<256>(lhs_const.view(), rhs_const.view());
-auto same = bitcal::equals(lhs_const.view(), rhs_const.view());
-const auto& joined_const = joined;
-const auto& masked_const = masked;
+auto produced = bitcal::bit_and<256>(lhs_const.view(), rhs_const.view());
+bitcal::bit_block<256> scratch;
+bitcal::and_into(lhs_const.view(), rhs_const.view(), scratch.view());
 
-auto shifted = bitcal::shift_left<256>(joined_const.view(), 8);
-const auto& shifted_const = shifted;
-auto empty = bitcal::is_zero(masked_const.view());
-auto ones = bitcal::popcount(shifted_const.view());
+const auto& produced_const = produced;
+const auto& scratch_const = scratch;
+
+auto empty = bitcal::is_zero(produced_const.view());
+auto ones = bitcal::popcount(scratch_const.view());
 ```
 
-当前保留的持久契约包括：
+当前已发货的自由函数表面包括：
 
-- `bit_and<Bits>()`、`bit_or<Bits>()`、`bit_xor<Bits>()`、`bit_andnot<Bits>()`
-- `equals()`、`is_zero()`、`popcount()`
-- `shift_left<Bits>()`、`shift_right<Bits>()`
+- `bit_and<Bits>()`
+- `and_into()`
+- `is_zero()`
+- `popcount()`
 - 作为公开后端词汇表的 `backend_kind`
 
-当前头文件还暴露了写入辅助函数 `and_into()`，但凡是不在 `openspec/specs/api/bitcal-public-api.md` 里的 helper，都不属于长期兼容承诺。
+`bit_or`、`bit_xor`、`bit_andnot`、`equals`、`shift_left`、`shift_right` 这些更宽的 redesign 名称今天并没有作为命名空间级自由算法导出，因此文档不会把它们写成当前可直接使用的公开表面。
 
 这样做可以让契约围绕“可观察行为”展开，而不是围绕一个不断膨胀的成员型对象展开。
 

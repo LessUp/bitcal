@@ -1,6 +1,6 @@
 # Quick Start
 
-This guide shows the vNext mental model in one small program: **own with a block, borrow with views, compute with free algorithms**.
+This guide shows the current shipped mental model in one small program: **own with a block, borrow with views, compute with the free algorithms that exist today**.
 
 ## Example program
 
@@ -36,11 +36,8 @@ int main() {
 
     std::cout << "word0 = 0x" << std::hex << produced_const.view().word(0) << '\n';
     std::cout << "word2 = 0x" << std::hex << produced_const.view().word(2) << '\n';
-    std::cout << "popcount = " << std::dec << bitcal::popcount(produced_const.view()) << '\n';
-    std::cout << "scratch equals produced? "
-              << std::boolalpha
-              << bitcal::equals(scratch_const.view(), produced_const.view())
-              << '\n';
+    std::cout << "scratch popcount = " << std::dec << bitcal::popcount(scratch_const.view()) << '\n';
+    std::cout << "produced is zero? " << std::boolalpha << bitcal::is_zero(produced_const.view()) << '\n';
 }
 ```
 
@@ -49,8 +46,8 @@ Expected output:
 ```text
 word0 = 0x5
 word2 = 0xc0
-popcount = 4
-scratch equals produced? true
+scratch popcount = 4
+produced is zero? false
 ```
 
 ## Build it
@@ -72,25 +69,24 @@ On MSVC, use `/std:c++23 /O2 /arch:AVX2` instead of the GCC/Clang flags when you
 
 `view()` turns an owning block into a lightweight borrowed handle. The persistent API contract promises `data()`, `word_count()`, and `word(index)` on those views.
 
-### 3. Use the persistent algorithm families
+### 3. Use the shipped algorithm families
 
-- `bit_and<Bits>()`, `bit_or<Bits>()`, `bit_xor<Bits>()`, and `bit_andnot<Bits>()` return fresh owning results
-- `shift_left<Bits>()` and `shift_right<Bits>()` return shifted owning results
-- `equals()`, `is_zero()`, and `popcount()` answer read-only questions over views
-- current headers also expose `and_into()` as a write helper, but it is not part of the persistent API spec
+- `bit_and<Bits>()` returns a fresh owning AND result
+- `and_into()` reuses writable storage for the same AND write
+- `is_zero()` and `popcount()` answer read-only questions over views
+- broader redesign names such as `bit_or`, `bit_xor`, `bit_andnot`, `equals`, `shift_left`, and `shift_right` are not current free algorithms in the shipped headers
 
 ## When to use each algorithm style
 
 | Need | Use |
 | --- | --- |
-| Produce a new bitwise result | `bit_and<Bits>()`, `bit_or<Bits>()`, `bit_xor<Bits>()`, `bit_andnot<Bits>()` |
-| Produce a shifted owning result | `shift_left<Bits>()`, `shift_right<Bits>()` |
-| Inspect data without mutation | `equals()`, `is_zero()`, `popcount()` |
-| Reuse writable storage available in current headers | `and_into()` helper |
+| Produce a new AND result | `bit_and<Bits>()` |
+| Reuse writable storage for AND | `and_into()` |
+| Inspect data without mutation | `is_zero()`, `popcount()` |
 
-## Spec-safety reminder
+## Surface reminder
 
-The persistent API spec does not promise helper APIs such as `from_words(...)`, `copy_words_to(...)`, or `bit_block::word(...)`. Prefer the block/view/algorithm model documented in the API reference.
+This page intentionally stays within symbols that ship today. If redesign materials mention a broader free-function family, treat that as forward-looking architecture discussion rather than current quickstart code.
 
 ## Verify against the repository baseline
 
