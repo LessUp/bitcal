@@ -9,7 +9,7 @@ The retained benchmark surface is a **reproducible checkpoint**, not a permanent
 It exists to answer four questions:
 
 1. does the benchmark target still build on the vNext public model?
-2. which backend did this build select?
+2. which compile-target/config summary label did this build report?
 3. how do current runs compare on the same machine after a change?
 4. did an optimization attempt improve or regress the retained workloads?
 
@@ -24,24 +24,26 @@ The repository benchmark executable currently focuses on:
 
 Those workloads are intentionally narrow. They verify the current block/view/algorithm story and leave room for future benchmark expansion.
 
-The actual retained write-path benchmark still runs through `bit_and<Bits>()` → `and_into()` → `detail::and_words()` → `detail::x64_dispatch.hpp`. `default_backend()` is only the summary printed next to that run.
+The actual retained write-path benchmark still runs through `bit_and<Bits>()` → `and_into()` → `detail::and_words()` → `detail::x64_dispatch.hpp`. `default_backend()` is only the summary label printed next to that run, not a promise that every step maps 1:1 to the named kernel.
 
 ## How to reproduce the baseline
 
 ```bash
 cmake -S . -B build-bench -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=OFF -DBITCAL_BUILD_EXAMPLES=OFF -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
-cmake --build build-bench --target bitcal_benchmark -j"$(nproc)"
-./build-bench/benchmarks/bitcal_benchmark
+cmake --build build-bench --config Release --target bitcal_benchmark --parallel
 ```
+
+Then run the generated `bitcal_benchmark` executable from the `build-bench` tree. For multi-config generators, use the `Release` output location.
 
 If you want the full development validation path instead of a benchmark-only run, use:
 
 ```bash
 cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
-cmake --build build-test --config Release -j"$(nproc)"
+cmake --build build-test --config Release --parallel
 ctest --test-dir build-test --output-on-failure -C Release
-./build-test/benchmarks/bitcal_benchmark
 ```
+
+Then run the generated `bitcal_benchmark` executable from the `build-test` tree. For multi-config generators, use the `Release` output location.
 
 ## How to interpret a result
 
@@ -50,7 +52,7 @@ A useful baseline record includes:
 - compiler and version
 - CPU / machine name
 - active build flags
-- printed `default_backend()`
+- printed `default_backend()` summary label
 - ns/op output for each retained workload
 
 That record is meaningful for **same-environment comparison**. It is not enough to support broad marketing claims across every platform.

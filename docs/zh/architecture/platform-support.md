@@ -41,7 +41,7 @@ enum class backend_kind {
 };
 ```
 
-`default_backend()` 会根据当前编译目标标志在编译期选定。就今天而言，非 x86 构建会落到 `scalar`。
+`default_backend()` 反映的是当前编译目标/配置所对应的后端标签。就今天而言，非 x86 构建会显示为 `scalar`；应把它理解成构建摘要，而不是每一次调用都必然精确映射到同名运行时内核路径的保证。
 
 对于当前保留的写路径，真正的算法流是 `bit_and<Bits>()` / `and_into()` → `detail::and_words()` → `detail::x64_dispatch.hpp`，而是否编译进 x86-64 AVX2 循环由构建目标决定。`default_backend()` 更适合被理解成这套构建状态的诊断摘要。
 
@@ -68,7 +68,8 @@ BitCal vNext 目前**不**承诺：
 
 ```bash
 cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
-cmake --build build-test --config Release -j"$(nproc)"
+cmake --build build-test --config Release --parallel
 ctest --test-dir build-test --output-on-failure -C Release
-./build-test/benchmarks/bitcal_benchmark
 ```
+
+然后从 `build-test` 构建树中运行生成的 `bitcal_benchmark` 可执行文件；如果使用 multi-config generator，请使用 `Release` 配置对应的输出位置。

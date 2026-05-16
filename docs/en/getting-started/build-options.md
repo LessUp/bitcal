@@ -28,16 +28,17 @@ It does **not** force `-march=native`, `/arch:AVX2`, or similar CPU-specific fla
 
 ```bash
 cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
-cmake --build build-test --config Release -j"$(nproc)"
+cmake --build build-test --config Release --parallel
 ctest --test-dir build-test --output-on-failure -C Release
-./build-test/benchmarks/bitcal_benchmark
 ```
+
+Then run the generated `bitcal_benchmark` executable from the `build-test` tree. For multi-config generators, use the `Release` output location.
 
 ### More portable correctness pass
 
 ```bash
 cmake -S . -B build-generic -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=OFF -DBITCAL_BUILD_BENCHMARKS=OFF -DBITCAL_NATIVE_ARCH=OFF
-cmake --build build-generic --config Release -j"$(nproc)"
+cmake --build build-generic --config Release --parallel
 ctest --test-dir build-generic --output-on-failure -C Release
 ```
 
@@ -45,7 +46,7 @@ ctest --test-dir build-generic --output-on-failure -C Release
 
 ```bash
 cmake -S . -B build-install -DCMAKE_BUILD_TYPE=Release
-cmake --build build-install --target install
+cmake --build build-install --config Release --target install --parallel
 ```
 
 ## Compiler flag guidance

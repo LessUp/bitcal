@@ -28,16 +28,17 @@
 
 ```bash
 cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
-cmake --build build-test --config Release -j"$(nproc)"
+cmake --build build-test --config Release --parallel
 ctest --test-dir build-test --output-on-failure -C Release
-./build-test/benchmarks/bitcal_benchmark
 ```
+
+然后从 `build-test` 构建树中运行生成的 `bitcal_benchmark` 可执行文件；如果使用 multi-config generator，请使用 `Release` 配置对应的输出位置。
 
 ### 更保守的可移植正确性验证
 
 ```bash
 cmake -S . -B build-generic -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=OFF -DBITCAL_BUILD_BENCHMARKS=OFF -DBITCAL_NATIVE_ARCH=OFF
-cmake --build build-generic --config Release -j"$(nproc)"
+cmake --build build-generic --config Release --parallel
 ctest --test-dir build-generic --output-on-failure -C Release
 ```
 
@@ -45,7 +46,7 @@ ctest --test-dir build-generic --output-on-failure -C Release
 
 ```bash
 cmake -S . -B build-install -DCMAKE_BUILD_TYPE=Release
-cmake --build build-install --target install
+cmake --build build-install --config Release --target install --parallel
 ```
 
 ## 编译器标志建议

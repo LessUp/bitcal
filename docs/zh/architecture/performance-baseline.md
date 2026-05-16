@@ -9,7 +9,7 @@
 它主要回答四个问题：
 
 1. benchmark 目标是否仍能在 vNext 公开模型上构建？
-2. 这次构建最终选择了哪个后端？
+2. 这次构建报告了哪个编译目标/配置摘要标签？
 3. 同一台机器上的后续改动是提升了还是退化了？
 4. 当前保留的工作负载是否被优化尝试真正改善？
 
@@ -24,24 +24,26 @@
 
 这些工作负载是刻意收窄的。它们验证当前 block / view / algorithm 叙事已经打通，同时为后续扩展留下空间。
 
-真正被测的保留写路径仍然是 `bit_and<Bits>()` → `and_into()` → `detail::and_words()` → `detail::x64_dispatch.hpp`。`default_backend()` 只是打印在旁边的摘要信息。
+真正被测的保留写路径仍然是 `bit_and<Bits>()` → `and_into()` → `detail::and_words()` → `detail::x64_dispatch.hpp`。`default_backend()` 只是打印在旁边的摘要标签，不保证每一步都会与这个名字一一对应到同名内核。
 
 ## 如何复现这条基线
 
 ```bash
 cmake -S . -B build-bench -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=OFF -DBITCAL_BUILD_EXAMPLES=OFF -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
-cmake --build build-bench --target bitcal_benchmark -j"$(nproc)"
-./build-bench/benchmarks/bitcal_benchmark
+cmake --build build-bench --config Release --target bitcal_benchmark --parallel
 ```
+
+然后从 `build-bench` 构建树中运行生成的 `bitcal_benchmark` 可执行文件；如果使用 multi-config generator，请使用 `Release` 配置对应的输出位置。
 
 如果你需要完整开发验证路径，而不是只跑 benchmark，请使用：
 
 ```bash
 cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
-cmake --build build-test --config Release -j"$(nproc)"
+cmake --build build-test --config Release --parallel
 ctest --test-dir build-test --output-on-failure -C Release
-./build-test/benchmarks/bitcal_benchmark
 ```
+
+然后从 `build-test` 构建树中运行生成的 `bitcal_benchmark` 可执行文件；如果使用 multi-config generator，请使用 `Release` 配置对应的输出位置。
 
 ## 如何解读一次结果
 
@@ -50,7 +52,7 @@ ctest --test-dir build-test --output-on-failure -C Release
 - 编译器及版本
 - CPU / 机器名称
 - 生效的构建标志
-- 打印出来的 `default_backend()`
+- 打印出来的 `default_backend()` 摘要标签
 - 各保留工作负载的 ns/op 输出
 
 这样的记录只适合做**同环境对比**，不足以支撑脱离上下文的广泛宣传结论。

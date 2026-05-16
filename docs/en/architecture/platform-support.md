@@ -41,7 +41,7 @@ enum class backend_kind {
 };
 ```
 
-`default_backend()` is selected at compile time from the active compiler target flags. On non-x86 builds today, that means `scalar`.
+`default_backend()` reports the backend label implied by the active compile target/config. On non-x86 builds today, that label is `scalar`; treat it as a build summary, not as a guarantee of the exact runtime kernel path for every call.
 
 For the retained write path, the actual algorithm flow is `bit_and<Bits>()` / `and_into()` → `detail::and_words()` → `detail::x64_dispatch.hpp`, with the build target deciding whether the x86-64 AVX2 loop is compiled in. `default_backend()` is best read as a diagnostic summary of that build state.
 
@@ -68,7 +68,8 @@ BitCal vNext does not currently promise:
 
 ```bash
 cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
-cmake --build build-test --config Release -j"$(nproc)"
+cmake --build build-test --config Release --parallel
 ctest --test-dir build-test --output-on-failure -C Release
-./build-test/benchmarks/bitcal_benchmark
 ```
+
+Then run the generated `bitcal_benchmark` executable from the `build-test` tree. For multi-config generators, use the `Release` output location.

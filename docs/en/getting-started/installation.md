@@ -39,11 +39,11 @@ The `bitcal` target is an `INTERFACE` library. It supplies include directories a
 ### 3. Install and consume the exported package
 
 ```bash
-cmake -S . -B build-install -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HOME/.local"
-cmake --build build-install --target install
+cmake -S . -B build-install -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/path/to/install-prefix
+cmake --build build-install --config Release --target install --parallel
 ```
 
-Using a user-local prefix avoids permission confusion and keeps the export under a writable path.
+Choose any writable install prefix that matches your environment.
 
 Then in your own project:
 
@@ -52,10 +52,10 @@ find_package(bitcal CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE bitcal::bitcal)
 ```
 
-If you installed to `$HOME/.local`, point CMake at that prefix when configuring your consumer project:
+If you installed to a custom prefix, point CMake at that prefix when configuring your consumer project:
 
 ```bash
-cmake -S . -B build -DCMAKE_PREFIX_PATH="$HOME/.local"
+cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/install-prefix
 ```
 
 ## Compiler guidance
@@ -72,10 +72,11 @@ When you need to verify the retained repository baseline instead of only consumi
 
 ```bash
 cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
-cmake --build build-test --config Release -j"$(nproc)"
+cmake --build build-test --config Release --parallel
 ctest --test-dir build-test --output-on-failure -C Release
-./build-test/benchmarks/bitcal_benchmark
 ```
+
+Then run the generated `bitcal_benchmark` executable from the `build-test` tree. For multi-config generators, use the `Release` output location.
 
 This path validates the public include, the retained smoke tests, and the current benchmark baseline from one build directory.
 

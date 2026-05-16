@@ -39,11 +39,11 @@ target_link_libraries(my_app PRIVATE bitcal)
 ### 3. 安装后使用导出的包
 
 ```bash
-cmake -S . -B build-install -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$HOME/.local"
-cmake --build build-install --target install
+cmake -S . -B build-install -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/path/to/install-prefix
+cmake --build build-install --config Release --target install --parallel
 ```
 
-用用户本地前缀可以避免权限混淆，也能把导出包放在当前用户可写的路径下。
+请根据你的环境选择一个可写的安装前缀。
 
 然后在你自己的项目里：
 
@@ -52,10 +52,10 @@ find_package(bitcal CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE bitcal::bitcal)
 ```
 
-如果你安装到了 `$HOME/.local`，配置消费项目时记得把这个前缀加入 CMake 搜索路径：
+如果你安装到了自定义前缀，配置消费项目时记得把这个前缀加入 CMake 搜索路径：
 
 ```bash
-cmake -S . -B build -DCMAKE_PREFIX_PATH="$HOME/.local"
+cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/install-prefix
 ```
 
 ## 编译器建议
@@ -72,10 +72,11 @@ cmake -S . -B build -DCMAKE_PREFIX_PATH="$HOME/.local"
 
 ```bash
 cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
-cmake --build build-test --config Release -j"$(nproc)"
+cmake --build build-test --config Release --parallel
 ctest --test-dir build-test --output-on-failure -C Release
-./build-test/benchmarks/bitcal_benchmark
 ```
+
+然后从 `build-test` 构建树中运行生成的 `bitcal_benchmark` 可执行文件；如果使用 multi-config generator，请使用 `Release` 配置对应的输出位置。
 
 这条路径会在同一个构建目录中同时验证公开 include、保留的 smoke tests，以及当前 benchmark 基线。
 
