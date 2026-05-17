@@ -1,0 +1,83 @@
+/* ═══════════════════════════════════════════════════════════
+   BitCal Design Tokens - 3 Layer System
+   ═══════════════════════════════════════════════════════════ */
+
+/* ═══ Layer 1: 原始色板 ═══ */
+:root {
+  /* Blue */
+  --bc-blue-400: #60a5fa;
+  --bc-blue-500: #3b82f6;
+  --bc-blue-600: #2563eb;
+
+  /* Amber */
+  --bc-amber-400: #fbbf24;
+  --bc-amber-500: #f59e0b;
+
+  /* Emerald */
+  --bc-emerald-400: #34d399;
+  --bc-emerald-500: #10b981;
+
+  /* Red */
+  --bc-red-400: #f87171;
+  --bc-red-500: #ef4444;
+
+  /* Slate */
+  --bc-slate-50: #f8fafc;
+  --bc-slate-100: #f1f5f9;
+  --bc-slate-200: #e2e8f0;
+  --bc-slate-300: #cbd5e1;
+  --bc-slate-400: #94a3b8;
+  --bc-slate-500: #64748b;
+  --bc-slate-600: #475569;
+  --bc-slate-700: #334155;
+  --bc-slate-800: #1e293b;
+  --bc-slate-900: #0f172a;
+}
+
+/* ═══ Layer 2: 语义映射（浅色模式） ═══ */
+:root {
+  /* Brand */
+  --bc-primary: var(--bc-blue-500);
+  --bc-primary-hover: var(--bc-blue-600);
+  --bc-accent: var(--bc-amber-500);
+  --bc-success: var(--bc-emerald-500);
+  --bc-danger: var(--bc-red-500);
+
+  /* Background */
+  --bc-bg: #ffffff;
+  --bc-bg-elevated: var(--bc-slate-50);
+  --bc-bg-sunken: var(--bc-slate-100);
+
+  /* Text */
+  --bc-text-primary: var(--bc-slate-900);
+  --bc-text-secondary: var(--bc-slate-600);
+  --bc-text-tertiary: var(--bc-slate-400);
+  --bc-text-on-primary: #ffffff;
+
+  /* Border */
+  --bc-border: var(--bc-slate-200);
+  --bc-border-focus: var(--bc-blue-500);
+
+  /* Diagram */
+  --bc-diagram-node: var(--bc-blue-500);
+  --bc-diagram-node-alt: var(--bc-emerald-500);
+  --bc-diagram-edge: var(--bc-slate-500);
+}
+
+/* ═══ Layer 2: 语义映射（深色模式） ═══ */
+.dark {
+  --bc-primary: var(--bc-blue-400);
+  --bc-primary-hover: var(--bc-blue-500);
+  --bc-bg: var(--bc-slate-900);
+  --bc-bg-elevated: var(--bc-slate-800);
+  --bc-bg-sunken: var(--bc-slate-700);
+  --bc-text-primary: var(--bc-slate-50);
+  --bc-text-secondary: var(--bc-slate-300);
+  --bc-text-tertiary: var(--bc-slate-500);
+  --bc-text-on-primary: var(--bc-slate-900);
+  --bc-border: var(--bc-slate-600);
+  --bc-border-focus: var(--bc-blue-400);
+  --bc-diagram-node: var(--bc-blue-400);
+  --bc-diagram-node-alt: var(--bc-emerald-400);
+  --bc-diagram-edge: var(--bc-slate-400);
+}

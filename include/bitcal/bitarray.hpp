@@ -17,7 +17,7 @@ constexpr simd_backend get_bitarray_default_backend() noexcept {
     if constexpr (Bits == 64) {
         return simd_backend::scalar;
     } else {
-        return get_default_backend();
+        return get_default_simd_backend();
     }
 }
 

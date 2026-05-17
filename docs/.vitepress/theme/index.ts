@@ -1,6 +1,6 @@
 import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
-import { onMounted, watch, ref } from 'vue'
+import { onMounted, watch } from 'vue'
 import { useData } from 'vitepress'
 import mermaid from 'mermaid'
 import './style.css'
@@ -10,6 +10,7 @@ import BitcalHero from './components/BitcalHero.vue'
 import CitationList from './components/CitationList.vue'
 import EvidenceStrip from './components/EvidenceStrip.vue'
 import FigureFrame from './components/FigureFrame.vue'
+import PerformanceTable from './components/PerformanceTable.vue'
 import ReadingModelDiagram from './components/ReadingModelDiagram.vue'
 import ReadingPathGrid from './components/ReadingPathGrid.vue'
 import { getMermaidConfig } from '../plugins/mermaid-theme'
@@ -73,6 +74,7 @@ export default {
     app.component('CitationList', CitationList)
     app.component('EvidenceStrip', EvidenceStrip)
     app.component('FigureFrame', FigureFrame)
+    app.component('PerformanceTable', PerformanceTable)
     app.component('ReadingModelDiagram', ReadingModelDiagram)
     app.component('ReadingPathGrid', ReadingPathGrid)
   },
