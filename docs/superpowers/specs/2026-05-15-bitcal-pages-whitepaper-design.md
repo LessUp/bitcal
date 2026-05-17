@@ -1,282 +1,402 @@
-# BitCal GitHub Pages Whitepaper Site Redesign
+# BitCal Pages Whitepaper Reconstruction Design
 
 ## Summary
 
-BitCal will rebuild its GitHub Pages experience on top of the existing kimi-cli-style VitePress foundation, but with a new information architecture, visual system, and content model tailored to a C++23, x86-64-first, architecture-centric project.
+BitCal will keep the current VitePress 1.5 and GitHub Pages deployment skeleton, but everything above that foundation will be rebuilt around a different goal: a production-grade **technical whitepaper site** for senior developers evaluating the library's architecture, algorithm model, performance posture, and engineering credibility.
 
-The target is not a conventional product docs site. It is a bilingual, production-grade **technical whitepaper / architecture showcase / project academy** for advanced developers, interviewers, and contributors.
+This redesign is intentionally incompatible with the current docs taxonomy, page tone, and visual language. The new site will privilege **thesis-quality narrative, evidence-first layout, theme-safe diagrams, and research-style references** over conventional product-doc patterns.
+
+## Assumptions
+
+Because the user is offline during this design pass, this document locks the following assumptions so implementation can proceed autonomously:
+
+1. The existing VitePress stack is retained because the current foundation is already modern and proven.
+2. The current guide / architecture / API split is not preserved for compatibility.
+3. English and Chinese will keep mirrored top-level navigation and critical whitepaper content.
+4. Public narrative will align with the active vNext direction instead of preserving the older `bitarray` era messaging.
+5. Visual polish is not decorative work; it is part of the technical reading experience and must be implemented at the theme-system level.
 
 ## Problem Statement
 
-The current Pages stack has already converged on the same core framework choices as `/home/shane/dev/kimi-cli`:
+The current GitHub Pages implementation has three structural weaknesses:
 
-- VitePress 1.5
-- Mermaid integration
-- LLM documentation plugin
-- locale-aware routing
-- custom CSS theme layer
-- GitHub Pages deployment via `docs/.vitepress/dist`
+1. **Narrative drift**: core pages still mix older BitCal positioning with the active C++23, x86-64-first, `bit_block` / `bit_view` / free-algorithm direction.
+2. **Weak information architecture**: the current site still feels like a traditional feature-and-reference docs portal instead of a guided whitepaper for advanced readers.
+3. **Insufficient visual system discipline**: theme handling, SVG contrast, diagrams, and landing-page composition are not yet operating as one coherent design system.
 
-However, the current site is still a transitional artifact:
-
-- its structure remains close to a conventional guide/reference split
-- its homepage is still card-oriented and product-like rather than whitepaper-like
-- some narrative still drifts between pre-vNext and vNext positioning
-- light/dark image and diagram handling is not governed by a unified visual policy
-- the current bilingual policy is weaker than the intended target for this redesign
-
-As a result, the site does not yet deliver a strong technical reading experience for advanced audiences.
+The result is technically serviceable but not category-defining.
 
 ## Goals
 
-1. Preserve the mature engineering base already aligned with kimi-cli docs.
-2. Rebuild the site into a whitepaper-style reading system for BitCal vNext.
-3. Make the homepage function as a project thesis and reading gateway, not just a feature list.
-4. Establish a theme-aware diagram and SVG strategy that works in both light and dark modes.
-5. Align all public narrative with the active vNext OpenSpec direction.
-6. Deliver a near-full bilingual structure with mirrored navigation and core content flow.
+1. Reframe the site as a **systems-and-algorithms whitepaper** instead of a generic documentation portal.
+2. Rebuild the reading path so advanced developers can move from thesis to architecture to evidence to API contract without friction.
+3. Replace the current CSS-only polish with a reusable VitePress theme layer and shared components.
+4. Eliminate light/dark SVG readability failures by introducing a figure system that is theme-aware by construction.
+5. Add research-grade sections for references, related systems, design trade-offs, and evolution notes.
+6. Remove stale platform, compatibility, and API claims that are weaker than the retained verification path.
 
 ## Non-Goals
 
-1. This redesign does not attempt to preserve the current information architecture for compatibility.
-2. This redesign does not commit to keeping low-value mirrored pages that violate the canonical-source policy.
-3. This redesign does not use kimi-cli's content taxonomy as-is; it only inherits the engineering skeleton and proven interaction patterns.
+1. Preserve the current docs directory structure for compatibility.
+2. Maintain low-value mirrored content that duplicates the same deep material in multiple formats.
+3. Turn the site into a beginner tutorial portal.
+4. Expand product claims beyond what the retained benchmark and test posture can support.
 
 ## Current-State Findings
 
-### Foundation
+### Foundation strengths
 
-BitCal docs already use nearly the same underlying framework and deployment pattern as kimi-cli docs. This means the redesign should focus on **structure, content, and systemization**, not on changing the site generator.
+- VitePress 1.5 is already in place.
+- Mermaid integration already exists.
+- The current site already builds through `docs/.vitepress/dist`.
+- Locale routing and local search are already available.
 
-### Narrative Drift
+These are good enough and should not be replaced.
 
-Public documentation currently mixes multiple eras of the project:
+### Foundation weaknesses
 
-- C++17 vs C++23
-- broad cross-platform retained positioning vs x86-64-first vNext posture
-- previous `bitarray`-centric framing vs `bit_block` / `bit_view` / free-algorithm framing
+- `docs/.vitepress/theme/index.ts` only re-exports the default theme, so the site has no real component layer.
+- `docs/.vitepress/theme/style.css` is mostly a monolithic override sheet with homepage-specific classes mixed into global theme styling.
+- Current home pages (`docs/en/index.md`, `docs/zh/index.md`) are still feature-card landing pages, not whitepaper gateways.
+- The current platform and API pages still retain legacy-era claims inconsistent with the active vNext posture.
+- The current architecture pages are long-form prose without a strong figure grammar or evidence framing.
 
-The redesigned site must remove this ambiguity and make vNext the dominant reading path.
+## Approaches Considered
 
-### Documentation Architecture Tension
+### Approach A — Visual reskin over the existing information architecture
 
-BitCal's documentation policy prefers canonical Markdown and discourages long-lived Markdown/HTML duplication. The redesign must therefore keep deep technical content in canonical Markdown while allowing the homepage and selected landing surfaces to be highly designed within the VitePress presentation layer.
+Keep the current page tree and mostly rewrite CSS, hero copy, and diagrams.
 
-## Design Decisions
+**Pros**
 
-### 1. Keep the current VitePress-based deployment model
+- Fastest path
+- Lowest content churn
 
-The site will continue to build and deploy through `docs/.vitepress/dist`, keeping the existing GitHub Pages workflow shape and `VITEPRESS_BASE` behavior.
+**Cons**
 
-**Why**
+- Preserves the wrong reading model
+- Cannot fully remove narrative drift
+- Leaves homepage and sidebars structurally conventional
 
-- the current foundation is already stable and aligned with the reference baseline
-- it avoids unnecessary framework churn
-- it keeps the work focused on user-facing quality and architectural clarity
+### Approach B — Thesis-driven docs atlas on the existing VitePress core (**recommended**)
 
-### 2. Rebuild the information architecture around whitepaper reading flows
+Keep the VitePress deployment skeleton, but rebuild navigation, sidebars, page taxonomy, components, and key content domains around a whitepaper-style reading flow.
 
-The new top-level content domains will be:
+**Pros**
 
-- **Home**
-- **Academy**
-- **Whitepaper**
-- **Guides**
-- **Reference**
-- **Research**
-- **Project Status**
+- Maximizes reader clarity without incurring framework churn
+- Supports aggressive visual and IA redesign
+- Keeps content in canonical Markdown while still allowing high-value presentation components
+- Fits repository policy better than a custom app shell
 
-These sections will be mirrored across Chinese and English.
+**Cons**
 
-**Intent**
+- Requires broad content movement and rewrite
+- Needs a real component system rather than CSS-only overrides
 
-- `Home` frames BitCal and routes readers
-- `Academy` teaches prerequisites and mental models
-- `Whitepaper` explains the vNext architecture as a cohesive thesis
-- `Guides` handle onboarding and migration
-- `Reference` covers API and contract details
-- `Research` adds citations, related projects, and evolution notes
-- `Project Status` defines support and maintenance boundaries
+### Approach C — Single long-form monograph with minimal navigation
 
-### 3. Treat the homepage as a thesis gateway
+Collapse most content into one giant whitepaper and keep only a tiny reference appendix.
 
-The homepage will be rewritten around:
+**Pros**
 
-- a precise project thesis
-- proof-oriented summary blocks
-- role-based reading entrances
-- explicit links into architecture, support boundaries, and reproducibility
+- Strong academic identity
+- Highly opinionated reading path
 
-It should feel like the abstract and reading guide of a technical paper, not a marketing landing page.
+**Cons**
 
-### 4. Introduce a BitCal-specific visual language on top of the kimi-cli skeleton
+- Poor skimmability
+- Weak discoverability for API and operational content
+- Harder to maintain bilingually
 
-The site will reuse the proven structural bones of the kimi-cli theme, but the visual identity will shift toward a more restrained, academic, and systems-oriented tone:
+### Recommendation
 
-- lower-saturation cool palette
-- stronger typographic hierarchy
-- more whitespace
-- evidence cards instead of promotional cards
-- diagrams as first-class explanatory assets
+Choose **Approach B**. It is aggressive enough to deliver the intended "technical whitepaper" effect, but still operationally sound for GitHub Pages, VitePress, bilingual maintenance, and canonical Markdown governance.
 
-### 5. Establish a theme-aware diagram and SVG policy
+## Target Experience
 
-Diagrams and illustrations will follow a unified rendering strategy:
+The redesigned site should feel like a cross between:
 
-- Mermaid for maintainable structural diagrams
-- curated SVG/HTML illustrations for high-value architecture visuals
-- shared semantic color tokens for light and dark themes
-- no hard-coded text/background combinations that break across themes
-- one canonical source per figure
+- an architecture whitepaper
+- a systems handbook
+- a benchmark methodology note
+- a compact API reference
 
-This directly addresses the current light/dark SVG readability weakness.
+It should not feel like marketing, a generic starter-docs template, or a raw README mirror.
 
-### 6. Align content with the active vNext OpenSpec
+## Information Architecture
 
-The whitepaper narrative will center on the active redesign direction:
+### Top-level navigation
 
-- C++23 baseline
-- x86-64-first support posture
-- `bit_block`, `bit_view`, `const_bit_view`, and free algorithms
-- explicit migration posture
-- reproducible benchmark and correctness narratives
+The site will move to the following domain model in both locales:
 
-The site should no longer read like a mixed archive of pre-vNext and vNext messaging.
+1. **Guide**
+2. **Whitepaper**
+3. **Performance**
+4. **Reference**
+5. **Research**
+6. **Status**
 
-### 7. Upgrade bilingual scope to near-full mirrored structure
+### Reading model
 
-This redesign assumes a much stronger bilingual stance than the current lightweight policy. Chinese and English should share the same site structure and major reading path, even if some lower-level phrasing is adapted for fluency.
+#### Guide
 
-## Proposed Content Structure
-
-### Home
-
-- project thesis
-- key claims with evidence hooks
-- audience-specific reading entrances
-- direct paths to whitepaper, guides, reference, and GitHub
-
-### Academy
-
-- why BitCal exists
-- bit-level mental model
-- SIMD and dispatch primer
-- performance methodology
-- terminology and conceptual background
-
-### Whitepaper
-
-- vNext architecture overview
-- public model and layering
-- support matrix and platform posture
-- correctness and benchmarking stance
-- migration posture
-
-### Guides
+Minimal onboarding material only:
 
 - installation
 - quick start
-- verification flow
-- migration guide
+- verification path
+- migration posture
 
-### Reference
+#### Whitepaper
 
-- public API model
-- concepts and contracts
-- backend boundary explanations where user-visible
+The main architecture narrative:
 
-### Research
+- system thesis
+- public model
+- algorithm surface
+- internal dispatch and layering
+- support posture
+- reproducibility and limitations
 
-- related open source projects
-- reference papers or technical articles
-- evolution notes and design trade-off discussions
-- methodology notes for interpretation of benchmark claims
+#### Performance
 
-### Project Status
+Evidence-oriented material:
 
-- support matrix
-- maintenance posture
-- versioning and breaking-change policy
-- retained links to changelog and release notes
+- benchmark baseline
+- methodology
+- interpretation guardrails
+- future benchmark roadmap
 
-## Visual and UX System
+#### Reference
 
-### Principles
+Contract-oriented material:
 
-- clarity over decoration
-- proof over hype
-- visual hierarchy over feature-card repetition
-- consistent contrast in both themes
-- scannable entry points for advanced readers
+- types and ownership model
+- views
+- algorithm reference
+- backend boundary notes where user-visible
 
-### Components to Rework
+#### Research
 
-- homepage hero
-- reading-path blocks
-- evidence cards
-- architecture figure blocks
-- research / citation blocks
-- status and support tables
+Academic and comparative material:
 
-### Dark/Light Strategy
+- related projects
+- reference papers and articles
+- evolution notes
+- design trade-offs
 
-- use semantic color tokens rather than page-local hacks
-- keep backgrounds and stroke colors theme-aware
-- treat diagrams as designed surfaces, not pasted images
-- verify diagram typography against both themes
+#### Status
 
-## Deployment and Validation Boundaries
+Operational truth:
 
-The redesign keeps the existing GitHub Pages publishing path, but validation must explicitly cover:
+- project posture
+- supported targets
+- breaking-change stance
+- release and changelog links
 
-- VitePress build success
-- locale routing
-- base-path correctness
-- local search availability
-- Mermaid rendering
-- theme switching
-- SVG/diagram readability in both themes
-- navigation parity across Chinese and English
+## Visual System
 
-## Risks
+### Design principles
 
-### Content Volume
+1. **Scholarly, not corporate**
+2. **Proof-oriented, not slogan-oriented**
+3. **Dense where valuable, quiet where decorative**
+4. **Theme-safe by default**
+5. **Figures are explanatory assets, not ornaments**
 
-A near-full bilingual whitepaper site is expensive to maintain.
+### Visual tone
 
-**Mitigation:** keep structure mirrored, share figure systems and layout primitives, and avoid redundant content forms that create double maintenance.
+- dark mode should feel like a high-end engineering notebook, not neon marketing
+- light mode should feel like a research memo with crisp contrast and generous whitespace
+- color should be used for semantic emphasis, depth separation, and data cues rather than saturation
 
-### Policy Mismatch
+### Component set
 
-Current documentation policy is more conservative than the target site ambition.
+The implementation should add reusable theme components for:
 
-**Mitigation:** update the relevant specification and documentation policy before or alongside the implementation work so the new site has an explicit governance basis.
+- thesis hero
+- reading-path grid
+- evidence strip
+- figure frame
+- comparison matrix
+- citation list
+- metric card
+- support-status panel
+- aside-style "why this matters" callout
 
-### Framework Mimicry Without Identity
+The homepage and major section landings should be built from these components instead of page-local ad hoc HTML.
 
-A shallow kimi-cli imitation would make the site feel derivative.
+## Diagram and SVG Policy
 
-**Mitigation:** preserve the engineering skeleton but make BitCal's IA, proof structure, terminology, and visuals project-specific.
+### Requirements
 
-## Implementation Shape
+1. Every first-class diagram must remain legible in both light and dark themes.
+2. Diagrams must use shared semantic tokens instead of hard-coded black text on transparent or dark backgrounds.
+3. Mermaid diagrams must inherit an explicit site-level theme variable set.
+4. High-value architecture figures should be inline SVG or Vue-rendered figure components so they can respond to CSS variables.
+5. One figure source should generate one semantic diagram; no duplicated light/dark assets unless strictly necessary.
 
-The implementation should proceed in staged workstreams:
+### Figure classes
 
-1. specification and policy alignment
-2. site audit and keep/rewrite/merge/delete matrix
-3. information architecture rebuild
-4. theme and design-system rewrite
-5. diagram and SVG system rebuild
-6. bilingual content rewrite
-7. deployment and validation pass
+- **Mermaid** for maintainable graphs and flow diagrams
+- **Inline SVG** for polished system schematics and algorithm visuals
+- **HTML/CSS figure blocks** for callouts, memory layouts, or comparative cards where text must remain selectable and responsive
+
+### Theme-safe figure tokens
+
+The theme layer should expose dedicated tokens for:
+
+- canvas background
+- inset background
+- primary stroke
+- muted stroke
+- text strong
+- text muted
+- positive / caution / accent
+
+This must be separate from generic brand tokens so figures remain coherent even if the accent palette evolves.
+
+## Content Strategy
+
+### Narrative alignment
+
+All primary content must align with the active vNext direction:
+
+- C++23 baseline
+- x86-64-first optimization posture
+- `bit_block`, `bit_view`, `const_bit_view`, and free algorithms as the public model
+- `<bitcal/bitcal.hpp>` as the stable include seam
+- reproducible evidence instead of broad unsupported claims
+
+### Mandatory rewrites
+
+The following existing areas require rewrite or aggressive pruning:
+
+- home pages in both locales
+- architecture overview
+- platform support
+- SIMD dispatch
+- quick start examples still centered on legacy `bitarray`
+- reference pages that document removed or soon-to-be-obsolete public shapes
+
+### New deep-content material
+
+The redesign must add:
+
+1. a public-model page explaining owner/view/algorithm separation
+2. an algorithm page introducing the free-algorithm design
+3. a performance methodology page that separates evidence from aspiration
+4. a research page covering related libraries, papers, or adjacent systems
+5. an evolution page explaining why BitCal moved away from the older model
+
+## Academic and Reference Layer
+
+The site should explicitly include a scholarly apparatus:
+
+### Reference blocks
+
+Each major whitepaper page may end with:
+
+- references
+- further reading
+- related systems
+- design notes
+
+### Acceptable reference sources
+
+- upstream CPU / ISA documentation where relevant
+- papers or canonical technical articles on bitset/vectorized operations
+- comparable open source libraries or runtime systems
+- benchmark methodology references where they clarify interpretation
+
+### Tone rule
+
+References are there to increase rigor and context, not to fake academia. Every citation should help the reader reason better about BitCal.
+
+## Theme Architecture
+
+### Structural decision
+
+The current theme layer should evolve from a CSS override file into a small component system:
+
+- extend the default VitePress theme
+- register BitCal-specific components globally
+- keep global CSS focused on tokens, typography, layout primitives, and component skins
+
+### Expected theme files
+
+The implementation should likely introduce:
+
+- a richer `docs/.vitepress/theme/index.ts`
+- one or more Vue components under `docs/.vitepress/theme/components/`
+- a restructured stylesheet split or a significantly cleaned single stylesheet
+
+The exact file split can be adjusted during implementation, but the goal is to remove homepage-specific structure from the global override soup.
+
+## Bilingual Strategy
+
+### Scope
+
+Both locales should share:
+
+- identical top-level section structure
+- equivalent landing-page affordances
+- mirrored whitepaper reading paths
+
+### Translation rule
+
+Literal sentence-by-sentence mirroring is not required. Structural parity is required. Each locale should read naturally while keeping the same technical claims and navigation depth.
+
+## Validation Requirements
+
+The redesign is only acceptable if validation covers:
+
+1. VitePress production build
+2. locale routing
+3. navigation integrity
+4. local search presence
+5. Mermaid rendering
+6. dark/light visual contrast
+7. figure readability in both themes
+8. no broken links introduced by taxonomy changes
+
+## Risks and Mitigations
+
+### Risk: content scope explodes
+
+**Mitigation:** prioritize the public reading path first, then trim or defer secondary pages instead of carrying forward weak content.
+
+### Risk: beautiful but unmaintainable figures
+
+**Mitigation:** keep complex figures in shared SVG or Vue components and keep Mermaid for diagrams whose structure is likely to evolve.
+
+### Risk: divergence from repository documentation policy
+
+**Mitigation:** keep deep content canonical in Markdown, use components only for presentation, and update docs policy if the final IA materially changes governance.
+
+### Risk: stale claims survive the rewrite
+
+**Mitigation:** explicitly audit all pages for C++17-era, broad cross-platform, and legacy-API wording before publication.
+
+## Implementation Workstreams
+
+1. rewrite docs IA and VitePress config
+2. replace the theme layer with a component-driven design system
+3. rebuild home and section landing pages
+4. rewrite whitepaper and performance narratives around vNext
+5. add research and citation infrastructure
+6. prune or rewrite stale reference and platform pages
+7. validate production build and theme behavior
 
 ## Acceptance Criteria
 
-This design is considered satisfied when:
+This design is satisfied when:
 
-1. the published Pages experience reads as a coherent technical whitepaper site
-2. the homepage acts as a strong technical reading gateway
-3. vNext narrative drift is removed
-4. diagrams remain legible in light and dark themes
-5. Chinese and English navigation structures are aligned
-6. the site is clearly more rigorous and better organized than the current implementation
+1. the home page reads like a thesis gateway rather than a generic feature grid
+2. the site exposes a clear reading path from architecture to evidence to reference
+3. legacy messaging no longer dominates any primary page
+4. diagrams and SVG figures remain clear in both themes
+5. the visual system feels cohesive, premium, and engineer-facing
+6. research and citation sections materially deepen the whitepaper value
+7. the final Pages experience is recognizably stronger than the current baseline in structure, rigor, and craft

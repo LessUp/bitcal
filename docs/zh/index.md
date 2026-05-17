@@ -1,131 +1,135 @@
 ---
 layout: home
+title: BitCal
 ---
 
-<div class="home-header">
-  <div class="home-header-left">
-    <div class="home-logo">BC</div>
-    <div>
-      <span class="home-title">BitCal</span>
-      <span class="home-subtitle">C++23 vNext 位运算库</span>
-    </div>
-  </div>
-  <div class="home-nav">
-    <a href="./getting-started/installation">指南</a>
-    <a href="https://github.com/LessUp/bitcal">GitHub</a>
-    <a href="../en/">English</a>
-  </div>
-</div>
+<BitcalHero
+  eyebrow="白皮书优先的系统文档"
+  title="像做架构评审一样评估 BitCal。"
+  lead="BitCal vNext 不再把自己包装成泛化的功能清单，而是用技术白皮书的方式展开：公开模型、分发边界、benchmark 姿态与参考材料围绕同一条设计主线组织。"
+  :stats="[
+    { label: '交付方式', value: 'Header-only' },
+    { label: '语言基线', value: 'C++23' },
+    { label: '主要优化姿态', value: 'x86-64 优先' }
+  ]"
+  :actions="[
+    { text: '进入白皮书', href: './whitepaper/index', theme: 'brand' },
+    { text: '检查证据页', href: './performance/index', theme: 'alt' },
+    { text: '查看仓库', href: 'https://github.com/LessUp/bitcal', theme: 'alt' }
+  ]"
+>
+</BitcalHero>
 
-<div class="home-intro-row">
-  <div class="home-intro">
-    BitCal 是一个正在重设计中的头文件式 C++23 位运算库。当前公开模型围绕 bit block、bit view 和自由算法展开，并优先面向 x86-64 性能路径。
-  </div>
-  <div class="home-stats">
-    <span><strong>头文件式</strong></span>
-    <span><strong>C++23</strong></span>
-    <span><strong>x86-64 优先</strong></span>
-  </div>
-</div>
+<FigureFrame title="阅读模型" caption="BitCal 先给出公共契约，再用证据、参考和外部比较支撑它。">
+  <svg viewBox="0 0 720 360" role="img" aria-label="BitCal 阅读模型图">
+    <rect x="32" y="28" width="656" height="64" rx="16" data-fill="surface" />
+    <text x="60" y="67" fill="currentColor" font-size="24" font-weight="700">公共契约</text>
+    <text x="60" y="92" fill="currentColor" font-size="15">bit_block, bit_view, const_bit_view, 自由算法, 稳定 include seam</text>
 
-## vNext 参考
+    <rect x="86" y="142" width="250" height="72" rx="18" data-fill="accent" />
+    <text x="118" y="181" fill="currentColor" font-size="22" font-weight="650">白皮书</text>
+    <text x="118" y="205" fill="currentColor" font-size="14">设计主线、分层、分发边界</text>
 
-<div class="feature-map">
-  <div class="feature-card">
-    <div class="feature-card-title">📘 技术白皮书</div>
-    <div class="feature-card-desc">
-      介绍 BitCal vNext 的公开模型、后端分层、正确性策略和复现方式。
-    </div>
-    <div class="feature-tags">
-      <a href="./architecture/vnext-whitepaper" class="feature-tag">白皮书</a>
-    </div>
-  </div>
+    <rect x="384" y="142" width="250" height="72" rx="18" data-fill="surface" />
+    <text x="416" y="181" fill="currentColor" font-size="22" font-weight="650">性能</text>
+    <text x="416" y="205" fill="currentColor" font-size="14">基线数字、限制条件、方法学说明</text>
 
-  <div class="feature-card">
-    <div class="feature-card-title">📈 性能基线</div>
-    <div class="feature-card-desc">
-      当前 vNext benchmark 的可复现基线、样例结果与方法说明。
-    </div>
-    <div class="feature-tags">
-      <a href="./architecture/performance-baseline" class="feature-tag">性能指标</a>
-    </div>
-  </div>
-</div>
+    <rect x="86" y="256" width="250" height="72" rx="18" data-fill="surface" />
+    <text x="118" y="295" fill="currentColor" font-size="22" font-weight="650">参考</text>
+    <text x="118" y="319" fill="currentColor" font-size="14">类型、视图、算法级契约</text>
 
-## 功能特性
+    <rect x="384" y="256" width="250" height="72" rx="18" data-fill="surface" />
+    <text x="416" y="295" fill="currentColor" font-size="22" font-weight="650">研究</text>
+    <text x="416" y="319" fill="currentColor" font-size="14">比较、资料来源、演进笔记</text>
 
-<div class="feature-map">
-  <div class="feature-card">
-    <div class="feature-card-title">⚡ 头文件式</div>
-    <div class="feature-card-desc">
-      单一头文件入口。无需构建系统。只需复制头文件并编译。
-    </div>
-    <div class="feature-tags">
-      <a href="./getting-started/installation" class="feature-tag">安装指南</a>
-      <a href="./getting-started/quickstart" class="feature-tag">快速开始</a>
-    </div>
-  </div>
+    <path d="M360 92 L360 128" stroke-width="2.5" fill="none" data-stroke="primary" />
+    <path d="M360 214 L360 242" stroke-width="2.5" fill="none" data-stroke="muted" />
+    <path d="M210 214 L210 242" stroke-width="2.5" fill="none" data-stroke="muted" />
+    <path d="M510 214 L510 242" stroke-width="2.5" fill="none" data-stroke="muted" />
+  </svg>
+</FigureFrame>
 
-  <div class="feature-card">
-    <div class="feature-card-title">🚀 SIMD 优化</div>
-    <div class="feature-card-desc">
-      自动分发到 x86-64 上的 SSE2/AVX/AVX2 和 ARM64 上的 NEON。
-    </div>
-    <div class="feature-tags">
-      <a href="./architecture/simd-dispatch" class="feature-tag">SIMD 分发</a>
-      <a href="./architecture/platform-support" class="feature-tag">平台支持</a>
-    </div>
-  </div>
+## 建议阅读顺序
 
-  <div class="feature-card">
-    <div class="feature-card-title">🎯 固定位宽</div>
-    <div class="feature-card-desc">
-      bit64、bit128、bit256、bit512、bit1024，以及 64 位的自定义倍数。
-    </div>
-    <div class="feature-tags">
-      <a href="./api/types" class="feature-tag">类型</a>
-      <a href="./api/core-operations" class="feature-tag">操作</a>
-    </div>
-  </div>
+<ReadingPathGrid
+  :items="[
+    {
+      title: '白皮书',
+      href: '/zh/whitepaper/index',
+      summary: '先读公开模型、算法姿态与分发边界。',
+      detail: '这里是整站的主论文线，不是附属说明。'
+    },
+    {
+      title: '性能',
+      href: '/zh/performance/index',
+      summary: '再用 retained methodology 和支持范围解释当前 benchmark。',
+      detail: 'BitCal 更偏好诚实基线，而不是泛化宣称。'
+    },
+    {
+      title: '参考',
+      href: '/zh/reference/index',
+      summary: '在架构叙事清晰后，再确认契约面。',
+      detail: '这里讲类型、视图和算法，而不是营销话术。'
+    },
+    {
+      title: '研究',
+      href: '/zh/research/index',
+      summary: '最后用外部资料、相邻库与演进笔记做横向判断。',
+      detail: '这部分负责补齐语境和比较维度。'
+    }
+  ]"
+/>
 
-  <div class="feature-card">
-    <div class="feature-card-title">🔧 丰富 API</div>
-    <div class="feature-card-desc">
-      位运算、移位、popcount、CLZ/CTZ、位反转、单比特操作。
-    </div>
-    <div class="feature-tags">
-      <a href="./api/bit-counting" class="feature-tag">位计数</a>
-      <a href="./api/bit-manipulation" class="feature-tag">位操作</a>
-    </div>
-  </div>
+## 这个站点实际在宣称什么
 
-  <div class="feature-card">
-    <div class="feature-card-title">🌍 跨平台</div>
-    <div class="feature-card-desc">
-      Linux、Windows、macOS，支持 x86-64 和 ARM，需要 C++17 或更高版本。
-    </div>
-    <div class="feature-tags">
-      <a href="./architecture/platform-support" class="feature-tag">平台支持</a>
-    </div>
-  </div>
+<EvidenceStrip
+  :items="[
+    { label: '稳定公开 include seam', value: '&lt;bitcal/bitcal.hpp&gt;' },
+    { label: '主要支持姿态', value: 'C++23 + x86-64 优先' },
+    { label: '文档态度', value: '证据优先于话术' },
+    { label: 'Benchmark 姿态', value: '先有 baseline，再谈胆量' }
+  ]"
+/>
 
-  <div class="feature-card">
-    <div class="feature-card-title">🛡️ 类型安全</div>
-    <div class="feature-card-desc">
-      编译时位宽验证（Bits % 64 == 0），无运行时开销。
-    </div>
-    <div class="feature-tags">
-      <a href="./api/types" class="feature-tag">类型系统</a>
-    </div>
-  </div>
-</div>
+## 架构主线
 
-<div class="quick-start">
-  <div class="quick-start-title">快速开始</div>
-  <div class="quick-start-content">
-    <div class="command-block">
-      <code>cp -r include/bitcal /your/project/include/</code>
-    </div>
-    然后引入并编译：<code>#include &lt;bitcal/bitcal.hpp&gt;</code>
-  </div>
-</div>
+<FigureFrame title="契约与实现边界" caption="库可以持续演进内核层，但不应把后端选择变成自身的公共身份。">
+  <svg viewBox="0 0 720 260" role="img" aria-label="BitCal 契约与实现边界">
+    <rect x="28" y="24" width="664" height="44" rx="14" data-fill="surface" />
+    <text x="56" y="52" fill="currentColor" font-size="21" font-weight="680">稳定 include seam</text>
+    <text x="250" y="52" fill="currentColor" font-size="18">&lt;bitcal/bitcal.hpp&gt;</text>
+
+    <rect x="28" y="92" width="664" height="52" rx="14" data-fill="accent" />
+    <text x="56" y="123" fill="currentColor" font-size="22" font-weight="680">公开模型</text>
+    <text x="208" y="123" fill="currentColor" font-size="16">bit_block、bit_view、const_bit_view、自由算法</text>
+
+    <rect x="28" y="168" width="664" height="52" rx="14" data-fill="surface" />
+    <text x="56" y="199" fill="currentColor" font-size="22" font-weight="680">detail 层</text>
+    <text x="208" y="199" fill="currentColor" font-size="16">dispatch 启发式、x86-64 内核、标量回退、保留基准路径</text>
+
+    <path d="M360 68 L360 90" stroke-width="2.5" fill="none" data-stroke="primary" />
+    <path d="M360 144 L360 166" stroke-width="2.5" fill="none" data-stroke="primary" />
+  </svg>
+</FigureFrame>
+
+## 研究支点
+
+<CitationList
+  :items="[
+    {
+      title: 'Intel Intrinsics Guide',
+      href: 'https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html',
+      note: '讨论 x86 SIMD intrinsic 与指令约束时的权威入口。'
+    },
+    {
+      title: 'Agner Fog optimization manuals',
+      href: 'https://www.agner.org/optimize/',
+      note: '用于理解 x86-64 上的延迟、吞吐与 dispatch 权衡。'
+    },
+    {
+      title: 'Sebastiano Vigna, Broadword Implementation of Rank/Select Queries',
+      href: 'https://arxiv.org/abs/0901.0166',
+      note: '解释 broadword / word-parallel bit 技术时很有价值的背景资料。'
+    }
+  ]"
+/>

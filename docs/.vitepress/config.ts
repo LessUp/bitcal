@@ -11,53 +11,80 @@ const base = rawBase
 
 export default withMermaid(defineConfig({
   base,
-  title: 'BitCal Docs',
-  description: 'BitCal - Header-only SIMD bit manipulation for C++17',
+  title: 'BitCal',
+  description: 'Whitepaper-first SIMD bit computation for C++23',
 
   locales: {
     zh: {
       label: '简体中文',
       lang: 'zh-CN',
       link: '/zh/',
-      title: 'BitCal 文档',
-      description: 'BitCal - C++17 头文件式 SIMD 位操作库',
+      title: 'BitCal',
+      description: '面向高级开发者的 C++23 SIMD 位计算白皮书站点',
       themeConfig: {
         nav: [
-          { text: '指南', link: '/zh/getting-started/installation', activeMatch: '/zh/getting-started/' },
-          { text: '架构', link: '/zh/architecture/overview', activeMatch: '/zh/architecture/' },
-          { text: 'API', link: '/zh/api/types', activeMatch: '/zh/api/' },
+          { text: '导读', link: '/zh/guide/index', activeMatch: '/zh/guide/' },
+          { text: '白皮书', link: '/zh/whitepaper/index', activeMatch: '/zh/whitepaper/' },
+          { text: '性能', link: '/zh/performance/index', activeMatch: '/zh/performance/' },
+          { text: '参考', link: '/zh/reference/index', activeMatch: '/zh/reference/' },
+          { text: '研究', link: '/zh/research/index', activeMatch: '/zh/research/' },
+          { text: '状态', link: '/zh/status/index', activeMatch: '/zh/status/' },
         ],
         sidebar: {
-          '/zh/getting-started/': [
+          '/zh/guide/': [
             {
-              text: '指南',
+              text: '导读',
               items: [
-                { text: '安装指南', link: '/zh/getting-started/installation' },
-                { text: '快速开始', link: '/zh/getting-started/quickstart' },
-                { text: '构建选项', link: '/zh/getting-started/build-options' },
+                { text: '阅读入口', link: '/zh/guide/index' },
+                { text: '验证路径', link: '/zh/guide/verification' },
+                { text: '迁移姿态', link: '/zh/guide/migration-posture' },
               ],
             },
           ],
-          '/zh/architecture/': [
+          '/zh/whitepaper/': [
             {
-              text: '架构',
+              text: '白皮书',
               items: [
-                { text: '概览', link: '/zh/architecture/overview' },
-                { text: '平台支持', link: '/zh/architecture/platform-support' },
-                { text: 'SIMD 分发', link: '/zh/architecture/simd-dispatch' },
+                { text: '总览', link: '/zh/whitepaper/index' },
+                { text: '公开模型', link: '/zh/whitepaper/public-model' },
+                { text: '算法设计', link: '/zh/whitepaper/algorithm-design' },
+                { text: '分发与内核', link: '/zh/whitepaper/dispatch-and-kernels' },
               ],
             },
           ],
-          '/zh/api/': [
+          '/zh/performance/': [
             {
-              text: 'API 参考',
+              text: '性能',
               items: [
-                { text: '类型', link: '/zh/api/types' },
-                { text: '核心操作', link: '/zh/api/core-operations' },
-                { text: '位操作', link: '/zh/api/bit-manipulation' },
-                { text: '位计数', link: '/zh/api/bit-counting' },
-                { text: '移位操作', link: '/zh/api/shift-operations' },
-                { text: 'SIMD 后端', link: '/zh/api/simd-backend' },
+                { text: '基线与边界', link: '/zh/performance/index' },
+                { text: '方法学', link: '/zh/performance/methodology' },
+              ],
+            },
+          ],
+          '/zh/reference/': [
+            {
+              text: '参考',
+              items: [
+                { text: '总览', link: '/zh/reference/index' },
+                { text: '类型与视图', link: '/zh/reference/types-and-views' },
+                { text: '算法契约', link: '/zh/reference/algorithms' },
+              ],
+            },
+          ],
+          '/zh/research/': [
+            {
+              text: '研究',
+              items: [
+                { text: '总览', link: '/zh/research/index' },
+                { text: '演进与比较', link: '/zh/research/evolution-and-comparisons' },
+              ],
+            },
+          ],
+          '/zh/status/': [
+            {
+              text: '状态',
+              items: [
+                { text: '项目状态', link: '/zh/status/index' },
               ],
             },
           ],
@@ -68,45 +95,72 @@ export default withMermaid(defineConfig({
       label: 'English',
       lang: 'en-US',
       link: '/en/',
-      title: 'BitCal Docs',
-      description: 'BitCal - Header-only SIMD bit manipulation for C++17',
+      title: 'BitCal',
+      description: 'A C++23 SIMD bit computation whitepaper for advanced developers',
       themeConfig: {
         nav: [
-          { text: 'Guides', link: '/en/getting-started/installation', activeMatch: '/en/getting-started/' },
-          { text: 'Architecture', link: '/en/architecture/overview', activeMatch: '/en/architecture/' },
-          { text: 'API', link: '/en/api/types', activeMatch: '/en/api/' },
+          { text: 'Guide', link: '/en/guide/index', activeMatch: '/en/guide/' },
+          { text: 'Whitepaper', link: '/en/whitepaper/index', activeMatch: '/en/whitepaper/' },
+          { text: 'Performance', link: '/en/performance/index', activeMatch: '/en/performance/' },
+          { text: 'Reference', link: '/en/reference/index', activeMatch: '/en/reference/' },
+          { text: 'Research', link: '/en/research/index', activeMatch: '/en/research/' },
+          { text: 'Status', link: '/en/status/index', activeMatch: '/en/status/' },
         ],
         sidebar: {
-          '/en/getting-started/': [
+          '/en/guide/': [
             {
-              text: 'Guides',
+              text: 'Guide',
               items: [
-                { text: 'Installation', link: '/en/getting-started/installation' },
-                { text: 'Quick Start', link: '/en/getting-started/quickstart' },
-                { text: 'Build Options', link: '/en/getting-started/build-options' },
+                { text: 'Reading Entry', link: '/en/guide/index' },
+                { text: 'Verification Path', link: '/en/guide/verification' },
+                { text: 'Migration Posture', link: '/en/guide/migration-posture' },
               ],
             },
           ],
-          '/en/architecture/': [
+          '/en/whitepaper/': [
             {
-              text: 'Architecture',
+              text: 'Whitepaper',
               items: [
-                { text: 'Overview', link: '/en/architecture/overview' },
-                { text: 'Platform Support', link: '/en/architecture/platform-support' },
-                { text: 'SIMD Dispatch', link: '/en/architecture/simd-dispatch' },
+                { text: 'Overview', link: '/en/whitepaper/index' },
+                { text: 'Public Model', link: '/en/whitepaper/public-model' },
+                { text: 'Algorithm Design', link: '/en/whitepaper/algorithm-design' },
+                { text: 'Dispatch and Kernels', link: '/en/whitepaper/dispatch-and-kernels' },
               ],
             },
           ],
-          '/en/api/': [
+          '/en/performance/': [
             {
-              text: 'API Reference',
+              text: 'Performance',
               items: [
-                { text: 'Types', link: '/en/api/types' },
-                { text: 'Core Operations', link: '/en/api/core-operations' },
-                { text: 'Bit Manipulation', link: '/en/api/bit-manipulation' },
-                { text: 'Bit Counting', link: '/en/api/bit-counting' },
-                { text: 'Shift Operations', link: '/en/api/shift-operations' },
-                { text: 'SIMD Backend', link: '/en/api/simd-backend' },
+                { text: 'Baseline and Boundaries', link: '/en/performance/index' },
+                { text: 'Methodology', link: '/en/performance/methodology' },
+              ],
+            },
+          ],
+          '/en/reference/': [
+            {
+              text: 'Reference',
+              items: [
+                { text: 'Overview', link: '/en/reference/index' },
+                { text: 'Types and Views', link: '/en/reference/types-and-views' },
+                { text: 'Algorithm Contract', link: '/en/reference/algorithms' },
+              ],
+            },
+          ],
+          '/en/research/': [
+            {
+              text: 'Research',
+              items: [
+                { text: 'Overview', link: '/en/research/index' },
+                { text: 'Evolution and Comparisons', link: '/en/research/evolution-and-comparisons' },
+              ],
+            },
+          ],
+          '/en/status/': [
+            {
+              text: 'Status',
+              items: [
+                { text: 'Project Status', link: '/en/status/index' },
               ],
             },
           ],
@@ -121,6 +175,10 @@ export default withMermaid(defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/LessUp/bitcal' },
     ],
+    footer: {
+      message: 'Whitepaper-first technical documentation for BitCal vNext.',
+      copyright: 'Released under MIT',
+    },
   },
 
   vite: {
