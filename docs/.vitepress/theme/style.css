@@ -499,6 +499,12 @@ body {
 
 @media (max-width: 960px) {
   .bitcal-hero--split {
+    grid-template-columns: minmax(0, 1.2fr) minmax(240px, 0.7fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .bitcal-hero--split {
     grid-template-columns: 1fr;
   }
 }

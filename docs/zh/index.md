@@ -13,8 +13,8 @@ title: BitCal
     { label: '主要优化姿态', value: 'x86-64 优先' }
   ]"
   :actions="[
-    { text: '进入白皮书', href: './whitepaper/index', theme: 'brand' },
-    { text: '检查证据页', href: './performance/index', theme: 'alt' },
+    { text: '进入白皮书', href: '/zh/whitepaper/index', theme: 'brand' },
+    { text: '检查证据页', href: '/zh/performance/index', theme: 'alt' },
     { text: '查看仓库', href: 'https://github.com/LessUp/bitcal', theme: 'alt' }
   ]"
 >

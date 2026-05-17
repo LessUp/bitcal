@@ -33,7 +33,7 @@ const labels: Record<string, { zh: string; en: string }> = {
 </script>
 
 <template>
-  <svg viewBox="0 0 720 360" role="img" :aria-label="lang === 'zh' ? 'BitCal 阅读模型图' : 'BitCal reading model diagram'">
+  <svg viewBox="0 0 720 360" preserveAspectRatio="xMidYMid meet" role="img" :aria-label="lang === 'zh' ? 'BitCal 阅读模型图' : 'BitCal reading model diagram'">
     <rect x="32" y="28" width="656" height="64" rx="16" data-fill="surface" />
     <text x="60" y="67" fill="currentColor" font-size="24" font-weight="700">{{ labels.publicContract[lang] }}</text>
     <text x="60" y="92" fill="currentColor" font-size="15">{{ labels.publicContractDetail[lang] }}</text>

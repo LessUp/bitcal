@@ -15,6 +15,67 @@
 
 ## [未发布]
 
+## 4.0.0 (2026-05-15)
+
+### 🚀 亮点
+
+本版本引入 **BitCal vNext**，基于 C++23 的全新三层架构重设计：
+
+1. **拥有型存储** 通过 `bit_block<Bits>`
+2. **非拥有型访问** 通过 `bit_view` / `const_bit_view`
+3. **自由算法** 如 `bit_and<Bits>()` 和 `and_into()`
+
+### ⚠️ 破坏性变更
+
+- **语言基线升级至 C++23**（从 C++17）
+- **新公开模型**：`bit_block` + `bit_view` + 自由算法替代旧的 `bitarray` 中心模型
+- **无兼容层**：旧 `bitarray` API 不再保留
+- **平台重心**：x86-64 现为首要优化目标
+
+### ✨ 新增功能
+
+- `bit_block<Bits>` — 拥有型定宽存储，x86-64 上保证 32 字节对齐
+- `bit_view` / `const_bit_view` — 用于外部存储的非拥有型字视图
+- 自由算法：`bit_and<Bits>()`、`and_into()`、`is_zero()`、`popcount()`
+- `and_into()` 内核的 AVX2 快速路径
+- 基于 span 的字导入/导出辅助函数
+
+### 📚 文档
+
+- 新增 vNext 技术白皮书
+- 性能基线文档
+
+### 🔧 内部架构
+
+```
+bitcal/bitcal.hpp          # 唯一稳定公开入口
+├── bit_block.hpp          # 拥有型存储
+├── bit_view.hpp           # 非拥有型视图
+├── algorithms.hpp         # 公开自由算法
+└── detail/
+    ├── backend.hpp        # 后端标签
+    └── x64_dispatch.hpp   # x86-64 分派层
+```
+
+### 📊 性能基线
+
+x86-64 AVX2 上的初始基准测试：
+
+| 运算 | 结果 |
+|------|-----:|
+| `bit_and<128>` | 9.33 ns/op |
+| `bit_and<256>` | 1.46 ns/op |
+| `bit_and<512>` | 3.22 ns/op |
+
+这些是用于后续对比的本地验证基线，非最终产品声明。
+
+### 🔗 链接
+
+- **完整变更日志**: [v3.0.0...v4.0.0](https://github.com/LessUp/bitcal/compare/v3.0.0...v4.0.0)
+- **vNext 白皮书**: [docs/zh/architecture/vnext-whitepaper.md](docs/zh/architecture/vnext-whitepaper.md)
+- **性能基线**: [docs/zh/architecture/performance-baseline.md](docs/zh/architecture/performance-baseline.md)
+
+
 ## 3.0.0 (2026-05-08)
 
 ### ⚠️ 破坏性变更
@@ -168,6 +229,7 @@ v1.x **不再维护**。用户应迁移到 v2.x。
 
 | 版本 | 日期 | 状态 | 亮点 |
 |------|------|------|------|
+| v4.0.0 | 2026-05-15 | ✅ 稳定 | vNext C++23 重设计，全新三层架构 |
 | v3.0.0 | 2026-05-08 | ✅ 稳定 | 公开接口收口、迁移说明 |
 | v2.1.0 | 2026-04-16 | ✅ 稳定 | ANDNOT，性能提升 |
 | v2.0.0 | 2026-01-08 | ✅ 稳定 | 完全重写，纯头文件 |
@@ -175,7 +237,8 @@ v1.x **不再维护**。用户应迁移到 v2.x。
 
 ---
 
-[未发布]: https://github.com/LessUp/bitcal/compare/v3.0.0...HEAD
+[未发布]: https://github.com/LessUp/bitcal/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/LessUp/bitcal/compare/v3.0.0...v4.0.0
 [3.0.0]: https://github.com/LessUp/bitcal/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/LessUp/bitcal/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/LessUp/bitcal/releases/tag/v2.0.0

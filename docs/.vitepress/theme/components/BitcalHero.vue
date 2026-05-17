@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useSlots } from 'vue'
+import { withBase } from 'vitepress'
 
 defineProps<{
   eyebrow: string
@@ -17,6 +18,13 @@ defineProps<{
 }>()
 
 const slots = useSlots()
+
+function resolveHref(href: string): string {
+  if (/^(https?:)?\/\//.test(href)) {
+    return href
+  }
+  return withBase(href)
+}
 </script>
 
 <template>
@@ -37,7 +45,7 @@ const slots = useSlots()
           :key="action.href"
           class="VPButton medium"
           :class="action.theme ?? 'alt'"
-          :href="action.href"
+          :href="resolveHref(action.href)"
         >
           {{ action.text }}
         </a>

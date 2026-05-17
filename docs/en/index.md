@@ -13,8 +13,8 @@ title: BitCal
     { label: 'Primary optimization posture', value: 'x86-64 first' }
   ]"
   :actions="[
-    { text: 'Read the whitepaper', href: './whitepaper/index', theme: 'brand' },
-    { text: 'Inspect the evidence', href: './performance/index', theme: 'alt' },
+    { text: 'Read the whitepaper', href: '/en/whitepaper/index', theme: 'brand' },
+    { text: 'Inspect the evidence', href: '/en/performance/index', theme: 'alt' },
     { text: 'View the repository', href: 'https://github.com/LessUp/bitcal', theme: 'alt' }
   ]"
 >
