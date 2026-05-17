@@ -11,6 +11,12 @@ const base = rawBase
 
 export default withMermaid(defineConfig({
   base,
+  srcExclude: [
+    'README.md',
+    'project-status.md',
+    'design/**',
+    'superpowers/**',
+  ],
   title: 'BitCal',
   description: 'Whitepaper-first SIMD bit computation for C++23',
 
@@ -182,7 +188,16 @@ export default withMermaid(defineConfig({
   },
 
   vite: {
-    plugins: [llmstxt()],
+    plugins: [
+      llmstxt({
+        ignoreFiles: [
+          'README.md',
+          'project-status.md',
+          'design/**',
+          'superpowers/**',
+        ],
+      }),
+    ],
   },
 
   ignoreDeadLinks: true,
