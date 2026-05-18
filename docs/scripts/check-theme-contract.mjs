@@ -73,8 +73,10 @@ for (const token of requiredTokens) {
 expect(mermaidThemeTs.includes('themeCSS'), 'Mermaid config must inject themeCSS for figure-aware styling')
 expect(mermaidThemeTs.includes('tertiaryColor'), 'Mermaid config must define tertiaryColor')
 expect(mermaidThemeTs.includes('clusterBorder'), 'Mermaid config must define clusterBorder')
+expect(mermaidThemeTs.includes('themeCSS provides the baseline Mermaid SVG skin before the docs theme can scope figure-level overrides.'), 'Mermaid config must document why themeCSS remains alongside figure CSS overrides')
 expect(indexTs.includes('getMermaidConfig'), 'Theme index must use getMermaidConfig')
-expect(indexTs.includes("document.documentElement.style.setProperty('--bc-mermaid-mode'"), 'Theme index must set the active Mermaid mode token')
+expect(!indexTs.includes('--bc-mermaid-mode'), 'Theme index must not manage an unused Mermaid mode token')
+expect(!variablesCss.includes('--bc-mermaid-mode'), 'Theme variables must not define an unused Mermaid mode token')
 
 const svgComponents = ['ArchitectureDiagram.vue', 'ReadingModelDiagram.vue']
 for (const file of svgComponents) {
@@ -102,7 +104,20 @@ expect(citationList.includes('data-citation-tone'), 'CitationList must expose a 
 const performanceTable = read('components', 'PerformanceTable.vue')
 expect(performanceTable.includes('data-performance-tone'), 'PerformanceTable must expose a data-performance-tone hook')
 expect(!performanceTable.includes('var(--vp-c-'), 'PerformanceTable must not bypass shared BitCal theme tokens with raw VitePress colors')
-expect(performanceTable.includes('var(--bc-'), 'PerformanceTable must style against shared BitCal theme tokens')
+expect(!performanceTable.includes('<style'), 'PerformanceTable styles must live in figures.css as the single source of truth')
+
+const figuresCss = read('styles', 'figures.css')
+expect(figuresCss.includes('var(--bc-'), 'PerformanceTable styles in figures.css must use shared BitCal theme tokens')
+for (const selector of [
+  ".bitcal-perf-table[data-performance-tone='accent'] table",
+  '.bitcal-perf-table th,',
+  '.bitcal-perf-table .bitcal',
+  '.bitcal-perf-table tr:hover td',
+]) {
+  expect(figuresCss.includes(selector), `figures.css must own PerformanceTable selector: ${selector}`)
+}
+
+expect(figuresCss.includes('figures.css scopes the in-page Mermaid presentation for diagrams inside BitCal figure shells.'), 'Figure styles must document the figure-scoped Mermaid override path')
 
 expect(packageJson.includes('"check:theme-contract"'), 'docs/package.json must expose check:theme-contract')
 

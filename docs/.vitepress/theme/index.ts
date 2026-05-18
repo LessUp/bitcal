@@ -21,7 +21,6 @@ import { getMermaidConfig } from '../plugins/mermaid-theme'
  */
 async function initMermaidTheme(isDark: boolean) {
   const config = getMermaidConfig(isDark)
-  document.documentElement.style.setProperty('--bc-mermaid-mode', isDark ? 'dark' : 'light')
   mermaid.initialize(config)
   // 重新渲染所有 Mermaid 图表
   await renderMermaidDiagrams()

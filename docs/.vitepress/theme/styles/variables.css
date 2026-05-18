@@ -66,7 +66,6 @@
   --bc-mermaid-cluster-fill: color-mix(in oklab, var(--bc-paper-pane) 90%, var(--bc-cyan-500));
   --bc-mermaid-edge: color-mix(in oklab, var(--bc-ink-soft) 80%, var(--bc-blue-500));
   --bc-mermaid-label: var(--bc-ink-strong);
-  --bc-mermaid-mode: light;
 
   --bc-diagram-node: var(--bc-mermaid-node-border);
   --bc-diagram-node-alt: var(--bc-accent-cyan);
@@ -141,7 +140,6 @@
   --bc-mermaid-cluster-fill: color-mix(in oklab, var(--bc-paper-pane) 90%, var(--bc-cyan-500));
   --bc-mermaid-edge: color-mix(in oklab, var(--bc-ink-soft) 74%, var(--bc-primary));
   --bc-mermaid-label: var(--bc-ink-strong);
-  --bc-mermaid-mode: dark;
 
   --bc-diagram-node: var(--bc-mermaid-node-border);
   --bc-diagram-node-alt: var(--bc-accent-cyan);

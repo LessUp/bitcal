@@ -29,6 +29,8 @@ export function getMermaidConfig(isDark: boolean): MermaidThemeConfig {
     startOnLoad: true,
     theme: 'base',
     darkMode: isDark,
+    // themeCSS provides the baseline Mermaid SVG skin before the docs theme can scope figure-level overrides.
+    // Keep this path for render-time/SSR output; figures.css only handles figure-shell presentation after injection.
     themeCSS: `
       .node rect,
       .node circle,
