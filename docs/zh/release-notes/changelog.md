@@ -72,8 +72,8 @@ x86-64 AVX2 上的初始基准测试：
 ### 🔗 链接
 
 - **完整变更日志**: [v3.0.0...v4.0.0](https://github.com/LessUp/bitcal/compare/v3.0.0...v4.0.0)
-- **vNext 白皮书**: [docs/zh/architecture/vnext-whitepaper.md](docs/zh/architecture/vnext-whitepaper.md)
-- **性能基线**: [docs/zh/architecture/performance-baseline.md](docs/zh/architecture/performance-baseline.md)
+- **vNext 白皮书**: https://lessup.github.io/bitcal/zh/whitepaper/
+- **性能基线**: https://lessup.github.io/bitcal/zh/whitepaper/performance
 
 
 ## 3.0.0 (2026-05-08)
@@ -100,7 +100,7 @@ x86-64 AVX2 上的初始基准测试：
 
 - **完整变更日志**: [v2.1.0...v3.0.0](https://github.com/LessUp/bitcal/compare/v2.1.0...v3.0.0)
 - **下载**: [v3.0.0 发布](https://github.com/LessUp/bitcal/releases/tag/v3.0.0)
-- **文档**: [文档入口](docs/zh/index.html)
+- **文档**: https://lessup.github.io/bitcal/zh/
 
 
 ## 2.1.0 (2026-04-16)
@@ -153,7 +153,7 @@ x86-64 AVX2 上的初始基准测试：
 
 - **完整变更日志**: [v2.0.0...v2.1.0](https://github.com/LessUp/bitcal/compare/v2.0.0...v2.1.0)
 - **下载**: [v2.1.0 发布](https://github.com/LessUp/bitcal/releases/tag/v2.1.0)
-- **文档**: [文档入口](docs/zh/index.html)
+- **文档**: https://lessup.github.io/bitcal/zh/
 
 ---
 
@@ -207,13 +207,10 @@ x86-64 AVX2 上的初始基准测试：
 ### 🔗 链接
 
 - **完整变更日志**: [v1.0...v2.0.0](https://github.com/LessUp/bitcal/releases/tag/v2.0.0)
-- **迁移指南**: [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)
 
 ### ⚠️ 迁移说明
 
 v1.x **不再维护**。用户应迁移到 v2.x。
-
-详见 [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) 了解详细迁移指南。
 
 ---
 

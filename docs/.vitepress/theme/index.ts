@@ -15,24 +15,13 @@ import ReadingModelDiagram from './components/ReadingModelDiagram.vue'
 import ReadingPathGrid from './components/ReadingPathGrid.vue'
 import { getMermaidConfig } from '../plugins/mermaid-theme'
 
-// 用于跟踪 Mermaid 是否已初始化
-let mermaidInitialized = false
-
 /**
  * 初始化或重新配置 Mermaid 主题
  * @param isDark 是否为深色模式
  */
 async function initMermaidTheme(isDark: boolean) {
   const config = getMermaidConfig(isDark)
-
-  if (!mermaidInitialized) {
-    mermaid.initialize(config)
-    mermaidInitialized = true
-  } else {
-    // 重新初始化以应用新主题
-    mermaid.initialize(config)
-  }
-
+  mermaid.initialize(config)
   // 重新渲染所有 Mermaid 图表
   await renderMermaidDiagrams()
 }
@@ -57,7 +46,7 @@ async function renderMermaidDiagrams() {
 
     try {
       // 使用唯一 ID 渲染
-      const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`
+      const id = `mermaid-${Math.random().toString(36).slice(2, 11)}`
       const { svg } = await mermaid.render(id, graphCode)
       el.innerHTML = svg
     } catch (error) {

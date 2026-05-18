@@ -14,7 +14,7 @@ title: BitCal
   ]"
   :actions="[
     { text: 'Read the whitepaper', href: '/en/whitepaper/index', theme: 'brand' },
-    { text: 'Inspect the evidence', href: '/en/performance/index', theme: 'alt' },
+    { text: 'Inspect the evidence', href: '/en/whitepaper/performance', theme: 'alt' },
     { text: 'View the repository', href: 'https://github.com/LessUp/bitcal', theme: 'alt' }
   ]"
 >
@@ -36,7 +36,7 @@ title: BitCal
     },
     {
       title: 'Performance',
-      href: '/en/performance/index',
+      href: '/en/whitepaper/performance',
       summary: 'Interpret current benchmark numbers through retained methodology and support scope.',
       detail: 'BitCal prefers honest baselines over broad unverified claims.'
     },

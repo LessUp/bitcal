@@ -70,8 +70,8 @@ These are local smoke baselines for future comparison, not final product claims.
 ### 🔗 Links
 
 - **Full Changelog**: [v3.0.0...v4.0.0](https://github.com/LessUp/bitcal/compare/v3.0.0...v4.0.0)
-- **vNext Whitepaper**: [docs/en/architecture/vnext-whitepaper.md](docs/en/architecture/vnext-whitepaper.md)
-- **Performance Baseline**: [docs/en/architecture/performance-baseline.md](docs/en/architecture/performance-baseline.md)
+- **vNext Whitepaper**: https://lessup.github.io/bitcal/en/whitepaper/
+- **Performance Baseline**: https://lessup.github.io/bitcal/en/whitepaper/performance
 
 
 ## [3.0.0] - 2026-05-08
@@ -98,7 +98,7 @@ These are local smoke baselines for future comparison, not final product claims.
 
 - **Full Changelog**: [v2.1.0...v3.0.0](https://github.com/LessUp/bitcal/compare/v2.1.0...v3.0.0)
 - **Download**: [v3.0.0 Release](https://github.com/LessUp/bitcal/releases/tag/v3.0.0)
-- **Documentation**: [Docs Landing](docs/index.html)
+- **Documentation**: https://lessup.github.io/bitcal/en/
 
 
 ## [2.1.0] - 2026-04-16
@@ -151,7 +151,7 @@ These are local smoke baselines for future comparison, not final product claims.
 
 - **Full Changelog**: [v2.0.0...v2.1.0](https://github.com/LessUp/bitcal/compare/v2.0.0...v2.1.0)
 - **Download**: [v2.1.0 Release](https://github.com/LessUp/bitcal/releases/tag/v2.1.0)
-- **Documentation**: [Docs Landing](docs/index.html)
+- **Documentation**: https://lessup.github.io/bitcal/en/
 
 ---
 
@@ -205,13 +205,10 @@ This is a **complete architectural redesign** from OOP inheritance to modern C++
 ### 🔗 Links
 
 - **Full Changelog**: [v1.0...v2.0.0](https://github.com/LessUp/bitcal/releases/tag/v2.0.0)
-- **Migration Guide**: [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)
 
 ### ⚠️ Migration Notes
 
 v1.x is **no longer maintained**. Users should migrate to v2.x.
-
-See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for detailed migration instructions.
 
 ---
 

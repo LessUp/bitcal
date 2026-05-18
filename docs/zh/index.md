@@ -14,7 +14,7 @@ title: BitCal
   ]"
   :actions="[
     { text: '进入白皮书', href: '/zh/whitepaper/index', theme: 'brand' },
-    { text: '检查证据页', href: '/zh/performance/index', theme: 'alt' },
+    { text: '检查证据页', href: '/zh/whitepaper/performance', theme: 'alt' },
     { text: '查看仓库', href: 'https://github.com/LessUp/bitcal', theme: 'alt' }
   ]"
 >
@@ -36,7 +36,7 @@ title: BitCal
     },
     {
       title: '性能',
-      href: '/zh/performance/index',
+      href: '/zh/whitepaper/performance',
       summary: '再用 retained methodology 和支持范围解释当前 benchmark。',
       detail: 'BitCal 更偏好诚实基线，而不是泛化宣称。'
     },
