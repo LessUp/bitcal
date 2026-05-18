@@ -1,6 +1,6 @@
 # 参考总览
 
-> **过渡边界说明：** 本页是 vNext 参考入口页。从这里进入的深层参考页，除非明确标注 vNext，否则大多仍保留 BitCal 3.0 的 `bitarray` 内容；它们当前作为待重写前的参考快照保留。
+> **过渡边界说明：** 本页是 IA 收敛过程中的保留参考入口页。
 
 ## 本节文档说明
 
@@ -10,6 +10,6 @@
 
 ## 从这里继续
 
-- 先看[项目状态](/zh/project-status/)了解支持与契约边界
-- 再看 [vNext 白皮书](/zh/architecture/vnext-whitepaper) 了解目标公开模型
-- 在完整的 vNext 参考重写落地前，可继续把[类型](/zh/api/types)、[核心操作](/zh/api/core-operations)及其他保留 API 细节页当作参考目录使用
+- 先看[状态](/zh/status/)了解支持与契约边界
+- 再看[白皮书](/zh/whitepaper/index)理解目标公开模型
+- 使用[类型与视图](/zh/reference/types-and-views)与[算法契约](/zh/reference/algorithms)继续当前参考阅读路径

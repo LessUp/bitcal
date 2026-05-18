@@ -1,6 +1,6 @@
 # Reference Overview
 
-> **Transitional boundary:** This page is the vNext reference landing page. The deeper reference pages linked from here still retain BitCal 3.0-era `bitarray` material unless they explicitly say vNext, and are being kept as reference snapshots pending rewrite.
+> **Transitional boundary:** This page is the retained reference landing page during the IA convergence.
 
 ## This section documents
 
@@ -10,6 +10,6 @@
 
 ## Route from here
 
-- Start with [Project Status](/en/project-status/) for support and contract boundaries
-- Read the [vNext Whitepaper](/en/architecture/vnext-whitepaper) for the target public model
-- Use [Types](/en/api/types), [Core Operations](/en/api/core-operations), and the retained API detail pages as reference inventory until the vNext reference rewrite lands
+- Start with [Status](/en/status/) for support and contract boundaries
+- Read the [Whitepaper](/en/whitepaper/index) for the target public model
+- Use [Types and Views](/en/reference/types-and-views) and [Algorithm Contract](/en/reference/algorithms) as the current reference inventory

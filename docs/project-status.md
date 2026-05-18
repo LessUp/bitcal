@@ -1,25 +1,26 @@
 ---
 layout: home
+title: Status
+text: ' '
 hero:
-  name: Project Status
-  text: ' '
   actions:
     - theme: brand
       text: 简体中文
-      link: /zh/project-status/
+      link: /zh/status/
     - theme: alt
       text: English
-      link: /en/project-status/
+      link: /en/status/
 ---
 
 <script setup>
 import { onMounted } from 'vue'
 import { useRouter, withBase } from 'vitepress'
 
+const router = useRouter()
+
 onMounted(() => {
-  const router = useRouter()
-  const lang = navigator.language || navigator.userLanguage
-  const target = lang.startsWith('zh') ? '/zh/project-status/' : '/en/project-status/'
+  const lang = navigator.language || navigator.userLanguage || ''
+  const target = lang.startsWith('zh') ? '/zh/status/' : '/en/status/'
   router.go(withBase(target))
 })
 </script>

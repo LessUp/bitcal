@@ -18,6 +18,11 @@ The whitepaper is where BitCal states its design position clearly enough to be c
       title: 'Dispatch and Kernels',
       href: '/en/whitepaper/dispatch-and-kernels',
       summary: 'Where implementation freedom begins, and where the public contract stops.'
+    },
+    {
+      title: 'Performance',
+      href: '/en/performance/index',
+      summary: 'Leave the thesis layer and inspect the retained evidence posture.'
     }
   ]"
 />

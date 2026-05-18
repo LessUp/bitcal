@@ -1,11 +1,11 @@
 # Migration Guide
 
-> **Transitional boundary:** This page is the vNext migration route map. Some deeper guides it routes into still retain BitCal 3.0-era `bitarray` details and are kept as reference pages pending rewrite.
+> **Transitional boundary:** This page is the vNext migration route map. It stays focused on the retained guide entry points that still matter during the IA convergence.
 
 ## Who should read this
 
 - users coming from the retained `bitarray` era
-- users updating install snippets or support assumptions
+- users updating support assumptions or verification routines
 
 ## What changed
 
@@ -15,6 +15,6 @@
 
 ## Route from here
 
-- Use [Project Status](/en/project-status/) for the current support and breaking-change posture
-- Use [vNext Whitepaper](/en/architecture/vnext-whitepaper) for the intended public model
-- Use [Installation](/en/getting-started/installation) and [Quick Start](/en/getting-started/quickstart) as retained setup references until the vNext rewrite lands
+- Use [Status](/en/status/) for current support and breaking-change posture
+- Read the [Whitepaper](/en/whitepaper/index) for the intended public model
+- Use [Verification Path](/en/guide/verification) and [Migration Posture](/en/guide/migration-posture) for the retained guide entry points

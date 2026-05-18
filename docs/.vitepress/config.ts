@@ -13,27 +13,18 @@ export default withMermaid(defineConfig({
   base,
   srcExclude: [
     'README.md',
-    'project-status.md',
+    'status.md',
     'design/**',
     'superpowers/**',
   ],
   title: 'BitCal',
   description: 'Whitepaper-first SIMD bit computation for C++23',
 
-  // 重定向规则：旧链接 → 新链接
   rewrites: {
-    // 中文重定向
     'zh/getting-started/:splat*': 'zh/guide/:splat*',
     'zh/api/:splat*': 'zh/reference/:splat*',
-    'zh/architecture/:splat*': 'zh/whitepaper/:splat*',
-    'zh/performance/index.md': 'zh/whitepaper/performance.md',
-    'zh/performance/methodology.md': 'zh/whitepaper/performance.md',
-    // 英文重定向
     'en/getting-started/:splat*': 'en/guide/:splat*',
     'en/api/:splat*': 'en/reference/:splat*',
-    'en/architecture/:splat*': 'en/whitepaper/:splat*',
-    'en/performance/index.md': 'en/whitepaper/performance.md',
-    'en/performance/methodology.md': 'en/whitepaper/performance.md',
   },
 
   locales: {
@@ -45,26 +36,14 @@ export default withMermaid(defineConfig({
       description: '面向高级开发者的 C++23 SIMD 位计算白皮书站点',
       themeConfig: {
         nav: [
-          { text: '学院', link: '/zh/academy/index', activeMatch: '/zh/academy/' },
+          { text: '导读', link: '/zh/guide/index', activeMatch: '/zh/guide/' },
           { text: '白皮书', link: '/zh/whitepaper/index', activeMatch: '/zh/whitepaper/' },
-          { text: '指南', link: '/zh/guide/index', activeMatch: '/zh/guide/' },
+          { text: '性能', link: '/zh/performance/index', activeMatch: '/zh/performance/' },
           { text: '参考', link: '/zh/reference/index', activeMatch: '/zh/reference/' },
           { text: '研究', link: '/zh/research/index', activeMatch: '/zh/research/' },
           { text: '状态', link: '/zh/status/index', activeMatch: '/zh/status/' },
         ],
         sidebar: {
-          '/zh/academy/': [
-            {
-              text: '学院',
-              items: [
-                { text: '学习路径', link: '/zh/academy/index' },
-                { text: '为什么选择 BitCal', link: '/zh/academy/why-bitcal' },
-                { text: '位运算心智模型', link: '/zh/academy/bit-mental-model' },
-                { text: 'SIMD 入门', link: '/zh/academy/simd-primer' },
-                { text: '术语表', link: '/zh/academy/terminology' },
-              ],
-            },
-          ],
           '/zh/guide/': [
             {
               text: '导读',
@@ -83,7 +62,14 @@ export default withMermaid(defineConfig({
                 { text: '公开模型', link: '/zh/whitepaper/public-model' },
                 { text: '算法设计', link: '/zh/whitepaper/algorithm-design' },
                 { text: '分发与内核', link: '/zh/whitepaper/dispatch-and-kernels' },
-                { text: '性能', link: '/zh/whitepaper/performance' },
+              ],
+            },
+          ],
+          '/zh/performance/': [
+            {
+              text: '性能',
+              items: [
+                { text: '总览', link: '/zh/performance/index' },
               ],
             },
           ],
@@ -110,7 +96,7 @@ export default withMermaid(defineConfig({
             {
               text: '状态',
               items: [
-                { text: '项目状态', link: '/zh/status/index' },
+                { text: '状态概览', link: '/zh/status/index' },
               ],
             },
           ],
@@ -125,26 +111,14 @@ export default withMermaid(defineConfig({
       description: 'A C++23 SIMD bit computation whitepaper for advanced developers',
       themeConfig: {
         nav: [
-          { text: 'Academy', link: '/en/academy/index', activeMatch: '/en/academy/' },
-          { text: 'Whitepaper', link: '/en/whitepaper/index', activeMatch: '/en/whitepaper/' },
           { text: 'Guide', link: '/en/guide/index', activeMatch: '/en/guide/' },
+          { text: 'Whitepaper', link: '/en/whitepaper/index', activeMatch: '/en/whitepaper/' },
+          { text: 'Performance', link: '/en/performance/index', activeMatch: '/en/performance/' },
           { text: 'Reference', link: '/en/reference/index', activeMatch: '/en/reference/' },
           { text: 'Research', link: '/en/research/index', activeMatch: '/en/research/' },
           { text: 'Status', link: '/en/status/index', activeMatch: '/en/status/' },
         ],
         sidebar: {
-          '/en/academy/': [
-            {
-              text: 'Academy',
-              items: [
-                { text: 'Learning Paths', link: '/en/academy/index' },
-                { text: 'Why BitCal', link: '/en/academy/why-bitcal' },
-                { text: 'Bit Mental Model', link: '/en/academy/bit-mental-model' },
-                { text: 'SIMD Primer', link: '/en/academy/simd-primer' },
-                { text: 'Terminology', link: '/en/academy/terminology' },
-              ],
-            },
-          ],
           '/en/guide/': [
             {
               text: 'Guide',
@@ -163,7 +137,14 @@ export default withMermaid(defineConfig({
                 { text: 'Public Model', link: '/en/whitepaper/public-model' },
                 { text: 'Algorithm Design', link: '/en/whitepaper/algorithm-design' },
                 { text: 'Dispatch and Kernels', link: '/en/whitepaper/dispatch-and-kernels' },
-                { text: 'Performance', link: '/en/whitepaper/performance' },
+              ],
+            },
+          ],
+          '/en/performance/': [
+            {
+              text: 'Performance',
+              items: [
+                { text: 'Overview', link: '/en/performance/index' },
               ],
             },
           ],
@@ -190,7 +171,7 @@ export default withMermaid(defineConfig({
             {
               text: 'Status',
               items: [
-                { text: 'Project Status', link: '/en/status/index' },
+                { text: 'Status Overview', link: '/en/status/index' },
               ],
             },
           ],
@@ -216,7 +197,7 @@ export default withMermaid(defineConfig({
       llmstxt({
         ignoreFiles: [
           'README.md',
-          'project-status.md',
+          'status.md',
           'design/**',
           'superpowers/**',
         ],

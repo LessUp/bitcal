@@ -34,8 +34,11 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 
 - 搜索索引、静态资源、派生 HTML 都应服务于 canonical source
 - 若某个 HTML 页面无法明确对应一个 canonical source，则该页面属于清理候选
+- route alias 与语言分流页只能服务主站结构，不能再成为另一套主路径真相
 
 ## 3. 最终信息架构
+
+最终主站模型统一为 `Home / Docs Landing / Guide / Whitepaper / Performance / Reference / Research / Status`。
 
 ### 3.1 Home
 
@@ -61,7 +64,8 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 
 ### 3.5 Performance
 
-- 性能页必须区分 baseline、方法学和公开宣称边界
+- 性能页必须独立成 section，而不是继续挂靠在旧白皮书命名之下
+- 必须区分 baseline、方法学和公开宣称边界
 - 不允许把局部 benchmark 当作无条件产品承诺
 
 ### 3.6 Reference
@@ -75,10 +79,11 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 - 收纳参考文献、相关项目、演进思考与方法学说明
 - 目的是提升论证深度，而不是制造装饰性“学术感”
 
-### 3.8 Project Status
+### 3.8 Status
 
 - 明确项目当前姿态、支持边界、breaking-change 策略与规范入口
 - 状态页必须比 README 更严格，而不是更宽松
+- 旧的 `project-status` 仅允许作为兼容 alias，不再作为主路径命名
 
 ## 4. 双语策略
 
@@ -86,8 +91,8 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 
 - 仓库入口 README
 - Pages 首页与 docs landing
-- 安装/快速开始
-- 项目状态与维护边界说明
+- Guide / Whitepaper / Performance / Reference / Research / Status 的主入口页
+- 状态与维护边界说明
 
 ### 优先英文、按需提供中文
 
@@ -107,6 +112,7 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 - 与 README 重复的落地文档：合并或删除
 - 与 Markdown 同步成本过高的手写 HTML 参考页：删除或改为派生
 - 无清晰受众的文档：删除
+- academy、旧 architecture、`project-status` 只允许作为兼容入口，不能继续占据主导航或主阅读路径
 
 ## 6. 执行顺序
 

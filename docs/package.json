@@ -6,7 +6,8 @@
     "sync": "node scripts/sync-changelog.mjs",
     "dev": "npm run sync && vitepress dev",
     "build": "npm run sync && vitepress build",
-    "preview": "vitepress preview"
+    "preview": "vitepress preview",
+    "check:ia": "node scripts/check-ia.mjs"
   },
   "devDependencies": {
     "vitepress": "^1.5.0"

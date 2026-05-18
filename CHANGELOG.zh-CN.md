@@ -71,7 +71,7 @@ x86-64 AVX2 上的初始基准测试：
 
 - **完整变更日志**: [v3.0.0...v4.0.0](https://github.com/LessUp/bitcal/compare/v3.0.0...v4.0.0)
 - **vNext 白皮书**: https://lessup.github.io/bitcal/zh/whitepaper/
-- **性能基线**: https://lessup.github.io/bitcal/zh/whitepaper/performance
+- **性能基线**: https://lessup.github.io/bitcal/zh/performance/
 
 
 ## [3.0.0] - 2026-05-08

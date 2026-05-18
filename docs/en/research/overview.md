@@ -1,17 +1,7 @@
-# Research
+# Research Overview
 
-This section collects the comparative and reflective material behind the BitCal vNext design.
+## Continue from here
 
-> **Transitional boundary:** This page is the vNext research landing page. Detailed references and comparative notes are still being consolidated, and some retained material may continue to reflect the 3.0-era surface until the rewrite is complete.
-
-## In this section
-
-- related work
-- evolution notes
-- references and citations
-
-## Route from here
-
-- [vNext Whitepaper](/en/architecture/vnext-whitepaper)
-- [Performance Baseline](/en/architecture/performance-baseline)
-- [Project Status](/en/project-status/)
+- Read the [Whitepaper](/en/whitepaper/public-model) for the target public model
+- Review [Performance](/en/performance/) before comparing benchmark claims
+- Use [Status](/en/status/) for support boundaries and maintained sources of truth

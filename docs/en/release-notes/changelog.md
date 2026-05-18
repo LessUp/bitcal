@@ -73,7 +73,7 @@ These are local smoke baselines for future comparison, not final product claims.
 
 - **Full Changelog**: [v3.0.0...v4.0.0](https://github.com/LessUp/bitcal/compare/v3.0.0...v4.0.0)
 - **vNext Whitepaper**: https://lessup.github.io/bitcal/en/whitepaper/
-- **Performance Baseline**: https://lessup.github.io/bitcal/en/whitepaper/performance
+- **Performance Baseline**: https://lessup.github.io/bitcal/en/performance/
 
 
 ## 3.0.0 (2026-05-08)

@@ -18,6 +18,11 @@
       title: '分发与内核',
       href: '/zh/whitepaper/dispatch-and-kernels',
       summary: '最后确认实现自由从哪里开始，公共契约又在哪里停止。'
+    },
+    {
+      title: '性能',
+      href: '/zh/performance/index',
+      summary: '离开论文层，直接检查当前保留下来的证据姿态。'
     }
   ]"
 />

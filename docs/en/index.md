@@ -13,14 +13,14 @@ title: BitCal
     { label: 'Primary optimization posture', value: 'x86-64 first' }
   ]"
   :actions="[
-    { text: 'Read the whitepaper', href: '/en/whitepaper/index', theme: 'brand' },
-    { text: 'Inspect the evidence', href: '/en/whitepaper/performance', theme: 'alt' },
-    { text: 'View the repository', href: 'https://github.com/LessUp/bitcal', theme: 'alt' }
+    { text: 'Start with the guide', href: '/en/guide/index', theme: 'brand' },
+    { text: 'Review the whitepaper', href: '/en/whitepaper/index', theme: 'alt' },
+    { text: 'Check status', href: '/en/status/index', theme: 'alt' }
   ]"
 >
 </BitcalHero>
 
-<FigureFrame title="Reading model" caption="BitCal leads with public contract, then proves itself through evidence, reference, and comparative context.">
+<FigureFrame title="Reading model" caption="BitCal leads with guide-level orientation, then proves itself through whitepaper, performance, reference, research, and status evidence.">
   <ReadingModelDiagram lang="en" />
 </FigureFrame>
 
@@ -29,15 +29,21 @@ title: BitCal
 <ReadingPathGrid
   :items="[
     {
+      title: 'Guide',
+      href: '/en/guide/index',
+      summary: 'Start with the reading path, verification route, and migration posture.',
+      detail: 'This is the shortest route from curiosity to serious review.'
+    },
+    {
       title: 'Whitepaper',
       href: '/en/whitepaper/index',
-      summary: 'Read the public model, algorithm posture, and dispatch boundaries first.',
+      summary: 'Read the public model, algorithm posture, and dispatch boundaries.',
       detail: 'This is the site thesis, not an accessory narrative.'
     },
     {
       title: 'Performance',
-      href: '/en/whitepaper/performance',
-      summary: 'Interpret current benchmark numbers through retained methodology and support scope.',
+      href: '/en/performance/index',
+      summary: 'Interpret current benchmark numbers through retained methodology and claim guardrails.',
       detail: 'BitCal prefers honest baselines over broad unverified claims.'
     },
     {
@@ -51,6 +57,12 @@ title: BitCal
       href: '/en/research/index',
       summary: 'Compare BitCal against external references, adjacent libraries, and design alternatives.',
       detail: 'This is where context and evolution become explicit.'
+    },
+    {
+      title: 'Status',
+      href: '/en/status/index',
+      summary: 'Check support boundaries, breaking-change posture, and maintained sources of truth.',
+      detail: 'This is the site section that narrows claims back to what the repo can defend.'
     }
   ]"
 />

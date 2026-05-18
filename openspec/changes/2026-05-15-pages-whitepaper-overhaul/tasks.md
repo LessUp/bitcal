@@ -1,16 +1,19 @@
 ## Contract / Policy
-- [x] Freeze the Pages contract in the proposal, spec delta, and docs policy, including the Academy boundary, canonical-source rules, and bilingual navigation scope
+- [x] Freeze the Pages contract in the proposal, design, spec delta, and docs policy around `Home / Docs Landing / Guide / Whitepaper / Performance / Reference / Research / Status`
+- [x] Record that legacy academy, old architecture, and `project-status` naming are compatibility-only aliases, not primary IA sections
 
 ## Route Map / IA
-- [ ] Rebuild the VitePress navigation and section structure around Home / Academy / Whitepaper / Guides / Reference / Research / Project Status
-- [ ] Add the bilingual landing pages and route stubs needed to keep the primary audience-facing structure aligned across English and Chinese
+- [x] Rebuild the VitePress navigation and sidebar around `Guide / Whitepaper / Performance / Reference / Research / Status`
+- [x] Add the localized section entry pages and redirect aliases needed to keep the primary reading path aligned across English and Chinese
 
 ## Theme Primitives
 - [ ] Introduce reusable theme components and figure tokens for high-value Pages surfaces
 
 ## Content Rewrite
-- [ ] Rewrite the home, academy, whitepaper, research, and project-status entry pages against the frozen contract
+- [x] Rewrite the home, status, and closely related entry pages so the main reading path no longer points at retired academy, old architecture, or `project-status` routes
+- [ ] Continue rewriting deeper content against the frozen contract where still needed
 
 ## Figures / Validation
-- [ ] Rebuild light/dark-safe figures and SVG assets
-- [ ] Validate the retained Pages build, routes, Mermaid rendering, search, and theme switching
+- [x] Add an executable IA structure validation that fails on drift before production edits and passes after alignment
+- [x] Validate the retained Pages build, route structure, and diff hygiene for this IA convergence slice
+- [ ] Continue validating Mermaid rendering, search, and theme switching in broader whitepaper rollout tasks

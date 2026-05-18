@@ -13,14 +13,14 @@ title: BitCal
     { label: '主要优化姿态', value: 'x86-64 优先' }
   ]"
   :actions="[
-    { text: '进入白皮书', href: '/zh/whitepaper/index', theme: 'brand' },
-    { text: '检查证据页', href: '/zh/whitepaper/performance', theme: 'alt' },
-    { text: '查看仓库', href: 'https://github.com/LessUp/bitcal', theme: 'alt' }
+    { text: '先看导读', href: '/zh/guide/index', theme: 'brand' },
+    { text: '进入白皮书', href: '/zh/whitepaper/index', theme: 'alt' },
+    { text: '查看状态', href: '/zh/status/index', theme: 'alt' }
   ]"
 >
 </BitcalHero>
 
-<FigureFrame title="阅读模型" caption="BitCal 先给出公共契约，再用证据、参考和外部比较支撑它。">
+<FigureFrame title="阅读模型" caption="BitCal 先用导读建立评估上下文，再用白皮书、性能、参考、研究和状态页逐层收敛主张。">
   <ReadingModelDiagram lang="zh" />
 </FigureFrame>
 
@@ -29,15 +29,21 @@ title: BitCal
 <ReadingPathGrid
   :items="[
     {
+      title: '导读',
+      href: '/zh/guide/index',
+      summary: '先建立阅读路径、验证入口与迁移姿态。',
+      detail: '这是从“刚打开仓库”到“能严肃评估它”的最短路径。'
+    },
+    {
       title: '白皮书',
       href: '/zh/whitepaper/index',
-      summary: '先读公开模型、算法姿态与分发边界。',
+      summary: '再读公开模型、算法姿态与分发边界。',
       detail: '这里是整站的主论文线，不是附属说明。'
     },
     {
       title: '性能',
-      href: '/zh/whitepaper/performance',
-      summary: '再用 retained methodology 和支持范围解释当前 benchmark。',
+      href: '/zh/performance/index',
+      summary: '用 retained methodology 与 claim guardrails 解读 benchmark。',
       detail: 'BitCal 更偏好诚实基线，而不是泛化宣称。'
     },
     {
@@ -51,6 +57,12 @@ title: BitCal
       href: '/zh/research/index',
       summary: '最后用外部资料、相邻库与演进笔记做横向判断。',
       detail: '这部分负责补齐语境和比较维度。'
+    },
+    {
+      title: '状态',
+      href: '/zh/status/index',
+      summary: '检查支持边界、破坏性变更姿态与单一真相入口。',
+      detail: '这里负责把整站主张收窄回仓库真正能支撑的范围。'
     }
   ]"
 />
