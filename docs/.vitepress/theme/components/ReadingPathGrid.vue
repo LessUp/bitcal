@@ -1,33 +1,47 @@
 <script setup lang="ts">
 import { withBase } from 'vitepress'
 
+export type ReadingPathItem = {
+  title: string
+  href: string
+  summary: string
+  badge?: string
+}
+
 defineProps<{
-  items: Array<{
-    title: string
-    href: string
-    summary: string
-    detail?: string
-  }>
+  items: ReadingPathItem[]
 }>()
 
-function resolveHref(href: string): string {
-  if (/^(https?:)?\/\//.test(href)) {
+const externalHrefPattern = /^(?:[a-z]+:)?\/\//i
+
+function resolveReadingPathHref(href: string) {
+  if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || externalHrefPattern.test(href)) {
     return href
   }
 
-  return withBase(href)
+  const match = href.match(/^([^?#]+)([?#].*)?$/)
+  const path = match?.[1] ?? href
+  const suffix = match?.[2] ?? ''
+  const normalized = path.endsWith('/') || path.endsWith('.html') ? path : `${path}.html`
+
+  return withBase(`${normalized}${suffix}`)
 }
 </script>
 
 <template>
-  <ol class="bitcal-reading-path" aria-label="Reading path">
-    <li v-for="(item, index) in items" :key="item.href" class="bitcal-reading-path__item">
-      <span class="bitcal-reading-path__index">{{ String(index + 1).padStart(2, '0') }}</span>
-      <div class="bitcal-reading-path__body">
-        <a :href="resolveHref(item.href)" class="bitcal-reading-path__title">{{ item.title }}</a>
-        <p class="bitcal-reading-path__summary">{{ item.summary }}</p>
-        <p v-if="item.detail" class="bitcal-reading-path__detail">{{ item.detail }}</p>
+  <div class="bc-reading-grid">
+    <a
+      v-for="item in items"
+      :key="item.href"
+      :href="resolveReadingPathHref(item.href)"
+      class="bc-reading-card"
+    >
+      <div class="bc-reading-card-meta">
+        <span v-if="item.badge" class="bc-reading-card-badge">{{ item.badge }}</span>
       </div>
-    </li>
-  </ol>
+      <div class="bc-reading-card-title">{{ item.title }}</div>
+      <p class="bc-reading-card-summary">{{ item.summary }}</p>
+      <span class="bc-reading-card-arrow" aria-hidden="true">→</span>
+    </a>
+  </div>
 </template>

@@ -1,18 +1,30 @@
 <script setup lang="ts">
+import { useSlots } from 'vue'
+
+const slots = useSlots()
+
 defineProps<{
-  title: string
+  title?: string
+  eyebrow?: string
   caption?: string
 }>()
 </script>
 
 <template>
-  <figure class="bitcal-figure">
-    <div class="bitcal-figure__header">
-      <strong class="bitcal-figure__title">{{ title }}</strong>
-      <p v-if="caption" class="bitcal-figure__caption">{{ caption }}</p>
+  <figure class="bc-figure-frame">
+    <div v-if="eyebrow || slots.title || title" class="bc-figure-heading">
+      <p v-if="eyebrow" class="bc-figure-eyebrow">{{ eyebrow }}</p>
+      <div v-if="slots.title || title" class="bc-figure-title">
+        <slot name="title">{{ title }}</slot>
+      </div>
     </div>
-    <div class="bitcal-figure__canvas">
+
+    <div class="bc-figure-shell">
       <slot />
     </div>
+
+    <figcaption v-if="slots.caption || caption" class="bc-figure-caption">
+      <slot name="caption">{{ caption }}</slot>
+    </figcaption>
   </figure>
 </template>

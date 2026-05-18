@@ -33,30 +33,37 @@ const labels: Record<string, { zh: string; en: string }> = {
 </script>
 
 <template>
-  <svg viewBox="0 0 720 360" preserveAspectRatio="xMidYMid meet" role="img" :aria-label="lang === 'zh' ? 'BitCal 阅读模型图' : 'BitCal reading model diagram'">
-    <rect x="32" y="28" width="656" height="64" rx="16" data-fill="surface" />
-    <text x="60" y="67" fill="currentColor" font-size="24" font-weight="700">{{ labels.publicContract[lang] }}</text>
-    <text x="60" y="92" fill="currentColor" font-size="15">{{ labels.publicContractDetail[lang] }}</text>
+  <svg viewBox="0 0 720 380" preserveAspectRatio="xMidYMid meet" role="img" :aria-label="lang === 'zh' ? 'BitCal 阅读模型图' : 'BitCal reading model diagram'">
+    <!-- 公共契约 / Public contract -->
+    <rect x="32" y="28" width="656" height="68" rx="16" data-fill="surface" />
+    <text x="60" y="56" fill="currentColor" font-size="22" font-weight="700" dominant-baseline="auto">{{ labels.publicContract[lang] }}</text>
+    <text x="60" y="80" fill="currentColor" font-size="14" opacity="0.72">{{ labels.publicContractDetail[lang] }}</text>
 
-    <rect x="86" y="142" width="250" height="72" rx="18" data-fill="accent" />
-    <text x="118" y="181" fill="currentColor" font-size="22" font-weight="650">{{ labels.whitepaper[lang] }}</text>
-    <text x="118" y="205" fill="currentColor" font-size="14">{{ labels.whitepaperDetail[lang] }}</text>
+    <!-- 连线：契约 → 中层 -->
+    <path d="M360 96 L360 138" stroke-width="2" fill="none" data-stroke="primary" />
 
-    <rect x="384" y="142" width="250" height="72" rx="18" data-fill="surface" />
-    <text x="416" y="181" fill="currentColor" font-size="22" font-weight="650">{{ labels.performance[lang] }}</text>
-    <text x="416" y="205" fill="currentColor" font-size="14">{{ labels.performanceDetail[lang] }}</text>
+    <!-- 中层：白皮书 / Whitepaper -->
+    <rect x="40" y="138" width="296" height="76" rx="16" data-fill="accent" />
+    <text x="72" y="171" fill="currentColor" font-size="21" font-weight="650">{{ labels.whitepaper[lang] }}</text>
+    <text x="72" y="196" fill="currentColor" font-size="13" opacity="0.8">{{ labels.whitepaperDetail[lang] }}</text>
 
-    <rect x="86" y="256" width="250" height="72" rx="18" data-fill="surface" />
-    <text x="118" y="295" fill="currentColor" font-size="22" font-weight="650">{{ labels.reference[lang] }}</text>
-    <text x="118" y="319" fill="currentColor" font-size="14">{{ labels.referenceDetail[lang] }}</text>
+    <!-- 中层：性能 / Performance -->
+    <rect x="384" y="138" width="296" height="76" rx="16" data-fill="surface" />
+    <text x="416" y="171" fill="currentColor" font-size="21" font-weight="650">{{ labels.performance[lang] }}</text>
+    <text x="416" y="196" fill="currentColor" font-size="13" opacity="0.72">{{ labels.performanceDetail[lang] }}</text>
 
-    <rect x="384" y="256" width="250" height="72" rx="18" data-fill="surface" />
-    <text x="416" y="295" fill="currentColor" font-size="22" font-weight="650">{{ labels.research[lang] }}</text>
-    <text x="416" y="319" fill="currentColor" font-size="14">{{ labels.researchDetail[lang] }}</text>
+    <!-- 连线：中层 → 底层 -->
+    <path d="M188 214 L188 258" stroke-width="2" fill="none" data-stroke="muted" />
+    <path d="M532 214 L532 258" stroke-width="2" fill="none" data-stroke="muted" />
 
-    <path d="M360 92 L360 128" stroke-width="2.5" fill="none" data-stroke="primary" />
-    <path d="M360 214 L360 242" stroke-width="2.5" fill="none" data-stroke="muted" />
-    <path d="M210 214 L210 242" stroke-width="2.5" fill="none" data-stroke="muted" />
-    <path d="M510 214 L510 242" stroke-width="2.5" fill="none" data-stroke="muted" />
+    <!-- 底层：参考 / Reference -->
+    <rect x="40" y="258" width="296" height="76" rx="16" data-fill="surface" />
+    <text x="72" y="291" fill="currentColor" font-size="21" font-weight="650">{{ labels.reference[lang] }}</text>
+    <text x="72" y="315" fill="currentColor" font-size="13" opacity="0.72">{{ labels.referenceDetail[lang] }}</text>
+
+    <!-- 底层：研究 / Research -->
+    <rect x="384" y="258" width="296" height="76" rx="16" data-fill="surface" />
+    <text x="416" y="291" fill="currentColor" font-size="21" font-weight="650">{{ labels.research[lang] }}</text>
+    <text x="416" y="315" fill="currentColor" font-size="13" opacity="0.72">{{ labels.researchDetail[lang] }}</text>
   </svg>
 </template>
