@@ -4,20 +4,42 @@ BitCal becomes easier to trust when it names its neighbors and trade-offs direct
 
 ## Citations
 
-| Source | Why it matters to this site |
-| --- | --- |
-| Intel Intrinsics Guide | Grounds x86 SIMD discussion in instruction-level reference material. |
-| Agner Fog optimization manuals | Adds microarchitectural context to throughput, latency, and dispatch arguments. |
-| Sebastiano Vigna's broadword paper | Provides theoretical and practical background for word-parallel bit operations. |
-| libpopcnt documentation and code | Reminds us how much rigor even one counting primitive can justify. |
+<CitationList
+  :items="[
+    {
+      title: 'Intel Intrinsics Guide',
+      href: 'https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html',
+      meta: 'Instruction reference',
+      note: 'Grounds the x86 SIMD discussion in instruction-level reference material.'
+    },
+    {
+      title: 'Agner Fog optimization manuals',
+      href: 'https://www.agner.org/optimize/',
+      meta: 'Optimization manuals',
+      note: 'Adds microarchitectural context to throughput, latency, and dispatch arguments.'
+    },
+    {
+      title: 'Sebastiano Vigna, Broadword Implementation of Rank/Select Queries',
+      href: 'https://arxiv.org/abs/0901.0166',
+      meta: 'Broadword paper',
+      note: 'Provides theoretical and practical background for word-parallel bit operations.'
+    },
+    {
+      title: 'libpopcnt',
+      href: 'https://github.com/kimwalisch/libpopcnt',
+      meta: 'Library and source code',
+      note: 'Reminds us how much rigor even one counting primitive can justify.'
+    }
+  ]"
+/>
 
 ## Related systems
 
 | System | Useful contrast |
 | --- | --- |
-| Boost dynamic_bitset | Flexible C++ dynamic bitset ergonomics with a different contract center. |
-| CRoaring | Performance-oriented bitmap engineering with a different storage model and workload focus. |
-| libpopcnt | Narrower scope, but a strong reminder that bit-level performance work rewards deep specialization. |
+| [Boost dynamic_bitset](https://www.boost.org/doc/libs/release/libs/dynamic_bitset/) | Flexible C++ dynamic bitset ergonomics with a different contract center. |
+| [CRoaring](https://github.com/RoaringBitmap/CRoaring) | Performance-oriented bitmap engineering with a different storage model and workload focus. |
+| [libpopcnt](https://github.com/kimwalisch/libpopcnt) | Narrower scope, but a strong reminder that bit-level performance work rewards deep specialization. |
 
 ## Evolution notes
 

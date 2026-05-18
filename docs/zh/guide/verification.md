@@ -20,6 +20,15 @@ ctest --test-dir build-test --output-on-failure -C Release
 | `ctest` | 当前保留的 correctness surface 仍通过现有测试二进制执行。 | 对外行为的主张不能只靠编译通过。 |
 | benchmark 可执行文件 | 性能章节仍有可以被重跑的 baseline 路径。 | 没有复现路线的性能数字不构成证据。 |
 
+## benchmark 二进制与职责分工
+
+BitCal 刻意保留两个 benchmark 可执行文件，而这页只把其中一个放进最低验证闭环。
+
+| 二进制 | 主要职责 | 应该在哪一页阅读 |
+| --- | --- | --- |
+| `bitcal_benchmark` | 轻量 benchmark 烟雾可执行文件，用来证明 benchmark target 仍能构建、运行，并报告当前 backend 路径。 | 本页把它保留在验证命令链里。 |
+| `benchmark_compare` | 用于发布 BitCal 对 `std::bitset` 对比表格的基线对照程序。 | 需要去 [Performance](/zh/performance/index) 页面阅读那条证据链及其解释规则。 |
+
 ## 如何解读失败
 
 这条路径的意义，不是证明所有未来优化都已经完成，而是在重设计期间保留最低可信验证闭环。

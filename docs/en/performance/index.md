@@ -66,6 +66,15 @@ cmake --build build-test --config Release --target benchmark_compare -j"$(nproc)
 ./build-test/benchmarks/benchmark_compare
 ```
 
+### Benchmark binary split
+
+The performance evidence on this page comes from `benchmark_compare`, not from the smaller `bitcal_benchmark` smoke executable used in the guide.
+
+| Binary | Role in the docs set | Why the split exists |
+| --- | --- | --- |
+| `benchmark_compare` | Publishes the BitCal-vs-`std::bitset` comparison tables shown on this page. | The baseline needs an explicit comparison harness with method and interpretation guardrails. |
+| `bitcal_benchmark` | Stays in [Verification Path](/en/guide/verification) as the smoke-level executable baseline. | Verification needs a lighter executable check that is distinct from the published comparison experiment. |
+
 ### Method rules
 
 | Rule | Why it exists |

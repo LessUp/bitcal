@@ -20,6 +20,15 @@ ctest --test-dir build-test --output-on-failure -C Release
 | `ctest` | The retained correctness surface still runs through the existing test binary. | Claims about public behavior need more than type-checking. |
 | Benchmark binary | The performance section retains an executable baseline path. | Performance numbers without a reproduction route are just decoration. |
 
+## Benchmark binaries and responsibilities
+
+BitCal intentionally keeps two benchmark executables, and this page only treats one of them as part of the minimum verification loop.
+
+| Binary | Primary role | Read it here or elsewhere? |
+| --- | --- | --- |
+| `bitcal_benchmark` | Smoke-level benchmark executable that proves the benchmark target still builds, runs, and reports a backend path. | This page keeps it in the retained verification loop. |
+| `benchmark_compare` | BitCal-vs-`std::bitset` comparison harness used to publish the baseline tables. | Use the [Performance](/en/performance/index) section for that evidence chain and its interpretation rules. |
+
 ## Failure interpretation
 
 The purpose of this path is not to prove that every future optimization is already complete. It is to keep a minimum credible loop alive while the redesign evolves.

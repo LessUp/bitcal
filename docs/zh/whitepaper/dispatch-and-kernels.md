@@ -8,18 +8,18 @@ BitCal 记录 dispatch，是为了定义支持边界，而不是为了给项目�
   <svg viewBox="0 0 760 330" role="img" aria-label="分发边界图">
     <rect x="40" y="28" width="680" height="64" rx="18" data-fill="accent" />
     <text x="70" y="68" fill="currentColor" font-size="26" font-weight="700">公开契约</text>
-    <text x="280" y="68" fill="currentColor" font-size="16">include seam · owner/view 角色 · algorithm 语义</text>
+    <text x="280" y="68" fill="currentColor" font-size="16">稳定入口头文件 · 所有权/借用角色 · 算法语义</text>
     <path d="M60 132 L700 132" stroke-width="3" fill="none" data-stroke="primary" />
-    <text x="70" y="122" fill="currentColor" font-size="14">dispatch 边界</text>
+    <text x="70" y="122" fill="currentColor" font-size="14">分发边界</text>
     <rect x="40" y="164" width="210" height="96" rx="18" data-fill="surface" />
-    <text x="70" y="202" fill="currentColor" font-size="22" font-weight="680">dispatch policy</text>
-    <text x="70" y="230" fill="currentColor" font-size="14">特征检测、路由、fallback 选择</text>
+    <text x="70" y="202" fill="currentColor" font-size="22" font-weight="680">分发策略</text>
+    <text x="70" y="230" fill="currentColor" font-size="14">特征检测、路由、回退选择</text>
     <rect x="276" y="164" width="210" height="96" rx="18" data-fill="surface" />
     <text x="308" y="202" fill="currentColor" font-size="22" font-weight="680">内核族</text>
-    <text x="308" y="230" fill="currentColor" font-size="14">AVX2 主路径，scalar 便携底线</text>
+    <text x="308" y="230" fill="currentColor" font-size="14">AVX2 主路径，标量可移植底线</text>
     <rect x="512" y="164" width="210" height="96" rx="18" data-fill="surface" />
     <text x="546" y="202" fill="currentColor" font-size="22" font-weight="680">微调层</text>
-    <text x="546" y="230" fill="currentColor" font-size="14">intrinsic 选择、展开、对齐策略</text>
+    <text x="546" y="230" fill="currentColor" font-size="14">指令选择、展开、对齐策略</text>
   </svg>
 </FigureFrame>
 

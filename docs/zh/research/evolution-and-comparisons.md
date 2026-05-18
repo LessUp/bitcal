@@ -4,20 +4,42 @@
 
 ## 引用文献
 
-| 资料 | 对本站有什么价值 |
-| --- | --- |
-| Intel Intrinsics Guide | 为 x86 SIMD 讨论提供指令级参考，不让实现说明漂浮在空中。 |
-| Agner Fog optimization manuals | 为吞吐、延迟与 dispatch 代价提供微架构语境。 |
-| Sebastiano Vigna 的 broadword 论文 | 给 word-parallel 位操作提供理论与工程之间的桥梁。 |
-| libpopcnt 的文档与实现 | 提醒我们：哪怕只有一个计数原语，也值得高度严肃的工程投入。 |
+<CitationList
+  :items="[
+    {
+      title: 'Intel Intrinsics Guide',
+      href: 'https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html',
+      meta: '指令参考',
+      note: '为 x86 SIMD 讨论提供可点击、可追溯的指令级资料。'
+    },
+    {
+      title: 'Agner Fog optimization manuals',
+      href: 'https://www.agner.org/optimize/',
+      meta: '优化手册',
+      note: '为吞吐、延迟与 dispatch 成本提供微架构语境。'
+    },
+    {
+      title: 'Sebastiano Vigna, Broadword Implementation of Rank/Select Queries',
+      href: 'https://arxiv.org/abs/0901.0166',
+      meta: 'Broadword 论文',
+      note: '给 word-parallel 位操作提供理论与工程之间的桥梁。'
+    },
+    {
+      title: 'libpopcnt',
+      href: 'https://github.com/kimwalisch/libpopcnt',
+      meta: '库与源码',
+      note: '提醒我们：哪怕只有一个计数原语，也值得高度严肃的工程投入。'
+    }
+  ]"
+/>
 
 ## 相关系统
 
 | 系统 | 值得比较的地方 |
 | --- | --- |
-| Boost dynamic_bitset | 展示另一种以动态 bitset 可用性为中心的 C++ 契约组织方式。 |
-| CRoaring | 展示在不同存储模型下，bitmap 性能工程可以被做到多系统化。 |
-| libpopcnt | 范围更窄，但很好地说明“专注一个原语”可以带来多深的实现强度。 |
+| [Boost dynamic_bitset](https://www.boost.org/doc/libs/release/libs/dynamic_bitset/) | 展示另一种以动态 bitset 可用性为中心的 C++ 契约组织方式。 |
+| [CRoaring](https://github.com/RoaringBitmap/CRoaring) | 展示在不同存储模型下，bitmap 性能工程可以被做到多系统化。 |
+| [libpopcnt](https://github.com/kimwalisch/libpopcnt) | 范围更窄，但很好地说明“专注一个原语”可以带来多深的实现强度。 |
 
 ## 演进说明
 

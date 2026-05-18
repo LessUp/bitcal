@@ -75,8 +75,26 @@ const requiredPageContracts = {
   'zh/reference/algorithms.md': ['## 算法表面', '## 契约规则与非目标'],
   'en/research/index.md': ['## Research map', '## Reference set', '## Related systems'],
   'zh/research/index.md': ['## 研究地图', '## 参考资料集', '## 相关系统'],
-  'en/research/evolution-and-comparisons.md': ['## Citations', '## Related systems', '## Evolution notes', '## Design trade-offs'],
-  'zh/research/evolution-and-comparisons.md': ['## 引用文献', '## 相关系统', '## 演进说明', '## 设计取舍'],
+  'en/research/evolution-and-comparisons.md': [
+    '## Citations',
+    '## Related systems',
+    '## Evolution notes',
+    '## Design trade-offs',
+    'https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html',
+    'https://www.agner.org/optimize/',
+    'https://arxiv.org/abs/0901.0166',
+    'https://github.com/kimwalisch/libpopcnt',
+  ],
+  'zh/research/evolution-and-comparisons.md': [
+    '## 引用文献',
+    '## 相关系统',
+    '## 演进说明',
+    '## 设计取舍',
+    'https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html',
+    'https://www.agner.org/optimize/',
+    'https://arxiv.org/abs/0901.0166',
+    'https://github.com/kimwalisch/libpopcnt',
+  ],
   'en/status/index.md': ['## Release posture', '## Support matrix', '## Documentation truth'],
   'zh/status/index.md': ['## 发布姿态', '## 支持矩阵', '## 文档真相'],
 }
@@ -92,6 +110,36 @@ const whitepaperEn = read('en/whitepaper/index.md')
 expect(whitepaperEn.includes('/en/performance/index'), 'en/whitepaper/index.md must hand readers off to the performance section')
 const whitepaperZh = read('zh/whitepaper/index.md')
 expect(whitepaperZh.includes('/zh/performance/index'), 'zh/whitepaper/index.md must hand readers off to the performance section')
+
+const zhReference = read('zh/reference/index.md')
+expect(zhReference.includes("title: '类型与视图'"), 'zh/reference/index.md must localize the Types and Views card title')
+expect(zhReference.includes("title: '算法契约'"), 'zh/reference/index.md must localize the Algorithm Contract card title')
+
+const verificationEn = read('en/guide/verification.md')
+expect(verificationEn.includes('bitcal_benchmark'), 'en/guide/verification.md must retain the bitcal_benchmark verification path')
+expect(verificationEn.includes('benchmark_compare'), 'en/guide/verification.md must explain how benchmark_compare differs from bitcal_benchmark')
+
+const verificationZh = read('zh/guide/verification.md')
+expect(verificationZh.includes('bitcal_benchmark'), 'zh/guide/verification.md must retain the bitcal_benchmark verification path')
+expect(verificationZh.includes('benchmark_compare'), 'zh/guide/verification.md must explain how benchmark_compare differs from bitcal_benchmark')
+
+const performanceEn = read('en/performance/index.md')
+expect(performanceEn.includes('benchmark_compare'), 'en/performance/index.md must retain benchmark_compare reproduction commands')
+expect(performanceEn.includes('bitcal_benchmark'), 'en/performance/index.md must distinguish benchmark_compare from bitcal_benchmark')
+
+const performanceZh = read('zh/performance/index.md')
+expect(performanceZh.includes('benchmark_compare'), 'zh/performance/index.md must retain benchmark_compare reproduction commands')
+expect(performanceZh.includes('bitcal_benchmark'), 'zh/performance/index.md must distinguish benchmark_compare from bitcal_benchmark')
+
+const whitepaperPerformanceEn = read('en/whitepaper/performance.md')
+expect(whitepaperPerformanceEn.includes('compatibility entry'), 'en/whitepaper/performance.md must frame itself as a compatibility entry')
+expect(whitepaperPerformanceEn.includes('/en/performance/index'), 'en/whitepaper/performance.md must link to the primary performance section')
+expect(whitepaperPerformanceEn.includes('/en/whitepaper/index'), 'en/whitepaper/performance.md must link back to the whitepaper entry')
+
+const whitepaperPerformanceZh = read('zh/whitepaper/performance.md')
+expect(whitepaperPerformanceZh.includes('兼容入口'), 'zh/whitepaper/performance.md must frame itself as a compatibility entry')
+expect(whitepaperPerformanceZh.includes('/zh/performance/index'), 'zh/whitepaper/performance.md must link to the primary performance section')
+expect(whitepaperPerformanceZh.includes('/zh/whitepaper/index'), 'zh/whitepaper/performance.md must link back to the whitepaper entry')
 
 if (errors.length > 0) {
   console.error('Content contract validation failed:')

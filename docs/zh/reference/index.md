@@ -7,21 +7,21 @@ Reference 的任务，是在白皮书已经说明设计逻辑之后，用契约�
 <ReadingPathGrid
   :items="[
     {
-      title: 'Types and Views',
+      title: '类型与视图',
       href: '/zh/reference/types-and-views',
       badge: '角色层',
       summary: '先理解 owner 与 borrowing 模型，再读算法细节。',
       detail: '这页会定义每个公共类型负责什么，以及明确不负责什么。'
     },
     {
-      title: 'Algorithm Contract',
+      title: '算法契约',
       href: '/zh/reference/algorithms',
       badge: '行为层',
       summary: '确认算法应如何被命名、解释和约束。',
       detail: 'Reference 关注可观察语义、操作数与非目标，不把优化技巧当契约。'
     },
     {
-      title: 'Research',
+      title: '研究',
       href: '/zh/research/index',
       badge: '对照层',
       summary: '需要把 BitCal 放到外部语境中时，再去研究相关系统。',

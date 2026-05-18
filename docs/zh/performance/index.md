@@ -66,6 +66,15 @@ cmake --build build-test --config Release --target benchmark_compare -j"$(nproc)
 ./build-test/benchmarks/benchmark_compare
 ```
 
+### benchmark 二进制分工
+
+本页的性能证据来自 `benchmark_compare`，而不是导读里那个更轻量的 `bitcal_benchmark` 烟雾可执行文件。
+
+| 二进制 | 在文档体系中的角色 | 为什么要拆开 |
+| --- | --- | --- |
+| `benchmark_compare` | 产出本页 BitCal 对 `std::bitset` 的对比表格。 | 基线发布需要明确的对照程序、方法学和解释护栏。 |
+| `bitcal_benchmark` | 保留在 [验证路径](/zh/guide/verification) 中，作为烟雾级 benchmark 可执行文件。 | 验证链需要更轻量的执行检查，不应与对外发布的对比实验混成同一条链路。 |
+
 ### 方法规则
 
 | 规则 | 设立原因 |
