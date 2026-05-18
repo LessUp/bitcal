@@ -5,6 +5,7 @@ import {
   compatPageExcludes,
   llmsDerivedPageExcludes,
 } from './page-exclusions.js'
+import { materializeCleanUrlArtifacts } from '../scripts/materialize-clean-url-artifacts.mjs'
 
 const rawBase = process.env.VITEPRESS_BASE
 const base = rawBase
@@ -204,6 +205,10 @@ export default withMermaid(defineConfig({
         ],
       }),
     ],
+  },
+
+  buildEnd: async (siteConfig) => {
+    materializeCleanUrlArtifacts(siteConfig.outDir)
   },
 
   ignoreDeadLinks: true,
