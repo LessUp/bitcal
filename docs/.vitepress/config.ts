@@ -49,13 +49,6 @@ export default withMermaid(defineConfig({
   title: 'BitCal',
   description: 'Whitepaper-first SIMD bit computation for C++23',
 
-  rewrites: {
-    'zh/getting-started/:splat*': 'zh/guide/:splat*',
-    'zh/api/:splat*': 'zh/reference/:splat*',
-    'en/getting-started/:splat*': 'en/guide/:splat*',
-    'en/api/:splat*': 'en/reference/:splat*',
-  },
-
   locales: {
     zh: {
       label: '简体中文',

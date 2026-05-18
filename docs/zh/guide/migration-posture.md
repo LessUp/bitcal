@@ -4,7 +4,7 @@ BitCal vNext 不是在旧公开模型外面做一层新包装，而是在替换�
 
 ## 为什么 vNext 要打破旧前提
 
-旧的 `bitarray` 中心结构，把 ownership、borrowing 与行为绑得太紧。这样既不利于把契约讲清楚，也不利于在不拖累公开 API 的前提下改写 dispatch 与 kernel。
+旧的单体式公开结构，把 ownership、borrowing 与行为绑得太紧。这样既不利于把契约讲清楚，也不利于在不拖累公开 API 的前提下改写 dispatch 与 kernel。
 
 因此当前方向明确选择：
 

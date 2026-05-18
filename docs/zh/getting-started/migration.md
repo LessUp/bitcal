@@ -8,6 +8,8 @@ outline: false
 # 迁移指南
 
 > **过渡边界说明：** 本页是 vNext 迁移路线图，当前只保留与 IA 收敛直接相关的导读入口。
+>
+> **保留旧路由：** `/zh/getting-started/migration`
 
 ## 谁应该阅读本节
 

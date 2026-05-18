@@ -8,7 +8,7 @@ Status is where BitCal drops all rhetorical excess and states the redesign in pr
 - The public baseline is **C++23**.
 - The primary optimization and measurement posture is **x86-64 first**.
 - The public model being documented centers on `bit_block<Bits>`, `bit_view`, `const_bit_view`, and free algorithms.
-- No code-level compatibility layer is promised for the older `bitarray` API.
+- No code-level compatibility layer is promised for the earlier monolithic API shape.
 
 ## Support matrix
 

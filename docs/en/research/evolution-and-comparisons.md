@@ -45,7 +45,7 @@ BitCal becomes easier to trust when it names its neighbors and trade-offs direct
 
 BitCal's current direction can be read as a sequence of deliberate contractions and re-centering moves:
 
-1. move away from a monolithic `bitarray` public center;
+1. move away from a monolithic single-type public center;
 2. make the owner / view / algorithm split explicit;
 3. keep `<bitcal/bitcal.hpp>` as the stable seam while freeing internal layout to evolve;
 4. narrow platform and performance claims to an x86-64-first evidence posture.

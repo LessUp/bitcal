@@ -8,6 +8,8 @@ outline: false
 # Migration Guide
 
 > **Transitional boundary:** This page is the vNext migration route map. It stays focused on the retained guide entry points that still matter during the IA convergence.
+>
+> **Retained legacy route:** `/en/getting-started/migration`
 
 ## Who should read this
 

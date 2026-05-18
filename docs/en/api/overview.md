@@ -8,6 +8,8 @@ outline: false
 # Reference Overview
 
 > **Transitional boundary:** This page is the retained reference landing page during the IA convergence.
+>
+> **Retained legacy route:** `/en/api/overview`
 
 ## This section documents
 

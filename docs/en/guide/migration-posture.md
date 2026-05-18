@@ -4,7 +4,7 @@ BitCal vNext is not trying to preserve the earlier public model with a cosmetic 
 
 ## Why vNext breaks old assumptions
 
-The earlier `bitarray`-centric shape bundled ownership, borrowing, and behavior too tightly. That makes it harder to document the contract clearly and harder to change dispatch or kernels without creating public API drag.
+The earlier monolithic public shape bundled ownership, borrowing, and behavior too tightly. That makes it harder to document the contract clearly and harder to change dispatch or kernels without creating public API drag.
 
 The redesign therefore chooses:
 
