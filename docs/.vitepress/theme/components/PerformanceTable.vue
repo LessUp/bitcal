@@ -9,12 +9,16 @@ export interface PerformanceRow {
   highlight?: boolean
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   title?: string
   caption?: string
   rows: PerformanceRow[]
   highlightBest?: boolean
-}>()
+  tone?: 'default' | 'accent'
+}>(), {
+  highlightBest: false,
+  tone: 'default',
+})
 
 const processedRows = computed(() => {
   return props.rows.map(row => ({
@@ -25,7 +29,7 @@ const processedRows = computed(() => {
 </script>
 
 <template>
-  <figure class="bitcal-perf-table">
+  <figure class="bitcal-perf-table" :data-performance-tone="props.tone">
     <figcaption v-if="title">
       <strong>{{ title }}</strong>
       <span v-if="caption">{{ caption }}</span>
@@ -65,13 +69,17 @@ const processedRows = computed(() => {
   overflow-x: auto;
 }
 
+.bitcal-perf-table[data-performance-tone='accent'] table {
+  border-color: color-mix(in oklab, var(--bc-primary) 28%, var(--bc-rule-strong));
+}
+
 .bitcal-perf-table figcaption {
   margin-bottom: 0.75rem;
-  color: var(--vp-c-text-2);
+  color: var(--bc-ink-soft);
 }
 
 .bitcal-perf-table figcaption strong {
-  color: var(--vp-c-text-1);
+  color: var(--bc-ink-strong);
   display: block;
   margin-bottom: 0.25rem;
 }
@@ -80,23 +88,24 @@ const processedRows = computed(() => {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  border: 1px solid var(--vp-c-border);
+  border: 1px solid var(--bc-rule-strong);
   border-radius: 12px;
   overflow: hidden;
+  background: color-mix(in oklab, var(--bc-paper-pane) 96%, transparent);
 }
 
 .bitcal-perf-table th,
 .bitcal-perf-table td {
   padding: 0.65rem 0.9rem;
   text-align: left;
-  border-bottom: 1px solid var(--vp-c-divider);
+  border-bottom: 1px solid var(--bc-rule-soft);
 }
 
 .bitcal-perf-table th {
-  background: var(--bitcal-surface-2);
+  background: var(--bc-paper-elevated);
   font-weight: 620;
   font-size: 0.85rem;
-  color: var(--vp-c-text-2);
+  color: var(--bc-ink-soft);
 }
 
 .bitcal-perf-table tr:last-child td {
@@ -104,7 +113,7 @@ const processedRows = computed(() => {
 }
 
 .bitcal-perf-table tr.best {
-  background: color-mix(in oklab, var(--bitcal-positive) 8%, transparent);
+  background: color-mix(in oklab, var(--bc-success) 10%, transparent);
 }
 
 .bitcal-perf-table tr.best td {
@@ -117,7 +126,7 @@ const processedRows = computed(() => {
 }
 
 .bitcal-perf-table .bitcal {
-  color: var(--vp-c-brand-1);
+  color: var(--bc-primary);
   font-weight: 600;
 }
 
@@ -130,16 +139,16 @@ const processedRows = computed(() => {
 }
 
 .bitcal-perf-table .ratio span.faster {
-  background: color-mix(in oklab, var(--bitcal-positive) 15%, transparent);
-  color: var(--bitcal-positive);
+  background: color-mix(in oklab, var(--bc-success) 15%, transparent);
+  color: var(--bc-success);
 }
 
 .bitcal-perf-table .ratio span.slower {
-  background: color-mix(in oklab, var(--bitcal-caution) 15%, transparent);
-  color: var(--bitcal-caution);
+  background: color-mix(in oklab, var(--bc-accent) 15%, transparent);
+  color: var(--bc-accent);
 }
 
 .bitcal-perf-table tr:hover td {
-  background: var(--bitcal-surface-1);
+  background: color-mix(in oklab, var(--bc-paper-pane) 94%, transparent);
 }
 </style>
