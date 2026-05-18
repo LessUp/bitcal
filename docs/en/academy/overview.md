@@ -1,10 +1,18 @@
+---
+title: Academy Overview
+search: false
+sidebar: false
+outline: false
+---
+
 # Academy Overview
 
-> **Compatibility note:** This page is retained only as an explanatory alias. The primary reading path now starts from the guide and status sections.
+> **Compatibility note:** This page keeps the legacy route `/en/academy/overview` reachable after the Pages IA overhaul.
+>
+> **Canonical destination:** [Guide / Overview](/en/guide/index)
 
-## Continue from here
+## Continue on the maintained path
 
-- [Guide](/en/guide/index)
-- [Whitepaper](/en/whitepaper/public-model)
-- [Performance](/en/performance/)
-- [Status](/en/status/)
+- Start with [Guide](/en/guide/index) for the maintained reading chain.
+- Use [Whitepaper](/en/whitepaper/index) for the architecture spine.
+- Use [Status](/en/status/index) for support posture and documentation truth.

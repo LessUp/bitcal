@@ -7,19 +7,12 @@ outline: false
 
 # 参考总览
 
-> **过渡边界说明：** 本页是 IA 收敛过程中的保留参考入口页。
+> **兼容说明：** 本页保留旧路由 `/zh/api/overview`，用于在 Pages IA 收口后继续承接历史链接。
 >
-> **保留旧路由：** `/zh/api/overview`
+> **规范去向：** [参考 / 总览](/zh/reference/index)
 
-## 本节文档说明
+## 继续使用当前主路径
 
-- 公开模型
-- 可观察的算法表面
-- 仍然保持内部的后端边界
-
-## 从这里继续
-
-- 先看[状态](/zh/status/index)了解支持与契约边界
-- 使用[参考入口](/zh/reference/index)进入当前维护中的公开契约表面
-- 再看[白皮书](/zh/whitepaper/index)理解目标公开模型
-- 使用[类型与视图](/zh/reference/types-and-views)与[算法契约](/zh/reference/algorithms)继续当前参考阅读路径
+- 从[参考](/zh/reference/index)进入当前维护中的契约地图。
+- 使用[类型与视图](/zh/reference/types-and-views)查看角色边界。
+- 使用[算法契约](/zh/reference/algorithms)查看当前保留的算法表面。

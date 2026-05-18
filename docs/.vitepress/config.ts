@@ -3,7 +3,6 @@ import { withMermaid } from 'vitepress-plugin-mermaid'
 import llmstxt from 'vitepress-plugin-llms'
 import {
   compatPageExcludes,
-  legacyAcademySourceExcludes,
   llmsDerivedPageExcludes,
 } from './page-exclusions.js'
 
@@ -21,7 +20,6 @@ export default withMermaid(defineConfig({
     'project-status.md',
     'design/**',
     'superpowers/**',
-    ...legacyAcademySourceExcludes,
   ],
   title: 'BitCal',
   description: 'Whitepaper-first SIMD bit computation for C++23',
@@ -199,7 +197,6 @@ export default withMermaid(defineConfig({
           'project-status.md',
           'design/**',
           'superpowers/**',
-          ...legacyAcademySourceExcludes,
           ...compatPageExcludes,
           ...llmsDerivedPageExcludes,
         ],

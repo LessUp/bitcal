@@ -1,10 +1,18 @@
+---
+title: 学院总览
+search: false
+sidebar: false
+outline: false
+---
+
 # 学院总览
 
-> **兼容说明：** 本页仅作为解释性兼容入口保留；当前主阅读路径已经转到导读与状态页。
+> **兼容说明：** 本页保留旧路由 `/zh/academy/overview`，用于在 Pages IA 收口后继续承接历史链接。
+>
+> **规范去向：** [导读 / 总览](/zh/guide/index)
 
-## 从这里继续
+## 继续使用当前主路径
 
-- [导读](/zh/guide/index)
-- [白皮书](/zh/whitepaper/public-model)
-- [性能](/zh/performance/)
-- [状态](/zh/status/)
+- 从[导读](/zh/guide/index)进入当前维护中的阅读链路。
+- 使用[白皮书](/zh/whitepaper/index)查看架构主线。
+- 使用[状态](/zh/status/index)查看支持姿态与文档真相。

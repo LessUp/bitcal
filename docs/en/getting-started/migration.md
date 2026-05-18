@@ -7,23 +7,12 @@ outline: false
 
 # Migration Guide
 
-> **Transitional boundary:** This page is the vNext migration route map. It stays focused on the retained guide entry points that still matter during the IA convergence.
+> **Compatibility note:** This page keeps the legacy route `/en/getting-started/migration` reachable after the Pages IA overhaul.
 >
-> **Retained legacy route:** `/en/getting-started/migration`
+> **Canonical destination:** [Guide / Migration Posture](/en/guide/migration-posture)
 
-## Who should read this
+## Continue on the maintained path
 
-- users coming from the retained `bitarray` era
-- users updating support assumptions or verification routines
-
-## What changed
-
-- C++23 is now the design baseline
-- the public story centers on block/view/algorithms
-- vNext does not promise a code-level compatibility layer
-
-## Route from here
-
-- Use [Status](/en/status/index) for current support and breaking-change posture
-- Read the [Whitepaper](/en/whitepaper/index) for the intended public model
-- Use [Verification Path](/en/guide/verification) and [Migration Posture](/en/guide/migration-posture) for the retained guide entry points
+- Start with [Migration Posture](/en/guide/migration-posture) for the current migration boundary.
+- Use [Verification Path](/en/guide/verification) to reproduce the retained validation flow.
+- Review [Status](/en/status/index) for support and release posture.
