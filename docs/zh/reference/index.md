@@ -30,6 +30,14 @@ Reference 的任务，是在白皮书已经说明设计逻辑之后，用契约�
   ]"
 />
 
+## Reference 在这里冻结什么
+
+在逐页细读之前，请先把下面三个公开锚点固定下来：
+
+- 稳定 include seam 是 `<bitcal/bitcal.hpp>`；
+- owner / view / algorithm 拆分先定义公共角色，再决定语法外形；
+- 这里关注的是算法表面而不是内部 kernel 布局，因为可观察契约比实现细枝末节更重要。
+
 ## 如何正确阅读 Reference
 
 阅读本节时，请始终记住三条规则：

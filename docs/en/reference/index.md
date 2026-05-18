@@ -30,6 +30,14 @@ The reference section exists to explain the public contract after the whitepaper
   ]"
 />
 
+## What Reference freezes
+
+Before you read page-by-page details, keep these public anchors fixed:
+
+- the stable include seam at `<bitcal/bitcal.hpp>`;
+- the owner / view / algorithm split that defines public roles before syntax details;
+- the algorithm surface instead of internal kernel layout, because observable contract beats implementation trivia.
+
 ## Reading reference correctly
 
 Keep three rules in mind while reading this section:
