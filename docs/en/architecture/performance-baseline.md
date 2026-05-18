@@ -9,10 +9,10 @@ outline: false
 
 > **Compatibility note:** This page keeps the legacy route `/en/architecture/performance-baseline` reachable after the Pages IA overhaul.
 >
-> **Canonical destination:** [Performance / Overview](/en/performance/index)
+> **Canonical destination:** [Performance / Overview](/en/performance/)
 
 ## Continue on the maintained path
 
-- Use [Performance](/en/performance/index) for the maintained evidence and baseline framing.
+- Use [Performance](/en/performance/) for the maintained evidence and baseline framing.
 - Cross-check [Guide / Verification Path](/en/guide/verification) for reproduction steps.
-- Return to [Whitepaper](/en/whitepaper/index) for the architecture spine.
+- Return to [Whitepaper](/en/whitepaper/) for the architecture spine.

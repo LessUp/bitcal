@@ -27,7 +27,7 @@ BitCal 刻意保留两个 benchmark 可执行文件，而这页只把其中一�
 | 二进制 | 主要职责 | 应该在哪一页阅读 |
 | --- | --- | --- |
 | `bitcal_benchmark` | 轻量 benchmark 烟雾可执行文件，用来证明 benchmark target 仍能构建、运行，并报告当前 backend 路径。 | 本页把它保留在验证命令链里。 |
-| `benchmark_compare` | 用于发布 BitCal 对 `std::bitset` 对比表格的基线对照程序。 | 需要去 [Performance](/zh/performance/index) 页面阅读那条证据链及其解释规则。 |
+| `benchmark_compare` | 用于发布 BitCal 对 `std::bitset` 对比表格的基线对照程序。 | 需要去 [Performance](/zh/performance/) 页面阅读那条证据链及其解释规则。 |
 
 ## 如何解读失败
 
@@ -42,7 +42,7 @@ BitCal 刻意保留两个 benchmark 可执行文件，而这页只把其中一�
 一旦命令路径跑通，建议按以下顺序继续：
 
 1. [迁移姿态](/zh/guide/migration-posture) —— 先理解重设计意图；
-2. [白皮书](/zh/whitepaper/index) —— 再进入系统架构主线；
-3. [性能](/zh/performance/index) —— 最后把 baseline 与 methodology 放到一起看。
+2. [白皮书](/zh/whitepaper/) —— 再进入系统架构主线；
+3. [性能](/zh/performance/) —— 最后把 baseline 与 methodology 放到一起看。
 
 BitCal 把验证放在阅读开头，是为了防止后续所有叙事脱离可执行证据。

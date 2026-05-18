@@ -41,4 +41,4 @@ dispatch 与 kernel 必须服从当前公开支持姿态：
 
 ## 读者应带走什么结论
 
-只要公开角色模型、算法语义和 include seam 仍然一致，dispatch 层就可以被积极重写。这也是为什么下一站应该是 [Performance](/zh/performance/index)：benchmark claim 属于这条边界线以下，而不是属于它以上。
+只要公开角色模型、算法语义和 include seam 仍然一致，dispatch 层就可以被积极重写。这也是为什么下一站应该是 [Performance](/zh/performance/)：benchmark claim 属于这条边界线以下，而不是属于它以上。

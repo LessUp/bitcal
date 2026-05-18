@@ -14,5 +14,5 @@ outline: false
 ## 继续使用当前主路径
 
 - 阅读[算法契约](/zh/reference/algorithms)了解当前维护中的算法表面。
-- 返回[参考](/zh/reference/index)查看完整契约地图。
+- 返回[参考](/zh/reference/)查看完整契约地图。
 - 使用[白皮书 / 算法设计](/zh/whitepaper/algorithm-design)补充设计上下文。

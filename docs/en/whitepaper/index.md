@@ -55,7 +55,7 @@ Finish the thesis layer with [dispatch and kernels](/en/whitepaper/dispatch-and-
     },
     {
       title: 'Performance',
-      href: '/en/performance/index',
+      href: '/en/performance/',
       badge: 'Evidence hand-off',
       summary: 'Leave the thesis layer and inspect the retained baseline and methodology.',
       detail: 'The whitepaper intentionally hands off to performance rather than embedding benchmark claims inside architecture prose.'

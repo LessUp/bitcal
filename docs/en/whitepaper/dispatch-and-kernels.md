@@ -41,4 +41,4 @@ Dispatch and kernels must respect the documented support posture:
 
 ## What readers should carry forward
 
-The dispatch layer is allowed to change aggressively as long as the public role model, algorithm semantics, and include seam remain coherent. That is why the next stop after this page is the [Performance section](/en/performance/index): benchmark claims belong below this boundary, not above it.
+The dispatch layer is allowed to change aggressively as long as the public role model, algorithm semantics, and include seam remain coherent. That is why the next stop after this page is the [Performance section](/en/performance/): benchmark claims belong below this boundary, not above it.

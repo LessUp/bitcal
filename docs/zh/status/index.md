@@ -39,6 +39,6 @@ BitCal 期望以下几类资产同步移动：
 
 ## 接下来如何读
 
-- 需要回看完整评审路径时，回到 [Guide](/zh/guide/index)；
-- 需要重新理解架构论证时，回到 [Whitepaper](/zh/whitepaper/index)；
-- 想把局部证据变成更稳妥结论前，请结合 [Performance](/zh/performance/index) 与 [Research](/zh/research/index) 一起看。
+- 需要回看完整评审路径时，回到 [Guide](/zh/guide/)；
+- 需要重新理解架构论证时，回到 [Whitepaper](/zh/whitepaper/)；
+- 想把局部证据变成更稳妥结论前，请结合 [Performance](/zh/performance/) 与 [Research](/zh/research/) 一起看。

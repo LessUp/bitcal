@@ -13,9 +13,9 @@ title: BitCal
     { label: '当前基线', value: 'C++23 · x86-64 first' }
   ]"
   :actions="[
-    { text: '先看导读', href: '/zh/guide/index', theme: 'brand' },
-    { text: '进入白皮书', href: '/zh/whitepaper/index', theme: 'alt' },
-    { text: '查看性能证据', href: '/zh/performance/index', theme: 'alt' }
+    { text: '先看导读', href: '/zh/guide/', theme: 'brand' },
+    { text: '进入白皮书', href: '/zh/whitepaper/', theme: 'alt' },
+    { text: '查看性能证据', href: '/zh/performance/', theme: 'alt' }
   ]"
 >
 </BitcalHero>
@@ -35,7 +35,7 @@ title: BitCal
   :items="[
     {
       title: 'Guide',
-      href: '/zh/guide/index',
+      href: '/zh/guide/',
       badge: '1 · 定位',
       tone: 'primary',
       summary: '先看读者范围、验证路径与迁移姿态。',
@@ -43,7 +43,7 @@ title: BitCal
     },
     {
       title: 'Whitepaper',
-      href: '/zh/whitepaper/index',
+      href: '/zh/whitepaper/',
       badge: '2 · 架构',
       tone: 'whitepaper',
       summary: '沿着系统架构主线阅读公开模型、算法组织与分发边界。',
@@ -51,28 +51,28 @@ title: BitCal
     },
     {
       title: 'Performance',
-      href: '/zh/performance/index',
+      href: '/zh/performance/',
       badge: '3 · 证据',
       summary: '把当前 baseline 与测量方法学分开阅读。',
       detail: '任何数字都必须带着复现命令、活跃后端语境和宣称边界一起出现。'
     },
     {
       title: 'Reference',
-      href: '/zh/reference/index',
+      href: '/zh/reference/',
       badge: '4 · 契约',
       summary: '在架构主线清楚之后，再确认类型、视图和算法契约。',
       detail: 'Reference 解释读者可以依赖什么，而不是展示今天的内部实现细节。'
     },
     {
       title: 'Research',
-      href: '/zh/research/index',
+      href: '/zh/research/',
       badge: '5 · 对照',
       summary: '查看引用资料、相关系统、演进说明与设计取舍。',
       detail: 'Research 的目标是提升判断密度，而不是制造“学术感”。'
     },
     {
       title: 'Status',
-      href: '/zh/status/index',
+      href: '/zh/status/',
       badge: '6 · 边界',
       summary: '最后回到发布姿态、支持矩阵与文档真相入口。',
       detail: 'Status 会把所有主张重新收束到仓库当前真能支撑的范围。'
@@ -93,12 +93,12 @@ title: BitCal
 
 首页不打算替代深层页面，它只负责告诉你阅读地图：
 
-- [Guide](/zh/guide/index) 解释现在应该如何读这个项目；
-- [Whitepaper](/zh/whitepaper/index) 陈述架构论点；
-- [Performance](/zh/performance/index) 把 baseline 与 methodology 分离；
-- [Reference](/zh/reference/index) 说明公开契约表面；
-- [Research](/zh/research/index) 提供外部对照和资料来源；
-- [Status](/zh/status/index) 定义发布与支持边界。
+- [Guide](/zh/guide/) 解释现在应该如何读这个项目；
+- [Whitepaper](/zh/whitepaper/) 陈述架构论点；
+- [Performance](/zh/performance/) 把 baseline 与 methodology 分离；
+- [Reference](/zh/reference/) 说明公开契约表面；
+- [Research](/zh/research/) 提供外部对照和资料来源；
+- [Status](/zh/status/) 定义发布与支持边界。
 
 ## 证据姿态
 

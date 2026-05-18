@@ -45,4 +45,4 @@ Use [Evolution and Comparisons](/en/research/evolution-and-comparisons) for the 
 
 ## How this section fits the reading chain
 
-Research should usually be read after [Reference](/en/reference/index), because external comparison only makes sense once BitCal's own contract is clear. End with [Status](/en/status/index) to bring the scope back down to what the repository actually supports today.
+Research should usually be read after [Reference](/en/reference/), because external comparison only makes sense once BitCal's own contract is clear. End with [Status](/en/status/) to bring the scope back down to what the repository actually supports today.

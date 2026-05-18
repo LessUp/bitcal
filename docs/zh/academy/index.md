@@ -13,11 +13,11 @@ outline: false
 
 ## 转到当前文档结构
 
-- [导读](/zh/guide/index) —— 阅读路径、验证入口与迁移姿态
-- [白皮书](/zh/whitepaper/index) —— 公开模型、算法姿态与分发边界
-- [性能](/zh/performance/index) —— benchmark 证据与方法学边界
-- [参考](/zh/reference/index) —— 当前保留的公共契约面
-- [研究](/zh/research/index) —— 比较、参考资料与演进背景
-- [状态](/zh/status/index) —— 支持姿态、兼容边界与单一真相入口
+- [导读](/zh/guide/) —— 阅读路径、验证入口与迁移姿态
+- [白皮书](/zh/whitepaper/) —— 公开模型、算法姿态与分发边界
+- [性能](/zh/performance/) —— benchmark 证据与方法学边界
+- [参考](/zh/reference/) —— 当前保留的公共契约面
+- [研究](/zh/research/) —— 比较、参考资料与演进背景
+- [状态](/zh/status/) —— 支持姿态、兼容边界与单一真相入口
 
 如果需要本地化总览，请回到 [中文文档首页](/zh/)。

@@ -14,5 +14,5 @@ outline: false
 ## Continue on the maintained path
 
 - Use [Verification Path](/en/guide/verification) for the maintained verification contract.
-- Cross-check [Performance](/en/performance/index) for benchmark methodology and claim boundaries.
-- Return to [Guide](/en/guide/index) for the current reading chain.
+- Cross-check [Performance](/en/performance/) for benchmark methodology and claim boundaries.
+- Return to [Guide](/en/guide/) for the current reading chain.

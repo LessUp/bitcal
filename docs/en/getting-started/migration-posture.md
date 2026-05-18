@@ -14,5 +14,5 @@ outline: false
 ## Continue on the maintained path
 
 - Read [Migration Posture](/en/guide/migration-posture) for the maintained migration contract.
-- Use [Status](/en/status/index) for support posture and release scope.
-- Return to [Guide](/en/guide/index) for the canonical reading entry.
+- Use [Status](/en/status/) for support posture and release scope.
+- Return to [Guide](/en/guide/) for the canonical reading entry.

@@ -35,28 +35,28 @@ The canonical path is **Guide → Whitepaper → Performance → Reference → R
     },
     {
       title: 'Whitepaper',
-      href: '/en/whitepaper/index',
+      href: '/en/whitepaper/',
       badge: 'Architecture',
       summary: 'Move into the system architecture spine once the execution posture is clear.',
       detail: 'This is where the owner / view / algorithm model and dispatch boundary are defined.'
     },
     {
       title: 'Performance',
-      href: '/en/performance/index',
+      href: '/en/performance/',
       badge: 'Evidence',
       summary: 'Inspect the baseline snapshot and methodology as separate artifacts.',
       detail: 'Benchmark numbers are only meaningful when scope and reproduction stay attached.'
     },
     {
       title: 'Reference',
-      href: '/en/reference/index',
+      href: '/en/reference/',
       badge: 'Contract',
       summary: 'Read types, views, and algorithms as contractual roles, not as a source tour.',
       detail: 'Reference comes after architecture because semantics depend on the role model.'
     },
     {
       title: 'Research and Status',
-      href: '/en/research/index',
+      href: '/en/research/',
       badge: 'Context',
       summary: 'Use research for comparisons and status for boundaries before drawing conclusions.',
       detail: 'Research widens context; Status narrows the final claims again.'
@@ -70,4 +70,4 @@ The canonical path is **Guide → Whitepaper → Performance → Reference → R
 - The redesign is **v4.0.0-scale** and is willing to break earlier expectations.
 - Current Pages content is organized to help you review architecture and evidence, not to maximize feature-count impression.
 
-Continue with the [verification path](/en/guide/verification) if you want to anchor the documentation in executable evidence first, or go straight to the [whitepaper](/en/whitepaper/index) if you already know the repository context.
+Continue with the [verification path](/en/guide/verification) if you want to anchor the documentation in executable evidence first, or go straight to the [whitepaper](/en/whitepaper/) if you already know the repository context.

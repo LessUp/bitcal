@@ -22,23 +22,23 @@ This page is the shared documentation overview for BitCal. Use it to choose lang
 
 | Audience | Start here | Why |
 | --- | --- | --- |
-| First-time evaluator | [/en/guide/index](/en/guide/index) / [/zh/guide/index](/zh/guide/index) | Shortest path to verification posture and migration context. |
-| Architecture reviewer | [/en/whitepaper/index](/en/whitepaper/index) / [/zh/whitepaper/index](/zh/whitepaper/index) | Public model, algorithm boundaries, and dispatch posture. |
-| Performance reviewer | [/en/performance/index](/en/performance/index) / [/zh/performance/index](/zh/performance/index) | Benchmark evidence, methodology, and claim guardrails. |
-| API consumer | [/en/reference/index](/en/reference/index) / [/zh/reference/index](/zh/reference/index) | Public contract, types, views, and algorithm-facing surface. |
-| Context seeker | [/en/research/index](/en/research/index) / [/zh/research/index](/zh/research/index) | External references, comparisons, and evolution notes. |
-| Maintainer / risk reviewer | [/en/status/index](/en/status/index) / [/zh/status/index](/zh/status/index) | Support boundary, breaking-change posture, and maintained sources of truth. |
+| First-time evaluator | [/en/guide/](/en/guide/) / [/zh/guide/](/zh/guide/) | Shortest path to verification posture and migration context. |
+| Architecture reviewer | [/en/whitepaper/](/en/whitepaper/) / [/zh/whitepaper/](/zh/whitepaper/) | Public model, algorithm boundaries, and dispatch posture. |
+| Performance reviewer | [/en/performance/](/en/performance/) / [/zh/performance/](/zh/performance/) | Benchmark evidence, methodology, and claim guardrails. |
+| API consumer | [/en/reference/](/en/reference/) / [/zh/reference/](/zh/reference/) | Public contract, types, views, and algorithm-facing surface. |
+| Context seeker | [/en/research/](/en/research/) / [/zh/research/](/zh/research/) | External references, comparisons, and evolution notes. |
+| Maintainer / risk reviewer | [/en/status/](/en/status/) / [/zh/status/](/zh/status/) | Support boundary, breaking-change posture, and maintained sources of truth. |
 
 ## Primary documentation domains
 
 | Domain | English | 中文 |
 | --- | --- | --- |
-| Guide | [/en/guide/index](/en/guide/index) | [/zh/guide/index](/zh/guide/index) |
-| Whitepaper | [/en/whitepaper/index](/en/whitepaper/index) | [/zh/whitepaper/index](/zh/whitepaper/index) |
-| Performance | [/en/performance/index](/en/performance/index) | [/zh/performance/index](/zh/performance/index) |
-| Reference | [/en/reference/index](/en/reference/index) | [/zh/reference/index](/zh/reference/index) |
-| Research | [/en/research/index](/en/research/index) | [/zh/research/index](/zh/research/index) |
-| Status | [/en/status/index](/en/status/index) | [/zh/status/index](/zh/status/index) |
+| Guide | [/en/guide/](/en/guide/) | [/zh/guide/](/zh/guide/) |
+| Whitepaper | [/en/whitepaper/](/en/whitepaper/) | [/zh/whitepaper/](/zh/whitepaper/) |
+| Performance | [/en/performance/](/en/performance/) | [/zh/performance/](/zh/performance/) |
+| Reference | [/en/reference/](/en/reference/) | [/zh/reference/](/zh/reference/) |
+| Research | [/en/research/](/en/research/) | [/zh/research/](/zh/research/) |
+| Status | [/en/status/](/en/status/) | [/zh/status/](/zh/status/) |
 
 ## Language entry
 

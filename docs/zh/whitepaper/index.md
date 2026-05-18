@@ -55,7 +55,7 @@ flowchart LR
     },
     {
       title: 'Performance',
-      href: '/zh/performance/index',
+      href: '/zh/performance/',
       badge: '证据交接',
       summary: '离开论点层，进入 baseline 与 methodology。',
       detail: '白皮书刻意把 benchmark 证据交给性能章节处理，而不是塞回架构叙事里。'

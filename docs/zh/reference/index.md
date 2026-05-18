@@ -22,7 +22,7 @@ Reference 的任务，是在白皮书已经说明设计逻辑之后，用契约�
     },
     {
       title: '研究',
-      href: '/zh/research/index',
+      href: '/zh/research/',
       badge: '对照层',
       summary: '需要把 BitCal 放到外部语境中时，再去研究相关系统。',
       detail: 'Research 负责扩大比较背景；Reference 只定义 BitCal 自己的契约语言。'
@@ -46,4 +46,4 @@ Reference 的任务，是在白皮书已经说明设计逻辑之后，用契约�
 2. **先语义，后实现** —— 只有当 dispatch 或 kernel 会改变可见行为或证据范围时，它们才应进入 Reference。
 3. **先契约，后便利性** —— 页面描述的是项目愿意维护的内容，而不是实现阶段顺手长出来的所有 helper。
 
-如果你还需要架构理由，请回到 [白皮书](/zh/whitepaper/index)；如果你想理解这些契约选择背后的外部对照，请继续阅读 [Research](/zh/research/index)。
+如果你还需要架构理由，请回到 [白皮书](/zh/whitepaper/)；如果你想理解这些契约选择背后的外部对照，请继续阅读 [Research](/zh/research/)。

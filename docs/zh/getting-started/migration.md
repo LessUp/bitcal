@@ -15,4 +15,4 @@ outline: false
 
 - 先看[迁移姿态](/zh/guide/migration-posture)了解当前迁移边界。
 - 使用[验证路径](/zh/guide/verification)继续现行验证流程。
-- 查看[状态](/zh/status/index)了解支持与发布姿态。
+- 查看[状态](/zh/status/)了解支持与发布姿态。

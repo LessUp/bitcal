@@ -27,7 +27,7 @@ BitCal intentionally keeps two benchmark executables, and this page only treats 
 | Binary | Primary role | Read it here or elsewhere? |
 | --- | --- | --- |
 | `bitcal_benchmark` | Smoke-level benchmark executable that proves the benchmark target still builds, runs, and reports a backend path. | This page keeps it in the retained verification loop. |
-| `benchmark_compare` | BitCal-vs-`std::bitset` comparison harness used to publish the baseline tables. | Use the [Performance](/en/performance/index) section for that evidence chain and its interpretation rules. |
+| `benchmark_compare` | BitCal-vs-`std::bitset` comparison harness used to publish the baseline tables. | Use the [Performance](/en/performance/) section for that evidence chain and its interpretation rules. |
 
 ## Failure interpretation
 
@@ -42,7 +42,7 @@ The purpose of this path is not to prove that every future optimization is alrea
 Once the command path succeeds, keep reading in this order:
 
 1. [Migration Posture](/en/guide/migration-posture) for redesign intent.
-2. [Whitepaper](/en/whitepaper/index) for the system architecture spine.
-3. [Performance](/en/performance/index) for baseline and methodology.
+2. [Whitepaper](/en/whitepaper/) for the system architecture spine.
+3. [Performance](/en/performance/) for baseline and methodology.
 
 This sequencing matters because BitCal treats verification as the first filter against overclaiming.

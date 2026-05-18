@@ -39,6 +39,6 @@ BitCal expects these surfaces to move together:
 
 ## What to read next
 
-- Go back to the [Guide](/en/guide/index) if you need the review path.
-- Revisit the [Whitepaper](/en/whitepaper/index) for architecture rationale.
-- Use [Performance](/en/performance/index) and [Research](/en/research/index) before turning isolated evidence into a broader conclusion.
+- Go back to the [Guide](/en/guide/) if you need the review path.
+- Revisit the [Whitepaper](/en/whitepaper/) for architecture rationale.
+- Use [Performance](/en/performance/) and [Research](/en/research/) before turning isolated evidence into a broader conclusion.

@@ -14,5 +14,5 @@ outline: false
 ## Continue on the maintained path
 
 - Read [Types and Views](/en/reference/types-and-views) for the maintained public type contract.
-- Return to [Reference](/en/reference/index) for the broader reference map.
+- Return to [Reference](/en/reference/) for the broader reference map.
 - Use [Whitepaper / Public Model](/en/whitepaper/public-model) for the deeper design context.

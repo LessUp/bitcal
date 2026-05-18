@@ -14,5 +14,5 @@ outline: false
 ## 继续使用当前主路径
 
 - 阅读[分发与内核](/zh/whitepaper/dispatch-and-kernels)查看当前维护中的后端边界。
-- 使用[性能](/zh/performance/index)查看证据与方法学边界。
-- 返回[白皮书](/zh/whitepaper/index)继续完整技术叙事。
+- 使用[性能](/zh/performance/)查看证据与方法学边界。
+- 返回[白皮书](/zh/whitepaper/)继续完整技术叙事。

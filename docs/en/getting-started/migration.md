@@ -15,4 +15,4 @@ outline: false
 
 - Start with [Migration Posture](/en/guide/migration-posture) for the current migration boundary.
 - Use [Verification Path](/en/guide/verification) to reproduce the retained validation flow.
-- Review [Status](/en/status/index) for support and release posture.
+- Review [Status](/en/status/) for support and release posture.

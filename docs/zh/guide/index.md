@@ -35,28 +35,28 @@
     },
     {
       title: 'Whitepaper',
-      href: '/zh/whitepaper/index',
+      href: '/zh/whitepaper/',
       badge: '架构层',
       summary: '执行姿态明确之后，再进入系统架构主线。',
       detail: 'owner / view / algorithm 模型和 dispatch 边界会在这里被正式定义。'
     },
     {
       title: 'Performance',
-      href: '/zh/performance/index',
+      href: '/zh/performance/',
       badge: '证据层',
       summary: '把 baseline 快照与 methodology 当作两件事情分开理解。',
       detail: '数字的意义取决于复现路径、目标 ISA 和解释护栏。'
     },
     {
       title: 'Reference',
-      href: '/zh/reference/index',
+      href: '/zh/reference/',
       badge: '契约层',
       summary: '在架构论点清楚后，再阅读类型、视图与算法契约。',
       detail: 'Reference 读的是稳定角色，不是今天源码目录里有多少文件。'
     },
     {
       title: 'Research 与 Status',
-      href: '/zh/research/index',
+      href: '/zh/research/',
       badge: '上下文',
       summary: 'Research 提供外部对照，Status 重新收紧最终结论。',
       detail: 'Research 负责扩展判断背景，Status 负责收束现在时边界。'
@@ -70,4 +70,4 @@
 - 当前重设计是 **v4.0.0 级别** 的改造，明确允许 breaking change。
 - Pages 的任务是帮助你评估架构和证据，不是放大“功能数很多”的印象。
 
-如果你想先把文档锚定到可执行证据上，请继续看 [验证路径](/zh/guide/verification)；如果你已经熟悉仓库背景，可以直接进入 [白皮书](/zh/whitepaper/index)。
+如果你想先把文档锚定到可执行证据上，请继续看 [验证路径](/zh/guide/verification)；如果你已经熟悉仓库背景，可以直接进入 [白皮书](/zh/whitepaper/)。

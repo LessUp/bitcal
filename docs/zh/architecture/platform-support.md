@@ -9,10 +9,10 @@ outline: false
 
 > **兼容说明：** 本页保留旧路由 `/zh/architecture/platform-support`，用于在 Pages IA 收口后继续承接历史链接。
 >
-> **规范去向：** [状态 / 总览](/zh/status/index)
+> **规范去向：** [状态 / 总览](/zh/status/)
 
 ## 继续使用当前主路径
 
-- 使用[状态](/zh/status/index)查看当前维护中的支持矩阵与发布姿态。
-- 对照[性能](/zh/performance/index)了解宣称边界。
-- 返回[白皮书](/zh/whitepaper/index)补充架构上下文。
+- 使用[状态](/zh/status/)查看当前维护中的支持矩阵与发布姿态。
+- 对照[性能](/zh/performance/)了解宣称边界。
+- 返回[白皮书](/zh/whitepaper/)补充架构上下文。

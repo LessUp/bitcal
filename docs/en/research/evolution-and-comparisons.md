@@ -63,4 +63,4 @@ The redesign accepts some costs in exchange for clearer boundaries:
 
 ## When this comparison layer is most useful
 
-Use this page when you want to ask whether BitCal's posture is intellectually honest. If you want the exact present-tense support boundary, finish on [Status](/en/status/index). If you want the contract wording itself, go back to [Reference](/en/reference/index).
+Use this page when you want to ask whether BitCal's posture is intellectually honest. If you want the exact present-tense support boundary, finish on [Status](/en/status/). If you want the contract wording itself, go back to [Reference](/en/reference/).

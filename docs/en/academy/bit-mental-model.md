@@ -15,4 +15,4 @@ outline: false
 
 - Read [Public Model](/en/whitepaper/public-model) for the maintained owner / view / algorithm framing.
 - Use [Reference / Types and Views](/en/reference/types-and-views) for the contract-facing type roles.
-- Return to [Whitepaper](/en/whitepaper/index) for the full architecture spine.
+- Return to [Whitepaper](/en/whitepaper/) for the full architecture spine.

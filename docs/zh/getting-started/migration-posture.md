@@ -14,5 +14,5 @@ outline: false
 ## 继续使用当前主路径
 
 - 阅读[迁移姿态](/zh/guide/migration-posture)了解当前维护中的迁移契约。
-- 使用[状态](/zh/status/index)查看支持姿态与发布范围。
-- 返回[导读](/zh/guide/index)作为规范入口继续阅读。
+- 使用[状态](/zh/status/)查看支持姿态与发布范围。
+- 返回[导读](/zh/guide/)作为规范入口继续阅读。

@@ -14,5 +14,5 @@ outline: false
 ## Continue on the maintained path
 
 - Read [Algorithm Contract](/en/reference/algorithms) for the maintained algorithm surface.
-- Return to [Reference](/en/reference/index) for the complete contract map.
+- Return to [Reference](/en/reference/) for the complete contract map.
 - Use [Whitepaper / Algorithm Design](/en/whitepaper/algorithm-design) for supporting design context.

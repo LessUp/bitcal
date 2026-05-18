@@ -115,4 +115,4 @@ The next useful expansions are methodological, not theatrical:
 - more complete coverage of counting and scan-style primitives;
 - workload traces that complement the synthetic baseline.
 
-For design context, return to the [Whitepaper](/en/whitepaper/index). For contract language, continue into the [Reference](/en/reference/index). For external comparison material, use [Research](/en/research/index).
+For design context, return to the [Whitepaper](/en/whitepaper/). For contract language, continue into the [Reference](/en/reference/). For external comparison material, use [Research](/en/research/).

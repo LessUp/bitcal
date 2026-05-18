@@ -13,9 +13,9 @@ title: BitCal
     { label: 'Baseline', value: 'C++23 · x86-64 first' }
   ]"
   :actions="[
-    { text: 'Open the guide', href: '/en/guide/index', theme: 'brand' },
-    { text: 'Read the whitepaper', href: '/en/whitepaper/index', theme: 'alt' },
-    { text: 'Inspect performance evidence', href: '/en/performance/index', theme: 'alt' }
+    { text: 'Open the guide', href: '/en/guide/', theme: 'brand' },
+    { text: 'Read the whitepaper', href: '/en/whitepaper/', theme: 'alt' },
+    { text: 'Inspect performance evidence', href: '/en/performance/', theme: 'alt' }
   ]"
 >
 </BitcalHero>
@@ -35,7 +35,7 @@ This site is for readers who want to answer six concrete questions before trusti
   :items="[
     {
       title: 'Guide',
-      href: '/en/guide/index',
+      href: '/en/guide/',
       badge: '1 · Orientation',
       tone: 'primary',
       summary: 'Start with audience, verification path, and migration posture.',
@@ -43,7 +43,7 @@ This site is for readers who want to answer six concrete questions before trusti
     },
     {
       title: 'Whitepaper',
-      href: '/en/whitepaper/index',
+      href: '/en/whitepaper/',
       badge: '2 · Architecture',
       tone: 'whitepaper',
       summary: 'Follow the system architecture spine from public model to dispatch boundary.',
@@ -51,28 +51,28 @@ This site is for readers who want to answer six concrete questions before trusti
     },
     {
       title: 'Performance',
-      href: '/en/performance/index',
+      href: '/en/performance/',
       badge: '3 · Evidence',
       summary: 'Read the retained benchmark baseline separately from the measurement methodology.',
       detail: 'Numbers stay attached to reproduction commands, active backend context, and claim limits.'
     },
     {
       title: 'Reference',
-      href: '/en/reference/index',
+      href: '/en/reference/',
       badge: '4 · Contract',
       summary: 'Confirm the public role model and algorithm contract after the architecture story is clear.',
       detail: 'Reference pages explain what readers may rely on, not how every kernel happens to be written today.'
     },
     {
       title: 'Research',
-      href: '/en/research/index',
+      href: '/en/research/',
       badge: '5 · Context',
       summary: 'Review citations, related systems, evolution notes, and design trade-offs.',
       detail: 'This section exists to deepen technical judgment, not to add decorative academic tone.'
     },
     {
       title: 'Status',
-      href: '/en/status/index',
+      href: '/en/status/',
       badge: '6 · Boundary',
       summary: 'End with release posture, support matrix, and documentation truth sources.',
       detail: 'Status narrows every claim back down to what the repository can currently defend.'
@@ -93,12 +93,12 @@ This site is for readers who want to answer six concrete questions before trusti
 
 The home page does not attempt to replace the deeper sections. It gives a map:
 
-- the [Guide](/en/guide/index) tells you how to read the project now;
-- the [Whitepaper](/en/whitepaper/index) states the architecture thesis;
-- the [Performance](/en/performance/index) section separates baseline from method;
-- the [Reference](/en/reference/index) pages define the contract surface;
-- the [Research](/en/research/index) pages show nearby systems and source material;
-- the [Status](/en/status/index) page defines the release and support boundary.
+- the [Guide](/en/guide/) tells you how to read the project now;
+- the [Whitepaper](/en/whitepaper/) states the architecture thesis;
+- the [Performance](/en/performance/) section separates baseline from method;
+- the [Reference](/en/reference/) pages define the contract surface;
+- the [Research](/en/research/) pages show nearby systems and source material;
+- the [Status](/en/status/) page defines the release and support boundary.
 
 ## Evidence posture
 

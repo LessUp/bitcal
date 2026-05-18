@@ -18,7 +18,7 @@ Reference language should obey these rules:
 1. Name the **observable behavior** first.
 2. Treat owner and view forms as equally legitimate when semantics allow.
 3. Avoid implying that kernel choice is part of the guarantee unless the page says so explicitly.
-4. Point to [Performance](/en/performance/index) for benchmark interpretation and to [Research](/en/research/index) for external comparisons.
+4. Point to [Performance](/en/performance/) for benchmark interpretation and to [Research](/en/research/) for external comparisons.
 
 Non-goals for this page:
 
@@ -28,4 +28,4 @@ Non-goals for this page:
 
 ## Reading algorithms with the rest of the site
 
-If you are asking “what result should this operation produce?”, stay in Reference. If you are asking “why is this algorithm arranged this way?”, go back to the [Whitepaper](/en/whitepaper/index). If you are asking “how much faster is it today, and under which method?”, move to [Performance](/en/performance/index).
+If you are asking “what result should this operation produce?”, stay in Reference. If you are asking “why is this algorithm arranged this way?”, go back to the [Whitepaper](/en/whitepaper/). If you are asking “how much faster is it today, and under which method?”, move to [Performance](/en/performance/).

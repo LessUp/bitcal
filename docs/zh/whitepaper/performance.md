@@ -11,10 +11,10 @@ outline: false
 
 这个页面是旧 `/zh/whitepaper/performance` 链接的兼容入口。
 
-请改走独立的 [Performance](/zh/performance/index) 路径，那里会分别说明：
+请改走独立的 [Performance](/zh/performance/) 路径，那里会分别说明：
 
 - 当前保留的 baseline 快照；
 - 测量方法学与复现命令；
 - 宣称边界与解释护栏。
 
-如果你原本想看的是设计论证，请回到 [白皮书入口](/zh/whitepaper/index)。白皮书继续负责设计论证；性能章节负责发布证据并限制证据的含义。
+如果你原本想看的是设计论证，请回到 [白皮书入口](/zh/whitepaper/)。白皮书继续负责设计论证；性能章节负责发布证据并限制证据的含义。

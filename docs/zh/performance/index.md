@@ -115,4 +115,4 @@ cmake --build build-test --config Release --target benchmark_compare -j"$(nproc)
 - counting / scan 类原语更完整的覆盖；
 - 能与 synthetic baseline 互补的 workload traces。
 
-如果你需要设计背景，请回到 [白皮书](/zh/whitepaper/index)；如果你需要契约语言，请继续阅读 [Reference](/zh/reference/index)；如果你想看外部对照，请进入 [Research](/zh/research/index)。
+如果你需要设计背景，请回到 [白皮书](/zh/whitepaper/)；如果你需要契约语言，请继续阅读 [Reference](/zh/reference/)；如果你想看外部对照，请进入 [Research](/zh/research/)。

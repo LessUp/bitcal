@@ -92,20 +92,20 @@ const readOptional = (relativePath, baseDir, label) => {
 const requiredSections = ['Guide', 'Whitepaper', 'Performance', 'Reference', 'Research', 'Status']
 const localeNavExpectations = {
   zh: [
-    '/zh/guide/index',
-    '/zh/whitepaper/index',
-    '/zh/performance/index',
-    '/zh/reference/index',
-    '/zh/research/index',
-    '/zh/status/index',
+    '/zh/guide/',
+    '/zh/whitepaper/',
+    '/zh/performance/',
+    '/zh/reference/',
+    '/zh/research/',
+    '/zh/status/',
   ],
   en: [
-    '/en/guide/index',
-    '/en/whitepaper/index',
-    '/en/performance/index',
-    '/en/reference/index',
-    '/en/research/index',
-    '/en/status/index',
+    '/en/guide/',
+    '/en/whitepaper/',
+    '/en/performance/',
+    '/en/reference/',
+    '/en/research/',
+    '/en/status/',
   ],
 }
 
@@ -154,7 +154,7 @@ const routeCompatExpectations = {
   },
   'en/api/overview.md': {
     targetRoute: '/en/api/overview',
-    canonicalRoute: '/en/reference/index',
+    canonicalRoute: '/en/reference/',
   },
   'en/api/types-and-views.md': {
     targetRoute: '/en/api/types-and-views',
@@ -166,7 +166,7 @@ const routeCompatExpectations = {
   },
   'zh/api/overview.md': {
     targetRoute: '/zh/api/overview',
-    canonicalRoute: '/zh/reference/index',
+    canonicalRoute: '/zh/reference/',
   },
   'zh/api/types-and-views.md': {
     targetRoute: '/zh/api/types-and-views',
@@ -177,52 +177,52 @@ const routeCompatExpectations = {
     canonicalRoute: '/zh/reference/algorithms',
   },
   'en/architecture/index.md': {
-    targetRoute: '/en/architecture/index',
-    canonicalRoute: '/en/whitepaper/index',
+    targetRoute: '/en/architecture/',
+    canonicalRoute: '/en/whitepaper/',
   },
   'en/architecture/vnext-whitepaper.md': {
     targetRoute: '/en/architecture/vnext-whitepaper',
-    canonicalRoute: '/en/whitepaper/index',
+    canonicalRoute: '/en/whitepaper/',
   },
   'en/architecture/platform-support.md': {
     targetRoute: '/en/architecture/platform-support',
-    canonicalRoute: '/en/status/index',
+    canonicalRoute: '/en/status/',
   },
   'en/architecture/performance-baseline.md': {
     targetRoute: '/en/architecture/performance-baseline',
-    canonicalRoute: '/en/performance/index',
+    canonicalRoute: '/en/performance/',
   },
   'zh/architecture/index.md': {
-    targetRoute: '/zh/architecture/index',
-    canonicalRoute: '/zh/whitepaper/index',
+    targetRoute: '/zh/architecture/',
+    canonicalRoute: '/zh/whitepaper/',
   },
   'zh/architecture/vnext-whitepaper.md': {
     targetRoute: '/zh/architecture/vnext-whitepaper',
-    canonicalRoute: '/zh/whitepaper/index',
+    canonicalRoute: '/zh/whitepaper/',
   },
   'zh/architecture/platform-support.md': {
     targetRoute: '/zh/architecture/platform-support',
-    canonicalRoute: '/zh/status/index',
+    canonicalRoute: '/zh/status/',
   },
   'zh/architecture/performance-baseline.md': {
     targetRoute: '/zh/architecture/performance-baseline',
-    canonicalRoute: '/zh/performance/index',
+    canonicalRoute: '/zh/performance/',
   },
   'en/performance/methodology.md': {
     targetRoute: '/en/performance/methodology',
-    canonicalRoute: '/en/performance/index',
+    canonicalRoute: '/en/performance/',
   },
   'zh/performance/methodology.md': {
     targetRoute: '/zh/performance/methodology',
-    canonicalRoute: '/zh/performance/index',
+    canonicalRoute: '/zh/performance/',
   },
   'en/academy/overview.md': {
     targetRoute: '/en/academy/overview',
-    canonicalRoute: '/en/guide/index',
+    canonicalRoute: '/en/guide/',
   },
   'en/academy/why-bitcal.md': {
     targetRoute: '/en/academy/why-bitcal',
-    canonicalRoute: '/en/guide/index',
+    canonicalRoute: '/en/guide/',
   },
   'en/academy/bit-mental-model.md': {
     targetRoute: '/en/academy/bit-mental-model',
@@ -234,15 +234,15 @@ const routeCompatExpectations = {
   },
   'en/academy/terminology.md': {
     targetRoute: '/en/academy/terminology',
-    canonicalRoute: '/en/reference/index',
+    canonicalRoute: '/en/reference/',
   },
   'zh/academy/overview.md': {
     targetRoute: '/zh/academy/overview',
-    canonicalRoute: '/zh/guide/index',
+    canonicalRoute: '/zh/guide/',
   },
   'zh/academy/why-bitcal.md': {
     targetRoute: '/zh/academy/why-bitcal',
-    canonicalRoute: '/zh/guide/index',
+    canonicalRoute: '/zh/guide/',
   },
   'zh/academy/bit-mental-model.md': {
     targetRoute: '/zh/academy/bit-mental-model',
@@ -254,7 +254,7 @@ const routeCompatExpectations = {
   },
   'zh/academy/terminology.md': {
     targetRoute: '/zh/academy/terminology',
-    canonicalRoute: '/zh/reference/index',
+    canonicalRoute: '/zh/reference/',
   },
 }
 
@@ -329,6 +329,8 @@ const configWithoutExcludeWiring = [
 
 const rewritesBlock = readBracketedBlock(config, 'rewrites: {', '{', '}')
 
+expect(config.includes('cleanUrls: true'), 'VitePress config must enable cleanUrls for GitHub Pages-safe directory routes')
+
 expect(pageExclusionsImportMatch, 'VitePress config must import shared page excludes from ./page-exclusions.js')
 expect(pageExclusionsImportBlock?.includes('compatPageExcludes'), 'VitePress config import must include compatPageExcludes')
 expect(pageExclusionsImportBlock?.includes('llmsDerivedPageExcludes'), 'VitePress config import must include llmsDerivedPageExcludes')
@@ -402,7 +404,7 @@ expect(!docsIndex.includes('navigator.language'), 'docs/index.md still auto-redi
 expect(docsIndex.includes('/zh/') && docsIndex.includes('/en/'), 'docs/index.md missing bilingual language entry links')
 for (const locale of ['en', 'zh']) {
   for (const section of ['guide', 'whitepaper', 'performance', 'reference', 'research', 'status']) {
-    expect(docsIndex.includes(`/${locale}/${section}/index`), `docs/index.md missing ${locale} landing link for ${section}`)
+    expect(docsIndex.includes(`/${locale}/${section}/`), `docs/index.md missing ${locale} landing link for ${section}`)
   }
 }
 expect(

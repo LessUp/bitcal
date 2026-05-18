@@ -14,5 +14,5 @@ outline: false
 ## Continue on the maintained path
 
 - Read [Dispatch and Kernels](/en/whitepaper/dispatch-and-kernels) for the maintained backend boundary.
-- Use [Performance](/en/performance/index) for the evidence and methodology boundary.
-- Return to [Whitepaper](/en/whitepaper/index) for the broader technical narrative.
+- Use [Performance](/en/performance/) for the evidence and methodology boundary.
+- Return to [Whitepaper](/en/whitepaper/) for the broader technical narrative.

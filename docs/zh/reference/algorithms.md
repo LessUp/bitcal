@@ -18,7 +18,7 @@ Reference 对算法的表述应遵守这些规则：
 1. 先定义 **可观察行为**；
 2. 只要语义允许，就把 owner 与 view 都视为正当输入；
 3. 除非页面明确声明，否则不要把 kernel 选择写成契约；
-4. 需要 benchmark 解释时转到 [Performance](/zh/performance/index)，需要外部比较时转到 [Research](/zh/research/index)。
+4. 需要 benchmark 解释时转到 [Performance](/zh/performance/)，需要外部比较时转到 [Research](/zh/research/)。
 
 本页的非目标包括：
 
@@ -28,4 +28,4 @@ Reference 对算法的表述应遵守这些规则：
 
 ## 如何与站内其他部分配合阅读
 
-如果你的问题是“这个操作应该产生什么结果？”，就留在 Reference；如果你的问题是“为什么算法要这样组织？”，请回到 [白皮书](/zh/whitepaper/index)；如果你的问题是“今天到底快多少、在什么方法下测出来？”，请转到 [Performance](/zh/performance/index)。
+如果你的问题是“这个操作应该产生什么结果？”，就留在 Reference；如果你的问题是“为什么算法要这样组织？”，请回到 [白皮书](/zh/whitepaper/)；如果你的问题是“今天到底快多少、在什么方法下测出来？”，请转到 [Performance](/zh/performance/)。

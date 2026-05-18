@@ -24,22 +24,22 @@ const requiredPageContracts = {
   'en/index.md': [
     '## Whitepaper reading contract',
     '## Public model at a glance',
-    '/en/guide/index',
-    '/en/whitepaper/index',
-    '/en/performance/index',
-    '/en/reference/index',
-    '/en/research/index',
-    '/en/status/index',
+    '/en/guide/',
+    '/en/whitepaper/',
+    '/en/performance/',
+    '/en/reference/',
+    '/en/research/',
+    '/en/status/',
   ],
   'zh/index.md': [
     '## 白皮书阅读契约',
     '## 公开模型速览',
-    '/zh/guide/index',
-    '/zh/whitepaper/index',
-    '/zh/performance/index',
-    '/zh/reference/index',
-    '/zh/research/index',
-    '/zh/status/index',
+    '/zh/guide/',
+    '/zh/whitepaper/',
+    '/zh/performance/',
+    '/zh/reference/',
+    '/zh/research/',
+    '/zh/status/',
   ],
   'en/guide/index.md': ['## Audience and scope', '## Reading chain', 'Guide → Whitepaper → Performance → Reference → Research → Status'],
   'zh/guide/index.md': ['## 读者与范围', '## 阅读链路', 'Guide → Whitepaper → Performance → Reference → Research → Status'],
@@ -102,40 +102,40 @@ const requiredPageContracts = {
     'sidebar: false',
     'outline: false',
     'Compatibility note',
-    '/en/guide/index',
-    '/en/whitepaper/index',
-    '/en/performance/index',
-    '/en/reference/index',
-    '/en/research/index',
-    '/en/status/index',
+    '/en/guide/',
+    '/en/whitepaper/',
+    '/en/performance/',
+    '/en/reference/',
+    '/en/research/',
+    '/en/status/',
   ],
   'zh/academy/index.md': [
     'search: false',
     'sidebar: false',
     'outline: false',
     '兼容说明',
-    '/zh/guide/index',
-    '/zh/whitepaper/index',
-    '/zh/performance/index',
-    '/zh/reference/index',
-    '/zh/research/index',
-    '/zh/status/index',
+    '/zh/guide/',
+    '/zh/whitepaper/',
+    '/zh/performance/',
+    '/zh/reference/',
+    '/zh/research/',
+    '/zh/status/',
   ],
   'en/project-status/index.md': [
     'search: false',
     'sidebar: false',
     'outline: false',
     'Compatibility note',
-    '/en/status/index',
-    '/en/guide/index',
+    '/en/status/',
+    '/en/guide/',
   ],
   'zh/project-status/index.md': [
     'search: false',
     'sidebar: false',
     'outline: false',
     '兼容说明',
-    '/zh/status/index',
-    '/zh/guide/index',
+    '/zh/status/',
+    '/zh/guide/',
   ],
   'en/getting-started/migration.md': [
     'search: false',
@@ -191,7 +191,7 @@ const requiredPageContracts = {
     'outline: false',
     'Compatibility note',
     '/en/api/overview',
-    '/en/reference/index',
+    '/en/reference/',
   ],
   'zh/api/overview.md': [
     'search: false',
@@ -199,7 +199,7 @@ const requiredPageContracts = {
     'outline: false',
     '兼容说明',
     '/zh/api/overview',
-    '/zh/reference/index',
+    '/zh/reference/',
   ],
   'en/api/types-and-views.md': [
     'search: false',
@@ -238,16 +238,16 @@ const requiredPageContracts = {
     'sidebar: false',
     'outline: false',
     'Compatibility note',
-    '/en/architecture/index',
-    '/en/whitepaper/index',
+    '/en/architecture/',
+    '/en/whitepaper/',
   ],
   'zh/architecture/index.md': [
     'search: false',
     'sidebar: false',
     'outline: false',
     '兼容说明',
-    '/zh/architecture/index',
-    '/zh/whitepaper/index',
+    '/zh/architecture/',
+    '/zh/whitepaper/',
   ],
   'en/architecture/vnext-whitepaper.md': [
     'search: false',
@@ -255,7 +255,7 @@ const requiredPageContracts = {
     'outline: false',
     'Compatibility note',
     '/en/architecture/vnext-whitepaper',
-    '/en/whitepaper/index',
+    '/en/whitepaper/',
   ],
   'zh/architecture/vnext-whitepaper.md': [
     'search: false',
@@ -263,7 +263,7 @@ const requiredPageContracts = {
     'outline: false',
     '兼容说明',
     '/zh/architecture/vnext-whitepaper',
-    '/zh/whitepaper/index',
+    '/zh/whitepaper/',
   ],
   'en/architecture/platform-support.md': [
     'search: false',
@@ -271,7 +271,7 @@ const requiredPageContracts = {
     'outline: false',
     'Compatibility note',
     '/en/architecture/platform-support',
-    '/en/status/index',
+    '/en/status/',
   ],
   'zh/architecture/platform-support.md': [
     'search: false',
@@ -279,7 +279,7 @@ const requiredPageContracts = {
     'outline: false',
     '兼容说明',
     '/zh/architecture/platform-support',
-    '/zh/status/index',
+    '/zh/status/',
   ],
   'en/architecture/performance-baseline.md': [
     'search: false',
@@ -287,7 +287,7 @@ const requiredPageContracts = {
     'outline: false',
     'Compatibility note',
     '/en/architecture/performance-baseline',
-    '/en/performance/index',
+    '/en/performance/',
   ],
   'zh/architecture/performance-baseline.md': [
     'search: false',
@@ -295,7 +295,7 @@ const requiredPageContracts = {
     'outline: false',
     '兼容说明',
     '/zh/architecture/performance-baseline',
-    '/zh/performance/index',
+    '/zh/performance/',
   ],
   'en/performance/methodology.md': [
     'search: false',
@@ -303,7 +303,7 @@ const requiredPageContracts = {
     'outline: false',
     'Compatibility note',
     '/en/performance/methodology',
-    '/en/performance/index',
+    '/en/performance/',
   ],
   'zh/performance/methodology.md': [
     'search: false',
@@ -311,23 +311,23 @@ const requiredPageContracts = {
     'outline: false',
     '兼容说明',
     '/zh/performance/methodology',
-    '/zh/performance/index',
+    '/zh/performance/',
   ],
   'en/whitepaper/performance.md': [
     'search: false',
     'sidebar: false',
     'outline: false',
     'compatibility entry',
-    '/en/performance/index',
-    '/en/whitepaper/index',
+    '/en/performance/',
+    '/en/whitepaper/',
   ],
   'zh/whitepaper/performance.md': [
     'search: false',
     'sidebar: false',
     'outline: false',
     '兼容入口',
-    '/zh/performance/index',
-    '/zh/whitepaper/index',
+    '/zh/performance/',
+    '/zh/whitepaper/',
   ],
   'en/academy/overview.md': [
     'search: false',
@@ -335,7 +335,7 @@ const requiredPageContracts = {
     'outline: false',
     'Compatibility note',
     '/en/academy/overview',
-    '/en/guide/index',
+    '/en/guide/',
   ],
   'zh/academy/overview.md': [
     'search: false',
@@ -343,7 +343,7 @@ const requiredPageContracts = {
     'outline: false',
     '兼容说明',
     '/zh/academy/overview',
-    '/zh/guide/index',
+    '/zh/guide/',
   ],
   'en/academy/why-bitcal.md': [
     'search: false',
@@ -351,7 +351,7 @@ const requiredPageContracts = {
     'outline: false',
     'Compatibility note',
     '/en/academy/why-bitcal',
-    '/en/guide/index',
+    '/en/guide/',
   ],
   'zh/academy/why-bitcal.md': [
     'search: false',
@@ -359,7 +359,7 @@ const requiredPageContracts = {
     'outline: false',
     '兼容说明',
     '/zh/academy/why-bitcal',
-    '/zh/guide/index',
+    '/zh/guide/',
   ],
   'en/academy/bit-mental-model.md': [
     'search: false',
@@ -399,7 +399,7 @@ const requiredPageContracts = {
     'outline: false',
     'Compatibility note',
     '/en/academy/terminology',
-    '/en/reference/index',
+    '/en/reference/',
   ],
   'zh/academy/terminology.md': [
     'search: false',
@@ -407,7 +407,7 @@ const requiredPageContracts = {
     'outline: false',
     '兼容说明',
     '/zh/academy/terminology',
-    '/zh/reference/index',
+    '/zh/reference/',
   ],
 }
 
@@ -419,9 +419,9 @@ for (const [relativePath, requiredSnippets] of Object.entries(requiredPageContra
 }
 
 const whitepaperEn = read('en/whitepaper/index.md')
-expect(whitepaperEn.includes('/en/performance/index'), 'en/whitepaper/index.md must hand readers off to the performance section')
+expect(whitepaperEn.includes('/en/performance/'), 'en/whitepaper/index.md must hand readers off to the performance section')
 const whitepaperZh = read('zh/whitepaper/index.md')
-expect(whitepaperZh.includes('/zh/performance/index'), 'zh/whitepaper/index.md must hand readers off to the performance section')
+expect(whitepaperZh.includes('/zh/performance/'), 'zh/whitepaper/index.md must hand readers off to the performance section')
 
 const zhReference = read('zh/reference/index.md')
 expect(zhReference.includes("title: '类型与视图'"), 'zh/reference/index.md must localize the Types and Views card title')
@@ -445,13 +445,13 @@ expect(performanceZh.includes('bitcal_benchmark'), 'zh/performance/index.md must
 
 const whitepaperPerformanceEn = read('en/whitepaper/performance.md')
 expect(whitepaperPerformanceEn.includes('compatibility entry'), 'en/whitepaper/performance.md must frame itself as a compatibility entry')
-expect(whitepaperPerformanceEn.includes('/en/performance/index'), 'en/whitepaper/performance.md must link to the primary performance section')
-expect(whitepaperPerformanceEn.includes('/en/whitepaper/index'), 'en/whitepaper/performance.md must link back to the whitepaper entry')
+expect(whitepaperPerformanceEn.includes('/en/performance/'), 'en/whitepaper/performance.md must link to the primary performance section')
+expect(whitepaperPerformanceEn.includes('/en/whitepaper/'), 'en/whitepaper/performance.md must link back to the whitepaper entry')
 
 const whitepaperPerformanceZh = read('zh/whitepaper/performance.md')
 expect(whitepaperPerformanceZh.includes('兼容入口'), 'zh/whitepaper/performance.md must frame itself as a compatibility entry')
-expect(whitepaperPerformanceZh.includes('/zh/performance/index'), 'zh/whitepaper/performance.md must link to the primary performance section')
-expect(whitepaperPerformanceZh.includes('/zh/whitepaper/index'), 'zh/whitepaper/performance.md must link back to the whitepaper entry')
+expect(whitepaperPerformanceZh.includes('/zh/performance/'), 'zh/whitepaper/performance.md must link to the primary performance section')
+expect(whitepaperPerformanceZh.includes('/zh/whitepaper/'), 'zh/whitepaper/performance.md must link back to the whitepaper entry')
 
 const canonicalLegacyClaimGuards = {
   'en/guide/index.md': ['bitarray', 'C++17'],
