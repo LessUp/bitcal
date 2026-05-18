@@ -1,3 +1,10 @@
+---
+title: Academy Compatibility Entry
+search: false
+sidebar: false
+outline: false
+---
+
 # Academy Compatibility Entry
 
 > **Compatibility note:** `academy/` is retained only to catch older links. The primary BitCal docs IA now starts from Guide / Whitepaper / Performance / Reference / Research / Status.

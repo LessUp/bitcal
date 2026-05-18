@@ -1,3 +1,10 @@
+---
+title: 参考总览
+search: false
+sidebar: false
+outline: false
+---
+
 # 参考总览
 
 > **过渡边界说明：** 本页是 IA 收敛过程中的保留参考入口页。
@@ -10,6 +17,7 @@
 
 ## 从这里继续
 
-- 先看[状态](/zh/status/)了解支持与契约边界
+- 先看[状态](/zh/status/index)了解支持与契约边界
+- 使用[参考入口](/zh/reference/index)进入当前维护中的公开契约表面
 - 再看[白皮书](/zh/whitepaper/index)理解目标公开模型
 - 使用[类型与视图](/zh/reference/types-and-views)与[算法契约](/zh/reference/algorithms)继续当前参考阅读路径

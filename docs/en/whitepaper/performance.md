@@ -1,5 +1,8 @@
 ---
 title: Whitepaper Performance Compatibility Note
+search: false
+sidebar: false
+outline: false
 ---
 
 # Whitepaper Performance Compatibility Note

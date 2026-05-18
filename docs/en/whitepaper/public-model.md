@@ -37,7 +37,7 @@ What readers should *not* infer:
 
 - that current internal header names define extra stable entry points;
 - that a specific dispatch topology or intrinsic sequence is itself public API;
-- that old `bitarray` naming remains the architectural center.
+- that one monolithic public type remains the architectural center.
 
 ## Why the older center gives way
 

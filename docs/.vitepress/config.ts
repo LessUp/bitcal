@@ -9,6 +9,34 @@ const base = rawBase
     : `/${rawBase}/`
   : '/'
 
+const legacyAcademySourceExcludes = [
+  'en/academy/bit-mental-model.md',
+  'en/academy/overview.md',
+  'en/academy/simd-primer.md',
+  'en/academy/terminology.md',
+  'en/academy/why-bitcal.md',
+  'zh/academy/bit-mental-model.md',
+  'zh/academy/overview.md',
+  'zh/academy/simd-primer.md',
+  'zh/academy/terminology.md',
+  'zh/academy/why-bitcal.md',
+]
+
+const llmsCompatibilityExcludes = [
+  'en/academy/index.md',
+  'zh/academy/index.md',
+  'en/project-status/index.md',
+  'zh/project-status/index.md',
+  'en/getting-started/migration.md',
+  'zh/getting-started/migration.md',
+  'en/api/overview.md',
+  'zh/api/overview.md',
+  'en/whitepaper/performance.md',
+  'zh/whitepaper/performance.md',
+  'en/release-notes/changelog.md',
+  'zh/release-notes/changelog.md',
+]
+
 export default withMermaid(defineConfig({
   base,
   srcExclude: [
@@ -16,6 +44,7 @@ export default withMermaid(defineConfig({
     'project-status.md',
     'design/**',
     'superpowers/**',
+    ...legacyAcademySourceExcludes,
   ],
   title: 'BitCal',
   description: 'Whitepaper-first SIMD bit computation for C++23',
@@ -200,6 +229,8 @@ export default withMermaid(defineConfig({
           'project-status.md',
           'design/**',
           'superpowers/**',
+          ...legacyAcademySourceExcludes,
+          ...llmsCompatibilityExcludes,
         ],
       }),
     ],

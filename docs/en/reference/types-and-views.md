@@ -32,4 +32,4 @@ This page does not promise:
 
 - that current internal storage layout is a stable ABI contract;
 - that every intermediate helper type should appear in public documentation;
-- that the older `bitarray` naming remains the recommended mental model.
+- that the older monolithic public shape remains the recommended mental model.

@@ -1,3 +1,10 @@
+---
+title: Reference Overview
+search: false
+sidebar: false
+outline: false
+---
+
 # Reference Overview
 
 > **Transitional boundary:** This page is the retained reference landing page during the IA convergence.
@@ -10,6 +17,7 @@
 
 ## Route from here
 
-- Start with [Status](/en/status/) for support and contract boundaries
+- Start with [Status](/en/status/index) for support and contract boundaries
+- Use [Reference](/en/reference/index) as the maintained entry for the retained public contract surface
 - Read the [Whitepaper](/en/whitepaper/index) for the target public model
 - Use [Types and Views](/en/reference/types-and-views) and [Algorithm Contract](/en/reference/algorithms) as the current reference inventory

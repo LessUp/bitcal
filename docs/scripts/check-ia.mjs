@@ -140,14 +140,69 @@ const navTextExpectations = {
   zh: ['导读', '白皮书', '性能', '参考', '研究', '状态'],
   en: ['Guide', 'Whitepaper', 'Performance', 'Reference', 'Research', 'Status'],
 }
+const legacyAcademySourceExcludes = [
+  'en/academy/bit-mental-model.md',
+  'en/academy/overview.md',
+  'en/academy/simd-primer.md',
+  'en/academy/terminology.md',
+  'en/academy/why-bitcal.md',
+  'zh/academy/bit-mental-model.md',
+  'zh/academy/overview.md',
+  'zh/academy/simd-primer.md',
+  'zh/academy/terminology.md',
+  'zh/academy/why-bitcal.md',
+]
+const llmsCompatibilityExcludes = [
+  'en/academy/index.md',
+  'zh/academy/index.md',
+  'en/project-status/index.md',
+  'zh/project-status/index.md',
+  'en/getting-started/migration.md',
+  'zh/getting-started/migration.md',
+  'en/api/overview.md',
+  'zh/api/overview.md',
+  'en/whitepaper/performance.md',
+  'zh/whitepaper/performance.md',
+  'en/release-notes/changelog.md',
+  'zh/release-notes/changelog.md',
+]
+const compatibilityPages = {
+  'en/academy/index.md': readOptional('en/academy/index.md', docsDir, 'en academy compatibility page'),
+  'zh/academy/index.md': readOptional('zh/academy/index.md', docsDir, 'zh academy compatibility page'),
+  'en/project-status/index.md': readOptional('en/project-status/index.md', docsDir, 'en project-status compatibility page'),
+  'zh/project-status/index.md': readOptional('zh/project-status/index.md', docsDir, 'zh project-status compatibility page'),
+  'en/getting-started/migration.md': readOptional('en/getting-started/migration.md', docsDir, 'en guide migration compatibility page'),
+  'zh/getting-started/migration.md': readOptional('zh/getting-started/migration.md', docsDir, 'zh guide migration compatibility page'),
+  'en/api/overview.md': readOptional('en/api/overview.md', docsDir, 'en reference compatibility page'),
+  'zh/api/overview.md': readOptional('zh/api/overview.md', docsDir, 'zh reference compatibility page'),
+  'en/whitepaper/performance.md': readOptional('en/whitepaper/performance.md', docsDir, 'en whitepaper performance compatibility page'),
+  'zh/whitepaper/performance.md': readOptional('zh/whitepaper/performance.md', docsDir, 'zh whitepaper performance compatibility page'),
+}
 
 const srcExcludeBlock = readBracketedBlock(config, 'srcExclude: [', '[', ']')
 const llmsIgnoreFilesBlock = readBracketedBlock(config, 'ignoreFiles: [', '[', ']')
+const legacyAcademyExcludesBlock = readBracketedBlock(config, 'const legacyAcademySourceExcludes = [', '[', ']')
+const llmsCompatibilityExcludesBlock = readBracketedBlock(config, 'const llmsCompatibilityExcludes = [', '[', ']')
+const configWithoutLegacyLists = [
+  legacyAcademyExcludesBlock,
+  llmsCompatibilityExcludesBlock,
+  srcExcludeBlock,
+  llmsIgnoreFilesBlock,
+].reduce((current, block) => block ? current.replace(block, '') : current, config)
 
 expect(srcExcludeBlock?.includes("'project-status.md'"), 'srcExclude must exclude project-status.md')
+expect(srcExcludeBlock?.includes('...legacyAcademySourceExcludes'), 'srcExclude must spread legacy academy excludes')
 expect(!srcExcludeBlock?.includes("'status.md'"), 'srcExclude still references nonexistent status.md')
 expect(llmsIgnoreFilesBlock?.includes("'project-status.md'"), 'llmstxt ignoreFiles must exclude project-status.md')
+expect(llmsIgnoreFilesBlock?.includes('...legacyAcademySourceExcludes'), 'llmstxt ignoreFiles must spread legacy academy excludes')
+expect(llmsIgnoreFilesBlock?.includes('...llmsCompatibilityExcludes'), 'llmstxt ignoreFiles must spread compatibility excludes')
 expect(!llmsIgnoreFilesBlock?.includes("'status.md'"), 'llmstxt ignoreFiles still reference nonexistent status.md')
+for (const legacyPath of legacyAcademySourceExcludes) {
+  expect(legacyAcademyExcludesBlock?.includes(`'${legacyPath}'`), `legacy academy exclude list must include ${legacyPath}`)
+}
+for (const legacyPath of llmsCompatibilityExcludes) {
+  expect(llmsCompatibilityExcludesBlock?.includes(`'${legacyPath}'`), `llms compatibility exclude list must include ${legacyPath}`)
+}
 
 for (const [locale, expectedLinks] of Object.entries(localeNavExpectations)) {
   const nav = extractLocaleNav(config, locale)
@@ -167,11 +222,11 @@ for (const locale of ['zh', 'en']) {
   }
 }
 
-expect(!config.includes('/academy/'), 'Config still depends on academy routes')
-expect(!config.includes('Academy'), 'Config still exposes Academy as a primary IA section')
-expect(!config.includes('学院'), 'Config still exposes 学院 as a primary IA section')
-expect(!config.includes('/project-status/'), 'Config still depends on project-status routes')
-expect(!config.includes('/architecture/'), 'Config still depends on architecture routes')
+expect(!configWithoutLegacyLists.includes('/academy/'), 'Config still depends on academy routes')
+expect(!configWithoutLegacyLists.includes('Academy'), 'Config still exposes Academy as a primary IA section')
+expect(!configWithoutLegacyLists.includes('学院'), 'Config still exposes 学院 as a primary IA section')
+expect(!configWithoutLegacyLists.includes('/project-status/'), 'Config still depends on project-status routes')
+expect(!configWithoutLegacyLists.includes('/architecture/'), 'Config still depends on architecture routes')
 
 for (const locale of ['en', 'zh']) {
   for (const section of ['guide', 'whitepaper', 'performance', 'reference', 'research', 'status']) {
@@ -217,6 +272,25 @@ for (const [locale, content] of Object.entries(academyCompatPages)) {
   for (const section of ['guide', 'whitepaper', 'performance', 'reference', 'research', 'status']) {
     expect(content.includes(`/${locale}/${section}/`), `${locale}/academy/index.md missing compatibility link to ${section}`)
   }
+}
+
+for (const [relativePath, content] of Object.entries(compatibilityPages)) {
+  if (content === null) continue
+  expect(content.includes('search: false'), `${relativePath} must disable local search exposure`)
+  expect(content.includes('sidebar: false'), `${relativePath} must disable sidebar exposure`)
+  expect(content.includes('outline: false'), `${relativePath} must disable outline exposure`)
+}
+
+for (const relativePath of ['en/project-status/index.md', 'zh/project-status/index.md']) {
+  const content = compatibilityPages[relativePath]
+  if (content === null) continue
+  expect(!content.includes('layout: home'), `${relativePath} must not render as a home landing page`)
+  expect(!content.includes('router.go('), `${relativePath} must not use a client-side redirect shell`)
+  expect(!content.includes('useRouter'), `${relativePath} must not depend on router redirect logic`)
+  expect(
+    content.includes(relativePath.startsWith('en/') ? 'Compatibility note' : '兼容说明'),
+    `${relativePath} must explain that project-status is compatibility-only`,
+  )
 }
 
 for (const relativePath of filesToCheckForOldPaths) {

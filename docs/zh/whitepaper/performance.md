@@ -1,5 +1,8 @@
 ---
 title: 白皮书性能兼容说明
+search: false
+sidebar: false
+outline: false
 ---
 
 # 白皮书性能兼容说明

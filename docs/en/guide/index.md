@@ -8,7 +8,7 @@ This section is written for readers who want to evaluate one or more of the foll
 
 - whether the **C++23 baseline** is a real project decision;
 - whether the **x86-64-first** posture is documented with honest limits;
-- whether the move away from a `bitarray`-centered API improves the public model;
+- whether the new owner / view / algorithm split improves the public model;
 - whether the repository still exposes a stable include seam through `<bitcal/bitcal.hpp>`.
 
 The guide intentionally stops short of full reference detail. It exists to prepare the reader for the deeper whitepaper and evidence sections.
@@ -30,7 +30,7 @@ The canonical path is **Guide → Whitepaper → Performance → Reference → R
       title: 'Migration posture',
       href: '/en/guide/migration-posture',
       badge: 'Direction',
-      summary: 'Understand why BitCal is willing to break the earlier bitarray-centered model.',
+      summary: 'Understand why BitCal is willing to leave the earlier monolithic public model.',
       detail: 'Migration is explained as a design choice, not hidden behind ambiguous compatibility wording.'
     },
     {

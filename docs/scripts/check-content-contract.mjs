@@ -97,6 +97,94 @@ const requiredPageContracts = {
   ],
   'en/status/index.md': ['## Release posture', '## Support matrix', '## Documentation truth'],
   'zh/status/index.md': ['## 发布姿态', '## 支持矩阵', '## 文档真相'],
+  'en/academy/index.md': [
+    'search: false',
+    'sidebar: false',
+    'outline: false',
+    'Compatibility note',
+    '/en/guide/index',
+    '/en/whitepaper/index',
+    '/en/performance/index',
+    '/en/reference/index',
+    '/en/research/index',
+    '/en/status/index',
+  ],
+  'zh/academy/index.md': [
+    'search: false',
+    'sidebar: false',
+    'outline: false',
+    '兼容说明',
+    '/zh/guide/index',
+    '/zh/whitepaper/index',
+    '/zh/performance/index',
+    '/zh/reference/index',
+    '/zh/research/index',
+    '/zh/status/index',
+  ],
+  'en/project-status/index.md': [
+    'search: false',
+    'sidebar: false',
+    'outline: false',
+    'Compatibility note',
+    '/en/status/index',
+    '/en/guide/index',
+  ],
+  'zh/project-status/index.md': [
+    'search: false',
+    'sidebar: false',
+    'outline: false',
+    '兼容说明',
+    '/zh/status/index',
+    '/zh/guide/index',
+  ],
+  'en/getting-started/migration.md': [
+    'search: false',
+    'sidebar: false',
+    'outline: false',
+    'Transitional boundary',
+    '/en/status/index',
+    '/en/whitepaper/index',
+  ],
+  'zh/getting-started/migration.md': [
+    'search: false',
+    'sidebar: false',
+    'outline: false',
+    '过渡边界说明',
+    '/zh/status/index',
+    '/zh/whitepaper/index',
+  ],
+  'en/api/overview.md': [
+    'search: false',
+    'sidebar: false',
+    'outline: false',
+    'Transitional boundary',
+    '/en/status/index',
+    '/en/reference/index',
+  ],
+  'zh/api/overview.md': [
+    'search: false',
+    'sidebar: false',
+    'outline: false',
+    '过渡边界说明',
+    '/zh/status/index',
+    '/zh/reference/index',
+  ],
+  'en/whitepaper/performance.md': [
+    'search: false',
+    'sidebar: false',
+    'outline: false',
+    'compatibility entry',
+    '/en/performance/index',
+    '/en/whitepaper/index',
+  ],
+  'zh/whitepaper/performance.md': [
+    'search: false',
+    'sidebar: false',
+    'outline: false',
+    '兼容入口',
+    '/zh/performance/index',
+    '/zh/whitepaper/index',
+  ],
 }
 
 for (const [relativePath, requiredSnippets] of Object.entries(requiredPageContracts)) {
@@ -140,6 +228,22 @@ const whitepaperPerformanceZh = read('zh/whitepaper/performance.md')
 expect(whitepaperPerformanceZh.includes('兼容入口'), 'zh/whitepaper/performance.md must frame itself as a compatibility entry')
 expect(whitepaperPerformanceZh.includes('/zh/performance/index'), 'zh/whitepaper/performance.md must link to the primary performance section')
 expect(whitepaperPerformanceZh.includes('/zh/whitepaper/index'), 'zh/whitepaper/performance.md must link back to the whitepaper entry')
+
+const canonicalLegacyClaimGuards = {
+  'en/guide/index.md': ['bitarray', 'C++17'],
+  'zh/guide/index.md': ['bitarray', 'C++17'],
+  'en/whitepaper/public-model.md': ['bitarray', 'C++17'],
+  'zh/whitepaper/public-model.md': ['bitarray', 'C++17'],
+  'en/reference/types-and-views.md': ['bitarray', 'C++17'],
+  'zh/reference/types-and-views.md': ['bitarray', 'C++17'],
+}
+
+for (const [relativePath, forbiddenSnippets] of Object.entries(canonicalLegacyClaimGuards)) {
+  const content = read(relativePath)
+  for (const snippet of forbiddenSnippets) {
+    expect(!content.includes(snippet), `${relativePath} must not keep expanding legacy claim wording: ${snippet}`)
+  }
+}
 
 if (errors.length > 0) {
   console.error('Content contract validation failed:')

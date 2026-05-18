@@ -8,7 +8,7 @@
 
 - **C++23 baseline** 是否已经是明确项目前提；
 - **x86-64-first** 姿态是否写得足够诚实，边界是否收紧；
-- 从 `bitarray` 中心转向新的公开模型，是否真的让契约更清晰；
+- 新的 owner / view / algorithm 公开模型，是否真的让契约更清晰；
 - `<bitcal/bitcal.hpp>` 是否仍被认真维护为稳定 include seam。
 
 导读不会替代白皮书或 Reference。它负责把你送到正确的阅读轨道上。
@@ -30,7 +30,7 @@
       title: 'Migration posture',
       href: '/zh/guide/migration-posture',
       badge: '方向感',
-      summary: '理解 BitCal 为什么愿意打破旧 bitarray 中心模型。',
+      summary: '理解 BitCal 为什么愿意放下旧的单体公开模型。',
       detail: '迁移不是靠模糊兼容话术，而是靠明确设计取舍来解释。'
     },
     {

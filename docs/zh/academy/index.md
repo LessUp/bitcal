@@ -1,3 +1,10 @@
+---
+title: Academy 兼容入口
+search: false
+sidebar: false
+outline: false
+---
+
 # Academy 兼容入口
 
 > **兼容说明：** `academy/` 仅为承接旧链接而保留。BitCal 当前主文档结构已经收敛到 导读 / 白皮书 / 性能 / 参考 / 研究 / 状态。

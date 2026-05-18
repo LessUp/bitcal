@@ -1,3 +1,10 @@
+---
+title: 迁移指南
+search: false
+sidebar: false
+outline: false
+---
+
 # 迁移指南
 
 > **过渡边界说明：** 本页是 vNext 迁移路线图，当前只保留与 IA 收敛直接相关的导读入口。
@@ -15,6 +22,6 @@
 
 ## 从这里继续
 
-- 先看[状态](/zh/status/)了解当前支持姿态与破坏性变更边界
+- 先看[状态](/zh/status/index)了解当前支持姿态与破坏性变更边界
 - 再看[白皮书](/zh/whitepaper/index)理解目标公开模型
 - 使用[验证路径](/zh/guide/verification)与[迁移姿态](/zh/guide/migration-posture)继续当前导读入口

@@ -1,3 +1,10 @@
+---
+title: Migration Guide
+search: false
+sidebar: false
+outline: false
+---
+
 # Migration Guide
 
 > **Transitional boundary:** This page is the vNext migration route map. It stays focused on the retained guide entry points that still matter during the IA convergence.
@@ -15,6 +22,6 @@
 
 ## Route from here
 
-- Use [Status](/en/status/) for current support and breaking-change posture
+- Use [Status](/en/status/index) for current support and breaking-change posture
 - Read the [Whitepaper](/en/whitepaper/index) for the intended public model
 - Use [Verification Path](/en/guide/verification) and [Migration Posture](/en/guide/migration-posture) for the retained guide entry points
