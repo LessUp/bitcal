@@ -1,60 +1,85 @@
 /**
  * Mermaid 主题配置
- * 支持深浅色主题自动切换
- *
- * 注意：颜色值与 styles/variables.css 中的设计令牌对应
- * - primaryColor → --bc-diagram-node
- * - primaryTextColor → --bc-text-primary
- * - lineColor → --bc-diagram-edge
- * - mainBkg → --bc-bg / --bc-bg-elevated
+ * 支持深浅色主题自动切换，并与 BitCal whitepaper tokens 对齐。
  */
 
 export interface MermaidThemeConfig {
   startOnLoad: boolean
   theme: string
+  darkMode: boolean
+  themeCSS: string
   themeVariables: {
     primaryColor: string
     primaryTextColor: string
     primaryBorderColor: string
+    secondaryColor: string
+    tertiaryColor: string
     lineColor: string
     mainBkg: string
     nodeBorder: string
     clusterBkg: string
+    clusterBorder: string
+    edgeLabelBackground: string
     fontFamily: string
   }
 }
 
-/**
- * 获取 Mermaid 配置
- * @param isDark 是否为深色模式
- * @returns Mermaid 配置对象
- */
 export function getMermaidConfig(isDark: boolean): MermaidThemeConfig {
   return {
     startOnLoad: true,
-    theme: isDark ? 'dark' : 'default',
-    themeVariables: isDark
-      ? {
-          // 深色主题 - 对应 .dark 下的 CSS 变量
-          primaryColor: 'var(--bc-diagram-node)', // --bc-blue-400: #60a5fa
-          primaryTextColor: 'var(--bc-text-primary)', // --bc-slate-50: #f8fafc
-          primaryBorderColor: 'var(--bc-border)', // --bc-slate-600: #475569
-          lineColor: 'var(--bc-diagram-edge)', // --bc-slate-400: #94a3b8
-          mainBkg: 'var(--bc-bg-elevated)', // --bc-slate-800: #1e293b
-          nodeBorder: 'var(--bc-border)', // --bc-slate-600: #475569
-          clusterBkg: 'var(--bc-bg-elevated)', // --bc-slate-800: #1e293b
-          fontFamily: 'Inter, system-ui, sans-serif',
-        }
-      : {
-          // 浅色主题 - 对应 :root 下的 CSS 变量
-          primaryColor: 'var(--bc-diagram-node)', // --bc-blue-500: #3b82f6
-          primaryTextColor: 'var(--bc-text-primary)', // --bc-slate-900: #0f172a
-          primaryBorderColor: 'var(--bc-border)', // --bc-slate-200: #e2e8f0
-          lineColor: 'var(--bc-diagram-edge)', // --bc-slate-500: #64748b
-          mainBkg: 'var(--bc-bg)', // #ffffff
-          nodeBorder: 'var(--bc-border)', // --bc-slate-200: #e2e8f0
-          clusterBkg: 'var(--bc-bg-elevated)', // --bc-slate-50: #f8fafc
-          fontFamily: 'Inter, system-ui, sans-serif',
-        },
+    theme: 'base',
+    darkMode: isDark,
+    themeCSS: `
+      .node rect,
+      .node circle,
+      .node ellipse,
+      .node polygon,
+      .node path {
+        fill: var(--bc-mermaid-node-fill) !important;
+        stroke: var(--bc-mermaid-node-border) !important;
+      }
+
+      .cluster rect {
+        fill: var(--bc-mermaid-cluster-fill) !important;
+        stroke: var(--bc-rule-strong) !important;
+      }
+
+      .label,
+      .label text,
+      .cluster text,
+      .nodeLabel,
+      .edgeLabel,
+      .edgeLabel p {
+        fill: var(--bc-mermaid-label) !important;
+        color: var(--bc-mermaid-label) !important;
+      }
+
+      .edgeLabel rect,
+      .labelBkg {
+        fill: var(--bc-paper-pane) !important;
+        opacity: 1 !important;
+      }
+
+      .flowchart-link,
+      .edgePath .path,
+      marker path {
+        stroke: var(--bc-mermaid-edge) !important;
+        fill: var(--bc-mermaid-edge) !important;
+      }
+    `,
+    themeVariables: {
+      primaryColor: 'var(--bc-mermaid-node-fill)',
+      primaryTextColor: 'var(--bc-mermaid-label)',
+      primaryBorderColor: 'var(--bc-mermaid-node-border)',
+      secondaryColor: 'var(--bc-figure-pane)',
+      tertiaryColor: 'var(--bc-paper-elevated)',
+      lineColor: 'var(--bc-mermaid-edge)',
+      mainBkg: 'transparent',
+      nodeBorder: 'var(--bc-mermaid-node-border)',
+      clusterBkg: 'var(--bc-mermaid-cluster-fill)',
+      clusterBorder: 'var(--bc-rule-strong)',
+      edgeLabelBackground: 'var(--bc-paper-pane)',
+      fontFamily: 'Inter, IBM Plex Sans, system-ui, sans-serif',
+    },
   }
 }

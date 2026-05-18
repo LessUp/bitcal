@@ -3,15 +3,20 @@ import { useSlots } from 'vue'
 
 const slots = useSlots()
 
-defineProps<{
+withDefaults(defineProps<{
   title?: string
   eyebrow?: string
   caption?: string
-}>()
+  kind?: 'diagram' | 'table'
+  tone?: 'default' | 'contrast'
+}>(), {
+  kind: 'diagram',
+  tone: 'default',
+})
 </script>
 
 <template>
-  <figure class="bc-figure-frame">
+  <figure class="bc-figure-frame" :data-figure-kind="kind">
     <div v-if="eyebrow || slots.title || title" class="bc-figure-heading">
       <p v-if="eyebrow" class="bc-figure-eyebrow">{{ eyebrow }}</p>
       <div v-if="slots.title || title" class="bc-figure-title">
@@ -19,7 +24,7 @@ defineProps<{
       </div>
     </div>
 
-    <div class="bc-figure-shell">
+    <div class="bc-figure-shell" :data-figure-tone="tone">
       <slot />
     </div>
 

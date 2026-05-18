@@ -7,7 +7,8 @@
     "dev": "npm run sync && vitepress dev",
     "build": "npm run sync && vitepress build",
     "preview": "vitepress preview",
-    "check:ia": "node scripts/check-ia.mjs"
+    "check:ia": "node scripts/check-ia.mjs",
+    "check:theme-contract": "node scripts/check-theme-contract.mjs"
   },
   "devDependencies": {
     "vitepress": "^1.5.0"

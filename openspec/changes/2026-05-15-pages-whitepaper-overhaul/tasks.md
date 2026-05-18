@@ -7,7 +7,7 @@
 - [x] Add the localized section entry pages and redirect aliases needed to keep the primary reading path aligned across English and Chinese
 
 ## Theme Primitives
-- [ ] Introduce reusable theme components and figure tokens for high-value Pages surfaces
+- [x] Introduce reusable theme components and figure tokens for high-value Pages surfaces
 
 ## Content Rewrite
 - [x] Rewrite the home, status, and closely related entry pages so the main reading path no longer points at retired academy, old architecture, or `project-status` routes

@@ -1,0 +1,149 @@
+:root {
+  --vp-font-family-base: 'Inter', 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --vp-font-family-mono: 'IBM Plex Mono', 'SFMono-Regular', 'SF Mono', Consolas, monospace;
+
+  --vp-c-brand-1: var(--bc-primary);
+  --vp-c-brand-2: var(--bc-primary-hover);
+  --vp-c-brand-3: color-mix(in oklab, var(--bc-primary) 78%, var(--bc-paper-pane));
+  --vp-c-brand-soft: color-mix(in oklab, var(--bc-primary) 12%, var(--bc-paper-pane));
+
+  --vp-c-bg: var(--bc-bg);
+  --vp-c-bg-alt: var(--bc-paper-pane);
+  --vp-c-bg-elv: var(--bc-paper-elevated);
+  --vp-c-bg-soft: var(--bc-paper-sunken);
+
+  --vp-c-text-1: var(--bc-text-primary);
+  --vp-c-text-2: var(--bc-text-secondary);
+  --vp-c-text-3: var(--bc-text-tertiary);
+
+  --vp-c-border: var(--bc-border);
+  --vp-c-divider: var(--bc-rule-soft);
+  --vp-c-gutter: var(--bc-rule-soft);
+
+  --vp-code-block-bg: var(--bc-code-bg);
+  --vp-code-line-highlight-color: var(--bc-code-highlight);
+  --vp-code-copy-code-bg: var(--bc-paper-elevated);
+  --vp-code-copy-code-hover-bg: var(--bc-paper-pane);
+
+  --vp-custom-block-info-bg: var(--bc-callout-note);
+  --vp-custom-block-tip-bg: var(--bc-callout-tip);
+  --vp-custom-block-warning-bg: var(--bc-callout-warning);
+  --vp-custom-block-danger-bg: var(--bc-callout-danger);
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--vp-c-bg);
+}
+
+body {
+  background:
+    radial-gradient(circle at top, color-mix(in oklab, var(--bc-cyan-500) 8%, transparent), transparent 42%),
+    linear-gradient(180deg, color-mix(in oklab, var(--bc-paper-pane) 44%, transparent), transparent 26%),
+    var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+}
+
+.Layout {
+  background: transparent;
+}
+
+.VPNav {
+  background: color-mix(in oklab, var(--vp-c-bg) 86%, var(--bc-paper-pane));
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid color-mix(in oklab, var(--bc-rule-strong) 72%, transparent);
+}
+
+.VPNavBar {
+  padding-inline: 24px;
+}
+
+.VPNavBarTitle .title {
+  font-weight: 680;
+  letter-spacing: -0.015em;
+}
+
+.VPNavBarMenuLink,
+.VPNavBarMenuGroup .button {
+  font-size: 13px;
+  font-weight: 620;
+  letter-spacing: 0.01em;
+}
+
+.VPNavBarMenuLink.active,
+.VPNavBarMenuGroup.open .button,
+.VPNavBarMenuLink:hover,
+.VPNavBarMenuGroup .button:hover {
+  color: var(--vp-c-brand-1);
+}
+
+.VPLocalNav,
+.VPDocAsideOutline .content,
+.VPSidebar {
+  background: transparent;
+}
+
+.VPSidebar {
+  padding: 28px 18px 104px;
+}
+
+.VPSidebarGroup .title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vp-c-text-3);
+}
+
+.VPSidebarItem .item {
+  margin: 2px 0;
+}
+
+.VPSidebarItem .text,
+.VPDocOutlineItem .text {
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+
+.VPSidebarItem.is-active .text,
+.VPDocOutlineItem.active > .item > .text {
+  background: color-mix(in oklab, var(--vp-c-brand-soft) 74%, var(--bc-paper-pane));
+  color: var(--vp-c-brand-1);
+}
+
+.VPDoc {
+  padding-top: 40px;
+  padding-bottom: 120px;
+}
+
+.VPDoc.has-aside .content-container {
+  max-width: 1240px;
+}
+
+.VPDoc .content {
+  max-width: var(--bitcal-content-width);
+}
+
+.VPContent .VPHome {
+  padding-top: 20px;
+}
+
+.VPButton.brand {
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--bc-primary) 42%, transparent), 0 10px 24px color-mix(in srgb, var(--bc-primary) 18%, transparent);
+}
+
+.VPButton.alt {
+  border-color: var(--bc-border);
+  background: color-mix(in oklab, var(--bc-paper-pane) 92%, var(--bc-cyan-500));
+}
+
+.VPFooter {
+  border-top: 1px solid var(--bc-rule-soft);
+  background: color-mix(in oklab, var(--bc-paper-pane) 94%, transparent);
+}
+
+@media (max-width: 640px) {
+  .VPNavBar {
+    padding-inline: 12px;
+  }
+}

@@ -2,10 +2,11 @@
 import { useSlots } from 'vue'
 import { withBase } from 'vitepress'
 
-defineProps<{
+const props = withDefaults(defineProps<{
   eyebrow: string
   title: string
   lead: string
+  tone?: 'whitepaper' | 'default'
   stats: Array<{
     label: string
     value: string
@@ -15,7 +16,9 @@ defineProps<{
     href: string
     theme?: 'brand' | 'alt'
   }>
-}>()
+}>(), {
+  tone: 'whitepaper',
+})
 
 const slots = useSlots()
 
@@ -28,7 +31,11 @@ function resolveHref(href: string): string {
 </script>
 
 <template>
-  <section class="bitcal-hero" :class="{ 'bitcal-hero--split': Boolean(slots.default) }">
+  <section
+    class="bitcal-hero"
+    :class="{ 'bitcal-hero--split': Boolean(slots.default) }"
+    :data-hero-tone="props.tone"
+  >
     <div class="bitcal-hero__copy">
       <p class="bitcal-hero__eyebrow">{{ eyebrow }}</p>
       <h1 class="bitcal-hero__title">{{ title }}</h1>
@@ -53,7 +60,9 @@ function resolveHref(href: string): string {
     </div>
 
     <div v-if="slots.default" class="bitcal-hero__aside">
-      <slot />
+      <div class="bitcal-hero__panel">
+        <slot />
+      </div>
     </div>
   </section>
 </template>

@@ -1,83 +1,152 @@
-/* ═══════════════════════════════════════════════════════════
-   BitCal Design Tokens - 3 Layer System
-   ═══════════════════════════════════════════════════════════ */
-
-/* ═══ Layer 1: 原始色板 ═══ */
 :root {
-  /* Blue */
-  --bc-blue-400: #60a5fa;
-  --bc-blue-500: #3b82f6;
-  --bc-blue-600: #2563eb;
+  color-scheme: light;
 
-  /* Amber */
-  --bc-amber-400: #fbbf24;
-  --bc-amber-500: #f59e0b;
+  /* Core chroma */
+  --bc-blue-500: oklch(0.56 0.15 252);
+  --bc-blue-600: oklch(0.5 0.14 252);
+  --bc-cyan-500: oklch(0.7 0.1 215);
+  --bc-cyan-600: oklch(0.62 0.09 215);
+  --bc-amber-500: oklch(0.72 0.13 74);
+  --bc-emerald-500: oklch(0.69 0.12 162);
+  --bc-red-500: oklch(0.61 0.2 27);
 
-  /* Emerald */
-  --bc-emerald-400: #34d399;
-  --bc-emerald-500: #10b981;
+  /* Paper / ink system */
+  --bc-paper-bg: oklch(0.988 0.004 248);
+  --bc-paper-pane: oklch(0.978 0.008 248);
+  --bc-paper-elevated: oklch(0.964 0.012 248);
+  --bc-paper-sunken: oklch(0.945 0.014 248);
 
-  /* Red */
-  --bc-red-400: #f87171;
-  --bc-red-500: #ef4444;
+  --bc-ink-strong: oklch(0.22 0.028 252);
+  --bc-ink-soft: oklch(0.42 0.02 248);
+  --bc-ink-faint: oklch(0.58 0.015 248);
+  --bc-ink-inverse: oklch(0.97 0.004 248);
 
-  /* Slate */
-  --bc-slate-50: #f8fafc;
-  --bc-slate-100: #f1f5f9;
-  --bc-slate-200: #e2e8f0;
-  --bc-slate-300: #cbd5e1;
-  --bc-slate-400: #94a3b8;
-  --bc-slate-500: #64748b;
-  --bc-slate-600: #475569;
-  --bc-slate-700: #334155;
-  --bc-slate-800: #1e293b;
-  --bc-slate-900: #0f172a;
-}
+  --bc-rule-strong: oklch(0.83 0.012 248);
+  --bc-rule-soft: oklch(0.9 0.008 248);
+  --bc-rule-focus: color-mix(in oklab, var(--bc-blue-500) 75%, white);
 
-/* ═══ Layer 2: 语义映射（浅色模式） ═══ */
-:root {
-  /* Brand */
   --bc-primary: var(--bc-blue-500);
   --bc-primary-hover: var(--bc-blue-600);
   --bc-accent: var(--bc-amber-500);
+  --bc-accent-cyan: var(--bc-cyan-500);
   --bc-success: var(--bc-emerald-500);
   --bc-danger: var(--bc-red-500);
 
-  /* Background */
-  --bc-bg: #ffffff;
-  --bc-bg-elevated: var(--bc-slate-50);
-  --bc-bg-sunken: var(--bc-slate-100);
+  --bc-bg: var(--bc-paper-bg);
+  --bc-bg-elevated: var(--bc-paper-pane);
+  --bc-bg-sunken: var(--bc-paper-sunken);
+  --bc-text-primary: var(--bc-ink-strong);
+  --bc-text-secondary: var(--bc-ink-soft);
+  --bc-text-tertiary: var(--bc-ink-faint);
+  --bc-text-on-primary: var(--bc-ink-inverse);
+  --bc-border: var(--bc-rule-strong);
+  --bc-border-focus: var(--bc-rule-focus);
 
-  /* Text */
-  --bc-text-primary: var(--bc-slate-900);
-  --bc-text-secondary: var(--bc-slate-600);
-  --bc-text-tertiary: var(--bc-slate-400);
-  --bc-text-on-primary: #ffffff;
+  --bc-code-bg: color-mix(in oklab, var(--bc-paper-pane) 88%, var(--bc-paper-sunken));
+  --bc-code-border: color-mix(in oklab, var(--bc-rule-strong) 70%, var(--bc-blue-500));
+  --bc-code-highlight: color-mix(in oklab, var(--bc-cyan-500) 10%, var(--bc-paper-bg));
 
-  /* Border */
-  --bc-border: var(--bc-slate-200);
-  --bc-border-focus: var(--bc-blue-500);
+  --bc-callout-note: color-mix(in oklab, var(--bc-cyan-500) 12%, var(--bc-paper-pane));
+  --bc-callout-tip: color-mix(in oklab, var(--bc-emerald-500) 12%, var(--bc-paper-pane));
+  --bc-callout-warning: color-mix(in oklab, var(--bc-amber-500) 16%, var(--bc-paper-pane));
+  --bc-callout-danger: color-mix(in oklab, var(--bc-red-500) 12%, var(--bc-paper-pane));
 
-  /* Diagram */
-  --bc-diagram-node: var(--bc-blue-500);
-  --bc-diagram-node-alt: var(--bc-emerald-500);
-  --bc-diagram-edge: var(--bc-slate-500);
+  --bc-figure-bg: linear-gradient(180deg, color-mix(in oklab, var(--bc-paper-pane) 94%, white) 0%, var(--bc-paper-elevated) 100%);
+  --bc-figure-pane: color-mix(in oklab, var(--bc-paper-pane) 86%, white);
+  --bc-figure-grid: color-mix(in oklab, var(--bc-rule-soft) 70%, var(--bc-cyan-500));
+  --bc-figure-ring: color-mix(in oklab, var(--bc-blue-500) 26%, white);
+  --bc-figure-ink: var(--bc-ink-strong);
+  --bc-figure-muted: var(--bc-ink-soft);
+  --bc-figure-accent: color-mix(in oklab, var(--bc-cyan-500) 28%, var(--bc-paper-pane));
+  --bc-figure-node: color-mix(in oklab, var(--bc-blue-500) 24%, var(--bc-paper-pane));
+  --bc-figure-node-alt: color-mix(in oklab, var(--bc-cyan-500) 20%, var(--bc-paper-pane));
+
+  --bc-mermaid-node-fill: var(--bc-figure-node);
+  --bc-mermaid-node-border: color-mix(in oklab, var(--bc-blue-500) 40%, var(--bc-rule-strong));
+  --bc-mermaid-cluster-fill: color-mix(in oklab, var(--bc-paper-pane) 90%, var(--bc-cyan-500));
+  --bc-mermaid-edge: color-mix(in oklab, var(--bc-ink-soft) 80%, var(--bc-blue-500));
+  --bc-mermaid-label: var(--bc-ink-strong);
+  --bc-mermaid-mode: light;
+
+  --bc-diagram-node: var(--bc-mermaid-node-border);
+  --bc-diagram-node-alt: var(--bc-accent-cyan);
+  --bc-diagram-edge: var(--bc-mermaid-edge);
+
+  --bitcal-surface-1: var(--bc-paper-pane);
+  --bitcal-surface-2: var(--bc-paper-elevated);
+  --bitcal-surface-3: var(--bc-paper-sunken);
+  --bitcal-positive: var(--bc-success);
+  --bitcal-caution: var(--bc-accent);
+
+  --bitcal-content-width: min(72ch, 100%);
+  --bitcal-shadow-soft: 0 24px 72px color-mix(in srgb, var(--bc-ink-strong) 10%, transparent);
+  --bitcal-shadow-fine: 0 12px 32px color-mix(in srgb, var(--bc-ink-strong) 7%, transparent);
 }
 
-/* ═══ Layer 2: 语义映射（深色模式） ═══ */
 .dark {
-  --bc-primary: var(--bc-blue-400);
-  --bc-primary-hover: var(--bc-blue-500);
-  --bc-bg: var(--bc-slate-900);
-  --bc-bg-elevated: var(--bc-slate-800);
-  --bc-bg-sunken: var(--bc-slate-700);
-  --bc-text-primary: var(--bc-slate-50);
-  --bc-text-secondary: var(--bc-slate-300);
-  --bc-text-tertiary: var(--bc-slate-500);
-  --bc-text-on-primary: var(--bc-slate-900);
-  --bc-border: var(--bc-slate-600);
-  --bc-border-focus: var(--bc-blue-400);
-  --bc-diagram-node: var(--bc-blue-400);
-  --bc-diagram-node-alt: var(--bc-emerald-400);
-  --bc-diagram-edge: var(--bc-slate-400);
+  color-scheme: dark;
+
+  --bc-paper-bg: oklch(0.16 0.012 250);
+  --bc-paper-pane: oklch(0.2 0.016 250);
+  --bc-paper-elevated: oklch(0.24 0.02 248);
+  --bc-paper-sunken: oklch(0.14 0.01 250);
+
+  --bc-ink-strong: oklch(0.95 0.008 248);
+  --bc-ink-soft: oklch(0.79 0.014 248);
+  --bc-ink-faint: oklch(0.62 0.014 248);
+  --bc-ink-inverse: oklch(0.2 0.014 248);
+
+  --bc-rule-strong: oklch(0.34 0.015 248);
+  --bc-rule-soft: oklch(0.28 0.012 248);
+  --bc-rule-focus: color-mix(in oklab, var(--bc-cyan-500) 72%, black);
+
+  --bc-primary: oklch(0.74 0.09 245);
+  --bc-primary-hover: oklch(0.78 0.09 242);
+  --bc-accent: oklch(0.76 0.11 80);
+  --bc-accent-cyan: oklch(0.78 0.08 210);
+  --bc-success: oklch(0.77 0.1 158);
+  --bc-danger: oklch(0.69 0.18 27);
+
+  --bc-bg: var(--bc-paper-bg);
+  --bc-bg-elevated: var(--bc-paper-pane);
+  --bc-bg-sunken: var(--bc-paper-sunken);
+  --bc-text-primary: var(--bc-ink-strong);
+  --bc-text-secondary: var(--bc-ink-soft);
+  --bc-text-tertiary: var(--bc-ink-faint);
+  --bc-text-on-primary: var(--bc-ink-inverse);
+  --bc-border: var(--bc-rule-strong);
+  --bc-border-focus: var(--bc-rule-focus);
+
+  --bc-code-bg: color-mix(in oklab, var(--bc-paper-pane) 88%, black);
+  --bc-code-border: color-mix(in oklab, var(--bc-rule-strong) 75%, var(--bc-cyan-500));
+  --bc-code-highlight: color-mix(in oklab, var(--bc-cyan-500) 14%, var(--bc-paper-pane));
+
+  --bc-callout-note: color-mix(in oklab, var(--bc-cyan-500) 16%, var(--bc-paper-pane));
+  --bc-callout-tip: color-mix(in oklab, var(--bc-emerald-500) 14%, var(--bc-paper-pane));
+  --bc-callout-warning: color-mix(in oklab, var(--bc-amber-500) 18%, var(--bc-paper-pane));
+  --bc-callout-danger: color-mix(in oklab, var(--bc-red-500) 16%, var(--bc-paper-pane));
+
+  --bc-figure-bg: linear-gradient(180deg, color-mix(in oklab, var(--bc-paper-pane) 96%, black) 0%, var(--bc-paper-sunken) 100%);
+  --bc-figure-pane: color-mix(in oklab, var(--bc-paper-pane) 94%, black);
+  --bc-figure-grid: color-mix(in oklab, var(--bc-rule-soft) 72%, var(--bc-cyan-500));
+  --bc-figure-ring: color-mix(in oklab, var(--bc-cyan-500) 20%, black);
+  --bc-figure-ink: var(--bc-ink-strong);
+  --bc-figure-muted: var(--bc-ink-soft);
+  --bc-figure-accent: color-mix(in oklab, var(--bc-cyan-500) 20%, var(--bc-paper-pane));
+  --bc-figure-node: color-mix(in oklab, var(--bc-primary) 18%, var(--bc-paper-pane));
+  --bc-figure-node-alt: color-mix(in oklab, var(--bc-accent-cyan) 16%, var(--bc-paper-pane));
+
+  --bc-mermaid-node-fill: var(--bc-figure-node);
+  --bc-mermaid-node-border: color-mix(in oklab, var(--bc-primary) 48%, var(--bc-rule-strong));
+  --bc-mermaid-cluster-fill: color-mix(in oklab, var(--bc-paper-pane) 90%, var(--bc-cyan-500));
+  --bc-mermaid-edge: color-mix(in oklab, var(--bc-ink-soft) 74%, var(--bc-primary));
+  --bc-mermaid-label: var(--bc-ink-strong);
+  --bc-mermaid-mode: dark;
+
+  --bc-diagram-node: var(--bc-mermaid-node-border);
+  --bc-diagram-node-alt: var(--bc-accent-cyan);
+  --bc-diagram-edge: var(--bc-mermaid-edge);
+
+  --bitcal-shadow-soft: 0 24px 72px rgba(0, 0, 0, 0.34);
+  --bitcal-shadow-fine: 0 14px 36px rgba(0, 0, 0, 0.24);
 }

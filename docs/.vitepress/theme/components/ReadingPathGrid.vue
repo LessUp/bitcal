@@ -5,7 +5,9 @@ export type ReadingPathItem = {
   title: string
   href: string
   summary: string
+  detail?: string
   badge?: string
+  tone?: 'default' | 'primary' | 'whitepaper'
 }
 
 defineProps<{
@@ -35,12 +37,14 @@ function resolveReadingPathHref(href: string) {
       :key="item.href"
       :href="resolveReadingPathHref(item.href)"
       class="bc-reading-card"
+      :data-reading-tone="item.tone ?? 'whitepaper'"
     >
       <div class="bc-reading-card-meta">
         <span v-if="item.badge" class="bc-reading-card-badge">{{ item.badge }}</span>
       </div>
       <div class="bc-reading-card-title">{{ item.title }}</div>
       <p class="bc-reading-card-summary">{{ item.summary }}</p>
+      <p v-if="item.detail" class="bc-reading-card-detail">{{ item.detail }}</p>
       <span class="bc-reading-card-arrow" aria-hidden="true">→</span>
     </a>
   </div>
