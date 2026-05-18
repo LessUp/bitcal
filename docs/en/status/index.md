@@ -1,61 +1,44 @@
 # Status
 
-BitCal is in an explicit vNext redesign phase for a breaking v4.0.0 line, not in a “feature-complete stable library” phase.
+Status is where BitCal drops all rhetorical excess and states the redesign in present tense.
 
-## This section defines
+## Release posture
 
-- support posture
-- maintenance boundaries
-- migration expectations
-- versioning and breaking-change policy
+- BitCal is in an active **vNext / 4.0.0-scale redesign**, not in a settled long-term maintenance phase.
+- The public baseline is **C++23**.
+- The primary optimization and measurement posture is **x86-64 first**.
+- The public model being documented centers on `bit_block<Bits>`, `bit_view`, `const_bit_view`, and free algorithms.
+- No code-level compatibility layer is promised for the older `bitarray` API.
 
-## Current posture
+## Support matrix
 
-- C++23 is the public design baseline
-- optimization and validation are x86-64-first
-- the new public model centers on `bit_block`, `bit_view`, and free algorithms
-- vNext does not promise a code-level compatibility layer for the retained `bitarray` API
+| Scope | Current posture | What readers may infer |
+| --- | --- | --- |
+| Linux x86-64 (GCC / Clang) | Primary | Main build, correctness, and benchmark attention. |
+| Windows x86-64 (MSVC) | Primary | Main supported target alongside Linux x86-64. |
+| ARM64 and macOS follow-up targets | Secondary | Buildability may exist, but performance and maturity claims stay narrower. |
+| Anything beyond retained validation | Out of claim | Do not promote to support promises without new evidence. |
 
-## Support and maintenance boundaries
+## Documentation truth
 
-### Primary
+The main sources of truth remain:
 
-- Linux x86-64 (GCC / Clang)
-- Windows x86-64 (MSVC)
-- correctness and benchmark truth for the new public surface
+- active requirements and deltas in `openspec/`;
+- documentation architecture policy in `docs/README.md`;
+- the stable public include seam `<bitcal/bitcal.hpp>`;
+- version semantics defined from the repository source of truth.
 
-### Secondary
+## Change discipline
 
-- Linux ARM64
-- macOS ARM64
-- follow-up Pages whitepaper polish and published performance dashboards
+BitCal expects these surfaces to move together:
 
-Secondary targets must not receive stronger support or performance claims than the retained validation path supports.
+- OpenSpec and status language;
+- reference wording and public examples;
+- benchmark methodology and benchmark claims;
+- implementation work and the support matrix.
 
-## Repository rules that stay in force
+## What to read next
 
-- Active requirements live in `openspec/`
-- `<bitcal/bitcal.hpp>` remains the only stable public include seam
-- docs, specs, code, benchmarks, and version semantics must move together
-- benchmark credibility matters more than premature platform or performance claims
-
-## Single sources of truth
-
-- Active requirements: `openspec/`
-- Documentation policy: `docs/README.md`
-- Stable public include seam: `<bitcal/bitcal.hpp>`
-- Version source: `include/bitcal/config.hpp`
-
-## Current execution order
-
-1. Freeze the vNext contract in OpenSpec
-2. Land a compiling C++23 public skeleton
-3. Rebuild correctness and benchmark truth around the new surface
-4. Optimize x86-64 kernels on top of the rebuilt baseline
-5. Publish whitepaper and metrics only after retained evidence exists
-
-## Next steps
-
-- Use the [Guide](/en/guide/index) for the current reading path and verification posture
-- Read the [Whitepaper](/en/whitepaper/index) for the intended public model
-- Review [Performance](/en/performance/index) before treating any benchmark number as a product promise
+- Go back to the [Guide](/en/guide/index) if you need the review path.
+- Revisit the [Whitepaper](/en/whitepaper/index) for architecture rationale.
+- Use [Performance](/en/performance/index) and [Research](/en/research/index) before turning isolated evidence into a broader conclusion.

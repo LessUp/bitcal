@@ -1,15 +1,15 @@
 ---
-layout: home
-title: 性能
+title: 白皮书性能兼容说明
 ---
 
-<script setup>
-import { onMounted } from 'vue'
-import { useRouter, withBase } from 'vitepress'
+# 白皮书性能兼容说明
 
-const router = useRouter()
+性能现在是独立一级 section，不再作为白皮书的附属子章节。
 
-onMounted(() => {
-  router.go(withBase('/zh/performance/'))
-})
-</script>
+请改走独立的 [Performance](/zh/performance/index) 路径，那里会分别说明：
+
+- 当前保留的 baseline 快照；
+- 测量方法学与复现命令；
+- 宣称边界与解释护栏。
+
+白皮书继续负责设计论证；性能章节负责发布证据并限制证据的含义。

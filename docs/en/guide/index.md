@@ -1,23 +1,73 @@
 # Guide
 
-This guide is the shortest path from "I just found the repository" to "I understand how to review it seriously."
+The guide is not a beginner tutorial. It is the orientation layer for advanced readers who need to decide whether BitCal's redesign is coherent enough to keep reading.
+
+## Audience and scope
+
+This section is written for readers who want to evaluate one or more of the following:
+
+- whether the **C++23 baseline** is a real project decision;
+- whether the **x86-64-first** posture is documented with honest limits;
+- whether the move away from a `bitarray`-centered API improves the public model;
+- whether the repository still exposes a stable include seam through `<bitcal/bitcal.hpp>`.
+
+The guide intentionally stops short of full reference detail. It exists to prepare the reader for the deeper whitepaper and evidence sections.
+
+## Reading chain
+
+The canonical path is **Guide → Whitepaper → Performance → Reference → Research → Status**.
 
 <ReadingPathGrid
   :items="[
     {
       title: 'Verification path',
       href: '/en/guide/verification',
-      summary: 'See the retained local command path for build, tests, examples, and benchmarks.'
+      badge: 'Execution',
+      summary: 'See the retained build, test, example, and benchmark command path.',
+      detail: 'A header-only library still needs a reproducible local validation loop.'
     },
     {
       title: 'Migration posture',
       href: '/en/guide/migration-posture',
-      summary: 'Understand why vNext is willing to break older expectations.'
+      badge: 'Direction',
+      summary: 'Understand why BitCal is willing to break the earlier bitarray-centered model.',
+      detail: 'Migration is explained as a design choice, not hidden behind ambiguous compatibility wording.'
     },
     {
       title: 'Whitepaper',
       href: '/en/whitepaper/index',
-      summary: 'Move into the architecture thesis once the execution posture is clear.'
+      badge: 'Architecture',
+      summary: 'Move into the system architecture spine once the execution posture is clear.',
+      detail: 'This is where the owner / view / algorithm model and dispatch boundary are defined.'
+    },
+    {
+      title: 'Performance',
+      href: '/en/performance/index',
+      badge: 'Evidence',
+      summary: 'Inspect the baseline snapshot and methodology as separate artifacts.',
+      detail: 'Benchmark numbers are only meaningful when scope and reproduction stay attached.'
+    },
+    {
+      title: 'Reference',
+      href: '/en/reference/index',
+      badge: 'Contract',
+      summary: 'Read types, views, and algorithms as contractual roles, not as a source tour.',
+      detail: 'Reference comes after architecture because semantics depend on the role model.'
+    },
+    {
+      title: 'Research and Status',
+      href: '/en/research/index',
+      badge: 'Context',
+      summary: 'Use research for comparisons and status for boundaries before drawing conclusions.',
+      detail: 'Research widens context; Status narrows the final claims again.'
     }
   ]"
 />
+
+## What you should know before continuing
+
+- BitCal is **not** presenting itself as a settled general-purpose bitset library.
+- The redesign is **v4.0.0-scale** and is willing to break earlier expectations.
+- Current Pages content is organized to help you review architecture and evidence, not to maximize feature-count impression.
+
+Continue with the [verification path](/en/guide/verification) if you want to anchor the documentation in executable evidence first, or go straight to the [whitepaper](/en/whitepaper/index) if you already know the repository context.

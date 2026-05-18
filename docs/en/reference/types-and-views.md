@@ -1,21 +1,35 @@
 # Types and Views
 
-The reference surface is moving toward an explicit ownership model rather than a catalog of convenience methods.
+The public reference begins with roles, because the rest of the contract is hard to read if ownership and borrowing are blurry.
 
-## Role table
+## Public type roles
 
-| Surface | Ownership | Intended use |
+| Surface | Ownership status | Contract reading |
 | --- | --- | --- |
-| `bit_block<Bits>` | owning | fixed-width storage with explicit size and layout |
-| `bit_view` | borrowed mutable | operate on existing storage without copying |
-| `const_bit_view` | borrowed read-only | inspect or feed existing storage into algorithms |
+| `bit_block<Bits>` | Owning | Fixed-width storage object with explicit size, layout, and word-level identity. |
+| `bit_view` | Borrowed mutable | Mutable window over existing storage; does not imply ownership transfer. |
+| `const_bit_view` | Borrowed read-only | Read-only window used for inspection, comparison, and algorithm input. |
+| `<bitcal/bitcal.hpp>` | Stable entry point | The single supported include seam for the public surface. |
 
-## Reference rules
+## Ownership and borrowing contract
 
-- document role before syntax
-- keep include guidance simple: use `<bitcal/bitcal.hpp>`
-- describe detail headers as implementation material, not supported entry points
+Readers should be able to infer these rules without guessing:
 
-## Why this page exists
+- ownership lives with `bit_block<Bits>`;
+- borrowing lives with `bit_view` and `const_bit_view`;
+- borrowed views are normal inputs to algorithms, not second-class adapters;
+- include advice stays simple: include `<bitcal/bitcal.hpp>` unless you are working on internals.
 
-If a reader cannot tell who owns storage and who merely observes it, the rest of the contract becomes blurry. This page should remove that ambiguity first.
+## Contract notes worth preserving
+
+- Width is part of the public story, because the redesign is intentionally fixed-width oriented.
+- Borrowing must be documented clearly enough that aliasing and mutability questions can be answered at the reference layer.
+- Detail headers may exist, but they are not automatically public commitments.
+
+## Non-guarantees
+
+This page does not promise:
+
+- that current internal storage layout is a stable ABI contract;
+- that every intermediate helper type should appear in public documentation;
+- that the older `bitarray` naming remains the recommended mental model.

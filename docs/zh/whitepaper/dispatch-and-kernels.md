@@ -1,55 +1,44 @@
 # 分发与内核
 
-BitCal 记录 dispatch，是为了说明边界，而不是为了把它包装成个性标签。
+BitCal 记录 dispatch，是为了定义支持边界，而不是为了给项目增加“很底层”的人格设定。读者需要知道实现自由从哪里开始，因为这条线决定了哪些变化属于架构，哪些只是 backend 工程。
 
-<FigureFrame title="契约与实现的边界线" caption="公共文档留在线上方，内核自由留在线下方。">
-  <svg viewBox="0 0 760 320" role="img" aria-label="契约与实现边界">
-    <rect x="40" y="28" width="680" height="58" rx="18" data-fill="accent" />
-    <text x="70" y="64" fill="currentColor" font-size="26" font-weight="700">公共契约</text>
-    <text x="290" y="64" fill="currentColor" font-size="16">include seam、owner/view 模型、算法语义</text>
+## 分发边界
 
-    <path d="M60 128 L700 128" stroke-width="3" fill="none" data-stroke="primary" />
-    <text x="70" y="118" fill="currentColor" font-size="14">implementation boundary</text>
-
-    <rect x="40" y="160" width="200" height="94" rx="18" data-fill="surface" />
-    <text x="72" y="198" fill="currentColor" font-size="22" font-weight="680">detail dispatch</text>
-    <text x="72" y="226" fill="currentColor" font-size="14">策略、启发式、backend 选择</text>
-
-    <rect x="280" y="160" width="200" height="94" rx="18" data-fill="surface" />
-    <text x="312" y="198" fill="currentColor" font-size="22" font-weight="680">x86-64 kernels</text>
-    <text x="312" y="226" fill="currentColor" font-size="14">主要优化与验证路径</text>
-
-    <rect x="520" y="160" width="200" height="94" rx="18" data-fill="surface" />
-    <text x="552" y="198" fill="currentColor" font-size="22" font-weight="680">scalar fallback</text>
-    <text x="552" y="226" fill="currentColor" font-size="14">可移植行为地板</text>
+<FigureFrame title="公开契约与实现自由" caption="契约线把用户可见角色与语义留在上层，把 dispatch policy 与 kernel 替换留在下层。">
+  <svg viewBox="0 0 760 330" role="img" aria-label="分发边界图">
+    <rect x="40" y="28" width="680" height="64" rx="18" data-fill="accent" />
+    <text x="70" y="68" fill="currentColor" font-size="26" font-weight="700">公开契约</text>
+    <text x="280" y="68" fill="currentColor" font-size="16">include seam · owner/view 角色 · algorithm 语义</text>
+    <path d="M60 132 L700 132" stroke-width="3" fill="none" data-stroke="primary" />
+    <text x="70" y="122" fill="currentColor" font-size="14">dispatch 边界</text>
+    <rect x="40" y="164" width="210" height="96" rx="18" data-fill="surface" />
+    <text x="70" y="202" fill="currentColor" font-size="22" font-weight="680">dispatch policy</text>
+    <text x="70" y="230" fill="currentColor" font-size="14">特征检测、路由、fallback 选择</text>
+    <rect x="276" y="164" width="210" height="96" rx="18" data-fill="surface" />
+    <text x="308" y="202" fill="currentColor" font-size="22" font-weight="680">内核族</text>
+    <text x="308" y="230" fill="currentColor" font-size="14">AVX2 主路径，scalar 便携底线</text>
+    <rect x="512" y="164" width="210" height="96" rx="18" data-fill="surface" />
+    <text x="546" y="202" fill="currentColor" font-size="22" font-weight="680">微调层</text>
+    <text x="546" y="230" fill="currentColor" font-size="14">intrinsic 选择、展开、对齐策略</text>
   </svg>
 </FigureFrame>
 
-## 支持姿态
+## 内核族
 
-| 层 | 状态 | 文档原则 |
+| 内核族 | 当前文档姿态 | 为什么要单独分层 |
 | --- | --- | --- |
-| x86-64 优化路径 | primary | 谨慎宣称，公开测量 |
-| scalar fallback | retained | 作为可移植行为下限来描述 |
-| secondary targets | follow-up | 绝不宣称比 retained evidence 更强的支持 |
+| Scalar floor | 保留的可移植基线 | 即使没有宽向量路径，也要有 correctness floor。 |
+| AVX2 path | 当前主优化与主证据目标 | 现阶段 benchmark 叙事主要集中在这里。 |
+| Future x86 variants | 只能作为设计方向提及 | 在没有保留证据前，不应把它们写成现时主张。 |
 
-## 这对文档意味着什么
+## 支持边界
 
-- 只有当 backend 策略会影响用户可观察行为时，才解释它
-- 白皮书应聚焦边界，而不是枚举所有 intrinsic
-- 性能页负责说明当前证据主要集中在哪一层
+dispatch 与 kernel 必须服从当前公开支持姿态：
 
-<CitationList
-  :items="[
-    {
-      title: 'Intel Intrinsics Guide',
-      href: 'https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html',
-      note: '把用户可观察行为映射到实现层指令选择时的权威参考。'
-    },
-    {
-      title: 'Agner Fog optimization manuals',
-      href: 'https://www.agner.org/optimize/',
-      note: '有助于理解 x86 下的延迟、吞吐与 dispatch 代价。'
-    }
-  ]"
-/>
+- **Linux / Windows x86-64** 是主要优化与验证目标；
+- **次级目标** 可以继续保持可构建，但不能自动继承更强性能或成熟度承诺；
+- **公开文档** 只有在 backend 细节会改变可见语义、benchmark 语境或支持边界时，才应主动讨论它。
+
+## 读者应带走什么结论
+
+只要公开角色模型、算法语义和 include seam 仍然一致，dispatch 层就可以被积极重写。这也是为什么下一站应该是 [Performance](/zh/performance/index)：benchmark claim 属于这条边界线以下，而不是属于它以上。

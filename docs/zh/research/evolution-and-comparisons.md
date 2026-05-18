@@ -1,58 +1,44 @@
 # 演进与比较
 
-当 BitCal 明确说出“自己是什么、又不是什么”时，它才更值得信任。
+只有当 BitCal 明确说出自己的邻近参照物与设计代价时，这套白皮书叙事才真正可信。这一页就是要把比较层从隐性前提变成显性资料。
 
-## 比较轴
+## 引用文献
 
-| 维度 | 旧倾向 | vNext 倾向 |
-| --- | --- | --- |
-| 公共中心 | 单体类型 | owner、view、algorithm 拆分 |
-| backend 叙事 | 公开 API 身份 | 实现边界 |
-| 性能叙事 | feature 语言 | retained evidence 优先 |
-| 支持姿态 | 宽泛兼容表述 | x86-64 优先的精确表达 |
-
-## 相邻参考点
-
-| 项目或资料 | 为什么重要 |
+| 资料 | 对本站有什么价值 |
 | --- | --- |
-| Boost dynamic_bitset | 为 C++ 生态中的灵活 bitset 设计提供一个基线 |
-| CRoaring | 展示 bitmap 工程可以如何严肃对待性能与 benchmark |
-| libpopcnt | 说明哪怕一个局部位原语也值得高度工程化 |
-| Intel Intrinsics Guide | 为 x86 实现讨论提供权威指令参考 |
-| Agner Fog manuals | 为底层设计权衡补齐延迟与吞吐语境 |
-| Vigna 的 broadword 论文 | 为 word-parallel bit 技术提供理论背景 |
+| Intel Intrinsics Guide | 为 x86 SIMD 讨论提供指令级参考，不让实现说明漂浮在空中。 |
+| Agner Fog optimization manuals | 为吞吐、延迟与 dispatch 代价提供微架构语境。 |
+| Sebastiano Vigna 的 broadword 论文 | 给 word-parallel 位操作提供理论与工程之间的桥梁。 |
+| libpopcnt 的文档与实现 | 提醒我们：哪怕只有一个计数原语，也值得高度严肃的工程投入。 |
 
-<CitationList
-  :items="[
-    {
-      title: 'Boost dynamic_bitset',
-      href: 'https://www.boost.org/doc/libs/release/libs/dynamic_bitset/',
-      note: '适合用于对比“定位宽公开模型”和“更灵活但目标不同的设计”。'
-    },
-    {
-      title: 'CRoaring',
-      href: 'https://github.com/RoaringBitmap/CRoaring',
-      note: '是一个范围明确、性能导向很强的 bitmap 工程实例。'
-    },
-    {
-      title: 'libpopcnt',
-      href: 'https://github.com/kimwalisch/libpopcnt',
-      note: '说明位级基础设施完全值得被当成严肃工程问题看待。'
-    },
-    {
-      title: 'Intel Intrinsics Guide',
-      href: 'https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html',
-      note: '为 x86 SIMD 讨论提供权威底座。'
-    },
-    {
-      title: 'Agner Fog optimization manuals',
-      href: 'https://www.agner.org/optimize/',
-      note: '为性能解读补充微架构语境。'
-    },
-    {
-      title: 'Sebastiano Vigna, Broadword Implementation of Rank/Select Queries',
-      href: 'https://arxiv.org/abs/0901.0166',
-      note: '是把 bit-level 推理与 word-parallel 实现连接起来的实用背景资料。'
-    }
-  ]"
-/>
+## 相关系统
+
+| 系统 | 值得比较的地方 |
+| --- | --- |
+| Boost dynamic_bitset | 展示另一种以动态 bitset 可用性为中心的 C++ 契约组织方式。 |
+| CRoaring | 展示在不同存储模型下，bitmap 性能工程可以被做到多系统化。 |
+| libpopcnt | 范围更窄，但很好地说明“专注一个原语”可以带来多深的实现强度。 |
+
+## 演进说明
+
+BitCal 当前方向可以被理解为一连串刻意的收缩与重心转移：
+
+1. 放弃单体 `bitarray` 作为唯一公共中心；
+2. 把 owner / view / algorithm 拆分正式写成公开模型；
+3. 保留 `<bitcal/bitcal.hpp>` 作为稳定接缝，同时释放内部层次继续演化；
+4. 把平台与性能主张收紧到 x86-64-first 的证据姿态。
+
+这不是一个“以后再慢慢补功能”的松散路线图，而是在主动把系统变得更容易推理、benchmark 与审查。
+
+## 设计取舍
+
+这次重设计明确接受以下代价，以换取更清晰的边界：
+
+- **减少兼容怀旧，换取更清楚的契约模型** —— 放弃旧 API 熟悉感，换来更干净的公开角色划分；
+- **缩窄支持话术，换取更强证据密度** —— x86-64-first 比泛泛而谈的“广泛支持”更有价值；
+- **优先契约表达，而不是源码树导览** —— 不是每个内部 helper 都值得升级为公开文档；
+- **优先性能方法学，而不是 headline chasing** —— 让 baseline 与 method 始终绑定，未来主张才能持续被挑战。
+
+## 什么时候最值得读这页
+
+当你想判断 BitCal 的姿态是否足够诚实时，就该读这一页；如果你要的是当下精确支持边界，请最后回到 [状态](/zh/status/index)；如果你要的是契约原文，请回到 [Reference](/zh/reference/index)。

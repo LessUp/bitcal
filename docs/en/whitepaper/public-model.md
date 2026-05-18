@@ -1,59 +1,51 @@
 # Public Model
 
-BitCal vNext is converging on a public model with three explicit roles:
+BitCal's public story only works if readers can separate ownership, borrowing, and behavior without reading internal headers.
 
-| Role | Public surface | Why it exists |
+## Owner / view / algorithm model
+
+| Role | Primary surface | Public responsibility |
 | --- | --- | --- |
-| Owning storage | `bit_block<Bits>` | Keeps fixed-width storage explicit and inspectable |
-| Borrowed access | `bit_view`, `const_bit_view` | Lets algorithms work over existing storage without forcing ownership |
-| Behavior | free algorithms | Keeps the contract about observable results, not about one member-heavy type |
+| Owner | `bit_block<Bits>` | Own fixed-width storage, width, and layout-sensitive operations. |
+| Mutable borrower | `bit_view` | Provide non-owning mutable access over existing storage. |
+| Read-only borrower | `const_bit_view` | Provide non-owning read-only access for inspection and algorithms. |
+| Behavioral layer | free algorithms | Describe observable operations without turning one type into a monolith. |
 
-## Why the split matters
+This model is deliberately explicit. A reader should be able to tell who owns bytes, who merely borrows them, and where the operation semantics live.
 
-The split is not aesthetic. It protects four boundaries that were easy to blur in older bit-library designs:
+## Stable include seam
 
-1. storage versus borrowing
-2. stable user contract versus replaceable backend details
-3. algorithm semantics versus implementation strategy
-4. migration cost versus convenience nostalgia
+`<bitcal/bitcal.hpp>` remains the single supported include seam.
 
-<FigureFrame title="Owner, view, algorithm split" caption="BitCal wants storage, borrowing, and behavior to remain individually understandable.">
-  <svg viewBox="0 0 760 300" role="img" aria-label="Owner, view, algorithm split">
-    <rect x="28" y="36" width="214" height="108" rx="18" data-fill="accent" />
-    <text x="58" y="82" fill="currentColor" font-size="28" font-weight="700">bit_block</text>
-    <text x="58" y="112" fill="currentColor" font-size="15">Owns fixed-width words and alignment</text>
+That decision keeps three things aligned:
 
-    <rect x="272" y="36" width="214" height="108" rx="18" data-fill="surface" />
-    <text x="304" y="82" fill="currentColor" font-size="28" font-weight="700">bit_view</text>
-    <text x="304" y="112" fill="currentColor" font-size="15">Borrows mutable or const storage</text>
+- header-only consumption stays simple;
+- internal header layout can continue evolving during the redesign;
+- reference documentation can point to one public entry instead of implying that detail headers are stable contracts.
 
-    <rect x="516" y="36" width="214" height="108" rx="18" data-fill="surface" />
-    <text x="548" y="82" fill="currentColor" font-size="28" font-weight="700">algorithms</text>
-    <text x="548" y="112" fill="currentColor" font-size="15">Express public behavior and fast paths</text>
+## Contract boundaries
 
-    <path d="M242 90 L272 90" stroke-width="2.5" fill="none" data-stroke="primary" />
-    <path d="M486 90 L516 90" stroke-width="2.5" fill="none" data-stroke="primary" />
+The public model promises role clarity, not backend permanence.
 
-    <rect x="112" y="188" width="536" height="70" rx="18" data-fill="surface" />
-    <text x="146" y="228" fill="currentColor" font-size="24" font-weight="680">Stable public include seam</text>
-    <text x="430" y="228" fill="currentColor" font-size="18">&lt;bitcal/bitcal.hpp&gt;</text>
-  </svg>
-</FigureFrame>
+What readers may rely on:
 
-## Contract consequences
+- owner and view roles are first-class public concepts;
+- algorithms operate over those roles rather than hiding everything behind one stateful object;
+- the stable include seam remains `<bitcal/bitcal.hpp>`.
 
-- `<bitcal/bitcal.hpp>` remains the only stable include seam.
-- Backend selection is not the center of the user contract.
-- Users should be able to reason about ownership and borrowing without reading internal headers.
-- Documentation should teach the role model before listing operations.
+What readers should *not* infer:
 
-## Why not keep one central class
+- that current internal header names define extra stable entry points;
+- that a specific dispatch topology or intrinsic sequence is itself public API;
+- that old `bitarray` naming remains the architectural center.
 
-A monolithic public center can look convenient, but it makes every future change more expensive:
+## Why the older center gives way
 
-- behavior and storage evolve together even when they should not
-- borrowing becomes secondary instead of first-class
-- fast-path discussion leaks into API language
-- documentation turns into a tour of one giant type instead of a contract narrative
+A monolithic public center often looks simpler at first, but it blurs exactly the boundaries BitCal now wants to sharpen:
 
-BitCal is choosing sharper boundaries over continuity with that older shape.
+- storage policy and behavior become entangled;
+- borrowing becomes secondary instead of normal;
+- backend talk leaks into reference language;
+- future algorithm growth feels like method sprawl instead of clear composition.
+
+The new model chooses explicit roles because that is easier to test, document, benchmark, and evolve.

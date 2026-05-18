@@ -1,22 +1,23 @@
 # 性能
 
-性能章节的价值，在于让项目的主张更小，但更可信。
+BitCal 把性能当成证据纪律，而不是营销背景音。本节刻意把当前 baseline 快照与生成、解释这些数字的方法学拆开讲。
+
+## 基线快照
 
 <EvidenceStrip
   :items="[
-    { label: '当前状态', value: '可复现 baseline' },
-    { label: '活跃后端', value: 'AVX2' },
-    { label: '优化中心', value: 'x86-64 优先' }
+    { label: '当前证据目标', value: 'AVX2 on x86-64', tone: 'accent' },
+    { label: '数字状态', value: 'Baseline checkpoint' },
+    { label: '当前稳定内容', value: 'Method + command path' },
+    { label: '明确不承诺', value: '普遍性胜利', note: '本地数字不等于无条件产品承诺。' }
   ]"
 />
 
-## BitCal vs std::bitset 性能对比
-
-以下数据来自本地 benchmark 测试，使用 AVX2 后端。
+当前保留的 baseline 主要比较 BitCal 与 `std::bitset` 在若干固定宽度操作上的表现。它的价值，不在于制造“全面领先”的印象，而在于告诉读者：哪里已经出现明确信号，哪里仍然不成熟。
 
 <PerformanceTable
   title="256 位操作"
-  caption="BitCal 使用 AVX2 后端，std::bitset 使用标准库实现"
+  caption="当前活跃 AVX2 路径上的本地 baseline"
   :rows="[
     { operation: 'and<256>', bitcal: '1.34', stdBitset: '1.22', ratio: '0.91' },
     { operation: 'or<256>', bitcal: '1.02', stdBitset: '1.04', ratio: '1.02' },
@@ -30,7 +31,7 @@
 
 <PerformanceTable
   title="512 位操作"
-  caption="更大的位宽下，BitCal 的 SIMD 优势更加明显"
+  caption="位宽增大后，部分 SIMD 优势会更明显"
   :rows="[
     { operation: 'and<512>', bitcal: '1.76', stdBitset: '4.27', ratio: '2.43', highlight: true },
     { operation: 'shift_right<512>', bitcal: '3.13', stdBitset: '11.78', ratio: '3.76', highlight: true }
@@ -40,60 +41,69 @@
 
 <PerformanceTable
   title="1024 位操作"
+  caption="当前 benchmark 集中保留的一项更大位宽检查点"
   :rows="[
     { operation: 'popcount<1024>', bitcal: '8.10', stdBitset: '11.75', ratio: '1.45', highlight: true }
   ]"
   :highlightBest="true"
 />
 
-## 关键发现
+这些 baseline 真正表达的是：
 
-1. **移位操作优势明显**：BitCal 在 `shift_right<512>` 上快 **3.76x**
-2. **大位宽优势更大**：512 位操作比 256 位有更显著的加速
-3. **popcount 需要优化**：std::bitset 在 popcount 上更快（可能使用了更好的内置函数）
+- shift 类路径已经在当前 x86-64 主路线上显示出实质性上行空间；
+- 位宽会改变结论，因为部分优势只有在摊平 dispatch/setup 成本后才会明显；
+- counting primitives 仍需继续审视，不能因为项目强调性能就被提前写成“已解决”。
 
-## 测量方法
+## 测量方法学
+
+性能主张必须始终附着在可复现命令路径和解释规则上。
 
 ### 复现命令
 
 ```bash
-cmake -B build -DBITCAL_BUILD_BENCHMARKS=ON -DCMAKE_BUILD_TYPE=Release
-cmake --build build --target benchmark_compare
-./build/benchmarks/benchmark_compare
+cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
+cmake --build build-test --config Release --target benchmark_compare -j"$(nproc)"
+./build-test/benchmarks/benchmark_compare
 ```
 
-### 测量规则
+### 方法规则
 
-| 规则 | 作用 |
+| 规则 | 设立原因 |
 | --- | --- |
-| 把当前结果视为 baseline checkpoint | 避免把 smoke 数字包装成成品承诺 |
-| 呈现数字时同步说明活跃 backend | 没有目标上下文的性能数字毫无意义 |
-| 保留可复现的本地命令路径 | 读者需要一条持续可挑战的验证路径 |
+| 把当前数字视为保留的 **baseline checkpoint** | 防止一次本地 benchmark 输出被写成永久营销文案。 |
+| 始终带上活跃 backend 与平台语境 | 没有 ISA / 平台语境的速度提升没有意义。 |
+| benchmark 叙事必须回到公开算法形状 | 性能数字应该能映射回文档中的算法，而不是映射到匿名 kernel 小技巧。 |
+| 把测量与解释分开 | 复现命令是证据，结论只是可以被质疑的论证。 |
 
 ### 解释护栏
 
-1. 本地测量只是本地证据
-2. x86-64 优先优化，不等于所有目标同样成熟
-3. 小型 synthetic loop 有用，但不能代表全部工作负载
+- synthetic loop 很有用，但它不代表所有真实工作负载。
+- x86-64-first 是支持姿态，不是“其他平台同样成熟”的证据。
+- 某一类算法上的 benchmark 优势，不能自动外推成更宽泛的 API 或平台承诺。
 
-## 仍待成熟的部分
+## 宣称边界
 
-- 对齐与非对齐对比
-- owner 与 view 工作负载差异
-- 更完整的 kernel family 覆盖
-- 与 synthetic loop 互补的真实工作负载轨迹
+本节刻意拒绝说出超出证据范围的话。
 
-<CitationList
-  :items="[
-    {
-      title: 'Agner Fog optimization manuals',
-      href: 'https://www.agner.org/optimize/',
-      note: '评估指令级权衡，以及为什么不同微架构会讲出不同性能故事时很有帮助。'
-    },
-    {
-      title: 'libpopcnt',
-      href: 'https://github.com/kimwalisch/libpopcnt',
-      note: '提醒我们位级微基准同样值得严肃工程化，而不是随手展示。'
-    }
-  ]"
-/>
+**今天可以安全说的话**
+
+- BitCal 仍保有一条可复现的 x86-64 benchmark 路径；
+- 当前本地 baseline 中，部分固定宽度操作已经优于 `std::bitset`；
+- 性能讨论仍然绑定在具名算法、具名位宽与明确 backend 语境之上。
+
+**仍然不能说的话**
+
+- 对标准库或专业 bitmap 实现具有普遍性优势；
+- ARM64、macOS 或未来 x86 backend 已具备同等成熟度；
+- 没有真实负载或场景测量支撑的 workload-level 承诺。
+
+## 性能工作接下来该往哪里走
+
+继续扩展时，优先补方法学深度，而不是堆 headline：
+
+- aligned 与 unaligned 对比；
+- owner 与 borrowed view 工作负载差异；
+- counting / scan 类原语更完整的覆盖；
+- 能与 synthetic baseline 互补的 workload traces。
+
+如果你需要设计背景，请回到 [白皮书](/zh/whitepaper/index)；如果你需要契约语言，请继续阅读 [Reference](/zh/reference/index)；如果你想看外部对照，请进入 [Research](/zh/research/index)。

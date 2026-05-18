@@ -4,93 +4,114 @@ title: BitCal
 ---
 
 <BitcalHero
-  eyebrow="Whitepaper-first systems documentation"
-  title="Evaluate BitCal the way you would evaluate an architecture review."
-  lead="BitCal vNext is presented as a technical whitepaper: public model, dispatch boundaries, benchmark posture, and reference material arranged for readers who care about contract fidelity more than feature slogans."
+  eyebrow="Systems architecture notes, not product copy"
+  title="Read BitCal like a redesign review, not like a landing page."
+  lead="BitCal documents its vNext work as a technical whitepaper for advanced C++ readers: public model, algorithm organization, dispatch boundary, performance methodology, contract reference, and research context presented as one chain of evidence."
   :stats="[
     { label: 'Delivery', value: 'Header-only' },
-    { label: 'Language baseline', value: 'C++23' },
-    { label: 'Primary optimization posture', value: 'x86-64 first' }
+    { label: 'Stable seam', value: '<bitcal/bitcal.hpp>' },
+    { label: 'Baseline', value: 'C++23 · x86-64 first' }
   ]"
   :actions="[
-    { text: 'Start with the guide', href: '/en/guide/index', theme: 'brand' },
-    { text: 'Review the whitepaper', href: '/en/whitepaper/index', theme: 'alt' },
-    { text: 'Check status', href: '/en/status/index', theme: 'alt' }
+    { text: 'Open the guide', href: '/en/guide/index', theme: 'brand' },
+    { text: 'Read the whitepaper', href: '/en/whitepaper/index', theme: 'alt' },
+    { text: 'Inspect performance evidence', href: '/en/performance/index', theme: 'alt' }
   ]"
 >
 </BitcalHero>
 
-<FigureFrame eyebrow="Orientation" title="Reading model" tone="contrast" caption="BitCal leads with guide-level orientation, then proves itself through whitepaper, performance, reference, research, and status evidence.">
-  <ReadingModelDiagram lang="en" />
-</FigureFrame>
+## Whitepaper reading contract
 
-## Read in this order
+This site is for readers who want to answer six concrete questions before trusting a low-level library:
+
+1. **What is the public model?** BitCal is converging on `bit_block<Bits>`, `bit_view`, `const_bit_view`, and free algorithms.
+2. **What remains stable?** `<bitcal/bitcal.hpp>` is the only stable include seam.
+3. **Where does implementation freedom begin?** Dispatch and kernels live below the public contract.
+4. **How much performance is actually proven?** Only the retained baseline and methodology are claimed.
+5. **What can I treat as reference material?** Contract-oriented pages explain roles and semantics, not every internal header.
+6. **Which external work informs the design?** Research pages cite the instruction references, papers, and adjacent systems that shape the posture.
 
 <ReadingPathGrid
   :items="[
     {
       title: 'Guide',
       href: '/en/guide/index',
-      badge: 'Entry',
+      badge: '1 · Orientation',
       tone: 'primary',
-      summary: 'Start with the reading path, verification route, and migration posture.',
-      detail: 'This is the shortest route from curiosity to serious review.'
+      summary: 'Start with audience, verification path, and migration posture.',
+      detail: 'This is the shortest route to understanding how BitCal expects to be reviewed.'
     },
     {
       title: 'Whitepaper',
       href: '/en/whitepaper/index',
-      badge: 'Core thesis',
+      badge: '2 · Architecture',
       tone: 'whitepaper',
-      summary: 'Read the public model, algorithm posture, and dispatch boundaries.',
-      detail: 'This is the site thesis, not an accessory narrative.'
+      summary: 'Follow the system architecture spine from public model to dispatch boundary.',
+      detail: 'This is where owner / view / algorithm, free-algorithm organization, and kernel boundaries are made explicit.'
     },
     {
       title: 'Performance',
       href: '/en/performance/index',
-      badge: 'Evidence',
-      summary: 'Interpret current benchmark numbers through retained methodology and claim guardrails.',
-      detail: 'BitCal prefers honest baselines over broad unverified claims.'
+      badge: '3 · Evidence',
+      summary: 'Read the retained benchmark baseline separately from the measurement methodology.',
+      detail: 'Numbers stay attached to reproduction commands, active backend context, and claim limits.'
     },
     {
       title: 'Reference',
       href: '/en/reference/index',
-      badge: 'Contract',
-      summary: 'Confirm the contract surface after the architectural story is clear.',
-      detail: 'Use this section for types, views, and algorithms, not marketing language.'
+      badge: '4 · Contract',
+      summary: 'Confirm the public role model and algorithm contract after the architecture story is clear.',
+      detail: 'Reference pages explain what readers may rely on, not how every kernel happens to be written today.'
     },
     {
       title: 'Research',
       href: '/en/research/index',
-      badge: 'Context',
-      summary: 'Compare BitCal against external references, adjacent libraries, and design alternatives.',
-      detail: 'This is where context and evolution become explicit.'
+      badge: '5 · Context',
+      summary: 'Review citations, related systems, evolution notes, and design trade-offs.',
+      detail: 'This section exists to deepen technical judgment, not to add decorative academic tone.'
     },
     {
       title: 'Status',
       href: '/en/status/index',
-      badge: 'Boundary',
-      summary: 'Check support boundaries, breaking-change posture, and maintained sources of truth.',
-      detail: 'This is the site section that narrows claims back to what the repo can defend.'
+      badge: '6 · Boundary',
+      summary: 'End with release posture, support matrix, and documentation truth sources.',
+      detail: 'Status narrows every claim back down to what the repository can currently defend.'
     }
   ]"
 />
 
-## What the site is actually claiming
+## Public model at a glance
 
 <EvidenceStrip
   :items="[
-    { label: 'Stable public include seam', value: '&lt;bitcal/bitcal.hpp&gt;', tone: 'accent' },
-    { label: 'Primary support posture', value: 'C++23 + x86-64 first' },
-    { label: 'Documentation attitude', value: 'Proof over hype' },
-    { label: 'Benchmark posture', value: 'Baseline before bravado', note: 'Method and scope stay attached to every number.' }
+    { label: 'Owning role', value: 'bit_block<Bits>', tone: 'accent' },
+    { label: 'Borrowing role', value: 'bit_view / const_bit_view' },
+    { label: 'Behavioral center', value: 'Free algorithms' },
+    { label: 'Implementation boundary', value: 'Dispatch + kernel layer', note: 'Not part of the stable user identity.' }
   ]"
 />
 
-## Architectural through-line
+The home page does not attempt to replace the deeper sections. It gives a map:
 
-<FigureFrame title="Contract and implementation boundary" caption="The library can evolve its kernel layer without turning backend choices into its public identity.">
+- the [Guide](/en/guide/index) tells you how to read the project now;
+- the [Whitepaper](/en/whitepaper/index) states the architecture thesis;
+- the [Performance](/en/performance/index) section separates baseline from method;
+- the [Reference](/en/reference/index) pages define the contract surface;
+- the [Research](/en/research/index) pages show nearby systems and source material;
+- the [Status](/en/status/index) page defines the release and support boundary.
+
+## Evidence posture
+
+<FigureFrame title="Why the reading order matters" caption="BitCal expects readers to move from architecture, to evidence, to contract, to context, to status boundaries.">
   <ArchitectureDiagram lang="en" />
 </FigureFrame>
+
+BitCal prefers a narrower but more defensible story:
+
+- **C++23 baseline** is a design decision, not a future aspiration.
+- **x86-64-first posture** means optimization and benchmark interpretation are concentrated where the project retains active evidence.
+- **Header-only delivery** does not remove the need for explicit verification, benchmark discipline, or support limits.
+- **Whitepaper-first documentation** means architecture, methodology, and references stay connected instead of being split between marketing and source comments.
 
 ## Research footing
 
@@ -99,20 +120,20 @@ title: BitCal
     {
       title: 'Intel Intrinsics Guide',
       href: 'https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html',
-      meta: 'Intel · reference',
-      note: 'Authoritative reference when discussing x86 SIMD intrinsics and instruction-level constraints.'
+      meta: 'Instruction reference',
+      note: 'Grounds x86 SIMD discussion in an authoritative instruction-level source.'
     },
     {
       title: 'Agner Fog optimization manuals',
       href: 'https://www.agner.org/optimize/',
-      meta: 'Agner Fog · manuals',
-      note: 'Useful for latency, throughput, and dispatch trade-off interpretation on x86-64.'
+      meta: 'Microarchitecture manuals',
+      note: 'Useful when explaining why latency, throughput, and dispatch policy matter to low-level claims.'
     },
     {
       title: 'Sebastiano Vigna, Broadword Implementation of Rank/Select Queries',
       href: 'https://arxiv.org/abs/0901.0166',
-      meta: 'arXiv · paper',
-      note: 'A strong background reference for broadword and word-parallel bit techniques.'
+      meta: 'Broadword paper',
+      note: 'Provides a conceptual bridge between bit-level semantics and word-parallel implementation techniques.'
     }
   ]"
 />

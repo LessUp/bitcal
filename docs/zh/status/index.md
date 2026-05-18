@@ -1,61 +1,44 @@
 # 状态
 
-BitCal 当前处于明确的 vNext 重设计阶段，并面向一个允许破坏性变更的 v4.0.0 发布线，而不是“功能完整且稳定的库”阶段。
+Status 的任务，是把 BitCal 所有叙事中的修辞成分都剥掉，只留下现在时边界。
 
-## 本节定义
+## 发布姿态
 
-- 支持姿态
-- 维护边界
-- 迁移预期
-- 版本语义与破坏性变更策略
+- BitCal 当前处于主动推进的 **vNext / 4.0.0 级重设计**，而不是长期稳定维护阶段。
+- 公开语言基线是 **C++23**。
+- 主要优化与测量姿态是 **x86-64 first**。
+- 当前文档中心模型是 `bit_block<Bits>`、`bit_view`、`const_bit_view` 与自由算法。
+- 不承诺为旧 `bitarray` API 提供代码级兼容层。
 
-## 当前姿态
+## 支持矩阵
 
-- C++23 是当前公开设计基线
-- 优化与验证默认采用 x86-64 优先姿态
-- 新的公开模型围绕 `bit_block`、`bit_view` 和自由算法展开
-- vNext 不承诺为保留的 `bitarray` API 提供代码级兼容层
+| 范围 | 当前姿态 | 读者可以据此推断什么 |
+| --- | --- | --- |
+| Linux x86-64（GCC / Clang） | 主支持范围 | 主要构建、correctness 与 benchmark 注意力集中在这里。 |
+| Windows x86-64（MSVC） | 主支持范围 | 与 Linux x86-64 一起构成当前主验证面。 |
+| ARM64 与 macOS 等后续目标 | 次级范围 | 可以继续保留可构建性，但性能与成熟度主张必须更谨慎。 |
+| 超出保留验证面的其他内容 | 不在宣称范围 | 没有新增证据之前，不应升级成支持承诺。 |
 
-## 支持与维护边界
+## 文档真相
 
-### 主支持范围
+当前主要真相源仍然是：
 
-- Linux x86-64（GCC / Clang）
-- Windows x86-64（MSVC）
-- 新公开表面的正确性与 benchmark 可信度
+- `openspec/` 中的活动需求与变更；
+- `docs/README.md` 中的文档架构政策；
+- 稳定公开 include seam `<bitcal/bitcal.hpp>`；
+- 仓库中定义版本语义的单一事实来源。
 
-### 次级范围
+## 变更纪律
 
-- Linux ARM64
-- macOS ARM64
-- 后续 Pages 白皮书润色与发布型性能看板
+BitCal 期望以下几类资产同步移动：
 
-次级目标不应获得强于保留验证路径所能支撑的支持或性能承诺。
+- OpenSpec 与 Status 文案；
+- Reference 表述与公开示例；
+- benchmark 方法学与 benchmark claim；
+- 实现进展与支持矩阵。
 
-## 持续有效的仓库规则
+## 接下来如何读
 
-- 活动需求以 `openspec/` 为准
-- `<bitcal/bitcal.hpp>` 仍然是唯一稳定公开 include seam
-- 文档、规范、代码、benchmark 与版本语义必须一起移动
-- benchmark 可信度优先于过早的平台或性能宣称
-
-## 单一真相入口
-
-- 活动需求：`openspec/`
-- 文档策略：`docs/README.md`
-- 稳定公开 include seam：`<bitcal/bitcal.hpp>`
-- 版本来源：`include/bitcal/config.hpp`
-
-## 当前执行顺序
-
-1. 先在 OpenSpec 中冻结 vNext 契约
-2. 落地可编译的 C++23 公开骨架
-3. 围绕新公开表面重建正确性与 benchmark 可信度
-4. 在重建后的基线上优化 x86-64 内核
-5. 仅在保留验证证据存在后再发布白皮书与指标
-
-## 下一步
-
-- 先看[导读](/zh/guide/index)了解当前阅读路径与验证入口
-- 再看[白皮书](/zh/whitepaper/index)理解目标公开模型
-- 最后用[性能](/zh/performance/index)判断 benchmark 是否值得被当成产品承诺
+- 需要回看完整评审路径时，回到 [Guide](/zh/guide/index)；
+- 需要重新理解架构论证时，回到 [Whitepaper](/zh/whitepaper/index)；
+- 想把局部证据变成更稳妥结论前，请结合 [Performance](/zh/performance/index) 与 [Research](/zh/research/index) 一起看。

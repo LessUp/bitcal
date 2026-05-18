@@ -1,15 +1,15 @@
 ---
-layout: home
-title: Performance
+title: Whitepaper Performance Compatibility Note
 ---
 
-<script setup>
-import { onMounted } from 'vue'
-import { useRouter, withBase } from 'vitepress'
+# Whitepaper Performance Compatibility Note
 
-const router = useRouter()
+Performance is now a first-class section, not a whitepaper subchapter.
 
-onMounted(() => {
-  router.go(withBase('/en/performance/'))
-})
-</script>
+Use the dedicated [Performance](/en/performance/index) path for:
+
+- the retained baseline snapshot;
+- measurement methodology and reproduction commands;
+- claim boundaries and interpretation guardrails.
+
+The whitepaper remains the place for design reasoning. The performance section is where evidence is published and limited.
