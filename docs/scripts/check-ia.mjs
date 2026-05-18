@@ -61,10 +61,19 @@ const expect = (condition, message) => {
 
 const config = read('.vitepress/config.ts')
 const readme = read('README.md')
+const docsIndex = read('index.md')
 const proposal = read('openspec/changes/2026-05-15-pages-whitepaper-overhaul/proposal.md', repoRoot)
 const design = read('openspec/changes/2026-05-15-pages-whitepaper-overhaul/design.md', repoRoot)
 const tasks = read('openspec/changes/2026-05-15-pages-whitepaper-overhaul/tasks.md', repoRoot)
 const spec = read('openspec/changes/2026-05-15-pages-whitepaper-overhaul/specs/project-documentation-site/spec.md', repoRoot)
+const academyCompatPages = {
+  en: read('en/academy/index.md'),
+  zh: read('zh/academy/index.md'),
+}
+const navTextExpectations = {
+  zh: ['导读', '白皮书', '性能', '参考', '研究', '状态'],
+  en: ['Guide', 'Whitepaper', 'Performance', 'Reference', 'Research', 'Status'],
+}
 
 for (const [locale, links] of Object.entries(localeNavExpectations)) {
   let previousIndex = -1
@@ -73,6 +82,17 @@ for (const [locale, links] of Object.entries(localeNavExpectations)) {
     const index = config.indexOf(quotedLink)
     expect(index !== -1, `Missing ${locale} nav link: ${link}`)
     expect(index > previousIndex, `${locale} nav order drifted before ${link}`)
+    previousIndex = index
+  }
+}
+
+for (const [locale, labels] of Object.entries(navTextExpectations)) {
+  let previousIndex = -1
+  for (const label of labels) {
+    const quotedLabel = `text: '${label}'`
+    const index = config.indexOf(quotedLabel)
+    expect(index !== -1, `Missing ${locale} nav label: ${label}`)
+    expect(index > previousIndex, `${locale} nav label order drifted before ${label}`)
     previousIndex = index
   }
 }
@@ -103,11 +123,34 @@ expect(readme.includes('### 3.7 Research'), 'docs/README.md missing Research IA 
 expect(readme.includes('### 3.8 Status'), 'docs/README.md missing Status IA section')
 expect(!readme.includes('Project Status'), 'docs/README.md still names the primary section Project Status')
 
+expect(!docsIndex.includes('router.go('), 'docs/index.md still behaves like a pure redirect shell')
+expect(!docsIndex.includes('useRouter'), 'docs/index.md still imports router-based redirect logic')
+expect(!docsIndex.includes('navigator.language'), 'docs/index.md still auto-redirects instead of acting as docs landing')
+expect(docsIndex.includes('/zh/') && docsIndex.includes('/en/'), 'docs/index.md missing bilingual language entry links')
+for (const locale of ['en', 'zh']) {
+  for (const section of ['guide', 'whitepaper', 'performance', 'reference', 'research', 'status']) {
+    expect(docsIndex.includes(`/${locale}/${section}/index`), `docs/index.md missing ${locale} landing link for ${section}`)
+  }
+}
+expect(
+  docsIndex.includes('Docs landing') || docsIndex.includes('文档总览') || docsIndex.includes('Documentation overview'),
+  'docs/index.md missing docs landing overview copy',
+)
+
 const iaPhrase = requiredSections.join(' / ')
 for (const [name, content] of Object.entries({ proposal, design, tasks, spec })) {
   expect(content.includes(iaPhrase), `${name} missing canonical IA phrase: ${iaPhrase}`)
   expect(!content.includes('Academy'), `${name} still references Academy as a primary IA section`)
   expect(!content.includes('Project Status'), `${name} still references Project Status as a primary IA section`)
+}
+
+for (const [locale, content] of Object.entries(academyCompatPages)) {
+  expect(content.includes(locale === 'en' ? 'Compatibility note' : '兼容说明'), `${locale}/academy/index.md missing compatibility framing`)
+  expect(!content.includes('<ReadingPathGrid'), `${locale}/academy/index.md still renders as a primary landing page`)
+  expect(!content.includes(locale === 'en' ? '## Learning Paths' : '## 学习路径'), `${locale}/academy/index.md still promotes academy as a learning hub`)
+  for (const section of ['guide', 'whitepaper', 'performance', 'reference', 'research', 'status']) {
+    expect(content.includes(`/${locale}/${section}/`), `${locale}/academy/index.md missing compatibility link to ${section}`)
+  }
 }
 
 for (const relativePath of filesToCheckForOldPaths) {
