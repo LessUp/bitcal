@@ -55,6 +55,10 @@ jobs:
         working-directory: docs
         run: npm install --no-package-lock
 
+      - name: Check docs IA
+        working-directory: docs
+        run: npm run check:ia
+
       - name: Build docs
         working-directory: docs
         env:

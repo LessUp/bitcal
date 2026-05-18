@@ -96,7 +96,7 @@ export default withMermaid(defineConfig({
             {
               text: '状态',
               items: [
-                { text: '状态概览', link: '/zh/status/index' },
+                { text: '总览', link: '/zh/status/index' },
               ],
             },
           ],
@@ -171,7 +171,7 @@ export default withMermaid(defineConfig({
             {
               text: 'Status',
               items: [
-                { text: 'Status Overview', link: '/en/status/index' },
+                { text: 'Overview', link: '/en/status/index' },
               ],
             },
           ],
