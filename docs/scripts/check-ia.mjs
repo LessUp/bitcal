@@ -1,6 +1,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import {
+  compatPageExcludes,
+  legacyAcademySourceExcludes,
+  llmsDerivedPageExcludes,
+} from '../.vitepress/page-exclusions.js'
 
 const docsDir = process.cwd()
 const repoRoot = path.resolve(docsDir, '..')
@@ -150,78 +155,64 @@ const proposal = changeDir ? readOptional('proposal.md', changeDir, 'proposal') 
 const design = changeDir ? readOptional('design.md', changeDir, 'design') : null
 const tasks = changeDir ? readOptional('tasks.md', changeDir, 'tasks') : null
 const spec = changeDir ? readOptional('specs/project-documentation-site/spec.md', changeDir, 'spec') : null
-const academyCompatPages = {
-  en: readOptional('en/academy/index.md', docsDir, 'en academy compatibility page'),
-  zh: readOptional('zh/academy/index.md', docsDir, 'zh academy compatibility page'),
-}
 const navTextExpectations = {
   zh: ['导读', '白皮书', '性能', '参考', '研究', '状态'],
   en: ['Guide', 'Whitepaper', 'Performance', 'Reference', 'Research', 'Status'],
 }
-const legacyAcademySourceExcludes = [
-  'en/academy/bit-mental-model.md',
-  'en/academy/overview.md',
-  'en/academy/simd-primer.md',
-  'en/academy/terminology.md',
-  'en/academy/why-bitcal.md',
-  'zh/academy/bit-mental-model.md',
-  'zh/academy/overview.md',
-  'zh/academy/simd-primer.md',
-  'zh/academy/terminology.md',
-  'zh/academy/why-bitcal.md',
-]
-const llmsCompatibilityExcludes = [
-  'en/academy/index.md',
-  'zh/academy/index.md',
-  'en/project-status/index.md',
-  'zh/project-status/index.md',
-  'en/getting-started/migration.md',
-  'zh/getting-started/migration.md',
-  'en/api/overview.md',
-  'zh/api/overview.md',
-  'en/whitepaper/performance.md',
-  'zh/whitepaper/performance.md',
-  'en/release-notes/changelog.md',
-  'zh/release-notes/changelog.md',
-]
-const compatibilityPages = {
-  'en/academy/index.md': readOptional('en/academy/index.md', docsDir, 'en academy compatibility page'),
-  'zh/academy/index.md': readOptional('zh/academy/index.md', docsDir, 'zh academy compatibility page'),
-  'en/project-status/index.md': readOptional('en/project-status/index.md', docsDir, 'en project-status compatibility page'),
-  'zh/project-status/index.md': readOptional('zh/project-status/index.md', docsDir, 'zh project-status compatibility page'),
-  'en/getting-started/migration.md': readOptional('en/getting-started/migration.md', docsDir, 'en guide migration compatibility page'),
-  'zh/getting-started/migration.md': readOptional('zh/getting-started/migration.md', docsDir, 'zh guide migration compatibility page'),
-  'en/api/overview.md': readOptional('en/api/overview.md', docsDir, 'en reference compatibility page'),
-  'zh/api/overview.md': readOptional('zh/api/overview.md', docsDir, 'zh reference compatibility page'),
-  'en/whitepaper/performance.md': readOptional('en/whitepaper/performance.md', docsDir, 'en whitepaper performance compatibility page'),
-  'zh/whitepaper/performance.md': readOptional('zh/whitepaper/performance.md', docsDir, 'zh whitepaper performance compatibility page'),
+const compatibilityPageLabels = {
+  'en/academy/index.md': 'en academy compatibility page',
+  'zh/academy/index.md': 'zh academy compatibility page',
+  'en/project-status/index.md': 'en project-status compatibility page',
+  'zh/project-status/index.md': 'zh project-status compatibility page',
+  'en/getting-started/migration.md': 'en guide migration compatibility page',
+  'zh/getting-started/migration.md': 'zh guide migration compatibility page',
+  'en/api/overview.md': 'en reference compatibility page',
+  'zh/api/overview.md': 'zh reference compatibility page',
+  'en/whitepaper/performance.md': 'en whitepaper performance compatibility page',
+  'zh/whitepaper/performance.md': 'zh whitepaper performance compatibility page',
 }
+const compatibilityPages = Object.fromEntries(
+  compatPageExcludes.map((relativePath) => [
+    relativePath,
+    readOptional(relativePath, docsDir, compatibilityPageLabels[relativePath] ?? `compatibility page: ${relativePath}`),
+  ]),
+)
 
 const srcExcludeBlock = readBracketedBlock(config, 'srcExclude: [', '[', ']')
 const llmsIgnoreFilesBlock = readBracketedBlock(config, 'ignoreFiles: [', '[', ']')
-const legacyAcademyExcludesBlock = readBracketedBlock(config, 'const legacyAcademySourceExcludes = [', '[', ']')
-const llmsCompatibilityExcludesBlock = readBracketedBlock(config, 'const llmsCompatibilityExcludes = [', '[', ']')
-const configWithoutLegacyLists = [
-  legacyAcademyExcludesBlock,
-  llmsCompatibilityExcludesBlock,
+const pageExclusionsImportMatch = config.match(/import\s*\{[\s\S]*?\}\s*from\s*['"]\.\/page-exclusions\.js['"]/)
+const pageExclusionsImportBlock = pageExclusionsImportMatch?.[0] ?? null
+const configWithoutExcludeWiring = [
+  pageExclusionsImportBlock,
   srcExcludeBlock,
   llmsIgnoreFilesBlock,
 ].reduce((current, block) => block ? current.replace(block, '') : current, config)
 
 const rewritesBlock = readBracketedBlock(config, 'rewrites: {', '{', '}')
 
+expect(pageExclusionsImportMatch, 'VitePress config must import shared page excludes from ./page-exclusions.js')
+expect(pageExclusionsImportBlock?.includes('legacyAcademySourceExcludes'), 'VitePress config import must include legacyAcademySourceExcludes')
+expect(pageExclusionsImportBlock?.includes('compatPageExcludes'), 'VitePress config import must include compatPageExcludes')
+expect(pageExclusionsImportBlock?.includes('llmsDerivedPageExcludes'), 'VitePress config import must include llmsDerivedPageExcludes')
+expect(!config.includes('const legacyAcademySourceExcludes = ['), 'VitePress config must not inline legacy academy excludes')
+expect(!config.includes('const llmsCompatibilityExcludes = ['), 'VitePress config must not inline combined llms compatibility excludes')
 expect(srcExcludeBlock?.includes("'project-status.md'"), 'srcExclude must exclude project-status.md')
 expect(srcExcludeBlock?.includes('...legacyAcademySourceExcludes'), 'srcExclude must spread legacy academy excludes')
 expect(!srcExcludeBlock?.includes("'status.md'"), 'srcExclude still references nonexistent status.md')
 expect(llmsIgnoreFilesBlock?.includes("'project-status.md'"), 'llmstxt ignoreFiles must exclude project-status.md')
 expect(llmsIgnoreFilesBlock?.includes('...legacyAcademySourceExcludes'), 'llmstxt ignoreFiles must spread legacy academy excludes')
-expect(llmsIgnoreFilesBlock?.includes('...llmsCompatibilityExcludes'), 'llmstxt ignoreFiles must spread compatibility excludes')
+expect(llmsIgnoreFilesBlock?.includes('...compatPageExcludes'), 'llmstxt ignoreFiles must spread compatibility-page excludes')
+expect(llmsIgnoreFilesBlock?.includes('...llmsDerivedPageExcludes'), 'llmstxt ignoreFiles must spread derived-page llms excludes')
+expect(!llmsIgnoreFilesBlock?.includes('...llmsCompatibilityExcludes'), 'llmstxt ignoreFiles must not use the old combined compatibility exclude list')
 expect(!llmsIgnoreFilesBlock?.includes("'status.md'"), 'llmstxt ignoreFiles still reference nonexistent status.md')
 for (const legacyPath of legacyAcademySourceExcludes) {
-  expect(legacyAcademyExcludesBlock?.includes(`'${legacyPath}'`), `legacy academy exclude list must include ${legacyPath}`)
+  expect(llmsIgnoreFilesBlock?.includes(`...legacyAcademySourceExcludes`) || srcExcludeBlock?.includes(`...legacyAcademySourceExcludes`), `shared legacy academy exclude list must cover ${legacyPath}`)
 }
-for (const legacyPath of llmsCompatibilityExcludes) {
-  expect(llmsCompatibilityExcludesBlock?.includes(`'${legacyPath}'`), `llms compatibility exclude list must include ${legacyPath}`)
+for (const relativePath of compatPageExcludes) {
+  expect(llmsIgnoreFilesBlock?.includes('...compatPageExcludes'), `llms compatibility-page exclude wiring must cover ${relativePath}`)
+}
+for (const relativePath of llmsDerivedPageExcludes) {
+  expect(llmsIgnoreFilesBlock?.includes('...llmsDerivedPageExcludes'), `llms derived-page exclude wiring must cover ${relativePath}`)
 }
 
 for (const [locale, expectedLinks] of Object.entries(localeNavExpectations)) {
@@ -242,11 +233,11 @@ for (const locale of ['zh', 'en']) {
   }
 }
 
-expect(!configWithoutLegacyLists.includes('/academy/'), 'Config still depends on academy routes')
-expect(!configWithoutLegacyLists.includes('Academy'), 'Config still exposes Academy as a primary IA section')
-expect(!configWithoutLegacyLists.includes('学院'), 'Config still exposes 学院 as a primary IA section')
-expect(!configWithoutLegacyLists.includes('/project-status/'), 'Config still depends on project-status routes')
-expect(!configWithoutLegacyLists.includes('/architecture/'), 'Config still depends on architecture routes')
+expect(!configWithoutExcludeWiring.includes('/academy/'), 'Config still depends on academy routes')
+expect(!configWithoutExcludeWiring.includes('Academy'), 'Config still exposes Academy as a primary IA section')
+expect(!configWithoutExcludeWiring.includes('学院'), 'Config still exposes 学院 as a primary IA section')
+expect(!configWithoutExcludeWiring.includes('/project-status/'), 'Config still depends on project-status routes')
+expect(!configWithoutExcludeWiring.includes('/architecture/'), 'Config still depends on architecture routes')
 expect(!rewritesBlock?.includes("'en/getting-started/:splat*'"), 'Compatibility route /en/getting-started/* must stay buildable at its own legacy path')
 expect(!rewritesBlock?.includes("'zh/getting-started/:splat*'"), 'Compatibility route /zh/getting-started/* must stay buildable at its own legacy path')
 expect(!rewritesBlock?.includes("'en/api/:splat*'"), 'Compatibility route /en/api/* must stay buildable at its own legacy path')
@@ -288,13 +279,14 @@ for (const [name, content] of Object.entries({ proposal, design, tasks, spec }))
   expect(!content.includes('Project Status'), `${name} still references Project Status as a primary IA section`)
 }
 
-for (const [locale, content] of Object.entries(academyCompatPages)) {
+for (const [relativePath, content] of Object.entries(compatibilityPages).filter(([relativePath]) => relativePath.includes('/academy/'))) {
   if (content === null) continue
-  expect(content.includes(locale === 'en' ? 'Compatibility note' : '兼容说明'), `${locale}/academy/index.md missing compatibility framing`)
-  expect(!content.includes('<ReadingPathGrid'), `${locale}/academy/index.md still renders as a primary landing page`)
-  expect(!content.includes(locale === 'en' ? '## Learning Paths' : '## 学习路径'), `${locale}/academy/index.md still promotes academy as a learning hub`)
+  const isEnglish = relativePath.startsWith('en/')
+  expect(content.includes(isEnglish ? 'Compatibility note' : '兼容说明'), `${relativePath} missing compatibility framing`)
+  expect(!content.includes('<ReadingPathGrid'), `${relativePath} still renders as a primary landing page`)
+  expect(!content.includes(isEnglish ? '## Learning Paths' : '## 学习路径'), `${relativePath} still promotes academy as a learning hub`)
   for (const section of ['guide', 'whitepaper', 'performance', 'reference', 'research', 'status']) {
-    expect(content.includes(`/${locale}/${section}/`), `${locale}/academy/index.md missing compatibility link to ${section}`)
+    expect(content.includes(`/${isEnglish ? 'en' : 'zh'}/${section}/`), `${relativePath} missing compatibility link to ${section}`)
   }
 }
 
