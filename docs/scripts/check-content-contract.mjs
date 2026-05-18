@@ -236,6 +236,12 @@ const canonicalLegacyClaimGuards = {
   'zh/whitepaper/public-model.md': ['bitarray', 'C++17'],
   'en/reference/types-and-views.md': ['bitarray', 'C++17'],
   'zh/reference/types-and-views.md': ['bitarray', 'C++17'],
+  'en/status/index.md': ['bitarray', 'C++17'],
+  'zh/status/index.md': ['bitarray', 'C++17'],
+  'en/guide/migration-posture.md': ['bitarray', 'C++17'],
+  'zh/guide/migration-posture.md': ['bitarray', 'C++17'],
+  'en/research/evolution-and-comparisons.md': ['bitarray', 'C++17'],
+  'zh/research/evolution-and-comparisons.md': ['bitarray', 'C++17'],
 }
 
 for (const [relativePath, forbiddenSnippets] of Object.entries(canonicalLegacyClaimGuards)) {

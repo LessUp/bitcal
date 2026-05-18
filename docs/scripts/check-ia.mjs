@@ -123,6 +123,24 @@ const filesToCheckForOldPaths = [
   'en/api/overview.md',
   'zh/api/overview.md',
 ]
+const routeCompatExpectations = {
+  'en/getting-started/migration.md': {
+    targetRoute: '/en/getting-started/migration',
+    canonicalRoute: '/en/guide/migration-posture',
+  },
+  'zh/getting-started/migration.md': {
+    targetRoute: '/zh/getting-started/migration',
+    canonicalRoute: '/zh/guide/migration-posture',
+  },
+  'en/api/overview.md': {
+    targetRoute: '/en/api/overview',
+    canonicalRoute: '/en/reference/index',
+  },
+  'zh/api/overview.md': {
+    targetRoute: '/zh/api/overview',
+    canonicalRoute: '/zh/reference/index',
+  },
+}
 
 const config = read('.vitepress/config.ts')
 const readme = read('README.md')
@@ -190,6 +208,8 @@ const configWithoutLegacyLists = [
   llmsIgnoreFilesBlock,
 ].reduce((current, block) => block ? current.replace(block, '') : current, config)
 
+const rewritesBlock = readBracketedBlock(config, 'rewrites: {', '{', '}')
+
 expect(srcExcludeBlock?.includes("'project-status.md'"), 'srcExclude must exclude project-status.md')
 expect(srcExcludeBlock?.includes('...legacyAcademySourceExcludes'), 'srcExclude must spread legacy academy excludes')
 expect(!srcExcludeBlock?.includes("'status.md'"), 'srcExclude still references nonexistent status.md')
@@ -227,6 +247,10 @@ expect(!configWithoutLegacyLists.includes('Academy'), 'Config still exposes Acad
 expect(!configWithoutLegacyLists.includes('学院'), 'Config still exposes 学院 as a primary IA section')
 expect(!configWithoutLegacyLists.includes('/project-status/'), 'Config still depends on project-status routes')
 expect(!configWithoutLegacyLists.includes('/architecture/'), 'Config still depends on architecture routes')
+expect(!rewritesBlock?.includes("'en/getting-started/:splat*'"), 'Compatibility route /en/getting-started/* must stay buildable at its own legacy path')
+expect(!rewritesBlock?.includes("'zh/getting-started/:splat*'"), 'Compatibility route /zh/getting-started/* must stay buildable at its own legacy path')
+expect(!rewritesBlock?.includes("'en/api/:splat*'"), 'Compatibility route /en/api/* must stay buildable at its own legacy path')
+expect(!rewritesBlock?.includes("'zh/api/:splat*'"), 'Compatibility route /zh/api/* must stay buildable at its own legacy path')
 
 for (const locale of ['en', 'zh']) {
   for (const section of ['guide', 'whitepaper', 'performance', 'reference', 'research', 'status']) {
@@ -279,6 +303,14 @@ for (const [relativePath, content] of Object.entries(compatibilityPages)) {
   expect(content.includes('search: false'), `${relativePath} must disable local search exposure`)
   expect(content.includes('sidebar: false'), `${relativePath} must disable sidebar exposure`)
   expect(content.includes('outline: false'), `${relativePath} must disable outline exposure`)
+}
+
+for (const [relativePath, expectation] of Object.entries(routeCompatExpectations)) {
+  const content = compatibilityPages[relativePath]
+  if (content === null) continue
+  expect(exists(relativePath), `${relativePath} must keep an on-disk compatibility source file`)
+  expect(content.includes(expectation.targetRoute), `${relativePath} must identify its retained legacy route ${expectation.targetRoute}`)
+  expect(content.includes(expectation.canonicalRoute), `${relativePath} must hand readers off to ${expectation.canonicalRoute}`)
 }
 
 for (const relativePath of ['en/project-status/index.md', 'zh/project-status/index.md']) {
