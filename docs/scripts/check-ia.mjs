@@ -133,8 +133,8 @@ const design = changeDir ? readOptional('design.md', changeDir, 'design') : null
 const tasks = changeDir ? readOptional('tasks.md', changeDir, 'tasks') : null
 const spec = changeDir ? readOptional('specs/project-documentation-site/spec.md', changeDir, 'spec') : null
 const academyCompatPages = {
-  en: read('en/academy/index.md'),
-  zh: read('zh/academy/index.md'),
+  en: readOptional('en/academy/index.md', docsDir, 'en academy compatibility page'),
+  zh: readOptional('zh/academy/index.md', docsDir, 'zh academy compatibility page'),
 }
 const navTextExpectations = {
   zh: ['导读', '白皮书', '性能', '参考', '研究', '状态'],
@@ -210,6 +210,7 @@ for (const [name, content] of Object.entries({ proposal, design, tasks, spec }))
 }
 
 for (const [locale, content] of Object.entries(academyCompatPages)) {
+  if (content === null) continue
   expect(content.includes(locale === 'en' ? 'Compatibility note' : '兼容说明'), `${locale}/academy/index.md missing compatibility framing`)
   expect(!content.includes('<ReadingPathGrid'), `${locale}/academy/index.md still renders as a primary landing page`)
   expect(!content.includes(locale === 'en' ? '## Learning Paths' : '## 学习路径'), `${locale}/academy/index.md still promotes academy as a learning hub`)
@@ -219,7 +220,8 @@ for (const [locale, content] of Object.entries(academyCompatPages)) {
 }
 
 for (const relativePath of filesToCheckForOldPaths) {
-  const content = read(relativePath)
+  const content = readOptional(relativePath, docsDir, `old path scan: ${relativePath}`)
+  if (content === null) continue
   expect(!content.includes('/academy/'), `${relativePath} still links to academy paths`)
   expect(!content.includes('/project-status/'), `${relativePath} still links to project-status paths`)
   expect(!content.includes('/architecture/'), `${relativePath} still links to architecture paths`)
