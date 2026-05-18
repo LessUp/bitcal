@@ -4,9 +4,86 @@ import process from 'node:process'
 
 const docsDir = process.cwd()
 const repoRoot = path.resolve(docsDir, '..')
+const activeChangeName = '2026-05-15-pages-whitepaper-overhaul'
 
 const read = (relativePath, baseDir = docsDir) => fs.readFileSync(path.join(baseDir, relativePath), 'utf8')
 const exists = (relativePath, baseDir = docsDir) => fs.existsSync(path.join(baseDir, relativePath))
+
+const errors = []
+const warnings = []
+const expect = (condition, message) => {
+  if (!condition) errors.push(message)
+}
+
+const fail = (message) => {
+  console.error(message)
+  process.exit(1)
+}
+
+if (!exists('.vitepress/config.ts') || !exists('README.md')) {
+  fail('check-ia.mjs must be run from the docs/ directory. Run: cd docs && npm run check:ia')
+}
+
+const readBracketedBlock = (content, startMarker, openChar, closeChar) => {
+  const start = content.indexOf(startMarker)
+  if (start === -1) return null
+
+  let depth = 0
+  let started = false
+
+  for (let index = start + startMarker.length - 1; index < content.length; index += 1) {
+    const char = content[index]
+    if (char === openChar) {
+      depth += 1
+      started = true
+    } else if (char === closeChar) {
+      depth -= 1
+      if (started && depth === 0) {
+        return content.slice(start, index + 1)
+      }
+    }
+  }
+
+  return null
+}
+
+const extractLocaleNav = (configContent, locale) => {
+  const localeBlock = readBracketedBlock(configContent, `${locale}: {`, '{', '}')
+  if (!localeBlock) {
+    errors.push(`Missing ${locale} locale block in VitePress config`)
+    return { links: [], labels: [] }
+  }
+
+  const navBlock = readBracketedBlock(localeBlock, 'nav: [', '[', ']')
+  if (!navBlock) {
+    errors.push(`Missing ${locale} nav block in VitePress config`)
+    return { links: [], labels: [] }
+  }
+
+  return {
+    links: [...navBlock.matchAll(/link:\s*'([^']+)'/g)].map((match) => match[1]),
+    labels: [...navBlock.matchAll(/text:\s*'([^']+)'/g)].map((match) => match[1]),
+  }
+}
+
+const resolveChangeDir = (changeName) => {
+  const candidates = [
+    path.join(repoRoot, 'openspec/changes', changeName),
+    path.join(repoRoot, 'openspec/changes/archive', changeName),
+  ]
+
+  return candidates.find((candidate) => fs.existsSync(candidate)) ?? null
+}
+
+const readOptional = (relativePath, baseDir, label) => {
+  const targetPath = path.join(baseDir, relativePath)
+  if (!fs.existsSync(targetPath)) {
+    warnings.push(`Skipped ${label}: missing ${path.relative(repoRoot, targetPath)}`)
+    return null
+  }
+
+  return fs.readFileSync(targetPath, 'utf8')
+}
 
 const requiredSections = ['Guide', 'Whitepaper', 'Performance', 'Reference', 'Research', 'Status']
 const localeNavExpectations = {
@@ -47,25 +124,14 @@ const filesToCheckForOldPaths = [
   'zh/api/overview.md',
 ]
 
-const openspecFiles = [
-  'proposal.md',
-  'design.md',
-  'tasks.md',
-  'specs/project-documentation-site/spec.md',
-]
-
-const errors = []
-const expect = (condition, message) => {
-  if (!condition) errors.push(message)
-}
-
 const config = read('.vitepress/config.ts')
 const readme = read('README.md')
 const docsIndex = read('index.md')
-const proposal = read('openspec/changes/2026-05-15-pages-whitepaper-overhaul/proposal.md', repoRoot)
-const design = read('openspec/changes/2026-05-15-pages-whitepaper-overhaul/design.md', repoRoot)
-const tasks = read('openspec/changes/2026-05-15-pages-whitepaper-overhaul/tasks.md', repoRoot)
-const spec = read('openspec/changes/2026-05-15-pages-whitepaper-overhaul/specs/project-documentation-site/spec.md', repoRoot)
+const changeDir = resolveChangeDir(activeChangeName)
+const proposal = changeDir ? readOptional('proposal.md', changeDir, 'proposal') : null
+const design = changeDir ? readOptional('design.md', changeDir, 'design') : null
+const tasks = changeDir ? readOptional('tasks.md', changeDir, 'tasks') : null
+const spec = changeDir ? readOptional('specs/project-documentation-site/spec.md', changeDir, 'spec') : null
 const academyCompatPages = {
   en: read('en/academy/index.md'),
   zh: read('zh/academy/index.md'),
@@ -75,26 +141,24 @@ const navTextExpectations = {
   en: ['Guide', 'Whitepaper', 'Performance', 'Reference', 'Research', 'Status'],
 }
 
-for (const [locale, links] of Object.entries(localeNavExpectations)) {
-  let previousIndex = -1
-  for (const link of links) {
-    const quotedLink = `link: '${link}'`
-    const index = config.indexOf(quotedLink)
-    expect(index !== -1, `Missing ${locale} nav link: ${link}`)
-    expect(index > previousIndex, `${locale} nav order drifted before ${link}`)
-    previousIndex = index
-  }
-}
+const srcExcludeBlock = readBracketedBlock(config, 'srcExclude: [', '[', ']')
+const llmsIgnoreFilesBlock = readBracketedBlock(config, 'ignoreFiles: [', '[', ']')
 
-for (const [locale, labels] of Object.entries(navTextExpectations)) {
-  let previousIndex = -1
-  for (const label of labels) {
-    const quotedLabel = `text: '${label}'`
-    const index = config.indexOf(quotedLabel)
-    expect(index !== -1, `Missing ${locale} nav label: ${label}`)
-    expect(index > previousIndex, `${locale} nav label order drifted before ${label}`)
-    previousIndex = index
-  }
+expect(srcExcludeBlock?.includes("'project-status.md'"), 'srcExclude must exclude project-status.md')
+expect(!srcExcludeBlock?.includes("'status.md'"), 'srcExclude still references nonexistent status.md')
+expect(llmsIgnoreFilesBlock?.includes("'project-status.md'"), 'llmstxt ignoreFiles must exclude project-status.md')
+expect(!llmsIgnoreFilesBlock?.includes("'status.md'"), 'llmstxt ignoreFiles still reference nonexistent status.md')
+
+for (const [locale, expectedLinks] of Object.entries(localeNavExpectations)) {
+  const nav = extractLocaleNav(config, locale)
+  expect(
+    JSON.stringify(nav.links) === JSON.stringify(expectedLinks),
+    `${locale} nav links drifted: expected ${expectedLinks.join(' -> ')}, got ${nav.links.join(' -> ')}`,
+  )
+  expect(
+    JSON.stringify(nav.labels) === JSON.stringify(navTextExpectations[locale]),
+    `${locale} nav labels drifted: expected ${navTextExpectations[locale].join(' -> ')}, got ${nav.labels.join(' -> ')}`,
+  )
 }
 
 for (const locale of ['zh', 'en']) {
@@ -106,7 +170,7 @@ for (const locale of ['zh', 'en']) {
 expect(!config.includes('/academy/'), 'Config still depends on academy routes')
 expect(!config.includes('Academy'), 'Config still exposes Academy as a primary IA section')
 expect(!config.includes('学院'), 'Config still exposes 学院 as a primary IA section')
-expect(!config.includes('project-status'), 'Config still depends on project-status routes')
+expect(!config.includes('/project-status/'), 'Config still depends on project-status routes')
 expect(!config.includes('/architecture/'), 'Config still depends on architecture routes')
 
 for (const locale of ['en', 'zh']) {
@@ -139,6 +203,7 @@ expect(
 
 const iaPhrase = requiredSections.join(' / ')
 for (const [name, content] of Object.entries({ proposal, design, tasks, spec })) {
+  if (content === null) continue
   expect(content.includes(iaPhrase), `${name} missing canonical IA phrase: ${iaPhrase}`)
   expect(!content.includes('Academy'), `${name} still references Academy as a primary IA section`)
   expect(!content.includes('Project Status'), `${name} still references Project Status as a primary IA section`)
@@ -158,6 +223,16 @@ for (const relativePath of filesToCheckForOldPaths) {
   expect(!content.includes('/academy/'), `${relativePath} still links to academy paths`)
   expect(!content.includes('/project-status/'), `${relativePath} still links to project-status paths`)
   expect(!content.includes('/architecture/'), `${relativePath} still links to architecture paths`)
+}
+
+if (!changeDir) {
+  warnings.push(`Skipped OpenSpec content checks: active or archived change not found for ${activeChangeName}`)
+}
+
+if (warnings.length > 0) {
+  for (const warning of warnings) {
+    console.warn(`IA validation warning: ${warning}`)
+  }
 }
 
 if (errors.length > 0) {

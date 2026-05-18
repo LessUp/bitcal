@@ -13,7 +13,7 @@ export default withMermaid(defineConfig({
   base,
   srcExclude: [
     'README.md',
-    'status.md',
+    'project-status.md',
     'design/**',
     'superpowers/**',
   ],
@@ -197,7 +197,7 @@ export default withMermaid(defineConfig({
       llmstxt({
         ignoreFiles: [
           'README.md',
-          'status.md',
+          'project-status.md',
           'design/**',
           'superpowers/**',
         ],
