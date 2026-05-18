@@ -99,6 +99,11 @@ expect(evidenceStrip.includes('data-evidence-tone'), 'EvidenceStrip must expose 
 const citationList = read('components', 'CitationList.vue')
 expect(citationList.includes('data-citation-tone'), 'CitationList must expose a data-citation-tone hook')
 
+const performanceTable = read('components', 'PerformanceTable.vue')
+expect(performanceTable.includes('data-performance-tone'), 'PerformanceTable must expose a data-performance-tone hook')
+expect(!performanceTable.includes('var(--vp-c-'), 'PerformanceTable must not bypass shared BitCal theme tokens with raw VitePress colors')
+expect(performanceTable.includes('var(--bc-'), 'PerformanceTable must style against shared BitCal theme tokens')
+
 expect(packageJson.includes('"check:theme-contract"'), 'docs/package.json must expose check:theme-contract')
 
 if (failMessages.length > 0) {
