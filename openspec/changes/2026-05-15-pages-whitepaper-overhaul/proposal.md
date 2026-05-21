@@ -5,6 +5,7 @@ BitCal Pages still reads like a transitional docs portal, and the active OpenSpe
 - Rebuild the GitHub Pages IA around `Home / Docs Landing / Guide / Whitepaper / Performance / Reference / Research / Status`
 - Mirror the primary audience-facing navigation across English and Chinese, with `docs/README.md` documenting any deep-content bilingual exceptions
 - Remove primary-path dependence on retired academy naming, legacy `project-status` naming, and old architecture routes
+- Remove compatibility-only doc trees and Pages changelog mirrors instead of retaining them as long-lived shims
 - Keep the retained theme-aware figure and SVG policy for light/dark readability
 - Align the public Pages reading path with the active vNext redesign contract
 

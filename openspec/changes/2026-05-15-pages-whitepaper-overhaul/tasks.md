@@ -4,7 +4,7 @@
 
 ## Route Map / IA
 - [x] Rebuild the VitePress navigation and sidebar around `Guide / Whitepaper / Performance / Reference / Research / Status`
-- [x] Add the localized section entry pages and redirect aliases needed to keep the primary reading path aligned across English and Chinese
+- [ ] Delete compatibility-only route trees and the Pages changelog mirror so only the retained primary IA remains
 
 ## Theme Primitives
 - [x] Introduce reusable theme components and figure tokens for high-value Pages surfaces
@@ -17,3 +17,4 @@
 - [x] Add an executable IA structure validation that fails on drift before production edits and passes after alignment
 - [x] Validate the retained Pages build, route structure, and diff hygiene for this IA convergence slice
 - [ ] Continue validating Mermaid rendering, search, and theme switching in broader whitepaper rollout tasks
+- [ ] Remove compatibility-only validation bookkeeping after the legacy trees are deleted

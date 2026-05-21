@@ -25,7 +25,7 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 
 ### 2.3 文档真相
 
-- `docs/` 承担 GitHub Pages 内容来源
+- `docs/` 只承载主 IA 的 Pages 内容源
 - 深度内容的 canonical source 应优先收敛到 Markdown
 - 手工维护的 HTML 页面只允许保留在首页/落地页/导航页等确有展示价值的位置
 - 对于同一主题，禁止长期并行维护“手写 Markdown + 手写 HTML”两套内容
@@ -34,7 +34,8 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 
 - 搜索索引、静态资源、派生 HTML 都应服务于 canonical source
 - 若某个 HTML 页面无法明确对应一个 canonical source，则该页面属于清理候选
-- route alias 与语言分流页只能服务主站结构，不能再成为另一套主路径真相
+- compatibility-only 页面与旧路由应直接删除，而不是继续保留为长期 alias
+- 语言分流页只能服务主站结构，不能再成为另一套主路径真相
 
 ## 3. 最终信息架构
 
@@ -83,7 +84,7 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 
 - 明确项目当前姿态、支持边界、breaking-change 策略与规范入口
 - 状态页必须比 README 更严格，而不是更宽松
-- 旧的 `project-status` 仅允许作为兼容 alias，不再作为主路径命名
+- 旧的 `project-status` 命名不再保留在维护树中
 
 ## 4. 双语策略
 
@@ -105,6 +106,7 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 - 为了“看起来完整”而做的全量镜像翻译
 - 中文/英文两套页面长期不同步
 - changelog 在 `docs/` 下继续重复镜像
+- compatibility-only 页面与旧路由长期留在 `docs/` 中
 
 ## 5. 清理规则
 
@@ -112,7 +114,7 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 - 与 README 重复的落地文档：合并或删除
 - 与 Markdown 同步成本过高的手写 HTML 参考页：删除或改为派生
 - 无清晰受众的文档：删除
-- academy、旧 architecture、`project-status` 只允许作为兼容入口，不能继续占据主导航或主阅读路径
+- academy、旧 architecture、旧 api、旧 getting-started、`project-status` 与旧 release-notes 兼容层：直接删除
 
 ## 6. 执行顺序
 
