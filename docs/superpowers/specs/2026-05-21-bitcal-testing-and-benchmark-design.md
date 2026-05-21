@@ -367,6 +367,11 @@ benchmark 体系拆成三类角色：
 - `shift_left`
 - `shift_right`
 
+但**retained baseline 的首批落地范围必须服从当前 vNext 公共表面**：
+
+- 如果某个操作已经有 `bit_block` / `bit_view` / free algorithm 公开入口，就进入 retained baseline；
+- 如果某个操作仍只存在于旧 `bitarray` 风格接口，就只能暂时留在 legacy/research lane，直到新的公开算法表面存在。
+
 后续可扩展到：
 
 - owner vs view
@@ -532,6 +537,8 @@ CI 只负责验证：
 1. `benchmarks/results/retained/` 中的数据
 2. 与当前文档同步的 summary 数据
 3. 有明确环境指纹的 baseline run
+
+同时，白皮书主页面只发布**当前 vNext 公共契约已经暴露的操作**，不再把 legacy `bitarray`-only 操作混入主性能结论。
 
 ## Documentation Integration
 
