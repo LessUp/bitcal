@@ -6,7 +6,7 @@
     "iterations_per_sample": 5000
   },
   "environment": {
-    "commit": "8342af1055e8",
+    "commit": "007c74071b25",
     "compiler": "15.1.0",
     "build_type": "Release",
     "backend": "avx2",
@@ -19,22 +19,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 9.5282,
-        "max_ns": 30.8928,
-        "mean_ns": 10.7802,
-        "median_ns": 9.536,
-        "stdev_ns": 4.2478,
-        "cv": 0.394036
+        "min_ns": 10.2296,
+        "max_ns": 19.732,
+        "mean_ns": 11.311,
+        "median_ns": 10.5924,
+        "stdev_ns": 2.02067,
+        "cv": 0.178646
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.509,
-        "max_ns": 0.5292,
-        "mean_ns": 0.511264,
-        "median_ns": 0.5104,
-        "stdev_ns": 0.00380009,
-        "cv": 0.00743274
+        "min_ns": 0.5148,
+        "max_ns": 0.7626,
+        "mean_ns": 0.54524,
+        "median_ns": 0.5264,
+        "stdev_ns": 0.0618017,
+        "cv": 0.113348
       }
     },
     {
@@ -43,22 +43,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 9.5286,
-        "max_ns": 15.3516,
-        "mean_ns": 9.86174,
-        "median_ns": 9.5354,
-        "stdev_ns": 1.14225,
-        "cv": 0.115826
+        "min_ns": 10.1662,
+        "max_ns": 27.1172,
+        "mean_ns": 11.2774,
+        "median_ns": 10.645,
+        "stdev_ns": 3.24033,
+        "cv": 0.287331
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.5092,
-        "max_ns": 0.5248,
-        "mean_ns": 0.510928,
-        "median_ns": 0.5104,
-        "stdev_ns": 0.00290923,
-        "cv": 0.00569401
+        "min_ns": 0.5104,
+        "max_ns": 0.6198,
+        "mean_ns": 0.531784,
+        "median_ns": 0.526,
+        "stdev_ns": 0.0243314,
+        "cv": 0.0457542
       }
     },
     {
@@ -67,22 +67,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 9.5258,
-        "max_ns": 23.735,
-        "mean_ns": 10.2286,
-        "median_ns": 9.5314,
-        "stdev_ns": 2.82823,
-        "cv": 0.276501
+        "min_ns": 10.3064,
+        "max_ns": 30.5312,
+        "mean_ns": 11.851,
+        "median_ns": 10.7718,
+        "stdev_ns": 4.10891,
+        "cv": 0.346713
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.5094,
-        "max_ns": 0.5238,
-        "mean_ns": 0.511056,
-        "median_ns": 0.5104,
-        "stdev_ns": 0.00269014,
-        "cv": 0.00526389
+        "min_ns": 0.5204,
+        "max_ns": 0.804,
+        "mean_ns": 0.566216,
+        "median_ns": 0.5482,
+        "stdev_ns": 0.0565174,
+        "cv": 0.0998159
       }
     },
     {
@@ -91,22 +91,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 9.5252,
-        "max_ns": 9.5394,
-        "mean_ns": 9.53232,
-        "median_ns": 9.5328,
-        "stdev_ns": 0.00354762,
-        "cv": 0.000372167
+        "min_ns": 10.3618,
+        "max_ns": 17.8338,
+        "mean_ns": 11.0292,
+        "median_ns": 10.8176,
+        "stdev_ns": 1.40514,
+        "cv": 0.127402
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.5092,
-        "max_ns": 0.5272,
-        "mean_ns": 0.511216,
-        "median_ns": 0.5104,
-        "stdev_ns": 0.00333846,
-        "cv": 0.00653044
+        "min_ns": 0.5174,
+        "max_ns": 0.5982,
+        "mean_ns": 0.539432,
+        "median_ns": 0.5316,
+        "stdev_ns": 0.0181135,
+        "cv": 0.0335788
       }
     },
     {
@@ -115,22 +115,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.0068,
-        "max_ns": 1.0186,
-        "mean_ns": 1.00958,
-        "median_ns": 1.0092,
-        "stdev_ns": 0.00225915,
-        "cv": 0.0022377
+        "min_ns": 1.013,
+        "max_ns": 1.4526,
+        "mean_ns": 1.0961,
+        "median_ns": 1.0752,
+        "stdev_ns": 0.0860108,
+        "cv": 0.0784701
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.259,
-        "max_ns": 0.2732,
-        "mean_ns": 0.260184,
-        "median_ns": 0.2598,
-        "stdev_ns": 0.00269573,
-        "cv": 0.0103608
+        "min_ns": 0.2638,
+        "max_ns": 0.353,
+        "mean_ns": 0.274912,
+        "median_ns": 0.2684,
+        "stdev_ns": 0.0183689,
+        "cv": 0.0668172
       }
     },
     {
@@ -139,12 +139,444 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
+        "min_ns": 0.262,
+        "max_ns": 0.3314,
+        "mean_ns": 0.270176,
+        "median_ns": 0.2662,
+        "stdev_ns": 0.0144422,
+        "cv": 0.0534548
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 0.2614,
+        "max_ns": 0.3392,
+        "mean_ns": 0.270992,
+        "median_ns": 0.266,
+        "stdev_ns": 0.0159435,
+        "cv": 0.058834
+      }
+    },
+    {
+      "operation": "is_zero",
+      "bits": 128,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.0082,
+        "max_ns": 6.5824,
+        "mean_ns": 1.28443,
+        "median_ns": 1.068,
+        "stdev_ns": 1.08171,
+        "cv": 0.842168
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.0096,
+        "max_ns": 1.0438,
+        "mean_ns": 1.02086,
+        "median_ns": 1.0166,
+        "stdev_ns": 0.0102033,
+        "cv": 0.00999484
+      }
+    },
+    {
+      "operation": "shift_left",
+      "bits": 128,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 10.6942,
+        "max_ns": 21.3558,
+        "mean_ns": 11.7291,
+        "median_ns": 11.1246,
+        "stdev_ns": 2.30953,
+        "cv": 0.196907
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 0.516,
+        "max_ns": 0.5824,
+        "mean_ns": 0.531144,
+        "median_ns": 0.5264,
+        "stdev_ns": 0.0146255,
+        "cv": 0.0275359
+      }
+    },
+    {
+      "operation": "shift_right",
+      "bits": 128,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 10.6052,
+        "max_ns": 43.9276,
+        "mean_ns": 13.0561,
+        "median_ns": 11.0734,
+        "stdev_ns": 7.23498,
+        "cv": 0.554147
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 0.6386,
+        "max_ns": 1.0388,
+        "mean_ns": 0.860584,
+        "median_ns": 0.8576,
+        "stdev_ns": 0.0960406,
+        "cv": 0.111599
+      }
+    },
+    {
+      "operation": "bit_and",
+      "bits": 192,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 10.687,
+        "max_ns": 19.1296,
+        "mean_ns": 11.5226,
+        "median_ns": 10.9504,
+        "stdev_ns": 1.98406,
+        "cv": 0.172188
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.8858,
+        "max_ns": 2.0632,
+        "mean_ns": 1.97618,
+        "median_ns": 1.9818,
+        "stdev_ns": 0.0501746,
+        "cv": 0.0253897
+      }
+    },
+    {
+      "operation": "bit_or",
+      "bits": 192,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 10.8082,
+        "max_ns": 14.4346,
+        "mean_ns": 11.305,
+        "median_ns": 11.1758,
+        "stdev_ns": 0.661966,
+        "cv": 0.0585549
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.5132,
+        "max_ns": 8.2786,
+        "mean_ns": 2.1349,
+        "median_ns": 2.0332,
+        "stdev_ns": 1.28945,
+        "cv": 0.603988
+      }
+    },
+    {
+      "operation": "bit_xor",
+      "bits": 192,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 10.027,
+        "max_ns": 24.8072,
+        "mean_ns": 10.6339,
+        "median_ns": 10.0338,
+        "stdev_ns": 2.89345,
+        "cv": 0.272097
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.511,
+        "max_ns": 2.4926,
+        "mean_ns": 1.64808,
+        "median_ns": 1.516,
+        "stdev_ns": 0.246155,
+        "cv": 0.149359
+      }
+    },
+    {
+      "operation": "bit_andnot",
+      "bits": 192,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 10.0294,
+        "max_ns": 15.2874,
+        "mean_ns": 10.4515,
+        "median_ns": 10.035,
+        "stdev_ns": 1.2401,
+        "cv": 0.118652
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.511,
+        "max_ns": 1.5298,
+        "mean_ns": 1.51507,
+        "median_ns": 1.5142,
+        "stdev_ns": 0.00356556,
+        "cv": 0.00235339
+      }
+    },
+    {
+      "operation": "popcount",
+      "bits": 192,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.5076,
+        "max_ns": 1.7526,
+        "mean_ns": 1.53548,
+        "median_ns": 1.5112,
+        "stdev_ns": 0.0647165,
+        "cv": 0.0421474
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.5074,
+        "max_ns": 1.8092,
+        "mean_ns": 1.55678,
+        "median_ns": 1.511,
+        "stdev_ns": 0.0959875,
+        "cv": 0.0616576
+      }
+    },
+    {
+      "operation": "equals",
+      "bits": 192,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
         "min_ns": 0.259,
-        "max_ns": 0.276,
-        "mean_ns": 0.260696,
-        "median_ns": 0.2598,
-        "stdev_ns": 0.00337526,
-        "cv": 0.0129471
+        "max_ns": 0.2836,
+        "mean_ns": 0.261192,
+        "median_ns": 0.26,
+        "stdev_ns": 0.0048499,
+        "cv": 0.0185683
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 0.259,
+        "max_ns": 0.2608,
+        "mean_ns": 0.259944,
+        "median_ns": 0.26,
+        "stdev_ns": 0.000507606,
+        "cv": 0.00195275
+      }
+    },
+    {
+      "operation": "is_zero",
+      "bits": 192,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 0.512,
+        "max_ns": 1.247,
+        "mean_ns": 0.574552,
+        "median_ns": 0.5136,
+        "stdev_ns": 0.162304,
+        "cv": 0.282488
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 0.5118,
+        "max_ns": 3.2488,
+        "mean_ns": 0.623536,
+        "median_ns": 0.5134,
+        "stdev_ns": 0.535891,
+        "cv": 0.859438
+      }
+    },
+    {
+      "operation": "shift_left",
+      "bits": 192,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 10.0284,
+        "max_ns": 13.1354,
+        "mean_ns": 10.1807,
+        "median_ns": 10.0352,
+        "stdev_ns": 0.610984,
+        "cv": 0.0600141
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 9.525,
+        "max_ns": 13.426,
+        "mean_ns": 9.83857,
+        "median_ns": 9.531,
+        "stdev_ns": 0.966655,
+        "cv": 0.0982516
+      }
+    },
+    {
+      "operation": "shift_right",
+      "bits": 192,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 10.029,
+        "max_ns": 10.501,
+        "mean_ns": 10.0528,
+        "median_ns": 10.0342,
+        "stdev_ns": 0.0915433,
+        "cv": 0.00910625
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 2.0088,
+        "max_ns": 2.5412,
+        "mean_ns": 2.04198,
+        "median_ns": 2.0126,
+        "stdev_ns": 0.108934,
+        "cv": 0.0533472
+      }
+    },
+    {
+      "operation": "bit_and",
+      "bits": 256,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.0036,
+        "max_ns": 1.0198,
+        "mean_ns": 1.00996,
+        "median_ns": 1.0092,
+        "stdev_ns": 0.00378418,
+        "cv": 0.00374686
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.0028,
+        "max_ns": 1.0202,
+        "mean_ns": 1.00828,
+        "median_ns": 1.0076,
+        "stdev_ns": 0.00369778,
+        "cv": 0.00366742
+      }
+    },
+    {
+      "operation": "bit_or",
+      "bits": 256,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.0018,
+        "max_ns": 4.5114,
+        "mean_ns": 1.14563,
+        "median_ns": 1.0052,
+        "stdev_ns": 0.687038,
+        "cv": 0.599702
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.0026,
+        "max_ns": 1.0208,
+        "mean_ns": 1.0061,
+        "median_ns": 1.0054,
+        "stdev_ns": 0.00344192,
+        "cv": 0.00342106
+      }
+    },
+    {
+      "operation": "bit_xor",
+      "bits": 256,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.0036,
+        "max_ns": 1.0226,
+        "mean_ns": 1.00879,
+        "median_ns": 1.0084,
+        "stdev_ns": 0.00380504,
+        "cv": 0.00377188
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.002,
+        "max_ns": 1.0204,
+        "mean_ns": 1.0061,
+        "median_ns": 1.0056,
+        "stdev_ns": 0.00333952,
+        "cv": 0.00331928
+      }
+    },
+    {
+      "operation": "bit_andnot",
+      "bits": 256,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.0022,
+        "max_ns": 1.0188,
+        "mean_ns": 1.00714,
+        "median_ns": 1.0066,
+        "stdev_ns": 0.00362336,
+        "cv": 0.00359768
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 1.005,
+        "max_ns": 1.1296,
+        "mean_ns": 1.01516,
+        "median_ns": 1.0098,
+        "stdev_ns": 0.0235628,
+        "cv": 0.0232109
+      }
+    },
+    {
+      "operation": "popcount",
+      "bits": 256,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 2.0088,
+        "max_ns": 13.3136,
+        "mean_ns": 2.60386,
+        "median_ns": 2.013,
+        "stdev_ns": 2.28901,
+        "cv": 0.879085
+      },
+      "std_bitset": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 2.0084,
+        "max_ns": 6.8428,
+        "mean_ns": 2.20607,
+        "median_ns": 2.0124,
+        "stdev_ns": 0.946475,
+        "cv": 0.429032
+      }
+    },
+    {
+      "operation": "equals",
+      "bits": 256,
+      "bitcal": {
+        "samples": 25,
+        "iterations_per_sample": 5000,
+        "min_ns": 0.259,
+        "max_ns": 0.2744,
+        "mean_ns": 0.260672,
+        "median_ns": 0.26,
+        "stdev_ns": 0.00288881,
+        "cv": 0.0110822
       },
       "std_bitset": {
         "samples": 25,
@@ -153,440 +585,8 @@
         "max_ns": 0.2606,
         "mean_ns": 0.25992,
         "median_ns": 0.26,
-        "stdev_ns": 0.000387814,
-        "cv": 0.00149205
-      }
-    },
-    {
-      "operation": "is_zero",
-      "bits": 128,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 0.9472,
-        "max_ns": 2.7408,
-        "mean_ns": 1.03121,
-        "median_ns": 0.9594,
-        "stdev_ns": 0.349029,
-        "cv": 0.338467
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.0062,
-        "max_ns": 1.0178,
-        "mean_ns": 1.00881,
-        "median_ns": 1.0086,
-        "stdev_ns": 0.00222817,
-        "cv": 0.00220871
-      }
-    },
-    {
-      "operation": "shift_left",
-      "bits": 128,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 10.0272,
-        "max_ns": 14.2308,
-        "mean_ns": 10.2202,
-        "median_ns": 10.0318,
-        "stdev_ns": 0.82503,
-        "cv": 0.0807256
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 0.5092,
-        "max_ns": 0.5248,
-        "mean_ns": 0.510984,
-        "median_ns": 0.5104,
-        "stdev_ns": 0.00287829,
-        "cv": 0.00563283
-      }
-    },
-    {
-      "operation": "shift_right",
-      "bits": 128,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 10.0252,
-        "max_ns": 12.986,
-        "mean_ns": 10.1489,
-        "median_ns": 10.0316,
-        "stdev_ns": 0.579124,
-        "cv": 0.0570627
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 0.5088,
-        "max_ns": 0.5256,
-        "mean_ns": 0.510952,
-        "median_ns": 0.5104,
-        "stdev_ns": 0.00307312,
-        "cv": 0.00601451
-      }
-    },
-    {
-      "operation": "bit_and",
-      "bits": 192,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 10.0264,
-        "max_ns": 14.9742,
-        "mean_ns": 10.4102,
-        "median_ns": 10.0316,
-        "stdev_ns": 1.12409,
-        "cv": 0.107979
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.509,
-        "max_ns": 1.5294,
-        "mean_ns": 1.51596,
-        "median_ns": 1.5148,
-        "stdev_ns": 0.00512531,
-        "cv": 0.0033809
-      }
-    },
-    {
-      "operation": "bit_or",
-      "bits": 192,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 10.0256,
-        "max_ns": 12.9678,
-        "mean_ns": 10.1485,
-        "median_ns": 10.0318,
-        "stdev_ns": 0.575493,
-        "cv": 0.0567072
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.5082,
-        "max_ns": 1.644,
-        "mean_ns": 1.53674,
-        "median_ns": 1.5188,
-        "stdev_ns": 0.0449103,
-        "cv": 0.0292243
-      }
-    },
-    {
-      "operation": "bit_xor",
-      "bits": 192,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 10.0304,
-        "max_ns": 16.9262,
-        "mean_ns": 10.7968,
-        "median_ns": 10.0428,
-        "stdev_ns": 1.47936,
-        "cv": 0.137019
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.5196,
-        "max_ns": 2.2708,
-        "mean_ns": 1.66555,
-        "median_ns": 1.5274,
-        "stdev_ns": 0.253554,
-        "cv": 0.152234
-      }
-    },
-    {
-      "operation": "bit_andnot",
-      "bits": 192,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 10.035,
-        "max_ns": 59.7458,
-        "mean_ns": 12.3098,
-        "median_ns": 10.0414,
-        "stdev_ns": 9.73552,
-        "cv": 0.790878
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.5154,
-        "max_ns": 2.184,
-        "mean_ns": 1.59529,
-        "median_ns": 1.5214,
-        "stdev_ns": 0.201638,
-        "cv": 0.126396
-      }
-    },
-    {
-      "operation": "popcount",
-      "bits": 192,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.5078,
-        "max_ns": 1.8452,
-        "mean_ns": 1.5543,
-        "median_ns": 1.5118,
-        "stdev_ns": 0.0873786,
-        "cv": 0.0562172
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.5074,
-        "max_ns": 1.5174,
-        "mean_ns": 1.51068,
-        "median_ns": 1.5102,
-        "stdev_ns": 0.00225424,
-        "cv": 0.0014922
-      }
-    },
-    {
-      "operation": "equals",
-      "bits": 192,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 0.2592,
-        "max_ns": 0.2716,
-        "mean_ns": 0.260512,
-        "median_ns": 0.26,
-        "stdev_ns": 0.00238668,
-        "cv": 0.00916151
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 0.2588,
-        "max_ns": 0.2626,
-        "mean_ns": 0.260064,
-        "median_ns": 0.26,
-        "stdev_ns": 0.000678162,
-        "cv": 0.00260767
-      }
-    },
-    {
-      "operation": "is_zero",
-      "bits": 192,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 0.5112,
-        "max_ns": 0.5412,
-        "mean_ns": 0.514632,
-        "median_ns": 0.513,
-        "stdev_ns": 0.00600951,
-        "cv": 0.0116773
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 0.5118,
-        "max_ns": 4.4042,
-        "mean_ns": 0.670688,
-        "median_ns": 0.5142,
-        "stdev_ns": 0.76211,
-        "cv": 1.13631
-      }
-    },
-    {
-      "operation": "shift_left",
-      "bits": 192,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 10.0302,
-        "max_ns": 11.1724,
-        "mean_ns": 10.113,
-        "median_ns": 10.0364,
-        "stdev_ns": 0.248707,
-        "cv": 0.0245927
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 9.5292,
-        "max_ns": 18.2748,
-        "mean_ns": 10.11,
-        "median_ns": 9.5354,
-        "stdev_ns": 1.78053,
-        "cv": 0.176116
-      }
-    },
-    {
-      "operation": "shift_right",
-      "bits": 192,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 10.0318,
-        "max_ns": 278.313,
-        "mean_ns": 21.6473,
-        "median_ns": 11.135,
-        "stdev_ns": 52.398,
-        "cv": 2.42053
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.0954,
-        "max_ns": 1.4998,
-        "mean_ns": 1.4533,
-        "median_ns": 1.4648,
-        "stdev_ns": 0.0753552,
-        "cv": 0.0518509
-      }
-    },
-    {
-      "operation": "bit_and",
-      "bits": 256,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.006,
-        "max_ns": 1.3446,
-        "mean_ns": 1.07713,
-        "median_ns": 1.0108,
-        "stdev_ns": 0.121043,
-        "cv": 0.112376
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.006,
-        "max_ns": 1.2912,
-        "mean_ns": 1.03939,
-        "median_ns": 1.0102,
-        "stdev_ns": 0.0785101,
-        "cv": 0.0755346
-      }
-    },
-    {
-      "operation": "bit_or",
-      "bits": 256,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.0048,
-        "max_ns": 1.3562,
-        "mean_ns": 1.08367,
-        "median_ns": 1.0204,
-        "stdev_ns": 0.0958987,
-        "cv": 0.0884942
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.0056,
-        "max_ns": 7.059,
-        "mean_ns": 1.50587,
-        "median_ns": 1.0748,
-        "stdev_ns": 1.40474,
-        "cv": 0.93284
-      }
-    },
-    {
-      "operation": "bit_xor",
-      "bits": 256,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.004,
-        "max_ns": 1.3796,
-        "mean_ns": 1.05018,
-        "median_ns": 1.0086,
-        "stdev_ns": 0.0875582,
-        "cv": 0.0833742
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.0032,
-        "max_ns": 1.0794,
-        "mean_ns": 1.01002,
-        "median_ns": 1.007,
-        "stdev_ns": 0.0144711,
-        "cv": 0.0143275
-      }
-    },
-    {
-      "operation": "bit_andnot",
-      "bits": 256,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.0038,
-        "max_ns": 1.3242,
-        "mean_ns": 1.07859,
-        "median_ns": 1.0082,
-        "stdev_ns": 0.111143,
-        "cv": 0.103044
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 1.0058,
-        "max_ns": 1.2772,
-        "mean_ns": 1.07672,
-        "median_ns": 1.0548,
-        "stdev_ns": 0.0815594,
-        "cv": 0.075748
-      }
-    },
-    {
-      "operation": "popcount",
-      "bits": 256,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 2.008,
-        "max_ns": 2.2222,
-        "mean_ns": 2.05184,
-        "median_ns": 2.0128,
-        "stdev_ns": 0.0739795,
-        "cv": 0.0360552
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 2.0088,
-        "max_ns": 2.2572,
-        "mean_ns": 2.07993,
-        "median_ns": 2.0272,
-        "stdev_ns": 0.0842946,
-        "cv": 0.0405277
-      }
-    },
-    {
-      "operation": "equals",
-      "bits": 256,
-      "bitcal": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 0.259,
-        "max_ns": 0.2644,
-        "mean_ns": 0.260176,
-        "median_ns": 0.26,
-        "stdev_ns": 0.00110897,
-        "cv": 0.0042624
-      },
-      "std_bitset": {
-        "samples": 25,
-        "iterations_per_sample": 5000,
-        "min_ns": 0.2594,
-        "max_ns": 0.4466,
-        "mean_ns": 0.280688,
-        "median_ns": 0.2642,
-        "stdev_ns": 0.0457001,
-        "cv": 0.162814
+        "stdev_ns": 0.000438178,
+        "cv": 0.00168582
       }
     },
     {
@@ -595,22 +595,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.949,
-        "max_ns": 1.0928,
-        "mean_ns": 0.991224,
-        "median_ns": 0.9572,
-        "stdev_ns": 0.0501343,
-        "cv": 0.0505782
+        "min_ns": 0.948,
+        "max_ns": 0.975,
+        "mean_ns": 0.953896,
+        "median_ns": 0.9524,
+        "stdev_ns": 0.00529698,
+        "cv": 0.00555299
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
         "min_ns": 0.9488,
-        "max_ns": 1.1436,
-        "mean_ns": 0.985136,
-        "median_ns": 0.9558,
-        "stdev_ns": 0.0516912,
-        "cv": 0.0524712
+        "max_ns": 0.9712,
+        "mean_ns": 0.955968,
+        "median_ns": 0.9556,
+        "stdev_ns": 0.00474929,
+        "cv": 0.00496805
       }
     },
     {
@@ -619,22 +619,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 10.0322,
-        "max_ns": 15.7582,
-        "mean_ns": 10.6153,
-        "median_ns": 10.0384,
-        "stdev_ns": 1.52457,
-        "cv": 0.14362
+        "min_ns": 10.0258,
+        "max_ns": 12.9694,
+        "mean_ns": 10.2046,
+        "median_ns": 10.0308,
+        "stdev_ns": 0.60173,
+        "cv": 0.0589663
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 10.0288,
-        "max_ns": 13.0282,
-        "mean_ns": 10.3148,
-        "median_ns": 10.0348,
-        "stdev_ns": 0.76081,
-        "cv": 0.0737587
+        "min_ns": 10.0274,
+        "max_ns": 15.1148,
+        "mean_ns": 10.2591,
+        "median_ns": 10.0332,
+        "stdev_ns": 0.997803,
+        "cv": 0.0972607
       }
     },
     {
@@ -643,22 +643,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 10.0278,
-        "max_ns": 10.86,
-        "mean_ns": 10.3587,
-        "median_ns": 10.3732,
-        "stdev_ns": 0.313935,
-        "cv": 0.0303063
+        "min_ns": 10.0288,
+        "max_ns": 17.502,
+        "mean_ns": 10.3527,
+        "median_ns": 10.0332,
+        "stdev_ns": 1.46298,
+        "cv": 0.141314
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 10.0298,
-        "max_ns": 18.9656,
-        "mean_ns": 10.5696,
-        "median_ns": 10.0362,
-        "stdev_ns": 1.73832,
-        "cv": 0.164464
+        "min_ns": 10.0274,
+        "max_ns": 13.739,
+        "mean_ns": 10.1811,
+        "median_ns": 10.033,
+        "stdev_ns": 0.726264,
+        "cv": 0.0713346
       }
     },
     {
@@ -667,22 +667,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.0132,
-        "max_ns": 1.711,
-        "mean_ns": 1.17722,
-        "median_ns": 1.0196,
-        "stdev_ns": 0.244541,
-        "cv": 0.207728
+        "min_ns": 2.0056,
+        "max_ns": 2.0296,
+        "mean_ns": 2.0134,
+        "median_ns": 2.013,
+        "stdev_ns": 0.00437154,
+        "cv": 0.00217122
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.011,
-        "max_ns": 1.0228,
-        "mean_ns": 1.01532,
-        "median_ns": 1.0156,
-        "stdev_ns": 0.00294917,
-        "cv": 0.00290467
+        "min_ns": 2.0038,
+        "max_ns": 2.0224,
+        "mean_ns": 2.00967,
+        "median_ns": 2.009,
+        "stdev_ns": 0.00377142,
+        "cv": 0.00187664
       }
     },
     {
@@ -691,22 +691,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.0098,
-        "max_ns": 1.6022,
-        "mean_ns": 1.04186,
-        "median_ns": 1.0138,
-        "stdev_ns": 0.11615,
-        "cv": 0.111484
+        "min_ns": 2.0064,
+        "max_ns": 2.022,
+        "mean_ns": 2.01197,
+        "median_ns": 2.0116,
+        "stdev_ns": 0.00370758,
+        "cv": 0.00184276
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.01,
-        "max_ns": 1.4378,
-        "mean_ns": 1.03186,
-        "median_ns": 1.0148,
-        "stdev_ns": 0.0828937,
-        "cv": 0.080334
+        "min_ns": 2.0066,
+        "max_ns": 5.6762,
+        "mean_ns": 2.18894,
+        "median_ns": 2.012,
+        "stdev_ns": 0.719265,
+        "cv": 0.32859
       }
     },
     {
@@ -715,22 +715,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.0116,
-        "max_ns": 1.0302,
-        "mean_ns": 1.01702,
-        "median_ns": 1.0172,
-        "stdev_ns": 0.00395127,
-        "cv": 0.00388516
+        "min_ns": 2.0042,
+        "max_ns": 2.0238,
+        "mean_ns": 2.01102,
+        "median_ns": 2.0104,
+        "stdev_ns": 0.00444174,
+        "cv": 0.00220869
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.0116,
-        "max_ns": 1.0268,
-        "mean_ns": 1.01619,
-        "median_ns": 1.015,
-        "stdev_ns": 0.00328511,
-        "cv": 0.00323276
+        "min_ns": 2.0054,
+        "max_ns": 2.0192,
+        "mean_ns": 2.01125,
+        "median_ns": 2.0104,
+        "stdev_ns": 0.00336013,
+        "cv": 0.00167067
       }
     },
     {
@@ -739,22 +739,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.0138,
-        "max_ns": 5.448,
-        "mean_ns": 1.43178,
-        "median_ns": 1.2054,
-        "stdev_ns": 0.860768,
-        "cv": 0.601186
+        "min_ns": 2.006,
+        "max_ns": 2.4466,
+        "mean_ns": 2.04025,
+        "median_ns": 2.0114,
+        "stdev_ns": 0.101563,
+        "cv": 0.0497796
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.0272,
-        "max_ns": 1.795,
-        "mean_ns": 1.36177,
-        "median_ns": 1.4436,
-        "stdev_ns": 0.246396,
-        "cv": 0.180939
+        "min_ns": 2.0068,
+        "max_ns": 2.5856,
+        "mean_ns": 2.04532,
+        "median_ns": 2.0134,
+        "stdev_ns": 0.118281,
+        "cv": 0.05783
       }
     },
     {
@@ -763,22 +763,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 4.0124,
-        "max_ns": 64.091,
-        "mean_ns": 7.2111,
-        "median_ns": 4.8922,
-        "stdev_ns": 11.6198,
-        "cv": 1.61138
+        "min_ns": 4.0128,
+        "max_ns": 5.5132,
+        "mean_ns": 4.18221,
+        "median_ns": 4.0182,
+        "stdev_ns": 0.331275,
+        "cv": 0.0792105
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 4.3448,
-        "max_ns": 6.632,
-        "mean_ns": 5.24978,
-        "median_ns": 5.1398,
-        "stdev_ns": 0.624378,
-        "cv": 0.118934
+        "min_ns": 4.0126,
+        "max_ns": 7.174,
+        "mean_ns": 4.14327,
+        "median_ns": 4.0172,
+        "stdev_ns": 0.618649,
+        "cv": 0.149314
       }
     },
     {
@@ -787,22 +787,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.2816,
-        "max_ns": 0.3644,
-        "mean_ns": 0.29332,
-        "median_ns": 0.2876,
-        "stdev_ns": 0.0194893,
-        "cv": 0.0664439
+        "min_ns": 0.259,
+        "max_ns": 0.2762,
+        "mean_ns": 0.260792,
+        "median_ns": 0.26,
+        "stdev_ns": 0.00332769,
+        "cv": 0.0127599
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.2794,
-        "max_ns": 0.2932,
-        "mean_ns": 0.285248,
-        "median_ns": 0.2846,
-        "stdev_ns": 0.00401329,
-        "cv": 0.0140695
+        "min_ns": 0.259,
+        "max_ns": 0.2624,
+        "mean_ns": 0.260008,
+        "median_ns": 0.26,
+        "stdev_ns": 0.00064617,
+        "cv": 0.00248519
       }
     },
     {
@@ -811,22 +811,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.1112,
-        "max_ns": 1.5852,
-        "mean_ns": 1.37217,
-        "median_ns": 1.3286,
-        "stdev_ns": 0.13617,
-        "cv": 0.0992373
+        "min_ns": 0.9206,
+        "max_ns": 0.948,
+        "mean_ns": 0.934624,
+        "median_ns": 0.9334,
+        "stdev_ns": 0.00749022,
+        "cv": 0.00801416
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.9874,
-        "max_ns": 1.3396,
-        "mean_ns": 1.21758,
-        "median_ns": 1.2616,
-        "stdev_ns": 0.102608,
-        "cv": 0.0842717
+        "min_ns": 0.9216,
+        "max_ns": 0.9674,
+        "mean_ns": 0.933728,
+        "median_ns": 0.9326,
+        "stdev_ns": 0.00878141,
+        "cv": 0.00940468
       }
     },
     {
@@ -835,22 +835,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 21.358,
-        "max_ns": 37.7304,
-        "mean_ns": 24.5191,
-        "median_ns": 22.9138,
-        "stdev_ns": 4.26801,
-        "cv": 0.174069
+        "min_ns": 20.0526,
+        "max_ns": 23.6742,
+        "mean_ns": 20.4469,
+        "median_ns": 20.0598,
+        "stdev_ns": 0.952143,
+        "cv": 0.0465667
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 22.0784,
-        "max_ns": 34.396,
-        "mean_ns": 25.1359,
-        "median_ns": 24.0376,
-        "stdev_ns": 3.31428,
-        "cv": 0.131855
+        "min_ns": 20.0554,
+        "max_ns": 36.82,
+        "mean_ns": 20.8979,
+        "median_ns": 20.06,
+        "stdev_ns": 3.35174,
+        "cv": 0.160387
       }
     },
     {
@@ -859,22 +859,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 11.5918,
-        "max_ns": 19.605,
-        "mean_ns": 12.9421,
-        "median_ns": 12.1882,
-        "stdev_ns": 2.01966,
-        "cv": 0.156053
+        "min_ns": 11.0364,
+        "max_ns": 18.204,
+        "mean_ns": 11.8395,
+        "median_ns": 11.0458,
+        "stdev_ns": 1.72384,
+        "cv": 0.145601
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 11.0052,
-        "max_ns": 16.6444,
-        "mean_ns": 11.5944,
-        "median_ns": 11.3432,
-        "stdev_ns": 1.05631,
-        "cv": 0.0911053
+        "min_ns": 10.031,
+        "max_ns": 19.3592,
+        "mean_ns": 10.6578,
+        "median_ns": 10.0362,
+        "stdev_ns": 1.89761,
+        "cv": 0.178049
       }
     }
   ]

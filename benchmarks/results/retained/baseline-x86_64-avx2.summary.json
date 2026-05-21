@@ -2,7 +2,7 @@
   "profile": "retained-vnext-avx2",
   "statistic": "median_ns",
   "backend": "avx2",
-  "commit": "8342af1055e8",
+  "commit": "007c74071b25",
   "cpu": "12th Gen Intel(R) Core(TM) i7-12700",
   "warmupIterations": 100,
   "samples": 25,
@@ -11,94 +11,94 @@
     "128": [
       {
         "operation": "bit_and<128>",
-        "bitcal": "9.54",
-        "stdBitset": "0.51",
+        "bitcal": "10.59",
+        "stdBitset": "0.53",
         "ratio": "0.05",
         "highlight": false
       },
       {
         "operation": "bit_or<128>",
-        "bitcal": "9.54",
-        "stdBitset": "0.51",
+        "bitcal": "10.64",
+        "stdBitset": "0.53",
         "ratio": "0.05",
         "highlight": false
       },
       {
         "operation": "bit_xor<128>",
-        "bitcal": "9.53",
-        "stdBitset": "0.51",
+        "bitcal": "10.77",
+        "stdBitset": "0.55",
         "ratio": "0.05",
         "highlight": false
       },
       {
         "operation": "bit_andnot<128>",
-        "bitcal": "9.53",
-        "stdBitset": "0.51",
+        "bitcal": "10.82",
+        "stdBitset": "0.53",
         "ratio": "0.05",
         "highlight": false
       },
       {
         "operation": "popcount<128>",
-        "bitcal": "1.01",
-        "stdBitset": "0.26",
-        "ratio": "0.26",
+        "bitcal": "1.08",
+        "stdBitset": "0.27",
+        "ratio": "0.25",
         "highlight": false
       },
       {
         "operation": "equals<128>",
-        "bitcal": "0.26",
-        "stdBitset": "0.26",
+        "bitcal": "0.27",
+        "stdBitset": "0.27",
         "ratio": "1.00",
-        "highlight": true
+        "highlight": false
       },
       {
         "operation": "is_zero<128>",
-        "bitcal": "0.96",
-        "stdBitset": "1.01",
-        "ratio": "1.05",
-        "highlight": true
+        "bitcal": "1.07",
+        "stdBitset": "1.02",
+        "ratio": "0.95",
+        "highlight": false
       },
       {
         "operation": "shift_left<128>",
-        "bitcal": "10.03",
-        "stdBitset": "0.51",
+        "bitcal": "11.12",
+        "stdBitset": "0.53",
         "ratio": "0.05",
         "highlight": false
       },
       {
         "operation": "shift_right<128>",
-        "bitcal": "10.03",
-        "stdBitset": "0.51",
-        "ratio": "0.05",
+        "bitcal": "11.07",
+        "stdBitset": "0.86",
+        "ratio": "0.08",
         "highlight": false
       }
     ],
     "192": [
       {
         "operation": "bit_and<192>",
-        "bitcal": "10.03",
-        "stdBitset": "1.51",
-        "ratio": "0.15",
+        "bitcal": "10.95",
+        "stdBitset": "1.98",
+        "ratio": "0.18",
         "highlight": false
       },
       {
         "operation": "bit_or<192>",
-        "bitcal": "10.03",
-        "stdBitset": "1.52",
-        "ratio": "0.15",
+        "bitcal": "11.18",
+        "stdBitset": "2.03",
+        "ratio": "0.18",
         "highlight": false
       },
       {
         "operation": "bit_xor<192>",
-        "bitcal": "10.04",
-        "stdBitset": "1.53",
+        "bitcal": "10.03",
+        "stdBitset": "1.52",
         "ratio": "0.15",
         "highlight": false
       },
       {
         "operation": "bit_andnot<192>",
         "bitcal": "10.04",
-        "stdBitset": "1.52",
+        "stdBitset": "1.51",
         "ratio": "0.15",
         "highlight": false
       },
@@ -121,20 +121,20 @@
         "bitcal": "0.51",
         "stdBitset": "0.51",
         "ratio": "1.00",
-        "highlight": true
+        "highlight": false
       },
       {
         "operation": "shift_left<192>",
         "bitcal": "10.04",
-        "stdBitset": "9.54",
+        "stdBitset": "9.53",
         "ratio": "0.95",
         "highlight": false
       },
       {
         "operation": "shift_right<192>",
-        "bitcal": "11.13",
-        "stdBitset": "1.46",
-        "ratio": "0.13",
+        "bitcal": "10.03",
+        "stdBitset": "2.01",
+        "ratio": "0.20",
         "highlight": false
       }
     ],
@@ -148,9 +148,9 @@
       },
       {
         "operation": "bit_or<256>",
-        "bitcal": "1.02",
-        "stdBitset": "1.07",
-        "ratio": "1.05",
+        "bitcal": "1.01",
+        "stdBitset": "1.01",
+        "ratio": "1.00",
         "highlight": true
       },
       {
@@ -163,108 +163,108 @@
       {
         "operation": "bit_andnot<256>",
         "bitcal": "1.01",
-        "stdBitset": "1.05",
-        "ratio": "1.05",
+        "stdBitset": "1.01",
+        "ratio": "1.00",
         "highlight": true
       },
       {
         "operation": "popcount<256>",
         "bitcal": "2.01",
-        "stdBitset": "2.03",
-        "ratio": "1.01",
-        "highlight": true
+        "stdBitset": "2.01",
+        "ratio": "1.00",
+        "highlight": false
       },
       {
         "operation": "equals<256>",
         "bitcal": "0.26",
         "stdBitset": "0.26",
-        "ratio": "1.02",
-        "highlight": true
+        "ratio": "1.00",
+        "highlight": false
       },
       {
         "operation": "is_zero<256>",
-        "bitcal": "0.96",
+        "bitcal": "0.95",
         "stdBitset": "0.96",
         "ratio": "1.00",
-        "highlight": false
+        "highlight": true
       },
       {
         "operation": "shift_left<256>",
-        "bitcal": "10.04",
+        "bitcal": "10.03",
         "stdBitset": "10.03",
         "ratio": "1.00",
-        "highlight": false
+        "highlight": true
       },
       {
         "operation": "shift_right<256>",
-        "bitcal": "10.37",
-        "stdBitset": "10.04",
-        "ratio": "0.97",
+        "bitcal": "10.03",
+        "stdBitset": "10.03",
+        "ratio": "1.00",
         "highlight": false
       }
     ],
     "512": [
       {
         "operation": "bit_and<512>",
-        "bitcal": "1.02",
-        "stdBitset": "1.02",
+        "bitcal": "2.01",
+        "stdBitset": "2.01",
         "ratio": "1.00",
         "highlight": false
       },
       {
         "operation": "bit_or<512>",
-        "bitcal": "1.01",
-        "stdBitset": "1.01",
+        "bitcal": "2.01",
+        "stdBitset": "2.01",
         "ratio": "1.00",
         "highlight": true
       },
       {
         "operation": "bit_xor<512>",
-        "bitcal": "1.02",
-        "stdBitset": "1.01",
+        "bitcal": "2.01",
+        "stdBitset": "2.01",
         "ratio": "1.00",
         "highlight": false
       },
       {
         "operation": "bit_andnot<512>",
-        "bitcal": "1.21",
-        "stdBitset": "1.44",
-        "ratio": "1.20",
+        "bitcal": "2.01",
+        "stdBitset": "2.01",
+        "ratio": "1.00",
         "highlight": true
       },
       {
         "operation": "popcount<512>",
-        "bitcal": "4.89",
-        "stdBitset": "5.14",
-        "ratio": "1.05",
-        "highlight": true
+        "bitcal": "4.02",
+        "stdBitset": "4.02",
+        "ratio": "1.00",
+        "highlight": false
       },
       {
         "operation": "equals<512>",
-        "bitcal": "0.29",
-        "stdBitset": "0.28",
-        "ratio": "0.99",
+        "bitcal": "0.26",
+        "stdBitset": "0.26",
+        "ratio": "1.00",
         "highlight": false
       },
       {
         "operation": "is_zero<512>",
-        "bitcal": "1.33",
-        "stdBitset": "1.26",
-        "ratio": "0.95",
+        "bitcal": "0.93",
+        "stdBitset": "0.93",
+        "ratio": "1.00",
         "highlight": false
       },
       {
         "operation": "shift_left<512>",
-        "bitcal": "22.91",
-        "stdBitset": "24.04",
-        "ratio": "1.05",
+        "bitcal": "20.06",
+        "stdBitset": "20.06",
+        "ratio": "1.00",
         "highlight": true
       },
       {
         "operation": "shift_right<512>",
-        "bitcal": "12.19",
-        "stdBitset": "11.34",
-        "ratio": "0.93",
+        "bitcal": "11.05",
+        "stdBitset": "10.04",
+        "ratio": "0.91",
         "highlight": false
       }
     ]
