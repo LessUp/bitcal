@@ -12,12 +12,16 @@ BitCal 把性能当成证据纪律，而不是营销背景音。本节现在直�
   :items="[
     { label: '当前证据目标', value: `${performanceBaseline.backend} on x86-64`, tone: 'accent' },
     { label: '数字状态', value: 'Retained checkpoint' },
+    { label: '发布统计量', value: 'median ns/op', note: '每一行都来自提交进仓库的 summary artifact，而不是手工挑选的一次跑分。' },
     { label: '当前提交基线', value: performanceBaseline.commit },
+    { label: 'ARM 状态', value: 'ARM 数据先留空', note: '当前还没有保留下来的 ARM benchmark 路径。' },
     { label: '明确不承诺', value: '普遍性胜利', note: '提交到仓库的本地数字只是检查点，不是无条件产品承诺。' }
   ]"
 />
 
 当前保留的 baseline 只覆盖现阶段 vNext 公共表面：`bit_and`、`popcount` 和 `is_zero`。更宽的 `bitarray` 时代对比仍然保留，但已经被降级到 legacy/research lane，不再作为白皮书主证据链。
+
+ARM 数据先留空，直到项目拥有同等级、可复现、可提交的 ARM benchmark 证据路径。
 
 <PerformanceTable
   title="128 位保留操作"
@@ -83,6 +87,7 @@ node benchmarks/scripts/generate-performance-summary.mjs \
 | 规则 | 设立原因 |
 | --- | --- |
 | 把当前数字视为保留的 **baseline checkpoint** | 防止一次本地 benchmark 输出被写成永久营销文案。 |
+| 表格统一发布每个场景的 median | 相比单次最好值或临时均值，median 对偶发调度噪声更稳健。 |
 | 始终带上活跃 backend、CPU 和 commit 语境 | 没有 ISA、机器和修订语境的速度提升没有意义。 |
 | benchmark 叙事必须回到公开算法形状 | 性能数字应该能映射回文档中的公开算法，而不是匿名 kernel 小技巧。 |
 | 把 retained evidence 与 legacy/research lane 分开 | 不是每个有价值的实验，都应该进入白皮书主叙事。 |

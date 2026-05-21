@@ -440,12 +440,31 @@ expect(performanceEn.includes('benchmark_compare'), 'en/performance/index.md mus
 expect(performanceEn.includes('bitcal_benchmark'), 'en/performance/index.md must distinguish benchmark_compare from bitcal_benchmark')
 expect(performanceEn.includes('performanceBaseline'), 'en/performance/index.md must import performanceBaseline data')
 expect(!performanceEn.includes("{ operation: 'and<256>'"), 'en/performance/index.md must not hardcode benchmark rows')
+expect(performanceEn.includes('ARM rows stay blank'), 'en/performance/index.md must state that ARM rows stay blank until retained evidence exists')
 
 const performanceZh = read('zh/performance/index.md')
 expect(performanceZh.includes('benchmark_compare'), 'zh/performance/index.md must retain benchmark_compare reproduction commands')
 expect(performanceZh.includes('bitcal_benchmark'), 'zh/performance/index.md must distinguish benchmark_compare from bitcal_benchmark')
 expect(performanceZh.includes('performanceBaseline'), 'zh/performance/index.md must import performanceBaseline data')
 expect(!performanceZh.includes("{ operation: 'and<256>'"), 'zh/performance/index.md must not hardcode benchmark rows')
+expect(performanceZh.includes('ARM 数据先留空'), 'zh/performance/index.md must state that ARM data stays blank until retained evidence exists')
+
+const statusEn = read('en/status/index.md')
+expect(statusEn.includes('performance rows stay blank'), 'en/status/index.md must state that ARM performance rows stay blank without retained evidence')
+
+const statusZh = read('zh/status/index.md')
+expect(statusZh.includes('性能数据先留空'), 'zh/status/index.md must state that ARM performance data stays blank without retained evidence')
+
+expect(whitepaperEn.includes('ARM rows stay blank'), 'en/whitepaper/index.md must hand off ARM performance as intentionally blank')
+expect(whitepaperZh.includes('ARM 数据先留空'), 'zh/whitepaper/index.md must hand off ARM performance as intentionally blank')
+
+const changelogEn = read('en/release-notes/changelog.md')
+expect(changelogEn.includes('/en/performance/'), 'en/release-notes/changelog.md must hand current performance evidence to /en/performance/')
+expect(changelogEn.includes('ARM rows blank'), 'en/release-notes/changelog.md must keep ARM rows blank in the current retained release narrative')
+
+const changelogZh = read('zh/release-notes/changelog.md')
+expect(changelogZh.includes('/zh/performance/'), 'zh/release-notes/changelog.md must hand current performance evidence to /zh/performance/')
+expect(changelogZh.includes('ARM 数据继续留空'), 'zh/release-notes/changelog.md must keep ARM data blank in the current retained release narrative')
 
 const whitepaperPerformanceEn = read('en/whitepaper/performance.md')
 expect(whitepaperPerformanceEn.includes('compatibility entry'), 'en/whitepaper/performance.md must frame itself as a compatibility entry')

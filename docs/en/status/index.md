@@ -16,7 +16,7 @@ Status is where BitCal drops all rhetorical excess and states the redesign in pr
 | --- | --- | --- |
 | Linux x86-64 (GCC / Clang) | Primary | Main build, correctness, and benchmark attention. |
 | Windows x86-64 (MSVC) | Primary | Main supported target alongside Linux x86-64. |
-| ARM64 and macOS follow-up targets | Secondary | Buildability may exist, but performance and maturity claims stay narrower. |
+| ARM64 and macOS follow-up targets | Secondary | Buildability may exist, but performance rows stay blank until a retained benchmark path exists, and maturity claims stay narrower. |
 | Anything beyond retained validation | Out of claim | Do not promote to support promises without new evidence. |
 
 ## Documentation truth

@@ -6,7 +6,7 @@
     "iterations_per_sample": 5000
   },
   "environment": {
-    "commit": "062692e29cf8",
+    "commit": "c1fb043894cd",
     "compiler": "15.1.0",
     "build_type": "Release",
     "backend": "avx2",
@@ -19,22 +19,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 9.5278,
-        "max_ns": 16.209,
-        "mean_ns": 10.0498,
-        "median_ns": 9.534,
-        "stdev_ns": 1.33319,
-        "cv": 0.132658
+        "min_ns": 9.5268,
+        "max_ns": 36.6906,
+        "mean_ns": 11.299,
+        "median_ns": 9.5338,
+        "stdev_ns": 5.41581,
+        "cv": 0.479319
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
         "min_ns": 0.5094,
-        "max_ns": 0.5256,
-        "mean_ns": 0.5112,
+        "max_ns": 0.5816,
+        "mean_ns": 0.519128,
         "median_ns": 0.5108,
-        "stdev_ns": 0.00301091,
-        "cv": 0.00588989
+        "stdev_ns": 0.0203386,
+        "cv": 0.0391785
       }
     },
     {
@@ -43,22 +43,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.007,
-        "max_ns": 1.0168,
-        "mean_ns": 1.00969,
-        "median_ns": 1.0094,
-        "stdev_ns": 0.00218729,
-        "cv": 0.00216631
+        "min_ns": 1.0062,
+        "max_ns": 1.1898,
+        "mean_ns": 1.03414,
+        "median_ns": 1.0098,
+        "stdev_ns": 0.0592373,
+        "cv": 0.0572819
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.259,
-        "max_ns": 0.2718,
-        "mean_ns": 0.260312,
+        "min_ns": 0.2592,
+        "max_ns": 0.2754,
+        "mean_ns": 0.26056,
         "median_ns": 0.2598,
-        "stdev_ns": 0.00238266,
-        "cv": 0.00915308
+        "stdev_ns": 0.00314146,
+        "cv": 0.0120566
       }
     },
     {
@@ -67,22 +67,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.9504,
-        "max_ns": 6.2472,
-        "mean_ns": 1.17188,
-        "median_ns": 0.9598,
-        "stdev_ns": 1.03601,
-        "cv": 0.884057
+        "min_ns": 0.9508,
+        "max_ns": 0.9678,
+        "mean_ns": 0.958144,
+        "median_ns": 0.9578,
+        "stdev_ns": 0.00400061,
+        "cv": 0.00417537
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.0042,
-        "max_ns": 1.021,
-        "mean_ns": 1.00826,
-        "median_ns": 1.0076,
-        "stdev_ns": 0.00318824,
-        "cv": 0.00316213
+        "min_ns": 1.0054,
+        "max_ns": 1.0228,
+        "mean_ns": 1.00846,
+        "median_ns": 1.0074,
+        "stdev_ns": 0.0039609,
+        "cv": 0.00392765
       }
     },
     {
@@ -91,22 +91,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 10.0264,
-        "max_ns": 70.0884,
-        "mean_ns": 12.4347,
-        "median_ns": 10.0326,
-        "stdev_ns": 11.7685,
-        "cv": 0.946421
+        "min_ns": 10.0252,
+        "max_ns": 13.8486,
+        "mean_ns": 10.1862,
+        "median_ns": 10.0322,
+        "stdev_ns": 0.747715,
+        "cv": 0.0734051
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.5138,
-        "max_ns": 2.0252,
-        "mean_ns": 1.96299,
-        "median_ns": 2.0206,
-        "stdev_ns": 0.153819,
-        "cv": 0.0783597
+        "min_ns": 1.5106,
+        "max_ns": 1.5278,
+        "mean_ns": 1.51646,
+        "median_ns": 1.516,
+        "stdev_ns": 0.00398699,
+        "cv": 0.00262915
       }
     },
     {
@@ -115,22 +115,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.5076,
-        "max_ns": 1.5236,
-        "mean_ns": 1.51114,
-        "median_ns": 1.5106,
-        "stdev_ns": 0.00299948,
-        "cv": 0.00198491
+        "min_ns": 1.507,
+        "max_ns": 1.522,
+        "mean_ns": 1.51074,
+        "median_ns": 1.5104,
+        "stdev_ns": 0.00300481,
+        "cv": 0.00198896
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.507,
-        "max_ns": 6.6254,
-        "mean_ns": 1.71544,
+        "min_ns": 1.5068,
+        "max_ns": 1.5174,
+        "mean_ns": 1.5105,
         "median_ns": 1.5104,
-        "stdev_ns": 1.00225,
-        "cv": 0.584251
+        "stdev_ns": 0.00232628,
+        "cv": 0.00154007
       }
     },
     {
@@ -140,21 +140,21 @@
         "samples": 25,
         "iterations_per_sample": 5000,
         "min_ns": 0.5116,
-        "max_ns": 0.5344,
-        "mean_ns": 0.514288,
-        "median_ns": 0.5134,
-        "stdev_ns": 0.00419832,
-        "cv": 0.00816336
+        "max_ns": 0.531,
+        "mean_ns": 0.514032,
+        "median_ns": 0.513,
+        "stdev_ns": 0.00362378,
+        "cv": 0.00704972
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.5112,
-        "max_ns": 0.5456,
-        "mean_ns": 0.514824,
-        "median_ns": 0.5132,
-        "stdev_ns": 0.00675546,
-        "cv": 0.0131219
+        "min_ns": 0.5118,
+        "max_ns": 0.5582,
+        "mean_ns": 0.516192,
+        "median_ns": 0.5136,
+        "stdev_ns": 0.00973414,
+        "cv": 0.0188576
       }
     },
     {
@@ -163,22 +163,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.001,
-        "max_ns": 3.1712,
-        "mean_ns": 1.09141,
-        "median_ns": 1.0046,
-        "stdev_ns": 0.424553,
-        "cv": 0.388996
+        "min_ns": 1.0014,
+        "max_ns": 1.3528,
+        "mean_ns": 1.06086,
+        "median_ns": 1.0044,
+        "stdev_ns": 0.116449,
+        "cv": 0.109768
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
         "min_ns": 1.0014,
-        "max_ns": 1.0224,
-        "mean_ns": 1.00463,
-        "median_ns": 1.0038,
-        "stdev_ns": 0.00394144,
-        "cv": 0.00392327
+        "max_ns": 1.0234,
+        "mean_ns": 1.00453,
+        "median_ns": 1.0036,
+        "stdev_ns": 0.00406109,
+        "cv": 0.00404278
       }
     },
     {
@@ -187,22 +187,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 2.0086,
-        "max_ns": 2.0226,
-        "mean_ns": 2.01203,
-        "median_ns": 2.0116,
-        "stdev_ns": 0.00313518,
-        "cv": 0.00155822
+        "min_ns": 2.0088,
+        "max_ns": 4.928,
+        "mean_ns": 2.12872,
+        "median_ns": 2.0114,
+        "stdev_ns": 0.57141,
+        "cv": 0.268429
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 2.008,
-        "max_ns": 2.0188,
-        "mean_ns": 2.01217,
-        "median_ns": 2.0122,
-        "stdev_ns": 0.00274674,
-        "cv": 0.00136506
+        "min_ns": 2.0082,
+        "max_ns": 3.9624,
+        "mean_ns": 2.09068,
+        "median_ns": 2.012,
+        "stdev_ns": 0.382078,
+        "cv": 0.182753
       }
     },
     {
@@ -211,22 +211,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.9456,
-        "max_ns": 0.967,
-        "mean_ns": 0.953928,
-        "median_ns": 0.954,
-        "stdev_ns": 0.00451978,
-        "cv": 0.00473807
+        "min_ns": 0.9488,
+        "max_ns": 0.9662,
+        "mean_ns": 0.954472,
+        "median_ns": 0.9538,
+        "stdev_ns": 0.00356332,
+        "cv": 0.00373328
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.9492,
-        "max_ns": 0.9698,
-        "mean_ns": 0.956504,
-        "median_ns": 0.9564,
-        "stdev_ns": 0.0043628,
-        "cv": 0.00456119
+        "min_ns": 0.9478,
+        "max_ns": 7.051,
+        "mean_ns": 1.24525,
+        "median_ns": 0.9604,
+        "stdev_ns": 1.18679,
+        "cv": 0.953055
       }
     },
     {
@@ -235,22 +235,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.5074,
-        "max_ns": 1.525,
-        "mean_ns": 1.5113,
-        "median_ns": 1.5106,
-        "stdev_ns": 0.00348304,
-        "cv": 0.00230466
+        "min_ns": 1.513,
+        "max_ns": 4.7122,
+        "mean_ns": 1.6839,
+        "median_ns": 1.5184,
+        "stdev_ns": 0.628777,
+        "cv": 0.373406
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 1.5066,
-        "max_ns": 1.5202,
-        "mean_ns": 1.51154,
-        "median_ns": 1.5116,
-        "stdev_ns": 0.00295227,
-        "cv": 0.00195316
+        "min_ns": 1.5138,
+        "max_ns": 1.9446,
+        "mean_ns": 1.55823,
+        "median_ns": 1.5182,
+        "stdev_ns": 0.115598,
+        "cv": 0.0741851
       }
     },
     {
@@ -259,22 +259,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 4.0126,
-        "max_ns": 26.6392,
-        "mean_ns": 4.92187,
-        "median_ns": 4.017,
-        "stdev_ns": 4.43303,
-        "cv": 0.90068
+        "min_ns": 4.0122,
+        "max_ns": 4.0224,
+        "mean_ns": 4.01662,
+        "median_ns": 4.0166,
+        "stdev_ns": 0.00275676,
+        "cv": 0.00068634
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 4.012,
-        "max_ns": 15.9166,
-        "mean_ns": 4.492,
-        "median_ns": 4.0172,
-        "stdev_ns": 2.33204,
-        "cv": 0.519154
+        "min_ns": 4.0126,
+        "max_ns": 7.3578,
+        "mean_ns": 4.2504,
+        "median_ns": 4.0176,
+        "stdev_ns": 0.669877,
+        "cv": 0.157603
       }
     },
     {
@@ -283,22 +283,22 @@
       "bitcal": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.9242,
-        "max_ns": 1.178,
-        "mean_ns": 1.00039,
-        "median_ns": 0.9648,
-        "stdev_ns": 0.0784195,
-        "cv": 0.0783887
+        "min_ns": 0.9248,
+        "max_ns": 0.988,
+        "mean_ns": 0.940672,
+        "median_ns": 0.9326,
+        "stdev_ns": 0.01735,
+        "cv": 0.0184443
       },
       "std_bitset": {
         "samples": 25,
         "iterations_per_sample": 5000,
-        "min_ns": 0.919,
-        "max_ns": 0.9462,
-        "mean_ns": 0.932256,
-        "median_ns": 0.9314,
-        "stdev_ns": 0.00553434,
-        "cv": 0.0059365
+        "min_ns": 0.9182,
+        "max_ns": 0.974,
+        "mean_ns": 0.932664,
+        "median_ns": 0.9312,
+        "stdev_ns": 0.0113512,
+        "cv": 0.0121708
       }
     }
   ]

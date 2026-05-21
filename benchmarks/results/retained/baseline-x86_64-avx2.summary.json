@@ -1,7 +1,8 @@
 {
   "profile": "retained-vnext-avx2",
+  "statistic": "median_ns",
   "backend": "avx2",
-  "commit": "062692e29cf8",
+  "commit": "c1fb043894cd",
   "cpu": "12th Gen Intel(R) Core(TM) i7-12700",
   "warmupIterations": 100,
   "samples": 25,
@@ -34,8 +35,8 @@
       {
         "operation": "bit_and<192>",
         "bitcal": "10.03",
-        "stdBitset": "2.02",
-        "ratio": "0.20",
+        "stdBitset": "1.52",
+        "ratio": "0.15",
         "highlight": false
       },
       {
@@ -50,7 +51,7 @@
         "bitcal": "0.51",
         "stdBitset": "0.51",
         "ratio": "1.00",
-        "highlight": false
+        "highlight": true
       }
     ],
     "256": [
@@ -72,17 +73,17 @@
         "operation": "is_zero<256>",
         "bitcal": "0.95",
         "stdBitset": "0.96",
-        "ratio": "1.00",
+        "ratio": "1.01",
         "highlight": true
       }
     ],
     "512": [
       {
         "operation": "bit_and<512>",
-        "bitcal": "1.51",
-        "stdBitset": "1.51",
+        "bitcal": "1.52",
+        "stdBitset": "1.52",
         "ratio": "1.00",
-        "highlight": true
+        "highlight": false
       },
       {
         "operation": "popcount<512>",
@@ -93,9 +94,9 @@
       },
       {
         "operation": "is_zero<512>",
-        "bitcal": "0.96",
+        "bitcal": "0.93",
         "stdBitset": "0.93",
-        "ratio": "0.97",
+        "ratio": "1.00",
         "highlight": false
       }
     ]

@@ -12,12 +12,16 @@ BitCal treats performance as an evidence discipline, not as ambient marketing. T
   :items="[
     { label: 'Current evidence target', value: `${performanceBaseline.backend} on x86-64`, tone: 'accent' },
     { label: 'Status of numbers', value: 'Retained checkpoint' },
+    { label: 'Published statistic', value: 'median ns/op', note: 'Each row comes from the committed summary artifact, not a hand-picked run.' },
     { label: 'Committed source', value: performanceBaseline.commit },
+    { label: 'ARM status', value: 'ARM rows stay blank', note: 'No retained ARM benchmark path exists yet.' },
     { label: 'What is not promised', value: 'Universal wins', note: 'Committed local numbers are checkpoints, not blanket product guarantees.' }
   ]"
 />
 
 The retained baseline now limits itself to the current vNext public surface: `bit_and`, `popcount`, and `is_zero`. Wider `bitarray`-era comparisons still exist, but only in the legacy/research lane and not as the primary whitepaper evidence chain.
+
+ARM rows stay blank until the project retains an ARM benchmark path with the same level of reproducibility and committed artifacts.
 
 <PerformanceTable
   title="128-bit retained operations"
@@ -83,6 +87,7 @@ The performance evidence on this page comes from `benchmark_compare`, not from t
 | Rule | Why it exists |
 | --- | --- |
 | Treat current numbers as a retained **baseline checkpoint** | Prevent local benchmark output from becoming timeless marketing copy. |
+| Publish table rows from per-scenario medians | Median rows are less sensitive to occasional scheduling noise than a single best case or ad-hoc average. |
 | Always report the active backend, CPU, and commit context | A speedup without ISA, machine, and revision context is meaningless. |
 | Keep benchmark stories tied to public algorithm shapes | Numbers should map back to documented public algorithms, not unnamed kernel trivia. |
 | Separate retained evidence from legacy or research lanes | Not every useful experiment belongs in the primary whitepaper story. |

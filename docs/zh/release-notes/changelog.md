@@ -8,6 +8,8 @@
 
 本项目所有重要变更都将记录在此文件中。
 
+当前带 benchmark 证据的性能数据统一以 [/zh/performance/](https://lessup.github.io/bitcal/zh/performance/) 为准。下面历史版本中出现的性能数字只保留为归档说明，不再作为当前 retained 证据链。
+
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
@@ -59,15 +61,9 @@ bitcal/bitcal.hpp          # 唯一稳定公开入口
 
 ### 📊 性能基线
 
-x86-64 AVX2 上的初始基准测试：
+本版本建立当前 retained 的 x86-64 benchmark baseline；ARM 数据继续留空，直到项目拥有同等级的 retained benchmark 路径。
 
-| 运算 | 结果 |
-|------|-----:|
-| `bit_and<128>` | 9.33 ns/op |
-| `bit_and<256>` | 1.46 ns/op |
-| `bit_and<512>` | 3.22 ns/op |
-
-这些是用于后续对比的本地验证基线，非最终产品声明。
+当前提交进仓库的表格、benchmark 元数据与复现方式请统一查看 [/zh/performance/](https://lessup.github.io/bitcal/zh/performance/)，不要把 changelog 当作当前性能数字的事实来源。
 
 ### 🔗 链接
 

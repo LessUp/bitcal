@@ -10,6 +10,7 @@ type TableRow = {
 
 type PerformanceBaseline = {
   profile: string
+  statistic: string
   backend: string
   commit: string
   cpu: string

@@ -28,6 +28,7 @@ for (const scenario of report.scenarios) {
 
 const summary = {
   profile: report.metadata.profile,
+  statistic: 'median_ns',
   backend: report.environment.backend,
   commit: report.environment.commit,
   cpu: report.environment.cpu,

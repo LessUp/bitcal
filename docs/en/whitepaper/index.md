@@ -58,7 +58,7 @@ Finish the thesis layer with [dispatch and kernels](/en/whitepaper/dispatch-and-
       href: '/en/performance/',
       badge: 'Evidence hand-off',
       summary: 'Leave the thesis layer and inspect the retained baseline and methodology.',
-      detail: 'The whitepaper intentionally hands off to performance rather than embedding benchmark claims inside architecture prose.'
+      detail: 'The whitepaper intentionally hands off to performance rather than embedding benchmark claims inside architecture prose, and ARM rows stay blank until retained benchmark evidence exists.'
     }
   ]"
 />

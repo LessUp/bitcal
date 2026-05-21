@@ -8,6 +8,8 @@ This page documents the changes in each BitCal release.
 
 All notable changes to this project will be documented in this file.
 
+Current benchmark-backed performance evidence lives in [/en/performance/](https://lessup.github.io/bitcal/en/performance/). Historical entries below may quote then-current numbers, but they are archival notes rather than the retained evidence chain.
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
@@ -59,15 +61,9 @@ bitcal/bitcal.hpp          # Single stable public include
 
 ### 📊 Performance Baseline
 
-Initial benchmark baseline on x86-64 with AVX2:
+This release establishes the retained x86-64 benchmark baseline and intentionally keeps ARM rows blank until a matching retained benchmark path exists.
 
-| Operation | Result |
-|-----------|--------:|
-| `bit_and<128>` | 9.33 ns/op |
-| `bit_and<256>` | 1.46 ns/op |
-| `bit_and<512>` | 3.22 ns/op |
-
-These are local smoke baselines for future comparison, not final product claims.
+Use [/en/performance/](https://lessup.github.io/bitcal/en/performance/) for the committed tables, benchmark metadata, and reproduction guidance instead of treating the changelog as the source of record for current numbers.
 
 ### 🔗 Links
 
