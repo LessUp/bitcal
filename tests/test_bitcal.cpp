@@ -5,6 +5,8 @@
 #include <type_traits>
 
 #include "support/deterministic_cases.hpp"
+#include "support/random_cases.hpp"
+#include "support/reference_model.hpp"
 #include "support/test_macros.hpp"
 #include <bitcal/bitcal.hpp>
 
@@ -168,6 +170,28 @@ bool test_vnext_view_word_count_matches_custom_width_192() {
     return true;
 }
 
+bool test_vnext_random_bit_and_matches_reference_model_256() {
+    for (const auto& tc : bitcal::test::make_random_binary_cases<256>(0xB17CA1ULL, 64)) {
+        const auto actual = bitcal::bit_and<256>(tc.lhs.view(), tc.rhs.view());
+        const auto expected = bitcal::test::reference_bit_and<256>(tc.lhs_words, tc.rhs_words);
+
+        for (std::size_t i = 0; i < bitcal::bit_block<256>::word_count; ++i) {
+            BITCAL_ASSERT_EQ(actual.word(i), expected[i]);
+        }
+    }
+
+    return true;
+}
+
+bool test_vnext_random_queries_match_reference_model_512() {
+    for (const auto& tc : bitcal::test::make_random_unary_cases<512>(0xC0FFEEULL, 64)) {
+        BITCAL_ASSERT_EQ(bitcal::popcount(tc.block.view()), bitcal::test::reference_popcount(tc.words));
+        BITCAL_ASSERT_EQ(bitcal::is_zero(tc.block.view()), bitcal::test::reference_is_zero(tc.words));
+    }
+
+    return true;
+}
+
 int main() {
     std::cout << "=== BitCal vNext test suite ===" << std::endl;
 
@@ -190,6 +214,10 @@ int main() {
                            test_vnext_is_zero_detects_sparse_and_dense_patterns_192);
     bitcal::test::run_case(g_counters, "test_vnext_view_word_count_matches_custom_width_192",
                            test_vnext_view_word_count_matches_custom_width_192);
+    bitcal::test::run_case(g_counters, "test_vnext_random_bit_and_matches_reference_model_256",
+                           test_vnext_random_bit_and_matches_reference_model_256);
+    bitcal::test::run_case(g_counters, "test_vnext_random_queries_match_reference_model_512",
+                           test_vnext_random_queries_match_reference_model_512);
 
     std::cout << std::endl;
     std::cout << "Passed: " << g_counters.pass << std::endl;
