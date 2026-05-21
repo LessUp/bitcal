@@ -1,0 +1,103 @@
+{
+  "profile": "retained-vnext-avx2",
+  "backend": "avx2",
+  "commit": "062692e29cf8",
+  "cpu": "12th Gen Intel(R) Core(TM) i7-12700",
+  "warmupIterations": 100,
+  "samples": 25,
+  "iterationsPerSample": 5000,
+  "tables": {
+    "128": [
+      {
+        "operation": "bit_and<128>",
+        "bitcal": "9.53",
+        "stdBitset": "0.51",
+        "ratio": "0.05",
+        "highlight": false
+      },
+      {
+        "operation": "popcount<128>",
+        "bitcal": "1.01",
+        "stdBitset": "0.26",
+        "ratio": "0.26",
+        "highlight": false
+      },
+      {
+        "operation": "is_zero<128>",
+        "bitcal": "0.96",
+        "stdBitset": "1.01",
+        "ratio": "1.05",
+        "highlight": true
+      }
+    ],
+    "192": [
+      {
+        "operation": "bit_and<192>",
+        "bitcal": "10.03",
+        "stdBitset": "2.02",
+        "ratio": "0.20",
+        "highlight": false
+      },
+      {
+        "operation": "popcount<192>",
+        "bitcal": "1.51",
+        "stdBitset": "1.51",
+        "ratio": "1.00",
+        "highlight": false
+      },
+      {
+        "operation": "is_zero<192>",
+        "bitcal": "0.51",
+        "stdBitset": "0.51",
+        "ratio": "1.00",
+        "highlight": false
+      }
+    ],
+    "256": [
+      {
+        "operation": "bit_and<256>",
+        "bitcal": "1.00",
+        "stdBitset": "1.00",
+        "ratio": "1.00",
+        "highlight": false
+      },
+      {
+        "operation": "popcount<256>",
+        "bitcal": "2.01",
+        "stdBitset": "2.01",
+        "ratio": "1.00",
+        "highlight": true
+      },
+      {
+        "operation": "is_zero<256>",
+        "bitcal": "0.95",
+        "stdBitset": "0.96",
+        "ratio": "1.00",
+        "highlight": true
+      }
+    ],
+    "512": [
+      {
+        "operation": "bit_and<512>",
+        "bitcal": "1.51",
+        "stdBitset": "1.51",
+        "ratio": "1.00",
+        "highlight": true
+      },
+      {
+        "operation": "popcount<512>",
+        "bitcal": "4.02",
+        "stdBitset": "4.02",
+        "ratio": "1.00",
+        "highlight": true
+      },
+      {
+        "operation": "is_zero<512>",
+        "bitcal": "0.96",
+        "stdBitset": "0.93",
+        "ratio": "0.97",
+        "highlight": false
+      }
+    ]
+  }
+}
