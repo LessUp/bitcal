@@ -1,333 +1,192 @@
 /**
  * @file benchmark_compare.cpp
- * @brief BitCal vs std::bitset performance comparison benchmark
- *
- * Compares BitCal (bit256, bit512, bit1024) against std::bitset
- * for core operations: AND, OR, XOR, popcount, shift.
- *
- * Compile: g++ -O3 -march=native -std=c++23 benchmark_compare.cpp -I../../include
+ * @brief Retained BitCal vNext vs std::bitset comparison benchmark
  */
 
 #include <bitcal/bitcal.hpp>
 
-#include <chrono>
-#include <cstdint>
-#include <iostream>
-#include <iomanip>
-#include <random>
-#include <bitset>
+#include "benchmark_harness.hpp"
+
 #include <array>
-#include <cstring>
+#include <bitset>
+#include <cstdint>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <random>
+#include <span>
+#include <string>
 
 namespace {
 
-// Simple high-resolution timer
-class Timer {
-public:
-    using clock = std::chrono::high_resolution_clock;
+constexpr std::size_t kWarmupIterations = 100;
+constexpr std::size_t kSamples = 25;
+constexpr std::size_t kIterationsPerSample = 5000;
 
-    void start() { start_ = clock::now(); }
-
-    [[nodiscard]] double elapsed_ns() const {
-        const auto end = clock::now();
-        return std::chrono::duration<double, std::nano>(end - start_).count();
-    }
-
-private:
-    clock::time_point start_{};
-};
-
-// Prevent compiler from optimizing away results
-template <typename T>
-void do_not_optimize(T&& value) {
-    asm volatile("" : : "r,m"(value) : "memory");
-}
-
-// Fill BitCal array with random data
 template <std::size_t Bits>
-void fill_random(bitcal::bitarray<Bits>& arr, std::mt19937_64& rng) {
-    for (std::size_t i = 0; i < bitcal::bitarray<Bits>::u64_count; ++i) {
-        arr.set_word(i, rng());
-    }
-}
+using word_array = std::array<std::uint64_t, Bits / 64>;
 
-// Fill std::bitset with random data
-template <std::size_t Bits>
-void fill_random(std::bitset<Bits>& bs, std::mt19937_64& rng) {
-    bs.reset();
-    for (std::size_t i = 0; i < Bits; i += 64) {
-        std::uint64_t word = rng();
-        for (std::size_t j = 0; j < 64 && (i + j) < Bits; ++j) {
-            if ((word >> j) & 1) {
-                bs.set(i + j);
-            }
-        }
-    }
-}
-
-// Benchmark configuration
-constexpr int WARMUP_ITERATIONS = 100;
-constexpr int BENCHMARK_ITERATIONS = 100000;
-
-// Run benchmark and return average time in nanoseconds
-template <typename Func>
-double benchmark(Func&& func, int iterations = BENCHMARK_ITERATIONS) {
-    Timer timer;
-
-    // Warmup
-    for (int i = 0; i < WARMUP_ITERATIONS; ++i) {
-        func();
-    }
-
-    // Actual benchmark
-    timer.start();
-    for (int i = 0; i < iterations; ++i) {
-        func();
-    }
-
-    return timer.elapsed_ns() / static_cast<double>(iterations);
-}
-
-// Print table header
 void print_header() {
     std::cout << "\n";
-    std::cout << "| Operation           | BitCal (ns) | std::bitset (ns) | Ratio   |\n";
-    std::cout << "|---------------------|-------------|------------------|---------|\n";
+    std::cout << "| Operation           | BitCal median (ns) | std::bitset median (ns) | Ratio   |\n";
+    std::cout << "|---------------------|--------------------|-------------------------|---------|\n";
 }
 
-// Print result row
-void print_row(const char* op, double bitcal_ns, double std_bitset_ns) {
-    double ratio = std_bitset_ns / bitcal_ns;
+void print_row(const std::string& op, const bitcal::bench::sample_summary& bitcal_summary,
+               const bitcal::bench::sample_summary& std_summary) {
+    const auto ratio = bitcal_summary.median_ns == 0.0 ? 0.0 : (std_summary.median_ns / bitcal_summary.median_ns);
     std::cout << "| " << std::left << std::setw(20) << op
-              << "| " << std::right << std::setw(11) << std::fixed << std::setprecision(2) << bitcal_ns
-              << " | " << std::setw(16) << std_bitset_ns
+              << "| " << std::right << std::setw(18) << std::fixed << std::setprecision(2)
+              << bitcal_summary.median_ns << " | " << std::setw(23) << std_summary.median_ns
               << " | " << std::setw(7) << std::setprecision(2) << ratio << "x |\n";
 }
 
-// Print backend info
-void print_backend() {
-    std::cout << "BitCal backend: ";
-    switch (bitcal::default_backend()) {
-        case bitcal::backend_kind::scalar:
-            std::cout << "scalar";
-            break;
-        case bitcal::backend_kind::sse2:
-            std::cout << "SSE2";
-            break;
-        case bitcal::backend_kind::avx2:
-            std::cout << "AVX2";
-            break;
-        case bitcal::backend_kind::avx512:
-            std::cout << "AVX-512";
-            break;
+template <std::size_t Bits>
+word_array<Bits> make_random_words(std::mt19937_64& rng) {
+    word_array<Bits> words{};
+    for (auto& word : words) {
+        word = rng();
     }
-    std::cout << "\n";
+    return words;
 }
 
-//------------------------------------------------------------------------------
-// Benchmark templates for each size
-//------------------------------------------------------------------------------
+template <std::size_t Bits>
+bitcal::bit_block<Bits> to_block(const word_array<Bits>& words) {
+    return bitcal::bit_block<Bits>::from_words(std::span<const std::uint64_t>(words.data(), words.size()));
+}
 
 template <std::size_t Bits>
-void run_benchmarks(std::mt19937_64& rng) {
-    // Prepare test data
-    bitcal::bitarray<Bits> bitcal_a, bitcal_b;
-    std::bitset<Bits> std_a, std_b;
+std::bitset<Bits> to_bitset(const word_array<Bits>& words) {
+    std::bitset<Bits> out;
 
-    fill_random(bitcal_a, rng);
-    fill_random(bitcal_b, rng);
-    fill_random(std_a, rng);
-    fill_random(std_b, rng);
-
-    // Results storage
-    std::uint64_t bitcal_result_popcount = 0;
-    bitcal::bitarray<Bits> bitcal_result;
-    std::bitset<Bits> std_result;
-
-    std::cout << "\n=== " << Bits << "-bit operations ===\n";
-    print_header();
-
-    // AND operation
-    {
-        double bitcal_ns = benchmark([&]() {
-            bitcal_result = bitcal_a & bitcal_b;
-            do_not_optimize(bitcal_result);
-        });
-
-        double std_ns = benchmark([&]() {
-            std_result = std_a & std_b;
-            do_not_optimize(std_result);
-        });
-
-        std::string op_name = "and<" + std::to_string(Bits) + ">";
-        print_row(op_name.c_str(), bitcal_ns, std_ns);
+    for (std::size_t base = 0; base < Bits; base += 64) {
+        const auto word = words[base / 64];
+        for (std::size_t bit = 0; bit < 64 && (base + bit) < Bits; ++bit) {
+            if ((word >> bit) & 1ULL) {
+                out.set(base + bit);
+            }
+        }
     }
 
-    // OR operation
-    {
-        double bitcal_ns = benchmark([&]() {
-            bitcal_result = bitcal_a | bitcal_b;
-            do_not_optimize(bitcal_result);
-        });
+    return out;
+}
 
-        double std_ns = benchmark([&]() {
-            std_result = std_a | std_b;
-            do_not_optimize(std_result);
-        });
+template <std::size_t Bits>
+void append_retained_cases(bitcal::bench::benchmark_report& report) {
+    std::mt19937_64 rng(42 + Bits);
+    const auto lhs_words = make_random_words<Bits>(rng);
+    const auto rhs_words = make_random_words<Bits>(rng);
 
-        std::string op_name = "or<" + std::to_string(Bits) + ">";
-        print_row(op_name.c_str(), bitcal_ns, std_ns);
+    const auto lhs_block = to_block<Bits>(lhs_words);
+    const auto rhs_block = to_block<Bits>(rhs_words);
+    const auto lhs_bitset = to_bitset<Bits>(lhs_words);
+    const auto rhs_bitset = to_bitset<Bits>(rhs_words);
+
+    bitcal::bench::comparison_row and_row{};
+    and_row.operation = "bit_and";
+    and_row.bits = Bits;
+    and_row.bitcal = bitcal::bench::measure_ns([&]() {
+            const auto out = bitcal::bit_and<Bits>(lhs_block.view(), rhs_block.view());
+            bitcal::bench::do_not_optimize(out);
+        }, kWarmupIterations, kSamples, kIterationsPerSample);
+    and_row.std_bitset = bitcal::bench::measure_ns([&]() {
+            const auto out = lhs_bitset & rhs_bitset;
+            bitcal::bench::do_not_optimize(out);
+        }, kWarmupIterations, kSamples, kIterationsPerSample);
+    report.scenarios.push_back(and_row);
+
+    bitcal::bench::comparison_row popcount_row{};
+    popcount_row.operation = "popcount";
+    popcount_row.bits = Bits;
+    popcount_row.bitcal = bitcal::bench::measure_ns([&]() {
+            const auto out = bitcal::popcount(lhs_block.view());
+            bitcal::bench::do_not_optimize(out);
+        }, kWarmupIterations, kSamples, kIterationsPerSample);
+    popcount_row.std_bitset = bitcal::bench::measure_ns([&]() {
+            const auto out = lhs_bitset.count();
+            bitcal::bench::do_not_optimize(out);
+        }, kWarmupIterations, kSamples, kIterationsPerSample);
+    report.scenarios.push_back(popcount_row);
+
+    bitcal::bench::comparison_row is_zero_row{};
+    is_zero_row.operation = "is_zero";
+    is_zero_row.bits = Bits;
+    is_zero_row.bitcal = bitcal::bench::measure_ns([&]() {
+            const auto out = bitcal::is_zero(lhs_block.view());
+            bitcal::bench::do_not_optimize(out);
+        }, kWarmupIterations, kSamples, kIterationsPerSample);
+    is_zero_row.std_bitset = bitcal::bench::measure_ns([&]() {
+            const auto out = lhs_bitset.none();
+            bitcal::bench::do_not_optimize(out);
+        }, kWarmupIterations, kSamples, kIterationsPerSample);
+    report.scenarios.push_back(is_zero_row);
+}
+
+void print_report(const bitcal::bench::benchmark_report& report) {
+    std::cout << "=== BitCal vNext vs std::bitset Retained Comparison ===\n";
+    std::cout << "Profile: " << report.metadata.profile << "\n";
+    std::cout << "Warmup: " << report.metadata.warmup_iterations << ", samples: " << report.metadata.samples
+              << ", iterations/sample: " << report.metadata.iterations_per_sample << "\n";
+    std::cout << "Backend: " << report.environment.backend << "\n";
+    std::cout << "Commit: " << report.environment.commit << "\n";
+
+    std::size_t current_bits = 0;
+    for (const auto& scenario : report.scenarios) {
+        if (scenario.bits != current_bits) {
+            current_bits = scenario.bits;
+            std::cout << "\n=== " << current_bits << "-bit retained operations ===\n";
+            print_header();
+        }
+
+        print_row(scenario.operation + "<" + std::to_string(scenario.bits) + ">", scenario.bitcal, scenario.std_bitset);
     }
 
-    // XOR operation
-    {
-        double bitcal_ns = benchmark([&]() {
-            bitcal_result = bitcal_a ^ bitcal_b;
-            do_not_optimize(bitcal_result);
-        });
-
-        double std_ns = benchmark([&]() {
-            std_result = std_a ^ std_b;
-            do_not_optimize(std_result);
-        });
-
-        std::string op_name = "xor<" + std::to_string(Bits) + ">";
-        print_row(op_name.c_str(), bitcal_ns, std_ns);
-    }
-
-    // NOT operation
-    {
-        double bitcal_ns = benchmark([&]() {
-            bitcal_result = ~bitcal_a;
-            do_not_optimize(bitcal_result);
-        });
-
-        double std_ns = benchmark([&]() {
-            std_result = ~std_a;
-            do_not_optimize(std_result);
-        });
-
-        std::string op_name = "not<" + std::to_string(Bits) + ">";
-        print_row(op_name.c_str(), bitcal_ns, std_ns);
-    }
-
-    // popcount operation
-    {
-        double bitcal_ns = benchmark([&]() {
-            bitcal_result_popcount = bitcal_a.popcount();
-            do_not_optimize(bitcal_result_popcount);
-        });
-
-        double std_ns = benchmark([&]() {
-            bitcal_result_popcount = std_a.count();
-            do_not_optimize(bitcal_result_popcount);
-        });
-
-        std::string op_name = "popcount<" + std::to_string(Bits) + ">";
-        print_row(op_name.c_str(), bitcal_ns, std_ns);
-    }
-
-    // Left shift (by 8)
-    {
-        double bitcal_ns = benchmark([&]() {
-            bitcal_result = bitcal_a << 8;
-            do_not_optimize(bitcal_result);
-        });
-
-        double std_ns = benchmark([&]() {
-            std_result = std_a << 8;
-            do_not_optimize(std_result);
-        });
-
-        std::string op_name = "shift_left<" + std::to_string(Bits) + ">";
-        print_row(op_name.c_str(), bitcal_ns, std_ns);
-    }
-
-    // Right shift (by 8)
-    {
-        double bitcal_ns = benchmark([&]() {
-            bitcal_result = bitcal_a >> 8;
-            do_not_optimize(bitcal_result);
-        });
-
-        double std_ns = benchmark([&]() {
-            std_result = std_a >> 8;
-            do_not_optimize(std_result);
-        });
-
-        std::string op_name = "shift_right<" + std::to_string(Bits) + ">";
-        print_row(op_name.c_str(), bitcal_ns, std_ns);
-    }
-
-    // AND-NOT operation (BitCal specific optimization)
-    {
-        double bitcal_ns = benchmark([&]() {
-            bitcal_result = bitcal_a.andnot(bitcal_b);
-            do_not_optimize(bitcal_result);
-        });
-
-        // std::bitset equivalent: a & ~b
-        double std_ns = benchmark([&]() {
-            std_result = std_a & ~std_b;
-            do_not_optimize(std_result);
-        });
-
-        std::string op_name = "andnot<" + std::to_string(Bits) + ">";
-        print_row(op_name.c_str(), bitcal_ns, std_ns);
-    }
-
-    // is_zero / none operation
-    {
-        bool is_zero_result = false;
-
-        double bitcal_ns = benchmark([&]() {
-            is_zero_result = bitcal_a.is_zero();
-            do_not_optimize(is_zero_result);
-        });
-
-        double std_ns = benchmark([&]() {
-            is_zero_result = std_a.none();
-            do_not_optimize(is_zero_result);
-        });
-
-        std::string op_name = "is_zero<" + std::to_string(Bits) + ">";
-        print_row(op_name.c_str(), bitcal_ns, std_ns);
-    }
-
-    // all() operation (check if all bits are set)
-    {
-        bool all_result = false;
-
-        double bitcal_ns = benchmark([&]() {
-            // BitCal: popcount == Bits
-            all_result = (bitcal_a.popcount() == Bits);
-            do_not_optimize(all_result);
-        });
-
-        double std_ns = benchmark([&]() {
-            all_result = std_a.all();
-            do_not_optimize(all_result);
-        });
-
-        std::string op_name = "all_set<" + std::to_string(Bits) + ">";
-        print_row(op_name.c_str(), bitcal_ns, std_ns);
-    }
+    std::cout << "\n";
 }
 
 }  // namespace
 
-int main() {
-    std::cout << "=== BitCal vs std::bitset Performance Comparison ===\n";
-    std::cout << "Iterations: " << BENCHMARK_ITERATIONS << " (warmup: " << WARMUP_ITERATIONS << ")\n";
-    print_backend();
+int main(int argc, char** argv) {
+    std::string json_out_path;
 
-    std::mt19937_64 rng(42);  // Fixed seed for reproducibility
+    for (int i = 1; i < argc; ++i) {
+        const std::string arg = argv[i];
+        if (arg == "--json-out") {
+            if (i + 1 >= argc) {
+                std::cerr << "Missing value for --json-out\n";
+                return 2;
+            }
+            json_out_path = argv[++i];
+            continue;
+        }
 
-    // Run benchmarks for different sizes
-    run_benchmarks<256>(rng);
-    run_benchmarks<512>(rng);
-    run_benchmarks<1024>(rng);
+        std::cerr << "Unknown argument: " << arg << "\n";
+        return 2;
+    }
 
-    std::cout << "\n";
+    bitcal::bench::benchmark_report report{};
+    report.metadata.profile = std::string("retained-vnext-") + bitcal::bench::active_backend_name();
+    report.metadata.warmup_iterations = kWarmupIterations;
+    report.metadata.samples = kSamples;
+    report.metadata.iterations_per_sample = kIterationsPerSample;
+    report.environment.backend = bitcal::bench::active_backend_name();
+    report.environment.cpu = bitcal::bench::detect_cpu_model();
+
+    append_retained_cases<128>(report);
+    append_retained_cases<192>(report);
+    append_retained_cases<256>(report);
+    append_retained_cases<512>(report);
+
+    print_report(report);
+
+    if (!json_out_path.empty()) {
+        std::ofstream out(json_out_path);
+        if (!out) {
+            std::cerr << "Failed to open JSON output path: " << json_out_path << "\n";
+            return 1;
+        }
+        bitcal::bench::write_json_report(out, report);
+    }
+
     return 0;
 }

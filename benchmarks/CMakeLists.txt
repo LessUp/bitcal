@@ -1,5 +1,16 @@
 cmake_minimum_required(VERSION 3.16)
 
+execute_process(
+  COMMAND git rev-parse --short=12 HEAD
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  OUTPUT_VARIABLE BITCAL_GIT_COMMIT
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  ERROR_QUIET
+)
+if(BITCAL_GIT_COMMIT STREQUAL "")
+  set(BITCAL_GIT_COMMIT "unknown")
+endif()
+
 # Benchmark executable
 add_executable(bitcal_benchmark benchmark_bitcal.cpp)
 
@@ -9,6 +20,18 @@ bitcal_setup_dev_target(bitcal_benchmark)
 add_executable(benchmark_compare benchmark_compare.cpp)
 
 bitcal_setup_dev_target(benchmark_compare)
+
+# Legacy comparison benchmark: wider bitarray-era comparison lane
+add_executable(benchmark_compare_legacy benchmark_compare_legacy.cpp)
+
+bitcal_setup_dev_target(benchmark_compare_legacy)
+
+foreach(target bitcal_benchmark benchmark_compare benchmark_compare_legacy)
+  target_compile_definitions(${target} PRIVATE
+    BITCAL_GIT_COMMIT="${BITCAL_GIT_COMMIT}"
+    BITCAL_BUILD_TYPE="${CMAKE_BUILD_TYPE}"
+  )
+endforeach()
 
 # Try to link against Google Benchmark if available
 find_package(benchmark QUIET)

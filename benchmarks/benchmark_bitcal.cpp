@@ -5,6 +5,8 @@
 
 #include <bitcal/bitcal.hpp>
 
+#include "benchmark_harness.hpp"
+
 #include <chrono>
 #include <cstdint>
 #include <iostream>
@@ -60,25 +62,6 @@ void run_benchmark(const char* name, Func&& func, const int iterations = 10000) 
     std::cout << name << ": " << avg_ns << " ns/op" << std::endl;
 }
 
-void print_backend() {
-    std::cout << "default backend: ";
-    switch (bitcal::default_backend()) {
-        case bitcal::backend_kind::scalar:
-            std::cout << "scalar";
-            break;
-        case bitcal::backend_kind::sse2:
-            std::cout << "sse2";
-            break;
-        case bitcal::backend_kind::avx2:
-            std::cout << "avx2";
-            break;
-        case bitcal::backend_kind::avx512:
-            std::cout << "avx512";
-            break;
-    }
-    std::cout << std::endl;
-}
-
 }  // namespace
 
 #ifndef BITCAL_HAS_GBENCH
@@ -100,10 +83,11 @@ void run_all_benchmarks() {
     std::mt19937_64 rng(42);
 
     std::cout << "=== BitCal vNext benchmark baseline ===" << std::endl;
+    std::cout << "profile: smoke-only" << std::endl;
     run_bit_and_benchmark<128>("bit_and<128>", rng);
     run_bit_and_benchmark<256>("bit_and<256>", rng);
     run_bit_and_benchmark<512>("bit_and<512>", rng);
-    print_backend();
+    std::cout << "default backend: " << bitcal::bench::active_backend_name() << std::endl;
 }
 
 int main() {
