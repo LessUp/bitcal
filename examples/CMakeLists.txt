@@ -1,5 +1,2 @@
 add_executable(basic_usage basic_usage.cpp)
 bitcal_setup_dev_target(basic_usage)
-
-add_executable(performance_comparison performance_comparison.cpp)
-bitcal_setup_dev_target(performance_comparison)

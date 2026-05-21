@@ -19,7 +19,7 @@ BitCal treats performance as an evidence discipline, not as ambient marketing. T
   ]"
 />
 
-The retained baseline now limits itself to the current vNext public surface: `bit_and`, `popcount`, and `is_zero`. Wider `bitarray`-era comparisons still exist, but only in the legacy/research lane and not as the primary whitepaper evidence chain.
+The retained baseline now follows the shipped vNext public surface: `bit_and`, `bit_or`, `bit_xor`, `bit_andnot`, `popcount`, `equals`, `is_zero`, `shift_left`, and `shift_right`.
 
 ARM rows stay blank until the project retains an ARM benchmark path with the same level of reproducibility and committed artifacts.
 
@@ -54,8 +54,9 @@ ARM rows stay blank until the project retains an ARM benchmark path with the sam
 What the current retained baseline actually says:
 
 - wins are narrower than the old hand-written table implied;
-- some vNext public operations are currently at parity with `std::bitset`, not ahead of it;
-- 128-bit and 192-bit `bit_and` are still materially behind `std::bitset`, which is precisely the kind of gap a retained evidence path should expose instead of hiding.
+- 128-bit and 192-bit operations are still broadly behind `std::bitset`, especially across the transform family;
+- 256-bit and 512-bit widths now show a mixed picture with a few isolated wins, several parity rows, and several losses;
+- `equals` is effectively at parity across the retained widths, which is useful because it shows the evidence chain is reporting the public surface rather than cherry-picking only dramatic outcomes.
 
 ## Measurement methodology
 
@@ -78,8 +79,7 @@ The performance evidence on this page comes from `benchmark_compare`, not from t
 
 | Binary | Role in the docs set | Why the split exists |
 | --- | --- | --- |
-| `benchmark_compare` | Publishes the retained vNext baseline for the current public algorithms and writes the raw JSON artifact. | The baseline needs a reproducible comparison harness, a structured report, and an explicit claim boundary. |
-| `benchmark_compare_legacy` | Keeps the broader `bitarray`-era comparison as a compatibility/research lane. | Exploration is useful, but it must not be confused with the retained whitepaper evidence chain. |
+| `benchmark_compare` | Publishes the retained vNext baseline for the shipped public algorithms and writes the raw JSON artifact. | The baseline needs a reproducible comparison harness, a structured report, and an explicit claim boundary. |
 | `bitcal_benchmark` | Stays in [Verification Path](/en/guide/verification) as the smoke-level executable baseline. | Verification needs a lighter executable check that is distinct from the published comparison experiment. |
 
 ### Method rules
@@ -90,7 +90,7 @@ The performance evidence on this page comes from `benchmark_compare`, not from t
 | Publish table rows from per-scenario medians | Median rows are less sensitive to occasional scheduling noise than a single best case or ad-hoc average. |
 | Always report the active backend, CPU, and commit context | A speedup without ISA, machine, and revision context is meaningless. |
 | Keep benchmark stories tied to public algorithm shapes | Numbers should map back to documented public algorithms, not unnamed kernel trivia. |
-| Separate retained evidence from legacy or research lanes | Not every useful experiment belongs in the primary whitepaper story. |
+| Keep retained evidence tied to the shipped public surface | The published comparison path should measure what the library actually ships today, not deleted compatibility layers. |
 
 ### Interpretation guardrails
 
@@ -121,7 +121,7 @@ The next useful expansions are methodological, not theatrical:
 
 - aligned versus unaligned comparisons;
 - owner versus borrowed-view workload differences;
-- more complete coverage once the free-algorithm surface expands beyond the current vNext trio;
+- optional external comparators only when they stay clearly outside the retained headline path;
 - workload traces that complement the synthetic retained baseline.
 
 For design context, return to the [Whitepaper](/en/whitepaper/). For contract language, continue into the [Reference](/en/reference/). For external comparison material, use [Research](/en/research/).

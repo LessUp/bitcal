@@ -10,6 +10,18 @@ if (!inputPath || !outputPath) {
 
 const report = JSON.parse(fs.readFileSync(inputPath, 'utf8'))
 
+const retainedOperationOrder = new Map([
+  ['bit_and', 0],
+  ['bit_or', 1],
+  ['bit_xor', 2],
+  ['bit_andnot', 3],
+  ['popcount', 4],
+  ['equals', 5],
+  ['is_zero', 6],
+  ['shift_left', 7],
+  ['shift_right', 8],
+])
+
 const byBits = new Map()
 for (const scenario of report.scenarios) {
   const key = String(scenario.bits)
@@ -18,12 +30,20 @@ for (const scenario of report.scenarios) {
   const bitcalMedian = Number(scenario.bitcal.median_ns)
   const stdMedian = Number(scenario.std_bitset.median_ns)
   byBits.get(key).push({
+    order: retainedOperationOrder.get(scenario.operation) ?? Number.MAX_SAFE_INTEGER,
     operation: `${scenario.operation}<${scenario.bits}>`,
     bitcal: bitcalMedian.toFixed(2),
     stdBitset: stdMedian.toFixed(2),
     ratio: bitcalMedian === 0 ? '0.00' : (stdMedian / bitcalMedian).toFixed(2),
     highlight: stdMedian > bitcalMedian,
   })
+}
+
+for (const rows of byBits.values()) {
+  rows.sort((lhs, rhs) => lhs.order - rhs.order)
+  for (const row of rows) {
+    delete row.order
+  }
 }
 
 const summary = {

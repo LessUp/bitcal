@@ -71,4 +71,4 @@ ctest --test-dir build-test --output-on-failure -C Release
 
 ## 迁移说明
 
-如果你当前使用的是旧的 `bitarray` API，请预期一次明确的破坏性迁移。vNext 的目标是更干净的 C++23 设计，而不是继续维护兼容适配层。
+旧的 `bitarray` API 已不再属于当前 shipped vNext 公共表面。BitCal 4.x 期望使用者迁移到 `bit_block`、`bit_view` / `const_bit_view` 与通过 `<bitcal/bitcal.hpp>` 提供的自由算法模型。

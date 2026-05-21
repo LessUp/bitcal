@@ -21,12 +21,7 @@ add_executable(benchmark_compare benchmark_compare.cpp)
 
 bitcal_setup_dev_target(benchmark_compare)
 
-# Legacy comparison benchmark: wider bitarray-era comparison lane
-add_executable(benchmark_compare_legacy benchmark_compare_legacy.cpp)
-
-bitcal_setup_dev_target(benchmark_compare_legacy)
-
-foreach(target bitcal_benchmark benchmark_compare benchmark_compare_legacy)
+foreach(target bitcal_benchmark benchmark_compare)
   target_compile_definitions(${target} PRIVATE
     BITCAL_GIT_COMMIT="${BITCAL_GIT_COMMIT}"
     BITCAL_BUILD_TYPE="${CMAKE_BUILD_TYPE}"

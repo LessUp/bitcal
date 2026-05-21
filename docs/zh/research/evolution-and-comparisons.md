@@ -46,8 +46,7 @@
 BitCal 现在把对比范围拆成明确层级，而不是让一个 benchmark 二进制承担所有叙事：
 
 1. **Retained baseline** —— `benchmark_compare` 只测当前 vNext 公共算法，对照 `std::bitset`，并直接喂给提交到仓库里的性能 artifacts。
-2. **Legacy / research lane** —— `benchmark_compare_legacy` 保留旧单体公共模型时代更宽的操作集，让探索性实验继续存在，但不污染白皮书主证据链。
-3. **未来可选 comparator** —— Boost `dynamic_bitset`、CRoaring、`libpopcnt` 等仍然值得研究，但应始终以显式 opt-in 的方式出现。
+2. **未来可选 comparator** —— Boost `dynamic_bitset`、CRoaring、`libpopcnt` 等仍然值得研究，但应始终以显式 opt-in 的方式出现在 retained 主叙事之外。
 
 ## 演进说明
 
@@ -67,7 +66,7 @@ BitCal 当前方向可以被理解为一连串刻意的收缩与重心转移：
 - **减少兼容怀旧，换取更清楚的契约模型** —— 放弃旧 API 熟悉感，换来更干净的公开角色划分；
 - **缩窄支持话术，换取更强证据密度** —— x86-64-first 比泛泛而谈的“广泛支持”更有价值；
 - **优先契约表达，而不是源码树导览** —— 不是每个内部 helper 都值得升级为公开文档；
-- **优先性能方法学，而不是 headline chasing** —— 让 retained baseline、legacy lane 和未来 comparator 实验分层存在，未来主张才能持续被挑战。
+- **优先性能方法学，而不是 headline chasing** —— 让 retained baseline 和未来 opt-in comparator 实验保持分层，未来主张才能持续被挑战。
 
 ## 什么时候最值得读这页
 

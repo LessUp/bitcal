@@ -31,6 +31,33 @@ bool test_detail_word_ops_and_words_writes_every_word() {
     return true;
 }
 
+bool test_detail_word_ops_or_words_writes_every_word() {
+    std::uint64_t lhs_words[] = {0x0FULL, 0xF000ULL, 0xFF00FF00ULL, 0x0ULL};
+    std::uint64_t rhs_words[] = {0xF0ULL, 0x0FF0ULL, 0x00FF00FFULL, 0x1234ULL};
+    std::uint64_t out_words[] = {0ULL, 0ULL, 0ULL, 0ULL};
+
+    bitcal::detail::or_words(bitcal::const_bit_view(lhs_words, 4), bitcal::const_bit_view(rhs_words, 4),
+                             bitcal::bit_view(out_words, 4));
+
+    BITCAL_ASSERT_EQ(out_words[0], std::uint64_t{0xFFULL});
+    BITCAL_ASSERT_EQ(out_words[1], std::uint64_t{0xFFF0ULL});
+    BITCAL_ASSERT_EQ(out_words[2], std::uint64_t{0xFFFFFFFFULL});
+    BITCAL_ASSERT_EQ(out_words[3], std::uint64_t{0x1234ULL});
+    return true;
+}
+
+bool test_detail_word_ops_equals_words_detects_match_and_mismatch() {
+    const std::uint64_t lhs_words[] = {1ULL, 2ULL, 3ULL, 4ULL};
+    const std::uint64_t same_words[] = {1ULL, 2ULL, 3ULL, 4ULL};
+    const std::uint64_t other_words[] = {1ULL, 2ULL, 3ULL, 5ULL};
+
+    BITCAL_ASSERT_TRUE(bitcal::detail::equals_words(bitcal::const_bit_view(lhs_words, 4),
+                                                    bitcal::const_bit_view(same_words, 4)));
+    BITCAL_ASSERT_TRUE(!bitcal::detail::equals_words(bitcal::const_bit_view(lhs_words, 4),
+                                                     bitcal::const_bit_view(other_words, 4)));
+    return true;
+}
+
 int main() {
     std::cout << "=== BitCal detail word ops test suite ===" << std::endl;
 
@@ -38,6 +65,10 @@ int main() {
                            test_detail_word_ops_queries_share_one_view_interface);
     bitcal::test::run_case(g_counters, "test_detail_word_ops_and_words_writes_every_word",
                            test_detail_word_ops_and_words_writes_every_word);
+    bitcal::test::run_case(g_counters, "test_detail_word_ops_or_words_writes_every_word",
+                           test_detail_word_ops_or_words_writes_every_word);
+    bitcal::test::run_case(g_counters, "test_detail_word_ops_equals_words_detects_match_and_mismatch",
+                           test_detail_word_ops_equals_words_detects_match_and_mismatch);
 
     std::cout << std::endl;
     std::cout << "Passed: " << g_counters.pass << std::endl;

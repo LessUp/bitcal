@@ -19,7 +19,7 @@ BitCal 把性能当成证据纪律，而不是营销背景音。本节现在直�
   ]"
 />
 
-当前保留的 baseline 只覆盖现阶段 vNext 公共表面：`bit_and`、`popcount` 和 `is_zero`。更宽的 `bitarray` 时代对比仍然保留，但已经被降级到 legacy/research lane，不再作为白皮书主证据链。
+当前保留的 baseline 已经跟随当前 shipped vNext 公共表面：`bit_and`、`bit_or`、`bit_xor`、`bit_andnot`、`popcount`、`equals`、`is_zero`、`shift_left` 和 `shift_right`。
 
 ARM 数据先留空，直到项目拥有同等级、可复现、可提交的 ARM benchmark 证据路径。
 
@@ -54,8 +54,9 @@ ARM 数据先留空，直到项目拥有同等级、可复现、可提交的 ARM
 这些 retained baseline 真正表达的是：
 
 - 当前结论比旧的手写表格更克制，也更诚实；
-- 现阶段部分 vNext 公共操作只是和 `std::bitset` 持平，而不是已经全面领先；
-- `bit_and<128>` 和 `bit_and<192>` 目前仍明显落后于 `std::bitset`，这正是保留证据链应该公开暴露的问题，而不是绕开的问题。
+- 128 位和 192 位上的大多数公开操作仍明显落后于 `std::bitset`，尤其是变换类操作；
+- 256 位与 512 位已经出现少量局部胜利、若干持平和若干失利并存的混合局面；
+- `equals` 在保留位宽上基本处于持平，这说明证据链覆盖的是完整公共表面，而不是只挑最戏剧化的结果。
 
 ## 测量方法学
 
@@ -78,8 +79,7 @@ node benchmarks/scripts/generate-performance-summary.mjs \
 
 | 二进制 | 在文档体系中的角色 | 为什么要拆开 |
 | --- | --- | --- |
-| `benchmark_compare` | 发布当前 vNext 公共算法的 retained baseline，并写出原始 JSON 结果。 | 主基线需要明确的对照程序、结构化结果和严格的宣称边界。 |
-| `benchmark_compare_legacy` | 保留更宽的 `bitarray` 时代对照，作为 compatibility/research lane。 | 探索性实验依然有价值，但不能和白皮书主证据链混为一谈。 |
+| `benchmark_compare` | 发布当前 shipped vNext 公共算法的 retained baseline，并写出原始 JSON 结果。 | 主基线需要明确的对照程序、结构化结果和严格的宣称边界。 |
 | `bitcal_benchmark` | 保留在 [验证路径](/zh/guide/verification) 中，作为烟雾级 benchmark 可执行文件。 | 验证链需要更轻量的执行检查，不应与对外发布的对比实验混成同一条链路。 |
 
 ### 方法规则
@@ -90,7 +90,7 @@ node benchmarks/scripts/generate-performance-summary.mjs \
 | 表格统一发布每个场景的 median | 相比单次最好值或临时均值，median 对偶发调度噪声更稳健。 |
 | 始终带上活跃 backend、CPU 和 commit 语境 | 没有 ISA、机器和修订语境的速度提升没有意义。 |
 | benchmark 叙事必须回到公开算法形状 | 性能数字应该能映射回文档中的公开算法，而不是匿名 kernel 小技巧。 |
-| 把 retained evidence 与 legacy/research lane 分开 | 不是每个有价值的实验，都应该进入白皮书主叙事。 |
+| 让 retained evidence 只绑定当前 shipped 公共表面 | 对外发布的对照路径只应衡量今天真正交付的 API，而不是已经删掉的兼容层。 |
 
 ### 解释护栏
 
@@ -121,7 +121,7 @@ node benchmarks/scripts/generate-performance-summary.mjs \
 
 - aligned 与 unaligned 对比；
 - owner 与 borrowed view 工作负载差异；
-- 等 free-algorithm surface 扩展后，再补更完整的公开算法覆盖；
+- 如果未来引入外部 comparator，也要始终保持它们处于明确的 opt-in 研究层；
 - 能与 synthetic retained baseline 互补的 workload traces。
 
 如果你需要设计背景，请回到 [白皮书](/zh/whitepaper/)；如果你需要契约语言，请继续阅读 [参考](/zh/reference/)；如果你想看外部对照，请进入 [研究](/zh/research/)。

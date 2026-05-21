@@ -71,4 +71,4 @@ ctest --test-dir build-test --output-on-failure -C Release
 
 ## Migration note
 
-If you are using the older `bitarray` API, expect a breaking migration path. The vNext work is intentionally optimizing for a cleaner C++23 design rather than preserving a compatibility shim.
+The legacy `bitarray` API is no longer part of the shipped vNext public surface. BitCal 4.x expects consumers to migrate to `bit_block`, `bit_view` / `const_bit_view`, and free algorithms through `<bitcal/bitcal.hpp>`.
