@@ -15,7 +15,9 @@ const read = (relativePath) => {
   return fs.existsSync(absolutePath) ? fs.readFileSync(absolutePath, 'utf8') : ''
 }
 
-if (!fs.existsSync(path.join(docsDir, 'package.json')) || !fs.existsSync(path.join(docsDir, '.vitepress', 'config.ts'))) {
+const exists = (relativePath) => fs.existsSync(path.join(docsDir, relativePath))
+
+if (!exists('package.json') || !exists('.vitepress/config.ts')) {
   console.error('check-content-contract.mjs must be run from docs/. Run: cd docs && npm run check:content-contract')
   process.exit(1)
 }
@@ -97,319 +99,27 @@ const requiredPageContracts = {
   ],
   'en/status/index.md': ['## Release posture', '## Support matrix', '## Documentation truth'],
   'zh/status/index.md': ['## 发布姿态', '## 支持矩阵', '## 文档真相'],
-  'en/academy/index.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/guide/',
-    '/en/whitepaper/',
-    '/en/performance/',
-    '/en/reference/',
-    '/en/research/',
-    '/en/status/',
-  ],
-  'zh/academy/index.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/guide/',
-    '/zh/whitepaper/',
-    '/zh/performance/',
-    '/zh/reference/',
-    '/zh/research/',
-    '/zh/status/',
-  ],
-  'en/project-status/index.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/status/',
-    '/en/guide/',
-  ],
-  'zh/project-status/index.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/status/',
-    '/zh/guide/',
-  ],
-  'en/getting-started/migration.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/getting-started/migration',
-    '/en/guide/migration-posture',
-  ],
-  'zh/getting-started/migration.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/getting-started/migration',
-    '/zh/guide/migration-posture',
-  ],
-  'en/getting-started/verification.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/getting-started/verification',
-    '/en/guide/verification',
-  ],
-  'zh/getting-started/verification.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/getting-started/verification',
-    '/zh/guide/verification',
-  ],
-  'en/getting-started/migration-posture.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/getting-started/migration-posture',
-    '/en/guide/migration-posture',
-  ],
-  'zh/getting-started/migration-posture.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/getting-started/migration-posture',
-    '/zh/guide/migration-posture',
-  ],
-  'en/api/overview.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/api/overview',
-    '/en/reference/',
-  ],
-  'zh/api/overview.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/api/overview',
-    '/zh/reference/',
-  ],
-  'en/api/types-and-views.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/api/types-and-views',
-    '/en/reference/types-and-views',
-  ],
-  'zh/api/types-and-views.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/api/types-and-views',
-    '/zh/reference/types-and-views',
-  ],
-  'en/api/algorithms.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/api/algorithms',
-    '/en/reference/algorithms',
-  ],
-  'zh/api/algorithms.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/api/algorithms',
-    '/zh/reference/algorithms',
-  ],
-  'en/architecture/index.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/architecture/',
-    '/en/whitepaper/',
-  ],
-  'zh/architecture/index.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/architecture/',
-    '/zh/whitepaper/',
-  ],
-  'en/architecture/vnext-whitepaper.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/architecture/vnext-whitepaper',
-    '/en/whitepaper/',
-  ],
-  'zh/architecture/vnext-whitepaper.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/architecture/vnext-whitepaper',
-    '/zh/whitepaper/',
-  ],
-  'en/architecture/platform-support.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/architecture/platform-support',
-    '/en/status/',
-  ],
-  'zh/architecture/platform-support.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/architecture/platform-support',
-    '/zh/status/',
-  ],
-  'en/architecture/performance-baseline.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/architecture/performance-baseline',
-    '/en/performance/',
-  ],
-  'zh/architecture/performance-baseline.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/architecture/performance-baseline',
-    '/zh/performance/',
-  ],
-  'en/performance/methodology.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/performance/methodology',
-    '/en/performance/',
-  ],
-  'zh/performance/methodology.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/performance/methodology',
-    '/zh/performance/',
-  ],
-  'en/whitepaper/performance.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'compatibility entry',
-    '/en/performance/',
-    '/en/whitepaper/',
-  ],
-  'zh/whitepaper/performance.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容入口',
-    '/zh/performance/',
-    '/zh/whitepaper/',
-  ],
-  'en/academy/overview.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/academy/overview',
-    '/en/guide/',
-  ],
-  'zh/academy/overview.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/academy/overview',
-    '/zh/guide/',
-  ],
-  'en/academy/why-bitcal.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/academy/why-bitcal',
-    '/en/guide/',
-  ],
-  'zh/academy/why-bitcal.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/academy/why-bitcal',
-    '/zh/guide/',
-  ],
-  'en/academy/bit-mental-model.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/academy/bit-mental-model',
-    '/en/whitepaper/public-model',
-  ],
-  'zh/academy/bit-mental-model.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/academy/bit-mental-model',
-    '/zh/whitepaper/public-model',
-  ],
-  'en/academy/simd-primer.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/academy/simd-primer',
-    '/en/whitepaper/dispatch-and-kernels',
-  ],
-  'zh/academy/simd-primer.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/academy/simd-primer',
-    '/zh/whitepaper/dispatch-and-kernels',
-  ],
-  'en/academy/terminology.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    'Compatibility note',
-    '/en/academy/terminology',
-    '/en/reference/',
-  ],
-  'zh/academy/terminology.md': [
-    'search: false',
-    'sidebar: false',
-    'outline: false',
-    '兼容说明',
-    '/zh/academy/terminology',
-    '/zh/reference/',
-  ],
 }
+
+const deletedLegacyPaths = [
+  'en/academy',
+  'zh/academy',
+  'en/api',
+  'zh/api',
+  'en/architecture',
+  'zh/architecture',
+  'en/getting-started',
+  'zh/getting-started',
+  'en/project-status',
+  'zh/project-status',
+  'en/release-notes',
+  'zh/release-notes',
+  'en/performance/methodology.md',
+  'zh/performance/methodology.md',
+  'en/whitepaper/performance.md',
+  'zh/whitepaper/performance.md',
+  'project-status.md',
+]
 
 for (const [relativePath, requiredSnippets] of Object.entries(requiredPageContracts)) {
   const content = read(relativePath)
@@ -418,10 +128,17 @@ for (const [relativePath, requiredSnippets] of Object.entries(requiredPageContra
   }
 }
 
+for (const relativePath of deletedLegacyPaths) {
+  expect(!exists(relativePath), `Legacy docs content must be deleted: ${relativePath}`)
+}
+
 const whitepaperEn = read('en/whitepaper/index.md')
 expect(whitepaperEn.includes('/en/performance/'), 'en/whitepaper/index.md must hand readers off to the performance section')
+expect(whitepaperEn.includes('ARM rows stay blank'), 'en/whitepaper/index.md must hand off ARM performance as intentionally blank')
+
 const whitepaperZh = read('zh/whitepaper/index.md')
 expect(whitepaperZh.includes('/zh/performance/'), 'zh/whitepaper/index.md must hand readers off to the performance section')
+expect(whitepaperZh.includes('ARM 数据先留空'), 'zh/whitepaper/index.md must hand off ARM performance as intentionally blank')
 
 const zhReference = read('zh/reference/index.md')
 expect(zhReference.includes("title: '类型与视图'"), 'zh/reference/index.md must localize the Types and Views card title')
@@ -441,6 +158,7 @@ expect(performanceEn.includes('bitcal_benchmark'), 'en/performance/index.md must
 expect(performanceEn.includes('performanceBaseline'), 'en/performance/index.md must import performanceBaseline data')
 expect(!performanceEn.includes("{ operation: 'and<256>'"), 'en/performance/index.md must not hardcode benchmark rows')
 expect(performanceEn.includes('ARM rows stay blank'), 'en/performance/index.md must state that ARM rows stay blank until retained evidence exists')
+expect(performanceEn.includes('median ns/op'), 'en/performance/index.md must publish the median statistic explicitly')
 
 const performanceZh = read('zh/performance/index.md')
 expect(performanceZh.includes('benchmark_compare'), 'zh/performance/index.md must retain benchmark_compare reproduction commands')
@@ -448,33 +166,13 @@ expect(performanceZh.includes('bitcal_benchmark'), 'zh/performance/index.md must
 expect(performanceZh.includes('performanceBaseline'), 'zh/performance/index.md must import performanceBaseline data')
 expect(!performanceZh.includes("{ operation: 'and<256>'"), 'zh/performance/index.md must not hardcode benchmark rows')
 expect(performanceZh.includes('ARM 数据先留空'), 'zh/performance/index.md must state that ARM data stays blank until retained evidence exists')
+expect(performanceZh.includes('median ns/op'), 'zh/performance/index.md must publish the median statistic explicitly')
 
 const statusEn = read('en/status/index.md')
 expect(statusEn.includes('performance rows stay blank'), 'en/status/index.md must state that ARM performance rows stay blank without retained evidence')
 
 const statusZh = read('zh/status/index.md')
 expect(statusZh.includes('性能数据先留空'), 'zh/status/index.md must state that ARM performance data stays blank without retained evidence')
-
-expect(whitepaperEn.includes('ARM rows stay blank'), 'en/whitepaper/index.md must hand off ARM performance as intentionally blank')
-expect(whitepaperZh.includes('ARM 数据先留空'), 'zh/whitepaper/index.md must hand off ARM performance as intentionally blank')
-
-const changelogEn = read('en/release-notes/changelog.md')
-expect(changelogEn.includes('/en/performance/'), 'en/release-notes/changelog.md must hand current performance evidence to /en/performance/')
-expect(changelogEn.includes('ARM rows blank'), 'en/release-notes/changelog.md must keep ARM rows blank in the current retained release narrative')
-
-const changelogZh = read('zh/release-notes/changelog.md')
-expect(changelogZh.includes('/zh/performance/'), 'zh/release-notes/changelog.md must hand current performance evidence to /zh/performance/')
-expect(changelogZh.includes('ARM 数据继续留空'), 'zh/release-notes/changelog.md must keep ARM data blank in the current retained release narrative')
-
-const whitepaperPerformanceEn = read('en/whitepaper/performance.md')
-expect(whitepaperPerformanceEn.includes('compatibility entry'), 'en/whitepaper/performance.md must frame itself as a compatibility entry')
-expect(whitepaperPerformanceEn.includes('/en/performance/'), 'en/whitepaper/performance.md must link to the primary performance section')
-expect(whitepaperPerformanceEn.includes('/en/whitepaper/'), 'en/whitepaper/performance.md must link back to the whitepaper entry')
-
-const whitepaperPerformanceZh = read('zh/whitepaper/performance.md')
-expect(whitepaperPerformanceZh.includes('兼容入口'), 'zh/whitepaper/performance.md must frame itself as a compatibility entry')
-expect(whitepaperPerformanceZh.includes('/zh/performance/'), 'zh/whitepaper/performance.md must link to the primary performance section')
-expect(whitepaperPerformanceZh.includes('/zh/whitepaper/'), 'zh/whitepaper/performance.md must link back to the whitepaper entry')
 
 const canonicalLegacyClaimGuards = {
   'en/guide/index.md': ['bitarray', 'C++17'],
