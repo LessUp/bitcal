@@ -20,42 +20,42 @@
 <ReadingPathGrid
   :items="[
     {
-      title: 'Verification path',
+      title: '验证路径',
       href: '/zh/guide/verification',
       badge: '执行面',
       summary: '先看保留下来的构建、测试、示例与 benchmark 命令路径。',
       detail: 'header-only 也必须有可执行的本地验证闭环。'
     },
     {
-      title: 'Migration posture',
+      title: '迁移姿态',
       href: '/zh/guide/migration-posture',
       badge: '方向感',
       summary: '理解 BitCal 为什么愿意放下旧的单体公开模型。',
       detail: '迁移不是靠模糊兼容话术，而是靠明确设计取舍来解释。'
     },
     {
-      title: 'Whitepaper',
+      title: '白皮书',
       href: '/zh/whitepaper/',
       badge: '架构层',
       summary: '执行姿态明确之后，再进入系统架构主线。',
       detail: 'owner / view / algorithm 模型和 dispatch 边界会在这里被正式定义。'
     },
     {
-      title: 'Performance',
+      title: '性能',
       href: '/zh/performance/',
       badge: '证据层',
       summary: '把 baseline 快照与 methodology 当作两件事情分开理解。',
       detail: '数字的意义取决于复现路径、目标 ISA 和解释护栏。'
     },
     {
-      title: 'Reference',
+      title: '参考',
       href: '/zh/reference/',
       badge: '契约层',
       summary: '在架构论点清楚后，再阅读类型、视图与算法契约。',
       detail: 'Reference 读的是稳定角色，不是今天源码目录里有多少文件。'
     },
     {
-      title: 'Research 与 Status',
+      title: '研究与状态',
       href: '/zh/research/',
       badge: '上下文',
       summary: 'Research 提供外部对照，Status 重新收紧最终结论。',

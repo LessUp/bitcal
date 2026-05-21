@@ -30,7 +30,7 @@ flowchart LR
 <ReadingPathGrid
   :items="[
     {
-      title: 'Public Model',
+      title: '公开模型',
       href: '/zh/whitepaper/public-model',
       badge: '角色模型',
       tone: 'whitepaper',
@@ -38,7 +38,7 @@ flowchart LR
       detail: '如果你想先搞清公开词汇表是什么，就从这里开始。'
     },
     {
-      title: 'Algorithm Design',
+      title: '算法设计',
       href: '/zh/whitepaper/algorithm-design',
       badge: '行为层',
       tone: 'whitepaper',
@@ -46,7 +46,7 @@ flowchart LR
       detail: '这一页会把算法族、语义优先写法和 borrowing 为什么必须是一等公民讲清楚。'
     },
     {
-      title: 'Dispatch and Kernels',
+      title: '分发与内核',
       href: '/zh/whitepaper/dispatch-and-kernels',
       badge: '边界层',
       tone: 'whitepaper',
@@ -54,7 +54,7 @@ flowchart LR
       detail: '在阅读性能数据之前，必须先理解这条边界线。'
     },
     {
-      title: 'Performance',
+      title: '性能',
       href: '/zh/performance/',
       badge: '证据交接',
       summary: '离开论点层，进入 baseline 与 methodology。',

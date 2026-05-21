@@ -124,4 +124,4 @@ node benchmarks/scripts/generate-performance-summary.mjs \
 - 等 free-algorithm surface 扩展后，再补更完整的公开算法覆盖；
 - 能与 synthetic retained baseline 互补的 workload traces。
 
-如果你需要设计背景，请回到 [白皮书](/zh/whitepaper/)；如果你需要契约语言，请继续阅读 [Reference](/zh/reference/)；如果你想看外部对照，请进入 [Research](/zh/research/)。
+如果你需要设计背景，请回到 [白皮书](/zh/whitepaper/)；如果你需要契约语言，请继续阅读 [参考](/zh/reference/)；如果你想看外部对照，请进入 [研究](/zh/research/)。
