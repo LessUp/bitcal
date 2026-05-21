@@ -41,6 +41,14 @@ BitCal becomes easier to trust when it names its neighbors and trade-offs direct
 | [CRoaring](https://github.com/RoaringBitmap/CRoaring) | Performance-oriented bitmap engineering with a different storage model and workload focus. |
 | [libpopcnt](https://github.com/kimwalisch/libpopcnt) | Narrower scope, but a strong reminder that bit-level performance work rewards deep specialization. |
 
+## Comparator tiers
+
+BitCal now separates comparison scope into explicit tiers instead of letting one benchmark binary carry every story:
+
+1. **Retained baseline** — `benchmark_compare` measures the current vNext public algorithms against `std::bitset` and feeds the committed performance artifacts.
+2. **Legacy / research lane** — `benchmark_compare_legacy` preserves the older single-type public-model experiment set so wider experiments remain possible without polluting the whitepaper evidence chain.
+3. **Future optional comparators** — libraries such as Boost `dynamic_bitset`, CRoaring, or `libpopcnt` remain useful research candidates, but only as explicitly opt-in comparisons.
+
 ## Evolution notes
 
 BitCal's current direction can be read as a sequence of deliberate contractions and re-centering moves:
@@ -59,7 +67,7 @@ The redesign accepts some costs in exchange for clearer boundaries:
 - **Less compatibility nostalgia, more contract clarity** — older API familiarity is traded away for a cleaner public role model.
 - **Narrower support language, stronger evidence** — x86-64-first wording is more useful than broad claims that the repository cannot validate.
 - **Reference discipline over source-tree tours** — not every internal helper is promoted into public docs.
-- **Performance methodology over headline chasing** — baseline and method stay attached so that future claims remain challengeable.
+- **Performance methodology over headline chasing** — retained baseline data, legacy lanes, and future comparator experiments stay distinct so conclusions remain challengeable.
 
 ## When this comparison layer is most useful
 

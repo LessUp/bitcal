@@ -22,12 +22,13 @@ ctest --test-dir build-test --output-on-failure -C Release
 
 ## benchmark 二进制与职责分工
 
-BitCal 刻意保留两个 benchmark 可执行文件，而这页只把其中一个放进最低验证闭环。
+BitCal 现在保留三个 benchmark 可执行文件，而这页仍只把其中一个放进最低验证闭环。
 
 | 二进制 | 主要职责 | 应该在哪一页阅读 |
 | --- | --- | --- |
 | `bitcal_benchmark` | 轻量 benchmark 烟雾可执行文件，用来证明 benchmark target 仍能构建、运行，并报告当前 backend 路径。 | 本页把它保留在验证命令链里。 |
-| `benchmark_compare` | 用于发布 BitCal 对 `std::bitset` 对比表格的基线对照程序。 | 需要去 [Performance](/zh/performance/) 页面阅读那条证据链及其解释规则。 |
+| `benchmark_compare` | 针对当前 vNext 公共算法的 retained BitCal-vs-`std::bitset` 对照程序。 | 需要去 [Performance](/zh/performance/) 页面阅读它的证据链及其解释规则。 |
+| `benchmark_compare_legacy` | 保留更宽 `bitarray` 时代实验面的 legacy/research lane。 | 对探索很有用，但不属于最低验证闭环。 |
 
 ## 如何解读失败
 

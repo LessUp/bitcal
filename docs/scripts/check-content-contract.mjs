@@ -438,10 +438,14 @@ expect(verificationZh.includes('benchmark_compare'), 'zh/guide/verification.md m
 const performanceEn = read('en/performance/index.md')
 expect(performanceEn.includes('benchmark_compare'), 'en/performance/index.md must retain benchmark_compare reproduction commands')
 expect(performanceEn.includes('bitcal_benchmark'), 'en/performance/index.md must distinguish benchmark_compare from bitcal_benchmark')
+expect(performanceEn.includes('performanceBaseline'), 'en/performance/index.md must import performanceBaseline data')
+expect(!performanceEn.includes("{ operation: 'and<256>'"), 'en/performance/index.md must not hardcode benchmark rows')
 
 const performanceZh = read('zh/performance/index.md')
 expect(performanceZh.includes('benchmark_compare'), 'zh/performance/index.md must retain benchmark_compare reproduction commands')
 expect(performanceZh.includes('bitcal_benchmark'), 'zh/performance/index.md must distinguish benchmark_compare from bitcal_benchmark')
+expect(performanceZh.includes('performanceBaseline'), 'zh/performance/index.md must import performanceBaseline data')
+expect(!performanceZh.includes("{ operation: 'and<256>'"), 'zh/performance/index.md must not hardcode benchmark rows')
 
 const whitepaperPerformanceEn = read('en/whitepaper/performance.md')
 expect(whitepaperPerformanceEn.includes('compatibility entry'), 'en/whitepaper/performance.md must frame itself as a compatibility entry')

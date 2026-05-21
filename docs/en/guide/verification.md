@@ -22,12 +22,13 @@ ctest --test-dir build-test --output-on-failure -C Release
 
 ## Benchmark binaries and responsibilities
 
-BitCal intentionally keeps two benchmark executables, and this page only treats one of them as part of the minimum verification loop.
+BitCal intentionally keeps three benchmark executables, and this page still treats only one of them as part of the minimum verification loop.
 
 | Binary | Primary role | Read it here or elsewhere? |
 | --- | --- | --- |
 | `bitcal_benchmark` | Smoke-level benchmark executable that proves the benchmark target still builds, runs, and reports a backend path. | This page keeps it in the retained verification loop. |
-| `benchmark_compare` | BitCal-vs-`std::bitset` comparison harness used to publish the baseline tables. | Use the [Performance](/en/performance/) section for that evidence chain and its interpretation rules. |
+| `benchmark_compare` | Retained BitCal-vs-`std::bitset` comparison harness for the current vNext public algorithms. | Use the [Performance](/en/performance/) section for that evidence chain and its interpretation rules. |
+| `benchmark_compare_legacy` | Legacy/research comparison harness that preserves the broader `bitarray`-era experiment set. | Useful for exploration, but not part of the minimum verification loop. |
 
 ## Failure interpretation
 

@@ -1,58 +1,57 @@
 # Performance
 
-BitCal treats performance as an evidence discipline, not as ambient marketing. This section deliberately separates the current baseline snapshot from the methodology used to produce and interpret it.
+<script setup>
+import { performanceBaseline, tableRows } from '../../.vitepress/theme/data/performanceBaseline'
+</script>
+
+BitCal treats performance as an evidence discipline, not as ambient marketing. This section now renders from the retained benchmark artifacts committed under `benchmarks/results/retained/`, so the public tables and the repository evidence stay coupled.
 
 ## Baseline snapshot
 
 <EvidenceStrip
   :items="[
-    { label: 'Current evidence target', value: 'AVX2 on x86-64', tone: 'accent' },
-    { label: 'Status of numbers', value: 'Baseline checkpoint' },
-    { label: 'What is stable', value: 'Method + command path' },
-    { label: 'What is not promised', value: 'Universal wins', note: 'Local numbers are not blanket product guarantees.' }
+    { label: 'Current evidence target', value: `${performanceBaseline.backend} on x86-64`, tone: 'accent' },
+    { label: 'Status of numbers', value: 'Retained checkpoint' },
+    { label: 'Committed source', value: performanceBaseline.commit },
+    { label: 'What is not promised', value: 'Universal wins', note: 'Committed local numbers are checkpoints, not blanket product guarantees.' }
   ]"
 />
 
-The current retained baseline compares BitCal against `std::bitset` on representative fixed-width operations. These measurements are useful because they show where the redesign is already promising and where it is still immature.
+The retained baseline now limits itself to the current vNext public surface: `bit_and`, `popcount`, and `is_zero`. Wider `bitarray`-era comparisons still exist, but only in the legacy/research lane and not as the primary whitepaper evidence chain.
 
 <PerformanceTable
-  title="256-bit operations"
-  caption="Current local baseline on the active AVX2 path"
-  :rows="[
-    { operation: 'and<256>', bitcal: '1.34', stdBitset: '1.22', ratio: '0.91' },
-    { operation: 'or<256>', bitcal: '1.02', stdBitset: '1.04', ratio: '1.02' },
-    { operation: 'xor<256>', bitcal: '1.02', stdBitset: '1.02', ratio: '1.00' },
-    { operation: 'popcount<256>', bitcal: '5.06', stdBitset: '1.90', ratio: '0.38' },
-    { operation: 'shift_left<256>', bitcal: '1.68', stdBitset: '2.61', ratio: '1.56', highlight: true },
-    { operation: 'shift_right<256>', bitcal: '1.27', stdBitset: '2.56', ratio: '2.01', highlight: true }
-  ]"
+  title="128-bit retained operations"
+  :caption="`Retained baseline on ${performanceBaseline.backend} (${performanceBaseline.commit})`"
+  :rows="tableRows('128')"
   :highlightBest="true"
 />
 
 <PerformanceTable
-  title="512-bit operations"
-  caption="Larger widths currently show a clearer SIMD advantage on selected paths"
-  :rows="[
-    { operation: 'and<512>', bitcal: '1.76', stdBitset: '4.27', ratio: '2.43', highlight: true },
-    { operation: 'shift_right<512>', bitcal: '3.13', stdBitset: '11.78', ratio: '3.76', highlight: true }
-  ]"
+  title="192-bit retained operations"
+  caption="Custom-width checkpoint kept in the retained baseline"
+  :rows="tableRows('192')"
   :highlightBest="true"
 />
 
 <PerformanceTable
-  title="1024-bit operations"
-  caption="A single larger-width checkpoint retained in the current benchmark set"
-  :rows="[
-    { operation: 'popcount<1024>', bitcal: '8.10', stdBitset: '11.75', ratio: '1.45', highlight: true }
-  ]"
+  title="256-bit retained operations"
+  caption="Representative fixed-width checkpoint on the active x86-64 path"
+  :rows="tableRows('256')"
   :highlightBest="true"
 />
 
-What the current baseline actually says:
+<PerformanceTable
+  title="512-bit retained operations"
+  caption="Larger-width public algorithms on the retained path"
+  :rows="tableRows('512')"
+  :highlightBest="true"
+/>
 
-- shift-heavy paths already show meaningful upside on the active x86-64 route;
-- width matters, because some advantages only emerge once work amortizes dispatch and setup cost;
-- counting primitives still need scrutiny and should not be described as solved simply because the redesign is performance-oriented.
+What the current retained baseline actually says:
+
+- wins are narrower than the old hand-written table implied;
+- some vNext public operations are currently at parity with `std::bitset`, not ahead of it;
+- 128-bit and 192-bit `bit_and` are still materially behind `std::bitset`, which is precisely the kind of gap a retained evidence path should expose instead of hiding.
 
 ## Measurement methodology
 
@@ -63,7 +62,10 @@ Performance claims remain attached to a reproducible command path and interpreta
 ```bash
 cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_BENCHMARKS=ON -DBITCAL_NATIVE_ARCH=ON
 cmake --build build-test --config Release --target benchmark_compare -j"$(nproc)"
-./build-test/benchmarks/benchmark_compare
+./build-test/benchmarks/benchmark_compare --json-out benchmarks/results/retained/baseline-x86_64-avx2.json
+node benchmarks/scripts/generate-performance-summary.mjs \
+  benchmarks/results/retained/baseline-x86_64-avx2.json \
+  benchmarks/results/retained/baseline-x86_64-avx2.summary.json
 ```
 
 ### Benchmark binary split
@@ -72,7 +74,8 @@ The performance evidence on this page comes from `benchmark_compare`, not from t
 
 | Binary | Role in the docs set | Why the split exists |
 | --- | --- | --- |
-| `benchmark_compare` | Publishes the BitCal-vs-`std::bitset` comparison tables shown on this page. | The baseline needs an explicit comparison harness with method and interpretation guardrails. |
+| `benchmark_compare` | Publishes the retained vNext baseline for the current public algorithms and writes the raw JSON artifact. | The baseline needs a reproducible comparison harness, a structured report, and an explicit claim boundary. |
+| `benchmark_compare_legacy` | Keeps the broader `bitarray`-era comparison as a compatibility/research lane. | Exploration is useful, but it must not be confused with the retained whitepaper evidence chain. |
 | `bitcal_benchmark` | Stays in [Verification Path](/en/guide/verification) as the smoke-level executable baseline. | Verification needs a lighter executable check that is distinct from the published comparison experiment. |
 
 ### Method rules
@@ -80,15 +83,16 @@ The performance evidence on this page comes from `benchmark_compare`, not from t
 | Rule | Why it exists |
 | --- | --- |
 | Treat current numbers as a retained **baseline checkpoint** | Prevent local benchmark output from becoming timeless marketing copy. |
-| Always report the active backend and platform context | A speedup without ISA and platform context is meaningless. |
-| Keep benchmark stories tied to public algorithm shapes | Numbers should map back to documented operations, not to unnamed kernel trivia. |
-| Separate measurement from interpretation | Reproduction commands are evidence; conclusions are arguments that can be challenged. |
+| Always report the active backend, CPU, and commit context | A speedup without ISA, machine, and revision context is meaningless. |
+| Keep benchmark stories tied to public algorithm shapes | Numbers should map back to documented public algorithms, not unnamed kernel trivia. |
+| Separate retained evidence from legacy or research lanes | Not every useful experiment belongs in the primary whitepaper story. |
 
 ### Interpretation guardrails
 
 - Synthetic loops are useful, but they do not represent every workload.
 - An x86-64-first posture is a support choice, not proof that all other targets are equally mature.
 - A benchmark win in one algorithm family does not automatically justify a broader API or platform claim.
+- A benchmark loss is still valuable evidence; the point of the retained baseline is honesty, not theater.
 
 ## Claim boundary
 
@@ -96,9 +100,9 @@ This section intentionally refuses to claim more than the evidence supports.
 
 **Safe claims today**
 
-- BitCal retains a reproducible x86-64 benchmark path.
-- Some fixed-width operations already outperform `std::bitset` in the current local baseline.
-- Performance discussion is grounded in named algorithms, named widths, and explicit backend context.
+- BitCal retains a reproducible x86-64 benchmark path with committed raw and summary artifacts.
+- The retained baseline is grounded in named public algorithms, named widths, and explicit backend/commit context.
+- BitCal is not uniformly ahead of `std::bitset` yet, and the retained evidence makes that visible.
 
 **Claims that remain out of bounds**
 
@@ -112,7 +116,7 @@ The next useful expansions are methodological, not theatrical:
 
 - aligned versus unaligned comparisons;
 - owner versus borrowed-view workload differences;
-- more complete coverage of counting and scan-style primitives;
-- workload traces that complement the synthetic baseline.
+- more complete coverage once the free-algorithm surface expands beyond the current vNext trio;
+- workload traces that complement the synthetic retained baseline.
 
 For design context, return to the [Whitepaper](/en/whitepaper/). For contract language, continue into the [Reference](/en/reference/). For external comparison material, use [Research](/en/research/).
