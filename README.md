@@ -66,7 +66,8 @@ ctest --test-dir build-test --output-on-failure -C Release
 
 - OpenSpec is the canonical source for active requirements: `openspec/`
 - Documentation architecture policy lives in `docs/README.md`
-- Project status lives in `docs/project-status.md`
+- Project status lives in `docs/en/status/index.md` and `docs/zh/status/index.md`
+- Release history lives only in `CHANGELOG.md` and `CHANGELOG.zh-CN.md`
 
 ## Migration note
 

@@ -105,7 +105,7 @@ BitCal 文档不再追求“大而全镜像”，而是追求：
 
 - 为了“看起来完整”而做的全量镜像翻译
 - 中文/英文两套页面长期不同步
-- changelog 在 `docs/` 下继续重复镜像
+- docs 内 changelog 镜像
 - compatibility-only 页面与旧路由长期留在 `docs/` 中
 
 ## 5. 清理规则

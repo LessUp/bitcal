@@ -45,4 +45,4 @@ This page is the shared documentation overview for BitCal. Use it to choose lang
 - English overview: [/en/](/en/)
 - 简体中文总览：[/zh/](/zh/)
 
-Legacy academy paths remain compatibility-only aliases and are no longer part of the primary docs IA.
+This docs tree retains only the maintained primary IA and no longer keeps compatibility-only route layers.

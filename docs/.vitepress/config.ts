@@ -1,10 +1,6 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import llmstxt from 'vitepress-plugin-llms'
-import {
-  compatPageExcludes,
-  llmsDerivedPageExcludes,
-} from './page-exclusions.js'
 import { materializeCleanUrlArtifacts } from '../scripts/materialize-clean-url-artifacts.mjs'
 
 const rawBase = process.env.VITEPRESS_BASE
@@ -18,8 +14,6 @@ export default withMermaid(defineConfig({
   base,
   srcExclude: [
     'README.md',
-    'project-status.md',
-    'design/**',
     'superpowers/**',
   ],
   title: 'BitCal',
@@ -197,11 +191,7 @@ export default withMermaid(defineConfig({
       llmstxt({
         ignoreFiles: [
           'README.md',
-          'project-status.md',
-          'design/**',
           'superpowers/**',
-          ...compatPageExcludes,
-          ...llmsDerivedPageExcludes,
         ],
       }),
     ],

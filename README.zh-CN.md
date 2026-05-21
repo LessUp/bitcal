@@ -66,7 +66,8 @@ ctest --test-dir build-test --output-on-failure -C Release
 
 - 活动需求的规范真相：`openspec/`
 - 文档架构策略：`docs/README.md`
-- 项目状态说明：`docs/project-status.md`
+- 项目状态说明：`docs/en/status/index.md` 与 `docs/zh/status/index.md`
+- 版本历史只保留在 `CHANGELOG.md` 与 `CHANGELOG.zh-CN.md`
 
 ## 迁移说明
 
