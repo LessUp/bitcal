@@ -61,3 +61,7 @@ _bmad-output/
 
 # OMC (oh-my-claudecode) local state
 .omc/
+
+# Local AI tool configs
+.devin/
+.claude/settings.local.json
