@@ -73,6 +73,7 @@ bit_block() noexcept;
 
 static constexpr std::size_t bits = Bits;
 static constexpr std::size_t word_count = Bits / 64;
+static constexpr std::size_t storage_alignment = /* width-appropriate alignment */;
 ```
 
 ### Public view access
@@ -93,6 +94,7 @@ std::uint64_t word(std::size_t index) const noexcept;
 
 Contract notes:
 - storage is contiguous `uint64_t` word storage
+- `bit_block<Bits>::storage_alignment` tracks width-appropriate alignment for the fixed-width block
 - word order is little-endian (`word 0` holds the least significant bits)
 - index precondition: `index < word_count()`
 - a mutable view may expose write access through `data()`
@@ -124,6 +126,8 @@ bool is_zero(const const_bit_view value) noexcept;
 std::uint64_t popcount(const const_bit_view value) noexcept;
 bool equals(const const_bit_view lhs, const const_bit_view rhs) noexcept;
 ```
+
+`equals()` returns `false` when the two views do not expose the same `word_count()`.
 
 ### Shift and transform algorithms
 

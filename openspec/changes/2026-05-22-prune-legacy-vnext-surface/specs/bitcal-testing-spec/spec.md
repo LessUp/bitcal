@@ -15,3 +15,7 @@ BitCal SHALL use public contract tests through `<bitcal/bitcal.hpp>` to prove th
 - **WHEN** a retained free algorithm such as `bit_or` or `shift_left` is implemented
 - **THEN** a public test through `<bitcal/bitcal.hpp>` MUST fail first and then pass
 - **AND** the algorithm MUST become part of the retained redesign verification path
+
+#### Scenario: Public equality handles mismatched view lengths
+- **WHEN** public contract coverage exercises `equals()` with different `word_count()` values
+- **THEN** the retained test MUST prove the comparison returns `false`

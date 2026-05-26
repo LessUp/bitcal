@@ -59,7 +59,9 @@ inline void andnot_words(const const_bit_view lhs, const const_bit_view rhs, bit
 }
 
 [[nodiscard]] constexpr bool equals_words(const const_bit_view lhs, const const_bit_view rhs) noexcept {
-    assert(lhs.word_count() == rhs.word_count());
+    if (lhs.word_count() != rhs.word_count()) {
+        return false;
+    }
 
     for (std::size_t i = 0; i < lhs.word_count(); ++i) {
         if (lhs.word(i) != rhs.word(i)) {
