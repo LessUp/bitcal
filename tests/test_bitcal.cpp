@@ -231,6 +231,24 @@ bool test_vnext_equals_reports_equal_and_not_equal_192() {
     return true;
 }
 
+bool test_vnext_equals_returns_false_for_mismatched_view_lengths() {
+    const std::array<std::uint64_t, 1> short_words{0xA5A5A5A5A5A5A5A5ULL};
+    const std::array<std::uint64_t, 2> long_words{0xA5A5A5A5A5A5A5A5ULL, 0xFFFFFFFFFFFFFFFFULL};
+
+    BITCAL_ASSERT_TRUE(!bitcal::equals(bitcal::const_bit_view(short_words.data(), short_words.size()),
+                                       bitcal::const_bit_view(long_words.data(), long_words.size())));
+    BITCAL_ASSERT_TRUE(!bitcal::equals(bitcal::const_bit_view(long_words.data(), long_words.size()),
+                                       bitcal::const_bit_view(short_words.data(), short_words.size())));
+    return true;
+}
+
+bool test_vnext_block_uses_optimal_alignment_per_width() {
+    BITCAL_ASSERT_EQ(bitcal::bit_block<128>::storage_alignment, bitcal::get_optimal_alignment<128>());
+    BITCAL_ASSERT_EQ(bitcal::bit_block<256>::storage_alignment, bitcal::get_optimal_alignment<256>());
+    BITCAL_ASSERT_EQ(bitcal::bit_block<512>::storage_alignment, bitcal::get_optimal_alignment<512>());
+    return true;
+}
+
 bool test_vnext_shift_left_moves_bits_across_words_128() {
     const std::array<std::uint64_t, 2> input_words{1ULL, 0ULL};
     const auto block =
@@ -317,6 +335,10 @@ int main() {
                            test_vnext_view_word_count_matches_custom_width_192);
     bitcal::test::run_case(g_counters, "test_vnext_equals_reports_equal_and_not_equal_192",
                            test_vnext_equals_reports_equal_and_not_equal_192);
+    bitcal::test::run_case(g_counters, "test_vnext_equals_returns_false_for_mismatched_view_lengths",
+                           test_vnext_equals_returns_false_for_mismatched_view_lengths);
+    bitcal::test::run_case(g_counters, "test_vnext_block_uses_optimal_alignment_per_width",
+                           test_vnext_block_uses_optimal_alignment_per_width);
     bitcal::test::run_case(g_counters, "test_vnext_shift_left_moves_bits_across_words_128",
                            test_vnext_shift_left_moves_bits_across_words_128);
     bitcal::test::run_case(g_counters, "test_vnext_shift_left_clears_when_count_reaches_width_128",

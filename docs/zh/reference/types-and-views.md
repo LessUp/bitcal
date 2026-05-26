@@ -23,7 +23,9 @@
 ## 值得长期保留的契约说明
 
 - 位宽是公开叙事的一部分，因为 BitCal 当前明确采用 fixed-width 取向。
+- `bit_block<Bits>` 应按位宽使用合适的存储对齐，而不是把同一套 x86 对齐强行套到所有宽度上。
 - borrowing 需要被写到足够清楚，确保 aliasing 与 mutability 问题能在 Reference 层被回答。
+- `equals()` 比较的是完整 view 范围：`word_count()` 不同就必须判定为不相等，而不是把较短前缀当成匹配。
 - detail 头文件可以存在，但并不会自动成为对外承诺。
 
 ## 非承诺项

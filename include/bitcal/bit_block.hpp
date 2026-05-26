@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <array>
+#include <cstring>
 #include <span>
 
 namespace bitcal {
@@ -16,11 +17,7 @@ class bit_block {
 public:
     static constexpr std::size_t bits = Bits;
     static constexpr std::size_t word_count = Bits / 64;
-#if BITCAL_ARCH_X86
-    static constexpr std::size_t storage_alignment = 32;
-#else
-    static constexpr std::size_t storage_alignment = alignof(std::uint64_t);
-#endif
+    static constexpr std::size_t storage_alignment = get_optimal_alignment<Bits>();
 
     constexpr bit_block() noexcept = default;
 
@@ -28,8 +25,12 @@ public:
         assert(words.size() == word_count);
 
         bit_block out;
-        for (std::size_t i = 0; i < word_count; ++i) {
-            out.words_[i] = words[i];
+        if consteval {
+            for (std::size_t i = 0; i < word_count; ++i) {
+                out.words_[i] = words[i];
+            }
+        } else {
+            std::memcpy(out.words_.data(), words.data(), word_count * sizeof(std::uint64_t));
         }
 
         return out;
@@ -46,8 +47,12 @@ public:
     constexpr void copy_words_to(const std::span<std::uint64_t> out) const noexcept {
         assert(out.size() == word_count);
 
-        for (std::size_t i = 0; i < word_count; ++i) {
-            out[i] = words_[i];
+        if consteval {
+            for (std::size_t i = 0; i < word_count; ++i) {
+                out[i] = words_[i];
+            }
+        } else {
+            std::memcpy(out.data(), words_.data(), word_count * sizeof(std::uint64_t));
         }
     }
 

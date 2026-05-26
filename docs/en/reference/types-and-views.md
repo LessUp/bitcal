@@ -23,7 +23,9 @@ Readers should be able to infer these rules without guessing:
 ## Contract notes worth preserving
 
 - Width is part of the public story, because the redesign is intentionally fixed-width oriented.
+- `bit_block<Bits>` keeps width-appropriate storage alignment rather than forcing one x86-wide alignment onto every width.
 - Borrowing must be documented clearly enough that aliasing and mutability questions can be answered at the reference layer.
+- `equals()` compares full view extents: different `word_count()` values are not equal, even if the shorter prefix matches.
 - Detail headers may exist, but they are not automatically public commitments.
 
 ## Non-guarantees

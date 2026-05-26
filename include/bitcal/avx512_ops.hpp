@@ -81,7 +81,7 @@ BITCAL_FORCEINLINE void shift_left_512(uint64_t* data, int count) noexcept {
     __m512i v_shifted = _mm512_slli_epi64(v, bit_shift);
 
     // Create carry vector - each element gets the high bits from the previous element
-    __m512i carry = _mm512_permutexvar_epi64(_mm512_set_epi64(6, 5, 4, 3, 2, 1, 0, -1),  // permutation indices
+    __m512i carry = _mm512_permutexvar_epi64(_mm512_set_epi64(6, 5, 4, 3, 2, 1, 0, 0),  // permutation indices
                                              v);
     carry = _mm512_srli_epi64(carry, 64 - bit_shift);
 
@@ -121,7 +121,7 @@ BITCAL_FORCEINLINE void shift_right_512(uint64_t* data, int count) noexcept {
     __m512i v_shifted = _mm512_srli_epi64(v, bit_shift);
 
     // Create carry vector - each element gets the low bits from the next element
-    __m512i carry = _mm512_permutexvar_epi64(_mm512_set_epi64(-1, 7, 6, 5, 4, 3, 2, 1),  // permutation indices
+    __m512i carry = _mm512_permutexvar_epi64(_mm512_set_epi64(0, 7, 6, 5, 4, 3, 2, 1),  // permutation indices
                                              v);
     carry = _mm512_slli_epi64(carry, 64 - bit_shift);
 

@@ -36,6 +36,7 @@ BitCal SHALL validate the vNext public contract with three layers:
 
 - [ ] `bit_and`, `bit_or`, `bit_xor`, and `bit_andnot` validate representative word patterns
 - [ ] `is_zero`, `equals`, and `popcount` validate representative state and count behavior
+- [ ] `equals` returns `false` for mismatched view lengths instead of matching a shared prefix
 - [ ] shifts validate zero, word-crossing, and width-clearing cases
 
 ### 5. Representative widths
