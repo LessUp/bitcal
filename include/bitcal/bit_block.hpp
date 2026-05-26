@@ -52,7 +52,7 @@ public:
                 out[i] = words_[i];
             }
         } else {
-            std::memcpy(out.data(), words_.data(), word_count * sizeof(std::uint64_t));
+            std::memmove(out.data(), words_.data(), word_count * sizeof(std::uint64_t));
         }
     }
 

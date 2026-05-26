@@ -13,6 +13,20 @@
 
 static_assert(std::is_default_constructible_v<bitcal::bit_block<256>>);
 
+constexpr bool test_vnext_block_word_roundtrip_is_constexpr() {
+    constexpr std::array<std::uint64_t, 4> input_words{0x1ULL, 0x2ULL, 0x3ULL, 0x4ULL};
+    const auto block =
+        bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
+
+    std::array<std::uint64_t, 4> output_words{};
+    block.copy_words_to(std::span<std::uint64_t>(output_words.data(), output_words.size()));
+
+    return output_words[0] == input_words[0] && output_words[1] == input_words[1] &&
+           output_words[2] == input_words[2] && output_words[3] == input_words[3];
+}
+
+static_assert(test_vnext_block_word_roundtrip_is_constexpr());
+
 static bitcal::test::suite_counters g_counters;
 
 bool test_vnext_block_view_smoke() {
@@ -154,6 +168,20 @@ bool test_vnext_block_word_span_interop() {
 
     BITCAL_ASSERT_EQ(output_words[0], std::uint64_t{0x1ULL});
     BITCAL_ASSERT_EQ(output_words[3], std::uint64_t{0x4ULL});
+    return true;
+}
+
+bool test_vnext_block_copy_words_to_supports_self_copy() {
+    const std::array<std::uint64_t, 4> input_words{0x10ULL, 0x20ULL, 0x30ULL, 0x40ULL};
+    auto block = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
+    auto view = block.view();
+
+    block.copy_words_to(std::span<std::uint64_t>(view.data(), view.word_count()));
+
+    BITCAL_ASSERT_EQ(block.word(0), std::uint64_t{0x10ULL});
+    BITCAL_ASSERT_EQ(block.word(1), std::uint64_t{0x20ULL});
+    BITCAL_ASSERT_EQ(block.word(2), std::uint64_t{0x30ULL});
+    BITCAL_ASSERT_EQ(block.word(3), std::uint64_t{0x40ULL});
     return true;
 }
 
@@ -323,6 +351,8 @@ int main() {
                            test_vnext_bit_andnot_masks_words_256);
     bitcal::test::run_case(g_counters, "test_vnext_block_storage_alignment", test_vnext_block_storage_alignment);
     bitcal::test::run_case(g_counters, "test_vnext_block_word_span_interop", test_vnext_block_word_span_interop);
+    bitcal::test::run_case(g_counters, "test_vnext_block_copy_words_to_supports_self_copy",
+                           test_vnext_block_copy_words_to_supports_self_copy);
     bitcal::test::run_case(g_counters, "test_vnext_bit_and_matches_deterministic_matrix_128",
                            test_vnext_bit_and_matches_deterministic_matrix_128);
     bitcal::test::run_case(g_counters, "test_vnext_popcount_matches_deterministic_matrix_256",
