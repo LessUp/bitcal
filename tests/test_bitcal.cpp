@@ -271,9 +271,9 @@ bool test_vnext_equals_returns_false_for_mismatched_view_lengths() {
 }
 
 bool test_vnext_block_uses_optimal_alignment_per_width() {
-    BITCAL_ASSERT_EQ(bitcal::bit_block<128>::storage_alignment, bitcal::get_optimal_alignment<128>());
-    BITCAL_ASSERT_EQ(bitcal::bit_block<256>::storage_alignment, bitcal::get_optimal_alignment<256>());
-    BITCAL_ASSERT_EQ(bitcal::bit_block<512>::storage_alignment, bitcal::get_optimal_alignment<512>());
+    BITCAL_ASSERT_EQ(alignof(bitcal::bit_block<128>), bitcal::get_optimal_alignment<128>());
+    BITCAL_ASSERT_EQ(alignof(bitcal::bit_block<256>), bitcal::get_optimal_alignment<256>());
+    BITCAL_ASSERT_EQ(alignof(bitcal::bit_block<512>), bitcal::get_optimal_alignment<512>());
     return true;
 }
 
