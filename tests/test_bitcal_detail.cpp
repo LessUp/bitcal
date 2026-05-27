@@ -17,6 +17,12 @@
 // that underpin the public algorithms. They provide valuable regression coverage for
 // backend dispatch and SIMD correctness without being part of the public contract.
 
+#if defined(__has_include)
+#if __has_include(<bitcal/backend_ops.hpp>)
+#error "backend_ops.hpp should be deleted once dispatch is consolidated under detail/x64_dispatch.hpp"
+#endif
+#endif
+
 #include <cstdint>
 #include <iostream>
 
