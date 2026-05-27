@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - master
+    paths:
+      - "docs/**"
+      - "openspec/**"
+      - "README.md"
+      - "README.zh-CN.md"
+      - ".github/workflows/docs-pages.yml"
   pull_request:
     paths:
       - "docs/**"
