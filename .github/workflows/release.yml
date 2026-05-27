@@ -49,4 +49,4 @@ jobs:
             - `CMakeLists.txt`
             - License, README, and changelog files
 
-            Validation is handled by the retained CI workflow. No platform-specific binary archives are produced.
+            Validation follows retained CI and docs verification paths. No platform-specific binary archives are produced.

@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    paths:
+      - "docs/**"
+      - "openspec/**"
+      - "README.md"
+      - "README.zh-CN.md"
+      - ".github/workflows/docs-pages.yml"
 
 permissions:
   contents: read
@@ -11,8 +18,48 @@ permissions:
   id-token: write
 
 jobs:
+  verify:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Cache docs node_modules
+        uses: actions/cache@v4
+        with:
+          path: docs/node_modules
+          key: ${{ runner.os }}-docs-node-modules-${{ hashFiles('docs/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-docs-node-modules-
+
+      - name: Install docs dependencies
+        working-directory: docs
+        run: npm install --no-package-lock
+
+      - name: Check docs IA
+        working-directory: docs
+        run: npm run check:ia
+
+      - name: Check docs theme contract
+        working-directory: docs
+        run: npm run check:theme-contract
+
+      - name: Check docs content contract
+        working-directory: docs
+        run: npm run check:content-contract
+
+      - name: Build docs
+        working-directory: docs
+        run: npm run build
+
   deploy:
-    if: github.repository == 'LessUp/bitcal'
+    if: github.event_name == 'push' && github.repository == 'LessUp/bitcal'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
