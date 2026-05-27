@@ -35,10 +35,12 @@ jobs:
           body: |
             ## BitCal ${{ github.ref_name }}
 
-            BitCal is a header-only C++17 library. This release publishes the canonical source bundle only:
+            BitCal is a header-only C++23 bit manipulation library. This release publishes the canonical source bundle only:
 
             - `bitcal-${{ github.ref_name }}.zip`
             - `bitcal-${{ github.ref_name }}.tar.gz`
+
+            **v4.0.0 redesign:** This release replaces the older bitarray-centered model with bit_block, bit_view/const_bit_view, and free algorithms. x86-64 is the primary optimization and validation target.
 
             Included contents:
 
