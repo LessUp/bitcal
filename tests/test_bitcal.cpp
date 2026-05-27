@@ -358,28 +358,28 @@ bool test_public_contract_backend_kind_enum_is_accessible() {
     // Verify that backend_kind enum is part of the public contract
     // and that default_backend() returns one of the retained values
     const auto backend = bitcal::default_backend();
-    
+
     BITCAL_ASSERT_TRUE(backend == bitcal::backend_kind::scalar ||
                        backend == bitcal::backend_kind::sse2 ||
                        backend == bitcal::backend_kind::avx2 ||
                        backend == bitcal::backend_kind::avx512);
-    
+
     return true;
 }
 
 bool test_public_contract_core_types_accessible_through_umbrella() {
     // Verify that all core public types are accessible through <bitcal/bitcal.hpp>
     // This test is primarily a compile-time check that the umbrella header works
-    
+
     bitcal::bit_block<128> block;
     bitcal::bit_view mutable_view = block.view();
     bitcal::const_bit_view const_view = block.view();
-    
+
     BITCAL_ASSERT_EQ(mutable_view.word_count(), std::size_t{2});
     BITCAL_ASSERT_EQ(const_view.word_count(), std::size_t{2});
     BITCAL_ASSERT_TRUE(mutable_view.data() != nullptr);
     BITCAL_ASSERT_TRUE(const_view.data() != nullptr);
-    
+
     return true;
 }
 
@@ -387,22 +387,22 @@ bool test_public_contract_all_retained_algorithms_are_accessible() {
     // Verify that all retained public algorithms from the API spec are accessible
     bitcal::bit_block<256> lhs;
     bitcal::bit_block<256> rhs;
-    
+
     // Bitwise algorithms
     auto and_result = bitcal::bit_and<256>(lhs.view(), rhs.view());
     auto or_result = bitcal::bit_or<256>(lhs.view(), rhs.view());
     auto xor_result = bitcal::bit_xor<256>(lhs.view(), rhs.view());
     auto andnot_result = bitcal::bit_andnot<256>(lhs.view(), rhs.view());
-    
+
     // Query and counting algorithms
     bool zero = bitcal::is_zero(lhs.view());
     std::uint64_t count = bitcal::popcount(lhs.view());
     bool equal = bitcal::equals(lhs.view(), rhs.view());
-    
+
     // Shift algorithms
     auto shift_l = bitcal::shift_left<256>(lhs.view(), 10);
     auto shift_r = bitcal::shift_right<256>(lhs.view(), 10);
-    
+
     // Silence unused variable warnings
     (void)and_result;
     (void)or_result;
@@ -413,7 +413,7 @@ bool test_public_contract_all_retained_algorithms_are_accessible() {
     (void)equal;
     (void)shift_l;
     (void)shift_r;
-    
+
     return true;
 }
 
@@ -422,11 +422,11 @@ bool test_public_contract_version_macros_are_defined() {
     BITCAL_ASSERT_EQ(BITCAL_VERSION_MAJOR, 4);
     BITCAL_ASSERT_EQ(BITCAL_VERSION_MINOR, 0);
     BITCAL_ASSERT_EQ(BITCAL_VERSION_PATCH, 0);
-    
+
     const auto version = BITCAL_VERSION;
     const auto expected = (4 << 16) | (0 << 8) | 0;
     BITCAL_ASSERT_EQ(version, expected);
-    
+
     return true;
 }
 
@@ -474,7 +474,7 @@ int main() {
                            test_vnext_random_bit_and_matches_reference_model_256);
     bitcal::test::run_case(g_counters, "test_vnext_random_queries_match_reference_model_512",
                            test_vnext_random_queries_match_reference_model_512);
-    
+
     // Public contract verification tests
     bitcal::test::run_case(g_counters, "test_public_contract_backend_kind_enum_is_accessible",
                            test_public_contract_backend_kind_enum_is_accessible);

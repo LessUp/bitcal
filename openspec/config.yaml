@@ -3,13 +3,13 @@ schema: spec-driven
 # Project context for AI agents
 context: |
   BitCal is a header-only C++23 bit manipulation library in active v4.0.0 redesign.
-  
+
   v4.0.0 redesign contract:
     - C++23 language baseline
     - header-only library
     - x86-64-first optimization and validation posture
     - breaking: replaces older bitarray-centered model with bit_block / bit_view / free algorithms
-  
+
   Tech stack:
     - C++23 (minimum)
     - CMake 3.16+
