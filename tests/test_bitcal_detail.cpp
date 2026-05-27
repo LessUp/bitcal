@@ -1,3 +1,22 @@
+// Implementation regression test suite for BitCal vNext internal word operations.
+//
+// This test file directly includes implementation headers (<bitcal/detail/word_ops.hpp>)
+// and tests internal implementation details, NOT the public contract.
+//
+// Purpose:
+// - Regression coverage for internal word-level operations
+// - Validation that SIMD backend dispatch works correctly across widths
+// - Internal invariant checking for detail::*_words functions
+//
+// NOT in scope:
+// - Public API contract validation (see test_bitcal.cpp)
+// - Public include seam verification (test_bitcal.cpp uses <bitcal/bitcal.hpp> only)
+//
+// Justification for retention:
+// These tests verify implementation-level correctness of the internal word operations
+// that underpin the public algorithms. They provide valuable regression coverage for
+// backend dispatch and SIMD correctness without being part of the public contract.
+
 #include <cstdint>
 #include <iostream>
 
