@@ -40,7 +40,7 @@ jobs:
             - `bitcal-${{ github.ref_name }}.zip`
             - `bitcal-${{ github.ref_name }}.tar.gz`
 
-            **v4.0.0 redesign:** This release replaces the older bitarray-centered model with bit_block, bit_view/const_bit_view, and free algorithms. x86-64 is the primary optimization and validation target.
+            **BitCal 4.x contract:** bit_block, bit_view/const_bit_view, and free algorithms. x86-64 is the primary optimization and validation target.
 
             Included contents:
 
