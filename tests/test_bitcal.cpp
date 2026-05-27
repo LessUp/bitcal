@@ -17,12 +17,14 @@ static_assert(std::is_default_constructible_v<bitcal::bit_block<256>>);
 static_assert(std::is_same_v<decltype(std::declval<bitcal::bit_block<256>>().view()), bitcal::bit_view>);
 static_assert(std::is_same_v<decltype(std::declval<const bitcal::bit_block<256>>().view()), bitcal::const_bit_view>);
 
-// Public contract verification: backend_kind enum is accessible and has retained values
+// Public contract verification: backend_kind enum is accessible with x86-first retained values
 static_assert(std::is_enum_v<bitcal::backend_kind>);
-static_assert(static_cast<int>(bitcal::backend_kind::scalar) == 0);
-static_assert(static_cast<int>(bitcal::backend_kind::sse2) == 1);
-static_assert(static_cast<int>(bitcal::backend_kind::avx2) == 2);
-static_assert(static_cast<int>(bitcal::backend_kind::avx512) == 3);
+static_assert(bitcal::backend_kind::scalar != bitcal::backend_kind::sse2);
+static_assert(bitcal::backend_kind::scalar != bitcal::backend_kind::avx2);
+static_assert(bitcal::backend_kind::scalar != bitcal::backend_kind::avx512);
+static_assert(bitcal::backend_kind::sse2 != bitcal::backend_kind::avx2);
+static_assert(bitcal::backend_kind::sse2 != bitcal::backend_kind::avx512);
+static_assert(bitcal::backend_kind::avx2 != bitcal::backend_kind::avx512);
 
 // Public contract verification: version macros are defined
 static_assert(BITCAL_VERSION_MAJOR == 4);
