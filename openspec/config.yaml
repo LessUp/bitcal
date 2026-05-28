@@ -2,29 +2,35 @@ schema: spec-driven
 
 # Project context for AI agents
 context: |
-  BitCal is a modern, high-performance C++17 header-only library for bit manipulation
-  operations with automatic SIMD acceleration.
+  BitCal is a header-only C++23 bit manipulation library in active v4.0.0 redesign.
+
+  v4.0.0 redesign contract:
+    - C++23 language baseline
+    - header-only library
+    - x86-64-first optimization and validation posture
+    - breaking: replaces older bitarray-centered model with bit_block / bit_view / free algorithms
 
   Tech stack:
-    - C++17 (minimum)
+    - C++23 (minimum)
     - CMake 3.16+
-    - Header-only library
-    - Supported compilers: GCC 7+, Clang 6+, MSVC 2017+, Apple Clang
+    - Primary targets: Linux/Windows x86-64 (GCC, Clang, MSVC)
+    - Secondary targets: ARM64 (weaker guarantees)
 
-  SIMD backends:
+  Core types (vNext):
+    - bit_block<Bits>: owning fixed-width storage
+    - bit_view / const_bit_view: non-owning views
+    - Free algorithms: bit_and, bit_or, bit_xor, shift_left, shift_right, etc.
+
+  SIMD backends (x86-64-first):
     - scalar (portable fallback)
     - sse2 (x86 128-bit)
-    - avx (x86 256-bit, transitional path when AVX2 is unavailable)
     - avx2 (x86 256-bit)
-    - avx512 (x86 512-bit, partial support for selected operations)
-    - neon (ARM 128-bit)
-
-  Predefined types:
-    - bit64, bit128, bit256, bit512, bit1024
+    - avx512 (x86 512-bit, partial support)
+    - neon (ARM 128-bit, secondary target)
 
   Code style:
     - Namespace: lowercase (bitcal)
-    - Class: lowercase_underscore (bitarray)
+    - Class: lowercase_underscore (bit_block, bit_view)
     - Function: lowercase_underscore (popcount, shift_left)
     - Macro: SCREAMING_SNAKE_CASE (BITCAL_HAS_AVX2)
 
