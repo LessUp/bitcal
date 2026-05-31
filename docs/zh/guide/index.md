@@ -34,6 +34,13 @@
       detail: '迁移不是靠模糊兼容话术，而是靠明确设计取舍来解释。'
     },
     {
+      title: '面试介绍',
+      href: '/zh/guide/interview-brief',
+      badge: '短版材料',
+      summary: '用一页材料串起项目定位、架构主线和 benchmark 口径。',
+      detail: '适合在汇报、面试或快速对外介绍时使用，详细证据仍回到性能页。'
+    },
+    {
       title: '白皮书',
       href: '/zh/whitepaper/',
       badge: '架构层',
@@ -70,4 +77,4 @@
 - 当前重设计是 **v4.0.0 级别** 的改造，明确允许 breaking change。
 - Pages 的任务是帮助你评估架构和证据，不是放大“功能数很多”的印象。
 
-如果你想先把文档锚定到可执行证据上，请继续看 [验证路径](/zh/guide/verification)；如果你已经熟悉仓库背景，可以直接进入 [白皮书](/zh/whitepaper/)。
+如果你要先准备一段可直接复述的项目介绍，可以先看 [面试介绍](/zh/guide/interview-brief)；如果你想把文档锚定到可执行证据上，请继续看 [验证路径](/zh/guide/verification)；如果你已经熟悉仓库背景，可以直接进入 [白皮书](/zh/whitepaper/)。

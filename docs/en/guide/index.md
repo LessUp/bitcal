@@ -34,6 +34,13 @@ The canonical path is **Guide → Whitepaper → Performance → Reference → R
       detail: 'Migration is explained as a design choice, not hidden behind ambiguous compatibility wording.'
     },
     {
+      title: 'Interview brief',
+      href: '/en/guide/interview-brief',
+      badge: 'Short form',
+      summary: 'Use one page to connect project positioning, architecture, and benchmark framing.',
+      detail: 'Useful for interviews, presentations, or fast external introductions while leaving full evidence in Performance.'
+    },
+    {
       title: 'Whitepaper',
       href: '/en/whitepaper/',
       badge: 'Architecture',
@@ -70,4 +77,4 @@ The canonical path is **Guide → Whitepaper → Performance → Reference → R
 - The redesign is **v4.0.0-scale** and is willing to break earlier expectations.
 - Current Pages content is organized to help you review architecture and evidence, not to maximize feature-count impression.
 
-Continue with the [verification path](/en/guide/verification) if you want to anchor the documentation in executable evidence first, or go straight to the [whitepaper](/en/whitepaper/) if you already know the repository context.
+Start with the [interview brief](/en/guide/interview-brief) if you need a short project narrative you can repeat directly; continue with the [verification path](/en/guide/verification) if you want to anchor the documentation in executable evidence first, or go straight to the [whitepaper](/en/whitepaper/) if you already know the repository context.
