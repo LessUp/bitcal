@@ -15,6 +15,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 💥 Breaking
+
+- Reduced backend contract to `scalar` and `avx2` only; removed retained `sse2` / `avx512` surface claims
+- Removed OpenSpec-first process assets from the active repository flow (`openspec/`, opsx command set)
+
+### ♻️ Refactor
+
+- Added public in-place bitwise APIs: `or_into()`, `xor_into()`, `andnot_into()` alongside existing `and_into()`
+- Removed dead SIMD and macro layers: `avx_ops.hpp`, `avx512_ops.hpp`, `sse_ops.hpp`, `neon_ops.hpp`, `scalar_ops.hpp`, `backend_ops.def`, `detail/backend.hpp`
+- Added `include/bitcal/detail/scalar_impl.hpp` and moved active scalar fallback + shift logic there
+- Aligned `backend_kind` and `default_backend()` with actual executable paths (`scalar` / `avx2`)
+- Collapsed tests to a single retained suite (`test_bitcal`), deleted `test_bitcal_detail` target
+
+### ⚙️ CI & Tooling
+
+- Simplified CI matrix to minimal retained jobs and removed `openspec/**` workflow triggers
+- Removed OpenSpec coupling from docs IA validator (`docs/scripts/check-ia.mjs`)
+
+### 📚 Docs
+
+- Updated README (EN/ZH) backend and API descriptions to match shipped behavior
+- Rewrote project governance docs (`AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, copilot instructions) to lightweight flow
+- Removed low-value whitepaper extras (`design-evolution` pages, `docs/diagrams/`)
+
 ## [4.0.0] - 2026-05-15
 
 ### 🚀 Highlights
@@ -53,7 +77,7 @@ bitcal/bitcal.hpp          # Single stable public include
 ├── bit_view.hpp           # Non-owning views
 ├── algorithms.hpp         # Public free algorithms
 └── detail/
-    ├── backend.hpp        # Backend tags
+    ├── scalar_impl.hpp    # Scalar fallback + shift primitives
     └── x64_dispatch.hpp   # x86-64 dispatch layer
 ```
 

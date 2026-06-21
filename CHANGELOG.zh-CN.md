@@ -15,6 +15,30 @@
 
 ## [未发布]
 
+### 💥 破坏性变更
+
+- 后端契约收敛为 `scalar` 与 `avx2`；移除 `sse2` / `avx512` 的保留公开承诺
+- 从活动主流程移除 OpenSpec-first 资产（`openspec/`、opsx 命令集）
+
+### ♻️ 重构
+
+- 公开 in-place 位运算 API 补齐：`or_into()`、`xor_into()`、`andnot_into()`（与 `and_into()` 并列）
+- 删除死 SIMD 与宏层：`avx_ops.hpp`、`avx512_ops.hpp`、`sse_ops.hpp`、`neon_ops.hpp`、`scalar_ops.hpp`、`backend_ops.def`、`detail/backend.hpp`
+- 新增 `include/bitcal/detail/scalar_impl.hpp`，承接仍在使用的 scalar fallback 与移位实现
+- `backend_kind` 与 `default_backend()` 收敛为真实执行路径（`scalar` / `avx2`）
+- 测试收敛为单套 `test_bitcal`，删除 `test_bitcal_detail`
+
+### ⚙️ CI 与工具链
+
+- CI 矩阵降到最小保留集，并移除 `openspec/**` 触发
+- docs IA 校验脚本去除 OpenSpec 目录强耦合（`docs/scripts/check-ia.mjs`）
+
+### 📚 文档
+
+- README（中英）后端与 API 描述改为与实现一致
+- 重写项目治理文档（`AGENTS.md`、`CLAUDE.md`、`CONTRIBUTING.md`、copilot 指令）为轻流程策略
+- 删除低价值白皮书附加资产（`design-evolution` 页面、`docs/diagrams/`）
+
 ## [4.0.0] - 2026-05-15
 
 ### 🚀 亮点
@@ -53,7 +77,7 @@ bitcal/bitcal.hpp          # 唯一稳定公开入口
 ├── bit_view.hpp           # 非拥有型视图
 ├── algorithms.hpp         # 公开自由算法
 └── detail/
-    ├── backend.hpp        # 后端标签
+    ├── scalar_impl.hpp    # scalar fallback 与移位原语
     └── x64_dispatch.hpp   # x86-64 分派层
 ```
 

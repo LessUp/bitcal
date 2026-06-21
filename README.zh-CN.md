@@ -25,7 +25,7 @@
 新的公开模型围绕以下三层展开：
 - `bit_block<Bits>`：拥有固定宽度位存储
 - `bit_view` / `const_bit_view`：非拥有视图
-- `bit_and<Bits>()` 这类自由算法
+- `bit_and<Bits>()` 与 `and_into()` 这类自由算法
 
 `<bitcal/bitcal.hpp>` 仍然是唯一稳定的公开 include seam。
 
@@ -54,6 +54,29 @@ int main() {
 }
 ```
 
+## API 参考
+
+### 核心类型
+
+| 类型 | 说明 |
+|------|------|
+| `bit_block<Bits>` | 拥有固定宽度位存储。`Bits >= 64` 且为 64 的倍数 |
+| `bit_view` | 非拥有可变视图 |
+| `const_bit_view` | 非拥有只读视图 |
+
+### 算法
+
+| 类别 | 函数 |
+|------|------|
+| 位运算 | `bit_and<Bits>()`, `bit_or<Bits>()`, `bit_xor<Bits>()`, `bit_andnot<Bits>()` |
+| 原地位运算 | `and_into()`, `or_into()`, `xor_into()`, `andnot_into()` |
+| 查询 | `equals()`, `is_zero()`, `popcount()` |
+| 移位 | `shift_left<Bits>()`, `shift_right<Bits>()` |
+
+### 后端
+
+x86-64: `scalar` / `avx2`（编译期选择）
+
 ## 构建
 
 ```bash
@@ -64,7 +87,6 @@ ctest --test-dir build-test --output-on-failure -C Release
 
 ## 文档
 
-- 活动需求的规范真相：`openspec/`
 - 文档架构策略：`docs/README.md`
 - 项目状态说明：`docs/en/status/index.md` 与 `docs/zh/status/index.md`
 - 版本历史只保留在 `CHANGELOG.md` 与 `CHANGELOG.zh-CN.md`

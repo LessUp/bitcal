@@ -25,7 +25,7 @@
 The new public model is centered on:
 - `bit_block<Bits>` for owning fixed-width storage
 - `bit_view` / `const_bit_view` for non-owning access
-- free algorithms such as `bit_and<Bits>()`
+- free algorithms such as `bit_and<Bits>()` and `and_into()`
 
 `<bitcal/bitcal.hpp>` remains the only stable public include seam.
 
@@ -54,6 +54,29 @@ int main() {
 }
 ```
 
+## API Reference
+
+### Core Types
+
+| Type | Description |
+|------|-------------|
+| `bit_block<Bits>` | Owning fixed-width storage. `Bits >= 64` and multiple of 64 |
+| `bit_view` | Non-owning mutable view |
+| `const_bit_view` | Non-owning read-only view |
+
+### Algorithms
+
+| Category | Functions |
+|----------|-----------|
+| Bitwise | `bit_and<Bits>()`, `bit_or<Bits>()`, `bit_xor<Bits>()`, `bit_andnot<Bits>()` |
+| In-place bitwise | `and_into()`, `or_into()`, `xor_into()`, `andnot_into()` |
+| Query | `equals()`, `is_zero()`, `popcount()` |
+| Shift | `shift_left<Bits>()`, `shift_right<Bits>()` |
+
+### Backends
+
+x86-64: `scalar` / `avx2` (compile-time selection)
+
 ## Build
 
 ```bash
@@ -64,7 +87,6 @@ ctest --test-dir build-test --output-on-failure -C Release
 
 ## Documentation
 
-- OpenSpec is the canonical source for active requirements: `openspec/`
 - Documentation architecture policy lives in `docs/README.md`
 - Project status lives in `docs/en/status/index.md` and `docs/zh/status/index.md`
 - Release history lives only in `CHANGELOG.md` and `CHANGELOG.zh-CN.md`

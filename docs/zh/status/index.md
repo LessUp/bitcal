@@ -24,7 +24,7 @@ Status 的任务，是把 BitCal 所有叙事中的修辞成分都剥掉，只�
 
 当前主要真相源仍然是：
 
-- `openspec/` 中的活动需求与变更；
+- 代码/测试中的可验证行为与 README/changelog 的对齐；
 - `docs/README.md` 中的文档架构政策；
 - 稳定公开 include seam `<bitcal/bitcal.hpp>`；
 - 仓库中定义版本语义的单一事实来源。
@@ -33,7 +33,7 @@ Status 的任务，是把 BitCal 所有叙事中的修辞成分都剥掉，只�
 
 BitCal 期望以下几类资产同步移动：
 
-- OpenSpec 与 Status 文案；
+- Status 文案与公开 README；
 - Reference 表述与公开示例；
 - benchmark 方法学与 benchmark claim；
 - 实现进展与支持矩阵。

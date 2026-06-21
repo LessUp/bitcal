@@ -18,7 +18,7 @@ BitCal vNext 不是在旧公开模型外面做一层新包装，而是在替换�
 
 - `<bitcal/bitcal.hpp>` 依旧是唯一稳定 include seam；
 - 基于 CMake 的本地验证路径仍是保留的评审入口；
-- 文档、测试、benchmark 与 OpenSpec 需要一起移动。
+- 文档、测试与 benchmark 需要一起移动。
 
 ## 什么被刻意保持不稳定
 

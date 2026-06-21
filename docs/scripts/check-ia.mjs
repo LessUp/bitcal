@@ -3,14 +3,18 @@ import path from 'node:path'
 import process from 'node:process'
 
 const docsDir = process.cwd()
-const repoRoot = path.resolve(docsDir, '..')
-const activeChangeName = '2026-05-15-pages-whitepaper-overhaul'
 
 const read = (relativePath, baseDir = docsDir) => fs.readFileSync(path.join(baseDir, relativePath), 'utf8')
 const exists = (relativePath, baseDir = docsDir) => fs.existsSync(path.join(baseDir, relativePath))
+const readOptional = (relativePath, baseDir) => {
+  const targetPath = path.join(baseDir, relativePath)
+  if (!fs.existsSync(targetPath)) {
+    return null
+  }
+  return fs.readFileSync(targetPath, 'utf8')
+}
 
 const errors = []
-const warnings = []
 const expect = (condition, message) => {
   if (!condition) errors.push(message)
 }
@@ -64,25 +68,6 @@ const extractLocaleNav = (configContent, locale) => {
     links: [...navBlock.matchAll(/link:\s*'([^']+)'/g)].map((match) => match[1]),
     labels: [...navBlock.matchAll(/text:\s*'([^']+)'/g)].map((match) => match[1]),
   }
-}
-
-const resolveChangeDir = (changeName) => {
-  const candidates = [
-    path.join(repoRoot, 'openspec/changes', changeName),
-    path.join(repoRoot, 'openspec/changes/archive', changeName),
-  ]
-
-  return candidates.find((candidate) => fs.existsSync(candidate)) ?? null
-}
-
-const readOptional = (relativePath, baseDir, label) => {
-  const targetPath = path.join(baseDir, relativePath)
-  if (!fs.existsSync(targetPath)) {
-    warnings.push(`Skipped ${label}: missing ${path.relative(repoRoot, targetPath)}`)
-    return null
-  }
-
-  return fs.readFileSync(targetPath, 'utf8')
 }
 
 const localeNavExpectations = {
@@ -163,11 +148,6 @@ const filesToCheckForOldPaths = [
 const config = read('.vitepress/config.ts')
 const readme = read('README.md')
 const docsIndex = read('index.md')
-const changeDir = resolveChangeDir(activeChangeName)
-const proposal = changeDir ? readOptional('proposal.md', changeDir, 'proposal') : null
-const design = changeDir ? readOptional('design.md', changeDir, 'design') : null
-const tasks = changeDir ? readOptional('tasks.md', changeDir, 'tasks') : null
-const spec = changeDir ? readOptional('specs/project-documentation-site/spec.md', changeDir, 'spec') : null
 const srcExcludeBlock = readBracketedBlock(config, 'srcExclude: [', '[', ']')
 const llmsIgnoreFilesBlock = readBracketedBlock(config, 'ignoreFiles: [', '[', ']')
 
@@ -208,7 +188,7 @@ expect(!docsIndex.includes('Legacy academy paths remain compatibility-only alias
 expect(docsIndex.includes('maintained primary IA') || docsIndex.includes('主 IA'), 'docs/index.md must describe the retained primary IA')
 
 for (const relativePath of filesToCheckForOldPaths) {
-  const content = readOptional(relativePath, docsDir, `old path scan: ${relativePath}`)
+  const content = readOptional(relativePath, docsDir)
   if (content === null) continue
   expect(!content.includes('/academy/'), `${relativePath} still links to academy paths`)
   expect(!content.includes('/project-status/'), `${relativePath} still links to project-status paths`)
@@ -216,27 +196,6 @@ for (const relativePath of filesToCheckForOldPaths) {
   expect(!content.includes('/release-notes/'), `${relativePath} still links to release-notes paths`)
   expect(!content.includes('/getting-started/'), `${relativePath} still links to getting-started paths`)
   expect(!content.includes('/api/'), `${relativePath} still links to api compatibility paths`)
-}
-
-if (!changeDir) {
-  warnings.push(`Skipped OpenSpec content checks: active or archived change not found for ${activeChangeName}`)
-}
-
-for (const [name, content] of Object.entries({ proposal, design, tasks, spec })) {
-  if (content === null) continue
-  expect(content.includes('Guide / Whitepaper / Performance / Reference / Research / Status'), `${name} missing canonical IA phrase`)
-}
-
-expect(proposal?.includes('Remove compatibility-only doc trees and Pages changelog mirrors') ?? false, 'proposal must explicitly remove compatibility-only doc trees and Pages changelog mirrors')
-expect(design?.includes('兼容 alias 不再保留') ?? false, 'design must state that compatibility aliases are no longer retained')
-expect(tasks?.includes('Delete compatibility-only route trees') ?? false, 'tasks must include deleting compatibility-only route trees')
-expect(spec?.includes('MUST NOT keep a changelog entry page under `docs/`') ?? false, 'spec must forbid retained docs changelog entry pages')
-expect(spec?.includes('MUST NOT keep compatibility-only alias routes') ?? false, 'spec must forbid keeping compatibility-only alias routes')
-
-if (warnings.length > 0) {
-  for (const warning of warnings) {
-    console.warn(`IA validation warning: ${warning}`)
-  }
 }
 
 if (errors.length > 0) {

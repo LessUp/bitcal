@@ -24,7 +24,7 @@ Status is where BitCal drops all rhetorical excess and states the redesign in pr
 
 The main sources of truth remain:
 
-- active requirements and deltas in `openspec/`;
+- behavior verified in code/tests and reflected in README/changelog;
 - documentation architecture policy in `docs/README.md`;
 - the stable public include seam `<bitcal/bitcal.hpp>`;
 - version semantics defined from the repository source of truth.
@@ -33,7 +33,7 @@ The main sources of truth remain:
 
 BitCal expects these surfaces to move together:
 
-- OpenSpec and status language;
+- status language and public README;
 - reference wording and public examples;
 - benchmark methodology and benchmark claims;
 - implementation work and the support matrix.

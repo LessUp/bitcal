@@ -18,7 +18,7 @@ Some things are intentionally held steady even during the redesign:
 
 - `<bitcal/bitcal.hpp>` remains the only stable include seam;
 - CMake-based local verification remains the retained review path;
-- documentation, tests, benchmarks, and OpenSpec are expected to move together.
+- documentation, tests, and benchmarks are expected to move together.
 
 ## What is intentionally unstable
 

@@ -14,7 +14,6 @@ export default withMermaid(defineConfig({
   base,
   srcExclude: [
     'README.md',
-    'superpowers/**',
   ],
   title: 'BitCal',
   description: 'Whitepaper-first SIMD bit computation for C++23',
@@ -191,7 +190,6 @@ export default withMermaid(defineConfig({
       llmstxt({
         ignoreFiles: [
           'README.md',
-          'superpowers/**',
         ],
       }),
     ],
