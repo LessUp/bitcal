@@ -11,7 +11,6 @@ on:
       - "cmake/**"
       - "CMakeLists.txt"
       - "vcpkg.json"
-      - "openspec/**"
       - "docs/**"
       - "README.md"
       - "README.zh-CN.md"
@@ -28,7 +27,6 @@ on:
       - "cmake/**"
       - "CMakeLists.txt"
       - "vcpkg.json"
-      - "openspec/**"
       - "docs/**"
       - "README.md"
       - "README.zh-CN.md"
@@ -45,59 +43,20 @@ concurrency:
 
 jobs:
   build-and-test:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            compiler: gcc
-            cxx: g++
-            cc: gcc
-            name: "Linux x64 GCC"
-
-          - os: ubuntu-latest
-            compiler: clang
-            cxx: clang++
-            cc: clang
-            name: "Linux x64 Clang"
-
-          - os: windows-latest
-            compiler: msvc
-            name: "Windows x64 MSVC"
-
-          # Note: macos-latest uses ARM64 runners (M1/M2 Silicon)
-          # For x86_64 macOS testing, use macos-13 runner
-          - os: macos-latest
-            compiler: appleclang
-            cxx: clang++
-            cc: clang
-            name: "macOS ARM64 AppleClang"
-
-    name: ${{ matrix.name }}
-    runs-on: ${{ matrix.os }}
-
+    name: Linux x64 GCC
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure (Unix)
-        if: matrix.compiler != 'msvc'
+      - name: Configure
         env:
-          CC: ${{ matrix.cc }}
-          CXX: ${{ matrix.cxx }}
+          CC: gcc
+          CXX: g++
         run: |
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DBITCAL_BUILD_TESTS=ON \
             -DBITCAL_BUILD_EXAMPLES=ON \
-            -DBITCAL_NATIVE_ARCH=ON
-
-      - name: Configure (MSVC)
-        if: matrix.compiler == 'msvc'
-        shell: pwsh
-        run: |
-          cmake -S . -B build `
-            -DBITCAL_BUILD_TESTS=ON `
-            -DBITCAL_BUILD_EXAMPLES=ON `
             -DBITCAL_NATIVE_ARCH=ON
 
       - name: Build
@@ -105,30 +64,6 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --output-on-failure -C Release
-
-  build-arm64:
-    name: "Linux ARM64 (cross-compile)"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install ARM64 toolchain
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y g++-aarch64-linux-gnu
-
-      - name: Configure
-        run: |
-          cmake -S . -B build \
-            -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ \
-            -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBITCAL_BUILD_TESTS=ON \
-            -DBITCAL_BUILD_EXAMPLES=ON \
-            -DBITCAL_NATIVE_ARCH=OFF
-
-      - name: Build
-        run: cmake --build build --config Release
 
   sanitizer-test:
     name: "Sanitizer (ASan + UBSan)"

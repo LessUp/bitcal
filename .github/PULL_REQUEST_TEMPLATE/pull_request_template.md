@@ -9,5 +9,5 @@
 
 ## Checklist
 - [ ] Self-review completed
-- [ ] API changes reflected in OpenSpec (if applicable)
+- [ ] API changes reflected in tests and README/docs (if applicable)
 - [ ] CHANGELOG.md updated (if user-facing change)
