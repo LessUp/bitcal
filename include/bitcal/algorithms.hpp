@@ -36,12 +36,21 @@ inline void and_into(const const_bit_view lhs, const const_bit_view rhs, bit_vie
     detail::and_words(lhs, rhs, out);
 }
 
+inline void or_into(const const_bit_view lhs, const const_bit_view rhs, bit_view out) noexcept {
+    detail::or_words(lhs, rhs, out);
+}
+
+inline void xor_into(const const_bit_view lhs, const const_bit_view rhs, bit_view out) noexcept {
+    detail::xor_words(lhs, rhs, out);
+}
+
+inline void andnot_into(const const_bit_view lhs, const const_bit_view rhs, bit_view out) noexcept {
+    detail::andnot_words(lhs, rhs, out);
+}
+
 template <std::size_t Bits>
 [[nodiscard]] inline bit_block<Bits> bit_and(const const_bit_view lhs, const const_bit_view rhs) noexcept {
-    return detail::compose_binary_block<Bits>(lhs, rhs, [](const const_bit_view lhs_view, const const_bit_view rhs_view,
-                                                           bit_view out_view) noexcept {
-        and_into(lhs_view, rhs_view, out_view);
-    });
+    return detail::compose_binary_block<Bits>(lhs, rhs, detail::and_words);
 }
 
 template <std::size_t Bits>

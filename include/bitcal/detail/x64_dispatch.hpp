@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../config.hpp"
-#include "backend.hpp"
+#include "scalar_impl.hpp"
 
 namespace bitcal::detail {
 

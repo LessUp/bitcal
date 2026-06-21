@@ -70,12 +70,8 @@ inline const char* active_backend_name() noexcept {
     switch (bitcal::default_backend()) {
         case bitcal::backend_kind::scalar:
             return "scalar";
-        case bitcal::backend_kind::sse2:
-            return "sse2";
         case bitcal::backend_kind::avx2:
             return "avx2";
-        case bitcal::backend_kind::avx512:
-            return "avx512";
     }
 
     return "unknown";

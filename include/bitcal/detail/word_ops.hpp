@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../scalar_ops.hpp"
 #include "../bit_view.hpp"
+#include "scalar_impl.hpp"
 #include "x64_dispatch.hpp"
 
 #include <bit>
@@ -92,7 +92,7 @@ inline void shift_left_words(const const_bit_view value, bit_view out, const int
     assert(count >= 0);
     assert_fixed_word_layout<Bits>(value, out);
     copy_words(value, out);
-    scalar::shift_left_array<Bits / 64>(out.data(), count);
+    shift_left_array<Bits / 64>(out.data(), count);
 }
 
 template <std::size_t Bits>
@@ -100,7 +100,7 @@ inline void shift_right_words(const const_bit_view value, bit_view out, const in
     assert(count >= 0);
     assert_fixed_word_layout<Bits>(value, out);
     copy_words(value, out);
-    scalar::shift_right_array<Bits / 64>(out.data(), count);
+    shift_right_array<Bits / 64>(out.data(), count);
 }
 
 }  // namespace bitcal::detail

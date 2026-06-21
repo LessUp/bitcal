@@ -19,12 +19,7 @@ static_assert(std::is_same_v<decltype(std::declval<const bitcal::bit_block<256>>
 
 // Public contract verification: backend_kind enum is accessible with x86-first retained values
 static_assert(std::is_enum_v<bitcal::backend_kind>);
-static_assert(bitcal::backend_kind::scalar != bitcal::backend_kind::sse2);
 static_assert(bitcal::backend_kind::scalar != bitcal::backend_kind::avx2);
-static_assert(bitcal::backend_kind::scalar != bitcal::backend_kind::avx512);
-static_assert(bitcal::backend_kind::sse2 != bitcal::backend_kind::avx2);
-static_assert(bitcal::backend_kind::sse2 != bitcal::backend_kind::avx512);
-static_assert(bitcal::backend_kind::avx2 != bitcal::backend_kind::avx512);
 
 // Public contract verification: version macros are defined
 static_assert(BITCAL_VERSION_MAJOR == 4);
@@ -111,6 +106,67 @@ bool test_vnext_and_into_writes_preallocated_output() {
 
     BITCAL_ASSERT_EQ(out.word(0), std::uint64_t{0b0101ULL});
     BITCAL_ASSERT_EQ(out.word(3), std::uint64_t{0xC0ULL});
+    return true;
+}
+
+bool test_vnext_or_into_writes_preallocated_output() {
+    bitcal::bit_block<256> lhs;
+    bitcal::bit_block<256> rhs;
+    bitcal::bit_block<256> out;
+
+    auto lhs_view = lhs.view();
+    auto rhs_view = rhs.view();
+    auto out_view = out.view();
+
+    lhs_view.data()[0] = 0x0F0FULL;
+    lhs_view.data()[3] = 0xF0ULL;
+    rhs_view.data()[0] = 0xF0F0ULL;
+    rhs_view.data()[3] = 0x0FULL;
+    out_view.data()[0] = 0ULL;
+    out_view.data()[3] = 0ULL;
+
+    bitcal::or_into(lhs.view(), rhs.view(), out.view());
+
+    BITCAL_ASSERT_EQ(out.word(0), std::uint64_t{0xFFFFULL});
+    BITCAL_ASSERT_EQ(out.word(3), std::uint64_t{0xFFULL});
+    return true;
+}
+
+bool test_vnext_xor_into_writes_preallocated_output() {
+    bitcal::bit_block<256> lhs;
+    bitcal::bit_block<256> rhs;
+    bitcal::bit_block<256> out;
+
+    auto lhs_view = lhs.view();
+    auto rhs_view = rhs.view();
+    auto out_view = out.view();
+
+    lhs_view.data()[0] = 0xFFFF0000FFFF0000ULL;
+    rhs_view.data()[0] = 0x00FF00FF00FF00FFULL;
+    out_view.data()[0] = 0ULL;
+
+    bitcal::xor_into(lhs.view(), rhs.view(), out.view());
+
+    BITCAL_ASSERT_EQ(out.word(0), std::uint64_t{0xFF0000FFFF0000FFULL});
+    return true;
+}
+
+bool test_vnext_andnot_into_writes_preallocated_output() {
+    bitcal::bit_block<256> lhs;
+    bitcal::bit_block<256> rhs;
+    bitcal::bit_block<256> out;
+
+    auto lhs_view = lhs.view();
+    auto rhs_view = rhs.view();
+    auto out_view = out.view();
+
+    lhs_view.data()[0] = 0xFFFFULL;
+    rhs_view.data()[0] = 0x0FF0ULL;
+    out_view.data()[0] = 0ULL;
+
+    bitcal::andnot_into(lhs.view(), rhs.view(), out.view());
+
+    BITCAL_ASSERT_EQ(out.word(0), std::uint64_t{0xF00FULL});
     return true;
 }
 
@@ -359,10 +415,7 @@ bool test_public_contract_backend_kind_enum_is_accessible() {
     // and that default_backend() returns one of the retained values
     const auto backend = bitcal::default_backend();
 
-    BITCAL_ASSERT_TRUE(backend == bitcal::backend_kind::scalar ||
-                       backend == bitcal::backend_kind::sse2 ||
-                       backend == bitcal::backend_kind::avx2 ||
-                       backend == bitcal::backend_kind::avx512);
+    BITCAL_ASSERT_TRUE(backend == bitcal::backend_kind::scalar || backend == bitcal::backend_kind::avx2);
 
     return true;
 }
@@ -393,6 +446,10 @@ bool test_public_contract_all_retained_algorithms_are_accessible() {
     auto or_result = bitcal::bit_or<256>(lhs.view(), rhs.view());
     auto xor_result = bitcal::bit_xor<256>(lhs.view(), rhs.view());
     auto andnot_result = bitcal::bit_andnot<256>(lhs.view(), rhs.view());
+    bitcal::and_into(lhs.view(), rhs.view(), lhs.view());
+    bitcal::or_into(lhs.view(), rhs.view(), lhs.view());
+    bitcal::xor_into(lhs.view(), rhs.view(), lhs.view());
+    bitcal::andnot_into(lhs.view(), rhs.view(), lhs.view());
 
     // Query and counting algorithms
     bool zero = bitcal::is_zero(lhs.view());
@@ -440,6 +497,12 @@ int main() {
                            test_vnext_popcount_counts_bits_across_words);
     bitcal::test::run_case(g_counters, "test_vnext_and_into_writes_preallocated_output",
                            test_vnext_and_into_writes_preallocated_output);
+    bitcal::test::run_case(g_counters, "test_vnext_or_into_writes_preallocated_output",
+                           test_vnext_or_into_writes_preallocated_output);
+    bitcal::test::run_case(g_counters, "test_vnext_xor_into_writes_preallocated_output",
+                           test_vnext_xor_into_writes_preallocated_output);
+    bitcal::test::run_case(g_counters, "test_vnext_andnot_into_writes_preallocated_output",
+                           test_vnext_andnot_into_writes_preallocated_output);
     bitcal::test::run_case(g_counters, "test_vnext_bit_or_combines_words_256", test_vnext_bit_or_combines_words_256);
     bitcal::test::run_case(g_counters, "test_vnext_bit_xor_combines_words_256", test_vnext_bit_xor_combines_words_256);
     bitcal::test::run_case(g_counters, "test_vnext_bit_andnot_masks_words_256",
