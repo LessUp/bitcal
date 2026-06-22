@@ -15,24 +15,12 @@ inline void assert_binary_word_layout(const const_bit_view lhs, const const_bit_
     assert(lhs.word_count() == out.word_count());
 }
 
-inline void and_words(const const_bit_view lhs, const const_bit_view rhs, bit_view out) noexcept {
+template <typename VectorOp, typename WordOp>
+inline void binary_words(const const_bit_view lhs, const const_bit_view rhs, bit_view out,
+                         VectorOp&& vector_op, WordOp&& word_op) noexcept {
     assert_binary_word_layout(lhs, rhs, out);
-    and_into_x64(lhs.data(), rhs.data(), out.data(), out.word_count());
-}
-
-inline void or_words(const const_bit_view lhs, const const_bit_view rhs, bit_view out) noexcept {
-    assert_binary_word_layout(lhs, rhs, out);
-    or_into_x64(lhs.data(), rhs.data(), out.data(), out.word_count());
-}
-
-inline void xor_words(const const_bit_view lhs, const const_bit_view rhs, bit_view out) noexcept {
-    assert_binary_word_layout(lhs, rhs, out);
-    xor_into_x64(lhs.data(), rhs.data(), out.data(), out.word_count());
-}
-
-inline void andnot_words(const const_bit_view lhs, const const_bit_view rhs, bit_view out) noexcept {
-    assert_binary_word_layout(lhs, rhs, out);
-    andnot_into_x64(lhs.data(), rhs.data(), out.data(), out.word_count());
+    binary_into_x64(lhs.data(), rhs.data(), out.data(), out.word_count(),
+                    std::forward<VectorOp>(vector_op), std::forward<WordOp>(word_op));
 }
 
 [[nodiscard]] constexpr bool is_zero_words(const const_bit_view value) noexcept {
