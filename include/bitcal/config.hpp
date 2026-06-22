@@ -39,17 +39,17 @@ enum class backend_kind {
     avx2,
 };
 
-// Optimal alignment based on bit width
+// Optimal alignment based on bit width.
+// Only widths >= 256 bits (4+ words) use the AVX2 path and benefit from
+// 32-byte alignment. Smaller widths use the scalar fast path and are
+// better served by natural alignment, which avoids the compiler emitting
+// wide zero-initialization stores that cannot be eliminated as dead code.
 template <size_t Bits>
 constexpr size_t get_optimal_alignment() noexcept {
-    if constexpr (Bits <= 64)
-        return 8;       // 64-bit: 8-byte alignment
-    else if constexpr (Bits <= 128)
-        return 16;      // 128-bit: 16-byte alignment (SSE)
-    else if constexpr (Bits <= 256)
-        return 32;      // 256-bit: 32-byte alignment (AVX)
+    if constexpr (Bits >= 256)
+        return 32;      // 256-bit+: 32-byte alignment (AVX2 path)
     else
-        return 64;      // 512-bit+: 64-byte alignment (AVX-512)
+        return alignof(std::uint64_t);  // Scalar path: natural alignment
 }
 
 [[nodiscard]] constexpr backend_kind default_backend() noexcept {
