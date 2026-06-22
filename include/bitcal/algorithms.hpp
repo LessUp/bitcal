@@ -9,6 +9,13 @@ namespace bitcal {
 
 namespace detail {
 
+// Why two operation parameters for the same logical operation:
+// `binary_op` operates on whole bit_views and routes through the SIMD
+// dispatch path (used for >= 4 words). `word_op` operates on a single
+// uint64 pair and is used by the small-width fast path so the compiler
+// can inline the per-word computation and elide `out`'s zero-init.
+// They must express the same semantic operation; callers below keep
+// them in sync per bitwise kind.
 template <std::size_t Bits, typename BinaryOp, typename WordOp>
 [[nodiscard]] inline bit_block<Bits> compose_binary_block(const const_bit_view lhs, const const_bit_view rhs,
                                                           BinaryOp&& binary_op, WordOp&& word_op) noexcept {
@@ -34,6 +41,27 @@ template <std::size_t Bits, typename BinaryOp, typename WordOp>
         binary_op(lhs, rhs, out.view());
     }
 
+    return out;
+}
+
+// Shared shape for shift_left / shift_right: copy the input into a fresh
+// block, then apply the in-place array shifter. The two shifts differ only
+// in which `shift_*_array` is invoked, so we route that through `ShiftOp`
+// rather than duplicating the copy + dispatch skeleton.
+template <std::size_t Bits, typename ShiftOp>
+[[nodiscard]] inline bit_block<Bits> compose_shifted_block(const const_bit_view value, const int count,
+                                                           ShiftOp&& shift_op) noexcept {
+    constexpr std::size_t wc = bit_block<Bits>::word_count;
+    assert(value.word_count() == wc);
+    assert(count >= 0);
+
+    bit_block<Bits> out;
+    auto* out_data = out.view().data();
+    const auto* in_data = value.data();
+    for (std::size_t i = 0; i < wc; ++i) {
+        out_data[i] = in_data[i];
+    }
+    shift_op(out_data, count);
     return out;
 }
 
@@ -98,33 +126,15 @@ template <std::size_t Bits>
 template <std::size_t Bits>
 [[nodiscard]] inline bit_block<Bits> shift_left(const const_bit_view value, const int count) noexcept {
     constexpr std::size_t wc = bit_block<Bits>::word_count;
-    assert(value.word_count() == wc);
-    assert(count >= 0);
-
-    bit_block<Bits> out;
-    auto* out_data = out.view().data();
-    const auto* in_data = value.data();
-    for (std::size_t i = 0; i < wc; ++i) {
-        out_data[i] = in_data[i];
-    }
-    detail::shift_left_array<wc>(out_data, count);
-    return out;
+    return detail::compose_shifted_block<Bits>(
+        value, count, [](std::uint64_t* data, int c) noexcept { detail::shift_left_array<wc>(data, c); });
 }
 
 template <std::size_t Bits>
 [[nodiscard]] inline bit_block<Bits> shift_right(const const_bit_view value, const int count) noexcept {
     constexpr std::size_t wc = bit_block<Bits>::word_count;
-    assert(value.word_count() == wc);
-    assert(count >= 0);
-
-    bit_block<Bits> out;
-    auto* out_data = out.view().data();
-    const auto* in_data = value.data();
-    for (std::size_t i = 0; i < wc; ++i) {
-        out_data[i] = in_data[i];
-    }
-    detail::shift_right_array<wc>(out_data, count);
-    return out;
+    return detail::compose_shifted_block<Bits>(
+        value, count, [](std::uint64_t* data, int c) noexcept { detail::shift_right_array<wc>(data, c); });
 }
 
 }  // namespace bitcal
