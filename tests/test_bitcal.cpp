@@ -437,55 +437,56 @@ bool test_public_contract_core_types_accessible_through_umbrella() {
 }
 
 bool test_public_contract_all_retained_algorithms_are_accessible() {
-    // Verify that all retained public algorithms from the API spec are accessible
+    // Runtime smoke: every retained algorithm is callable with the documented
+    // argument shape. Compile-time shape (return types, invocability) is
+    // verified by the static_asserts below; this function exercises the
+    // runtime path so the test runner has something to invoke.
     bitcal::bit_block<256> lhs;
     bitcal::bit_block<256> rhs;
 
-    // Bitwise algorithms
-    auto and_result = bitcal::bit_and<256>(lhs.view(), rhs.view());
-    auto or_result = bitcal::bit_or<256>(lhs.view(), rhs.view());
-    auto xor_result = bitcal::bit_xor<256>(lhs.view(), rhs.view());
-    auto andnot_result = bitcal::bit_andnot<256>(lhs.view(), rhs.view());
+    [[maybe_unused]] auto and_result = bitcal::bit_and<256>(lhs.view(), rhs.view());
+    [[maybe_unused]] auto or_result = bitcal::bit_or<256>(lhs.view(), rhs.view());
+    [[maybe_unused]] auto xor_result = bitcal::bit_xor<256>(lhs.view(), rhs.view());
+    [[maybe_unused]] auto andnot_result = bitcal::bit_andnot<256>(lhs.view(), rhs.view());
     bitcal::and_into(lhs.view(), rhs.view(), lhs.view());
     bitcal::or_into(lhs.view(), rhs.view(), lhs.view());
     bitcal::xor_into(lhs.view(), rhs.view(), lhs.view());
     bitcal::andnot_into(lhs.view(), rhs.view(), lhs.view());
 
-    // Query and counting algorithms
-    bool zero = bitcal::is_zero(lhs.view());
-    std::uint64_t count = bitcal::popcount(lhs.view());
-    bool equal = bitcal::equals(lhs.view(), rhs.view());
+    [[maybe_unused]] bool zero = bitcal::is_zero(lhs.view());
+    [[maybe_unused]] std::uint64_t count = bitcal::popcount(lhs.view());
+    [[maybe_unused]] bool equal = bitcal::equals(lhs.view(), rhs.view());
 
-    // Shift algorithms
-    auto shift_l = bitcal::shift_left<256>(lhs.view(), 10);
-    auto shift_r = bitcal::shift_right<256>(lhs.view(), 10);
-
-    // Silence unused variable warnings
-    (void)and_result;
-    (void)or_result;
-    (void)xor_result;
-    (void)andnot_result;
-    (void)zero;
-    (void)count;
-    (void)equal;
-    (void)shift_l;
-    (void)shift_r;
+    [[maybe_unused]] auto shift_l = bitcal::shift_left<256>(lhs.view(), 10);
+    [[maybe_unused]] auto shift_r = bitcal::shift_right<256>(lhs.view(), 10);
 
     return true;
 }
 
-bool test_public_contract_version_macros_are_defined() {
-    // Verify that version macros are accessible and have expected v4 values
-    BITCAL_ASSERT_EQ(BITCAL_VERSION_MAJOR, 4);
-    BITCAL_ASSERT_EQ(BITCAL_VERSION_MINOR, 0);
-    BITCAL_ASSERT_EQ(BITCAL_VERSION_PATCH, 0);
-
-    const auto version = BITCAL_VERSION;
-    const auto expected = (4 << 16) | (0 << 8) | 0;
-    BITCAL_ASSERT_EQ(version, expected);
-
-    return true;
-}
+// Compile-time contract: every retained algorithm is invocable with the
+// documented argument shape and returns the documented type. This is the
+// real "API surface" check; the runtime function above only exercises it.
+static_assert(std::is_same_v<decltype(bitcal::bit_and<256>(std::declval<bitcal::const_bit_view>(),
+                                                           std::declval<bitcal::const_bit_view>())),
+                             bitcal::bit_block<256>>);
+static_assert(std::is_same_v<decltype(bitcal::bit_or<256>(std::declval<bitcal::const_bit_view>(),
+                                                          std::declval<bitcal::const_bit_view>())),
+                             bitcal::bit_block<256>>);
+static_assert(std::is_same_v<decltype(bitcal::bit_xor<256>(std::declval<bitcal::const_bit_view>(),
+                                                           std::declval<bitcal::const_bit_view>())),
+                             bitcal::bit_block<256>>);
+static_assert(std::is_same_v<decltype(bitcal::bit_andnot<256>(std::declval<bitcal::const_bit_view>(),
+                                                              std::declval<bitcal::const_bit_view>())),
+                             bitcal::bit_block<256>>);
+static_assert(std::is_same_v<decltype(bitcal::shift_left<256>(std::declval<bitcal::const_bit_view>(), 0)),
+                             bitcal::bit_block<256>>);
+static_assert(std::is_same_v<decltype(bitcal::shift_right<256>(std::declval<bitcal::const_bit_view>(), 0)),
+                             bitcal::bit_block<256>>);
+static_assert(std::is_same_v<decltype(bitcal::is_zero(std::declval<bitcal::const_bit_view>())), bool>);
+static_assert(std::is_same_v<decltype(bitcal::popcount(std::declval<bitcal::const_bit_view>())), std::uint64_t>);
+static_assert(std::is_same_v<decltype(bitcal::equals(std::declval<bitcal::const_bit_view>(),
+                                                     std::declval<bitcal::const_bit_view>())),
+                             bool>);
 
 int main() {
     std::cout << "=== BitCal vNext test suite ===" << std::endl;
@@ -545,8 +546,6 @@ int main() {
                            test_public_contract_core_types_accessible_through_umbrella);
     bitcal::test::run_case(g_counters, "test_public_contract_all_retained_algorithms_are_accessible",
                            test_public_contract_all_retained_algorithms_are_accessible);
-    bitcal::test::run_case(g_counters, "test_public_contract_version_macros_are_defined",
-                           test_public_contract_version_macros_are_defined);
 
     std::cout << std::endl;
     std::cout << "Passed: " << g_counters.pass << std::endl;

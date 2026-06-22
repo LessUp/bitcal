@@ -9,6 +9,27 @@
 
 namespace bitcal {
 
+namespace detail {
+
+// Bridges constexpr and runtime word-copy paths. In a consteval context the
+// byte-copy intrinsics are unavailable, so we fall back to a per-word loop;
+// at runtime we delegate to `ByteCopy` (memcpy for from_words, memmove for
+// copy_words_to, which must support self-overlap). The `if consteval`
+// dispatch is centralized here so bit_block's two callers don't each repeat
+// the constexpr/runtime fork.
+template <std::size_t N, typename ByteCopy>
+constexpr void copy_words_helper(const std::uint64_t* src, std::uint64_t* dst, ByteCopy&& byte_copy) noexcept {
+    if consteval {
+        for (std::size_t i = 0; i < N; ++i) {
+            dst[i] = src[i];
+        }
+    } else {
+        byte_copy(dst, src, N * sizeof(std::uint64_t));
+    }
+}
+
+}  // namespace detail
+
 template <std::size_t Bits>
 class bit_block {
     static_assert(Bits >= 64, "Bits must be at least 64");
@@ -25,14 +46,9 @@ public:
         assert(words.size() == word_count);
 
         bit_block out;
-        if consteval {
-            for (std::size_t i = 0; i < word_count; ++i) {
-                out.words_[i] = words[i];
-            }
-        } else {
-            std::memcpy(out.words_.data(), words.data(), word_count * sizeof(std::uint64_t));
-        }
-
+        detail::copy_words_helper<word_count>(
+            words.data(), out.words_.data(),
+            [](void* dst, const void* src, std::size_t n) noexcept { std::memcpy(dst, src, n); });
         return out;
     }
 
@@ -47,13 +63,11 @@ public:
     constexpr void copy_words_to(const std::span<std::uint64_t> out) const noexcept {
         assert(out.size() == word_count);
 
-        if consteval {
-            for (std::size_t i = 0; i < word_count; ++i) {
-                out[i] = words_[i];
-            }
-        } else {
-            std::memmove(out.data(), words_.data(), word_count * sizeof(std::uint64_t));
-        }
+        // memmove (not memcpy) because callers may pass the block's own view
+        // (self-copy); see test_vnext_block_copy_words_to_supports_self_copy.
+        detail::copy_words_helper<word_count>(
+            words_.data(), out.data(),
+            [](void* dst, const void* src, std::size_t n) noexcept { std::memmove(dst, src, n); });
     }
 
 private:
