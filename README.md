@@ -60,7 +60,7 @@ int main() {
 
 | Type | Description |
 |------|-------------|
-| `bit_block<Bits>` | Owning fixed-width storage. `Bits >= 64` and multiple of 64 |
+| `bit_block<Bits>` | Owning fixed-width storage. `Bits >= 64` and a multiple of 64 (e.g. 64, 128, 192, 256) |
 | `bit_view` | Non-owning mutable view |
 | `const_bit_view` | Non-owning read-only view |
 
@@ -75,7 +75,7 @@ int main() {
 
 ### Backends
 
-x86-64: `scalar` / `avx2` (compile-time selection)
+x86-64: `scalar` / `avx2` (compile-time fixed via `BITCAL_HAS_AVX2`; no runtime selection)
 
 ## Build
 

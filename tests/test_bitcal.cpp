@@ -17,10 +17,6 @@ static_assert(std::is_default_constructible_v<bitcal::bit_block<256>>);
 static_assert(std::is_same_v<decltype(std::declval<bitcal::bit_block<256>>().view()), bitcal::bit_view>);
 static_assert(std::is_same_v<decltype(std::declval<const bitcal::bit_block<256>>().view()), bitcal::const_bit_view>);
 
-// Public contract verification: backend_kind enum is accessible with x86-first retained values
-static_assert(std::is_enum_v<bitcal::backend_kind>);
-static_assert(bitcal::backend_kind::scalar != bitcal::backend_kind::avx2);
-
 // Public contract verification: version macros are defined
 static_assert(BITCAL_VERSION_MAJOR == 4);
 static_assert(BITCAL_VERSION_MINOR == 0);
@@ -410,16 +406,6 @@ bool test_vnext_random_queries_match_reference_model_512() {
     return true;
 }
 
-bool test_public_contract_backend_kind_enum_is_accessible() {
-    // Verify that backend_kind enum is part of the public contract
-    // and that default_backend() returns one of the retained values
-    const auto backend = bitcal::default_backend();
-
-    BITCAL_ASSERT_TRUE(backend == bitcal::backend_kind::scalar || backend == bitcal::backend_kind::avx2);
-
-    return true;
-}
-
 bool test_public_contract_core_types_accessible_through_umbrella() {
     // Verify that all core public types are accessible through <bitcal/bitcal.hpp>
     // This test is primarily a compile-time check that the umbrella header works
@@ -437,21 +423,40 @@ bool test_public_contract_core_types_accessible_through_umbrella() {
 }
 
 bool test_public_contract_all_retained_algorithms_are_accessible() {
-    // Runtime smoke: every retained algorithm is callable with the documented
-    // argument shape. Compile-time shape (return types, invocability) is
+    // Runtime smoke + in-place alias correctness: every retained algorithm is
+    // callable with the documented argument shape, and the in-place variants
+    // produce correct results when out aliases lhs. Compile-time shape is
     // verified by the static_asserts below; this function exercises the
     // runtime path so the test runner has something to invoke.
     bitcal::bit_block<256> lhs;
     bitcal::bit_block<256> rhs;
+    auto lv = lhs.view();
+    lv.data()[0] = 0xFF00FF00FF00FF00ULL;
+    auto rv = rhs.view();
+    rv.data()[0] = 0x0F0F0F0F0F0F0F0FULL;
 
     [[maybe_unused]] auto and_result = bitcal::bit_and<256>(lhs.view(), rhs.view());
     [[maybe_unused]] auto or_result = bitcal::bit_or<256>(lhs.view(), rhs.view());
     [[maybe_unused]] auto xor_result = bitcal::bit_xor<256>(lhs.view(), rhs.view());
     [[maybe_unused]] auto andnot_result = bitcal::bit_andnot<256>(lhs.view(), rhs.view());
-    bitcal::and_into(lhs.view(), rhs.view(), lhs.view());
-    bitcal::or_into(lhs.view(), rhs.view(), lhs.view());
-    bitcal::xor_into(lhs.view(), rhs.view(), lhs.view());
-    bitcal::andnot_into(lhs.view(), rhs.view(), lhs.view());
+
+    // In-place alias: out == lhs. Verify the aliased result matches the
+    // non-aliased returning form, so alias correctness has regression cover.
+    bitcal::bit_block<256> and_alias = lhs;
+    bitcal::and_into(and_alias.view(), rhs.view(), and_alias.view());
+    BITCAL_ASSERT_EQ(and_alias.word(0), and_result.word(0));
+
+    bitcal::bit_block<256> or_alias = lhs;
+    bitcal::or_into(or_alias.view(), rhs.view(), or_alias.view());
+    BITCAL_ASSERT_EQ(or_alias.word(0), or_result.word(0));
+
+    bitcal::bit_block<256> xor_alias = lhs;
+    bitcal::xor_into(xor_alias.view(), rhs.view(), xor_alias.view());
+    BITCAL_ASSERT_EQ(xor_alias.word(0), xor_result.word(0));
+
+    bitcal::bit_block<256> andnot_alias = lhs;
+    bitcal::andnot_into(andnot_alias.view(), rhs.view(), andnot_alias.view());
+    BITCAL_ASSERT_EQ(andnot_alias.word(0), andnot_result.word(0));
 
     [[maybe_unused]] bool zero = bitcal::is_zero(lhs.view());
     [[maybe_unused]] std::uint64_t count = bitcal::popcount(lhs.view());
@@ -540,8 +545,6 @@ int main() {
                            test_vnext_random_queries_match_reference_model_512);
 
     // Public contract verification tests
-    bitcal::test::run_case(g_counters, "test_public_contract_backend_kind_enum_is_accessible",
-                           test_public_contract_backend_kind_enum_is_accessible);
     bitcal::test::run_case(g_counters, "test_public_contract_core_types_accessible_through_umbrella",
                            test_public_contract_core_types_accessible_through_umbrella);
     bitcal::test::run_case(g_counters, "test_public_contract_all_retained_algorithms_are_accessible",

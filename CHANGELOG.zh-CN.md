@@ -19,14 +19,25 @@
 
 - 后端契约收敛为 `scalar` 与 `avx2`；移除 `sse2` / `avx512` 的保留公开承诺
 - 从活动主流程移除 OpenSpec-first 资产（`openspec/`、opsx 命令集）
+- 移除 `backend_kind` enum 与 `default_backend()`（不存在运行时选择）；替换为编译期 `active_backend_name` 字符串常量
+- `shift_left<Bits>()` / `shift_right<Bits>()` 的 count 参数从 `int` 改为 `size_t`（负数不再静默视为零移位）
 
 ### ♻️ 重构
 
 - 公开 in-place 位运算 API 补齐：`or_into()`、`xor_into()`、`andnot_into()`（与 `and_into()` 并列）
 - 删除死 SIMD 与宏层：`avx_ops.hpp`、`avx512_ops.hpp`、`sse_ops.hpp`、`neon_ops.hpp`、`scalar_ops.hpp`、`backend_ops.def`、`detail/backend.hpp`
 - 新增 `include/bitcal/detail/scalar_impl.hpp`，承接仍在使用的 scalar fallback 与移位实现
-- `backend_kind` 与 `default_backend()` 收敛为真实执行路径（`scalar` / `avx2`）
+- `*_into` 与 `bit_*` 二元算法统一为经 `binary_words` 的单一分派路径
+- 移位 `count >= Bits` 时短路返回零 block（不再先 copy 再清零）
+- scalar 辅助函数移除 `BITCAL_FORCEINLINE`（仅 AVX2 分派路径保留）
 - 测试收敛为单套 `test_bitcal`，删除 `test_bitcal_detail`
+
+### ⚙️ 构建
+
+- `BITCAL_ARCH_X86` 排除 32 位 x86（`__i386__` / `_M_IX86`）；项目为 x86-64-first
+- `<immintrin.h>` 仅在 `BITCAL_HAS_AVX2` 时引入（非 AVX2 TU 编译更快）
+- 不再跟踪 `benchmarks/results/`（加入 `.gitignore`）；结果本地重新生成
+- 移除 `changelog/` fragment 目录（唯一事实源为根 `CHANGELOG.md`）
 
 ### ⚙️ CI 与工具链
 

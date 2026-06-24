@@ -19,14 +19,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Reduced backend contract to `scalar` and `avx2` only; removed retained `sse2` / `avx512` surface claims
 - Removed OpenSpec-first process assets from the active repository flow (`openspec/`, opsx command set)
+- Removed `backend_kind` enum and `default_backend()` (no runtime selection exists); replaced with compile-time `active_backend_name` string constant
+- Changed `shift_left<Bits>()` / `shift_right<Bits>()` count parameter from `int` to `size_t` (negative counts are no longer silently treated as zero-shift)
 
 ### ♻️ Refactor
 
 - Added public in-place bitwise APIs: `or_into()`, `xor_into()`, `andnot_into()` alongside existing `and_into()`
 - Removed dead SIMD and macro layers: `avx_ops.hpp`, `avx512_ops.hpp`, `sse_ops.hpp`, `neon_ops.hpp`, `scalar_ops.hpp`, `backend_ops.def`, `detail/backend.hpp`
 - Added `include/bitcal/detail/scalar_impl.hpp` and moved active scalar fallback + shift logic there
-- Aligned `backend_kind` and `default_backend()` with actual executable paths (`scalar` / `avx2`)
+- Unified `*_into` and `bit_*` binary algorithms to a single dispatch path through `binary_words`
+- Added short-circuit for shifts by `count >= Bits` (returns zero block without copying first)
+- Removed `BITCAL_FORCEINLINE` from scalar helpers (retained only on AVX2 dispatch path)
 - Collapsed tests to a single retained suite (`test_bitcal`), deleted `test_bitcal_detail` target
+
+### ⚙️ Build
+
+- Excluded 32-bit x86 (`__i386__` / `_M_IX86`) from `BITCAL_ARCH_X86`; project is x86-64-first
+- Gated `<immintrin.h>` inclusion on `BITCAL_HAS_AVX2` only (faster compilation on non-AVX2 TUs)
+- Stopped tracking `benchmarks/results/` (added to `.gitignore`); results are regenerated locally
+- Removed `changelog/` fragment directory (single source of truth is root `CHANGELOG.md`)
 
 ### ⚙️ CI & Tooling
 

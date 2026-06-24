@@ -3,14 +3,12 @@
 #include <cstddef>
 #include <cstdint>
 
-#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+// x86-64 only. 32-bit x86 (i386/_M_IX86) is excluded: AVX2 intrinsics are
+// not reliably available there and the project is x86-64-first.
+#if defined(__x86_64__) || defined(_M_X64)
 #define BITCAL_ARCH_X86 1
 #else
 #define BITCAL_ARCH_X86 0
-#endif
-
-#if BITCAL_ARCH_X86
-#include <immintrin.h>
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -32,12 +30,13 @@
 #define BITCAL_HAS_AVX2 0
 #endif
 
-namespace bitcal {
+// <immintrin.h> is only needed on the AVX2 path. Pulling it into every TU on
+// plain x86-64 slows compilation for no benefit; gate it on BITCAL_HAS_AVX2.
+#if BITCAL_HAS_AVX2
+#include <immintrin.h>
+#endif
 
-enum class backend_kind {
-    scalar,
-    avx2,
-};
+namespace bitcal {
 
 // Optimal alignment based on bit width.
 // Only widths >= 256 bits (4+ words) use the AVX2 path and benefit from
@@ -52,12 +51,14 @@ constexpr size_t get_optimal_alignment() noexcept {
         return alignof(std::uint64_t);  // Scalar path: natural alignment
 }
 
-[[nodiscard]] constexpr backend_kind default_backend() noexcept {
+// Compile-time backend name. There is no runtime backend selection: the
+// active backend is fixed at compile time by BITCAL_HAS_AVX2. Exposed as a
+// string so benchmarks/reports can record which path compiled in, without
+// pretending the backend is a runtime-selectable enum.
 #if BITCAL_HAS_AVX2
-    return backend_kind::avx2;
+inline constexpr const char* active_backend_name = "avx2";
 #else
-    return backend_kind::scalar;
+inline constexpr const char* active_backend_name = "scalar";
 #endif
-}
 
 }  // namespace bitcal

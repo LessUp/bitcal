@@ -65,3 +65,6 @@ _bmad-output/
 # Local AI tool configs
 .devin/
 .claude/settings.local.json
+
+# Benchmark results (regenerated locally, not source of truth)
+benchmarks/results/

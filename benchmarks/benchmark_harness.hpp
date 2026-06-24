@@ -67,14 +67,7 @@ inline void do_not_optimize(const T& value) {
 }
 
 inline const char* active_backend_name() noexcept {
-    switch (bitcal::default_backend()) {
-        case bitcal::backend_kind::scalar:
-            return "scalar";
-        case bitcal::backend_kind::avx2:
-            return "avx2";
-    }
-
-    return "unknown";
+    return bitcal::active_backend_name;
 }
 
 inline std::string detect_cpu_model() {
