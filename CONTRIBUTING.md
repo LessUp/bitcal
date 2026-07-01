@@ -99,7 +99,7 @@ Do not wait until a huge multi-topic branch is complete. Review in coherent slic
 
 ### Requirements
 
-- **C++17** compiler (GCC 7+, Clang 6+, MSVC 2017+)
+- **C++23** compiler (GCC 13+, Clang 16+, MSVC 2022 17.6+)
 - **CMake 3.16+** (for tests and benchmarks)
 - **Git** for version control
 
@@ -219,31 +219,25 @@ Closes #42
 To add support for a new SIMD instruction set (e.g., AVX-512, SVE):
 
 1. **Update `openspec/`** with the design proposal and spec deltas
-2. Create `<backend>_ops.hpp` in `include/bitcal/`
-3. Add platform detection and `BITCAL_HAS_*` macro in `config.hpp`
-4. Add new backend to `simd_backend` enum
-5. Add dispatch logic in `bitcal.hpp`
-6. Add or update test requirements in `openspec/specs/testing/`
-7. Update documentation in `/docs/`
+2. Add platform detection and `BITCAL_HAS_*` macro in `include/bitcal/config.hpp`
+3. Extend the retained x86 dispatch seam in `include/bitcal/detail/x64_dispatch.hpp` (or the equivalent detail seam for a new architecture family)
+4. Add the backend name to the `backend_kind` enum in `config.hpp` only if it becomes part of the public contract
+5. Add or update test requirements in `openspec/specs/testing/`
+6. Update documentation in `/docs/`
 
 ### Example: Adding AVX-512
-
-```cpp
-// include/bitcal/avx512_ops.hpp
-#pragma once
-#if defined(BITCAL_HAS_AVX512)
-#include <immintrin.h>
-
-namespace bitcal::avx512 {
-    // Implement 512-bit native operations
-}
-#endif
-```
 
 ```cpp
 // include/bitcal/config.hpp
 #if defined(__AVX512F__) && defined(__AVX512BW__)
     #define BITCAL_HAS_AVX512 1
+#endif
+```
+
+```cpp
+// include/bitcal/detail/x64_dispatch.hpp
+#if BITCAL_ARCH_X86 && BITCAL_HAS_AVX512
+    // Add 8-word vector chunks with scalar tail fallback
 #endif
 ```
 

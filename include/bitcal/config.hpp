@@ -67,14 +67,6 @@
 
 namespace bitcal {
 
-enum class simd_backend {
-    scalar,
-    sse2,
-    avx2,
-    avx512,
-    neon
-};
-
 enum class backend_kind {
     scalar,
     sse2,
@@ -93,20 +85,6 @@ constexpr size_t get_optimal_alignment() noexcept {
         return 32;      // 256-bit: 32-byte alignment (AVX)
     else
         return 64;      // 512-bit+: 64-byte alignment (AVX-512)
-}
-
-[[nodiscard]] constexpr simd_backend get_default_simd_backend() noexcept {
-#if BITCAL_HAS_AVX512
-    return simd_backend::avx512;
-#elif BITCAL_HAS_AVX2
-    return simd_backend::avx2;
-#elif BITCAL_HAS_SSE2
-    return simd_backend::sse2;
-#elif BITCAL_HAS_NEON
-    return simd_backend::neon;
-#else
-    return simd_backend::scalar;
-#endif
 }
 
 [[nodiscard]] constexpr backend_kind default_backend() noexcept {
