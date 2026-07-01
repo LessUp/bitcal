@@ -23,6 +23,8 @@ BitCal 把性能当成证据纪律，而不是营销背景音。本节现在直�
 
 ARM 数据先留空，直到项目拥有同等级、可复现、可提交的 ARM benchmark 证据路径。
 
+本页报告的是面向编译目标的 CPU SIMD 证据，不报告 CUDA、GPU、NPU、ARM SVE/SVE2 或国产 CPU SIMD 加速。
+
 <PerformanceTable
   title="128 位保留操作"
   :caption="`当前 ${performanceBaseline.backend} retained baseline（${performanceBaseline.commit}）`"
@@ -96,6 +98,7 @@ node benchmarks/scripts/generate-performance-summary.mjs \
 
 - synthetic loop 很有用，但它不代表所有真实工作负载。
 - x86-64-first 是支持姿态，不是“其他平台同样成熟”的证据。
+- AVX2 或 AVX-512 行描述的是二进制的编译目标，不是运行时 CPU feature dispatch。
 - 某一类算法上的 benchmark 优势，不能自动外推成更宽泛的 API 或平台承诺。
 - benchmark 失利同样是重要证据；保留基线的目标是诚实，而不是表演。
 
@@ -113,6 +116,7 @@ node benchmarks/scripts/generate-performance-summary.mjs \
 
 - 对标准库或专业 bitmap 实现具有普遍性优势；
 - ARM64、macOS 或未来 x86 backend 已具备同等成熟度；
+- retained core library 已具备 CUDA/GPU/NPU 加速；
 - 没有真实负载或场景测量支撑的 workload-level 承诺。
 
 ## 性能工作接下来该往哪里走

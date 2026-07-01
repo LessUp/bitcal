@@ -45,11 +45,18 @@
 #define BITCAL_HAS_AVX512 0
 #endif
 
+#if defined(__AVX512VPOPCNTDQ__)
+#define BITCAL_HAS_AVX512_VPOPCNTDQ 1
+#else
+#define BITCAL_HAS_AVX512_VPOPCNTDQ 0
+#endif
+
 #define BITCAL_HAS_NEON 0
 #else
 #define BITCAL_HAS_SSE2 0
 #define BITCAL_HAS_AVX2 0
 #define BITCAL_HAS_AVX512 0
+#define BITCAL_HAS_AVX512_VPOPCNTDQ 0
 
 #if defined(__ARM_NEON) || defined(__ARM_NEON__)
 #define BITCAL_HAS_NEON 1

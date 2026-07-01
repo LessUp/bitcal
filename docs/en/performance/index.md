@@ -23,6 +23,8 @@ The retained baseline now follows the shipped vNext public surface: `bit_and`, `
 
 ARM rows stay blank until the project retains an ARM benchmark path with the same level of reproducibility and committed artifacts.
 
+This page reports compile-target CPU SIMD evidence. It does not report CUDA, GPU, NPU, ARM SVE/SVE2, or domestic CPU SIMD acceleration.
+
 <PerformanceTable
   title="128-bit retained operations"
   :caption="`Retained baseline on ${performanceBaseline.backend} (${performanceBaseline.commit})`"
@@ -96,6 +98,7 @@ The performance evidence on this page comes from `benchmark_compare`, not from t
 
 - Synthetic loops are useful, but they do not represent every workload.
 - An x86-64-first posture is a support choice, not proof that all other targets are equally mature.
+- AVX2 or AVX-512 rows describe the binary's compile target, not runtime CPU-feature dispatch.
 - A benchmark win in one algorithm family does not automatically justify a broader API or platform claim.
 - A benchmark loss is still valuable evidence; the point of the retained baseline is honesty, not theater.
 
@@ -113,6 +116,7 @@ This section intentionally refuses to claim more than the evidence supports.
 
 - universal superiority over standard-library or specialized bitmap implementations;
 - equal maturity across ARM64, macOS, and future x86 backends;
+- CUDA/GPU/NPU acceleration in the retained core library;
 - workload-level promises that are not backed by retained traces or scenario-specific measurements.
 
 ## Where performance work goes next

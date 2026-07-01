@@ -37,6 +37,7 @@ BitCal is in an active **vNext / 4.0.0** redesign.
 - **Breaking:** the minimum language baseline is now C++23
 - **Breaking:** no code-level compatibility layer is planned for the older API
 - **Focus:** Linux and Windows x86-64 are the primary optimization and validation targets
+- **Acceleration boundary:** current retained acceleration is CPU SIMD for the compile target; CUDA, GPU, and NPU acceleration are not part of the shipped core library
 
 ## Quick Start
 
@@ -68,6 +69,10 @@ ctest --test-dir build-test --output-on-failure -C Release
 - Documentation architecture policy lives in `docs/README.md`
 - Project status lives in `docs/en/status/index.md` and `docs/zh/status/index.md`
 - Release history lives only in `CHANGELOG.md` and `CHANGELOG.zh-CN.md`
+
+## Platform evidence
+
+BitCal separates platform wording into four levels: buildable, correct under retained tests, SIMD-accelerated, and backed by retained benchmark artifacts. The current x86-64 path uses compile-target ISA selection such as AVX2 or AVX-512 feature macros; it is not runtime CPU-feature dispatch. ARM, domestic CPU SIMD extensions, CUDA/GPU, and NPU support require separate evidence before they can become support claims.
 
 ## Migration note
 

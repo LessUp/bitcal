@@ -37,6 +37,7 @@ BitCal 当前处于 **vNext / 4.0.0** 的活动重设计阶段。
 - **破坏性变更**：最小语言基线提升到 C++23
 - **破坏性变更**：不计划保留旧 API 的代码级兼容层
 - **重点**：Linux / Windows x86-64 是主要优化与验证目标
+- **加速边界**：当前保留加速是面向编译目标 ISA 的 CPU SIMD；CUDA、GPU 与 NPU 加速不属于当前 shipped core library
 
 ## 快速开始
 
@@ -68,6 +69,10 @@ ctest --test-dir build-test --output-on-failure -C Release
 - 文档架构策略：`docs/README.md`
 - 项目状态说明：`docs/en/status/index.md` 与 `docs/zh/status/index.md`
 - 版本历史只保留在 `CHANGELOG.md` 与 `CHANGELOG.zh-CN.md`
+
+## 平台证据
+
+BitCal 把平台表述拆成四层：可构建、通过保留测试证明正确、具备 SIMD 加速、拥有保留 benchmark artifact。当前 x86-64 路径按编译目标 ISA 选择 AVX2 或 AVX-512 等特性宏；它不是运行时 CPU feature dispatch。ARM、国产 CPU SIMD 扩展、CUDA/GPU 与 NPU 都需要单独证据，才可以升级为支持声明。
 
 ## 迁移说明
 

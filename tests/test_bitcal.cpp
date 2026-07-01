@@ -1,14 +1,16 @@
-#include <cstddef>
-#include <cstdint>
-#include <iostream>
-#include <array>
-#include <span>
-#include <type_traits>
-
 #include "support/deterministic_cases.hpp"
 #include "support/random_cases.hpp"
 #include "support/reference_model.hpp"
 #include "support/test_macros.hpp"
+
+#include <cstddef>
+#include <cstdint>
+
+#include <array>
+#include <iostream>
+#include <span>
+#include <type_traits>
+
 #include <bitcal/bitcal.hpp>
 
 static_assert(std::is_default_constructible_v<bitcal::bit_block<256>>);
@@ -45,6 +47,23 @@ constexpr bool test_vnext_block_word_roundtrip_is_constexpr() {
 }
 
 static_assert(test_vnext_block_word_roundtrip_is_constexpr());
+
+constexpr bool test_vnext_public_queries_remain_constexpr() {
+    constexpr std::array<std::uint64_t, 4> lhs_words{0x1ULL, 0x0ULL, 0xFULL, 0x8000000000000000ULL};
+    constexpr std::array<std::uint64_t, 4> same_words{0x1ULL, 0x0ULL, 0xFULL, 0x8000000000000000ULL};
+    constexpr std::array<std::uint64_t, 4> other_words{0x1ULL, 0x0ULL, 0xEULL, 0x8000000000000000ULL};
+    constexpr std::array<std::uint64_t, 4> zero_words{};
+
+    const auto lhs = bitcal::const_bit_view(lhs_words.data(), lhs_words.size());
+    const auto same = bitcal::const_bit_view(same_words.data(), same_words.size());
+    const auto other = bitcal::const_bit_view(other_words.data(), other_words.size());
+    const auto zero = bitcal::const_bit_view(zero_words.data(), zero_words.size());
+
+    return bitcal::popcount(lhs) == 6 && bitcal::is_zero(zero) && !bitcal::is_zero(lhs) && bitcal::equals(lhs, same) &&
+           !bitcal::equals(lhs, other);
+}
+
+static_assert(test_vnext_public_queries_remain_constexpr());
 
 static bitcal::test::suite_counters g_counters;
 
@@ -192,7 +211,8 @@ bool test_vnext_block_word_span_interop() {
 
 bool test_vnext_block_copy_words_to_supports_self_copy() {
     const std::array<std::uint64_t, 4> input_words{0x10ULL, 0x20ULL, 0x30ULL, 0x40ULL};
-    auto block = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
+    auto block =
+        bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
     auto view = block.view();
 
     block.copy_words_to(std::span<std::uint64_t>(view.data(), view.word_count()));
@@ -249,7 +269,8 @@ bool test_vnext_bit_and_matches_deterministic_matrix_512() {
 bool test_vnext_is_zero_detects_sparse_and_dense_patterns_192() {
     const std::array<std::uint64_t, 3> zero_words{0ULL, 0ULL, 0ULL};
     const std::array<std::uint64_t, 3> sparse_words{0ULL, 1ULL << 17, 0ULL};
-    const auto zero = bitcal::bit_block<192>::from_words(std::span<const std::uint64_t>(zero_words.data(), zero_words.size()));
+    const auto zero =
+        bitcal::bit_block<192>::from_words(std::span<const std::uint64_t>(zero_words.data(), zero_words.size()));
     const auto sparse =
         bitcal::bit_block<192>::from_words(std::span<const std::uint64_t>(sparse_words.data(), sparse_words.size()));
 
@@ -359,10 +380,8 @@ bool test_public_contract_backend_kind_enum_is_accessible() {
     // and that default_backend() returns one of the retained values
     const auto backend = bitcal::default_backend();
 
-    BITCAL_ASSERT_TRUE(backend == bitcal::backend_kind::scalar ||
-                       backend == bitcal::backend_kind::sse2 ||
-                       backend == bitcal::backend_kind::avx2 ||
-                       backend == bitcal::backend_kind::avx512);
+    BITCAL_ASSERT_TRUE(backend == bitcal::backend_kind::scalar || backend == bitcal::backend_kind::sse2 ||
+                       backend == bitcal::backend_kind::avx2 || backend == bitcal::backend_kind::avx512);
 
     return true;
 }
@@ -442,8 +461,7 @@ int main() {
                            test_vnext_and_into_writes_preallocated_output);
     bitcal::test::run_case(g_counters, "test_vnext_bit_or_combines_words_256", test_vnext_bit_or_combines_words_256);
     bitcal::test::run_case(g_counters, "test_vnext_bit_xor_combines_words_256", test_vnext_bit_xor_combines_words_256);
-    bitcal::test::run_case(g_counters, "test_vnext_bit_andnot_masks_words_256",
-                           test_vnext_bit_andnot_masks_words_256);
+    bitcal::test::run_case(g_counters, "test_vnext_bit_andnot_masks_words_256", test_vnext_bit_andnot_masks_words_256);
     bitcal::test::run_case(g_counters, "test_vnext_block_storage_alignment", test_vnext_block_storage_alignment);
     bitcal::test::run_case(g_counters, "test_vnext_block_word_span_interop", test_vnext_block_word_span_interop);
     bitcal::test::run_case(g_counters, "test_vnext_block_copy_words_to_supports_self_copy",

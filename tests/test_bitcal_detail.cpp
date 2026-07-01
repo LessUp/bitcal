@@ -24,6 +24,7 @@
 #endif
 
 #include <cstdint>
+#include <bit>
 #include <iostream>
 
 #include "support/test_macros.hpp"
@@ -76,10 +77,67 @@ bool test_detail_word_ops_equals_words_detects_match_and_mismatch() {
     const std::uint64_t same_words[] = {1ULL, 2ULL, 3ULL, 4ULL};
     const std::uint64_t other_words[] = {1ULL, 2ULL, 3ULL, 5ULL};
 
-    BITCAL_ASSERT_TRUE(bitcal::detail::equals_words(bitcal::const_bit_view(lhs_words, 4),
-                                                    bitcal::const_bit_view(same_words, 4)));
-    BITCAL_ASSERT_TRUE(!bitcal::detail::equals_words(bitcal::const_bit_view(lhs_words, 4),
-                                                     bitcal::const_bit_view(other_words, 4)));
+    BITCAL_ASSERT_TRUE(
+        bitcal::detail::equals_words(bitcal::const_bit_view(lhs_words, 4), bitcal::const_bit_view(same_words, 4)));
+    BITCAL_ASSERT_TRUE(
+        !bitcal::detail::equals_words(bitcal::const_bit_view(lhs_words, 4), bitcal::const_bit_view(other_words, 4)));
+    return true;
+}
+
+bool test_detail_x64_popcount_matches_scalar_for_vector_tail_word_counts() {
+    constexpr std::uint64_t words[] = {
+        0x0000000000000000ULL, 0xFFFFFFFFFFFFFFFFULL, 0x0123456789ABCDEFULL,
+        0x8000000000000001ULL, 0xAAAAAAAAAAAAAAAAULL, 0x5555555555555555ULL,
+        0xF0F0F0F0F0F0F0F0ULL, 0x0F0F0F0F0F0F0F0FULL, 0x1111111111111111ULL,
+    };
+    constexpr std::size_t word_counts[] = {1, 3, 4, 7, 8, 9};
+
+    for (const auto word_count : word_counts) {
+        std::uint64_t expected = 0;
+        for (std::size_t i = 0; i < word_count; ++i) {
+            expected += static_cast<std::uint64_t>(std::popcount(words[i]));
+        }
+
+        BITCAL_ASSERT_EQ(bitcal::detail::popcount_x64(words, word_count), expected);
+    }
+
+    return true;
+}
+
+bool test_detail_x64_is_zero_handles_vector_chunks_and_scalar_tails() {
+    constexpr std::size_t word_counts[] = {1, 3, 4, 7, 8, 9};
+
+    for (const auto word_count : word_counts) {
+        std::uint64_t words[9] = {};
+        BITCAL_ASSERT_TRUE(bitcal::detail::is_zero_x64(words, word_count));
+
+        words[word_count - 1] = 0x1ULL;
+        BITCAL_ASSERT_TRUE(!bitcal::detail::is_zero_x64(words, word_count));
+    }
+
+    return true;
+}
+
+bool test_detail_x64_equals_handles_vector_chunks_and_scalar_tails() {
+    constexpr std::uint64_t lhs_words[] = {
+        0x0000000000000000ULL, 0xFFFFFFFFFFFFFFFFULL, 0x0123456789ABCDEFULL,
+        0x8000000000000001ULL, 0xAAAAAAAAAAAAAAAAULL, 0x5555555555555555ULL,
+        0xF0F0F0F0F0F0F0F0ULL, 0x0F0F0F0F0F0F0F0FULL, 0x1111111111111111ULL,
+    };
+    constexpr std::size_t word_counts[] = {1, 3, 4, 7, 8, 9};
+
+    for (const auto word_count : word_counts) {
+        std::uint64_t rhs_words[9] = {};
+        for (std::size_t i = 0; i < word_count; ++i) {
+            rhs_words[i] = lhs_words[i];
+        }
+
+        BITCAL_ASSERT_TRUE(bitcal::detail::equals_x64(lhs_words, rhs_words, word_count));
+
+        rhs_words[word_count - 1] ^= 0x1ULL;
+        BITCAL_ASSERT_TRUE(!bitcal::detail::equals_x64(lhs_words, rhs_words, word_count));
+    }
+
     return true;
 }
 
@@ -94,6 +152,12 @@ int main() {
                            test_detail_word_ops_or_words_writes_every_word);
     bitcal::test::run_case(g_counters, "test_detail_word_ops_equals_words_detects_match_and_mismatch",
                            test_detail_word_ops_equals_words_detects_match_and_mismatch);
+    bitcal::test::run_case(g_counters, "test_detail_x64_popcount_matches_scalar_for_vector_tail_word_counts",
+                           test_detail_x64_popcount_matches_scalar_for_vector_tail_word_counts);
+    bitcal::test::run_case(g_counters, "test_detail_x64_is_zero_handles_vector_chunks_and_scalar_tails",
+                           test_detail_x64_is_zero_handles_vector_chunks_and_scalar_tails);
+    bitcal::test::run_case(g_counters, "test_detail_x64_equals_handles_vector_chunks_and_scalar_tails",
+                           test_detail_x64_equals_handles_vector_chunks_and_scalar_tails);
 
     std::cout << std::endl;
     std::cout << "Passed: " << g_counters.pass << std::endl;

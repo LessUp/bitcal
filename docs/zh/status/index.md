@@ -18,7 +18,22 @@ Status 的任务，是把 BitCal 所有叙事中的修辞成分都剥掉，只�
 | Linux x86-64（GCC / Clang） | 主支持范围 | 主要构建、correctness 与 benchmark 注意力集中在这里。 |
 | Windows x86-64（MSVC） | 主支持范围 | 与 Linux x86-64 一起构成当前主验证面。 |
 | ARM64 与 macOS 等后续目标 | 次级范围 | 可以继续保留可构建性，但性能数据先留空，直到项目保留了对应 benchmark 证据路径；成熟度主张也必须更谨慎。 |
+| 国产 CPU SIMD 扩展 | 研究范围 | LoongArch LSX/LASX、兆芯、鲲鹏、飞腾等特化加速需要单独 OpenSpec、测试和 benchmark 证据，才能升级成支持声明。 |
+| CUDA、GPU 与 NPU 加速 | core library 不支持 | 这些不属于当前保留的 header-only 核心库。CUDA/GPU 需要 opt-in extension 设计；NPU 不适合当前 bitset 风格公开算法。 |
 | 超出保留验证面的其他内容 | 不在宣称范围 | 没有新增证据之前，不应升级成支持承诺。 |
+
+## 证据层级
+
+BitCal 对不同证据使用不同表述：
+
+| 层级 | 含义 |
+| --- | --- |
+| 可构建 | 保留 CI 或文档命令可以为目标平台完成编译。 |
+| 正确性 | 保留测试能在该目标或等价 runner 上执行。 |
+| SIMD 加速 | 保留公开算法路径使用目标相关 SIMD 实现。 |
+| 保留 benchmark 证据 | 目标、backend 与 commit 都有结构化 benchmark artifact。 |
+
+当前 x86 SIMD 后端由 AVX2、AVX-512 等编译目标特性宏选择，不是单一通用二进制的运行时 CPU feature dispatch。
 
 ## 文档真相
 
