@@ -26,6 +26,30 @@ inline constexpr std::array<binary_case<2>, 3> kBitAndCases128{{
     {{{1ULL << 63, 1ULL}}, {{1ULL << 63, 0ULL}}, {{1ULL << 63, 0ULL}}},
 }};
 
+inline constexpr std::array<binary_case<2>, 3> kBitOrCases128{{
+    {{{0ULL, 0ULL}}, {{0ULL, 0ULL}}, {{0ULL, 0ULL}}},
+    {{{0xFFFF0000FFFF0000ULL, 0xAAAAAAAAAAAAAAAAULL}},
+     {{0x00FF00FF00FF00FFULL, 0xF0F0F0F0F0F0F0F0ULL}},
+     {{0xFFFF00FFFFFF00FFULL, 0xFAFAFAFAFAFAFAFAULL}}},
+    {{{1ULL << 63, 1ULL}}, {{1ULL << 63, 0ULL}}, {{1ULL << 63, 1ULL}}},
+}};
+
+inline constexpr std::array<binary_case<2>, 3> kBitXorCases128{{
+    {{{0ULL, 0ULL}}, {{0ULL, 0ULL}}, {{0ULL, 0ULL}}},
+    {{{0xFFFF0000FFFF0000ULL, 0xAAAAAAAAAAAAAAAAULL}},
+     {{0x00FF00FF00FF00FFULL, 0xF0F0F0F0F0F0F0F0ULL}},
+     {{0xFF0000FFFF0000FFULL, 0x5A5A5A5A5A5A5A5AULL}}},
+    {{{1ULL << 63, 1ULL}}, {{1ULL << 63, 0ULL}}, {{0ULL, 1ULL}}},
+}};
+
+inline constexpr std::array<binary_case<2>, 3> kBitAndnotCases128{{
+    {{{0ULL, 0ULL}}, {{0ULL, 0ULL}}, {{0ULL, 0ULL}}},
+    {{{0xFFFF0000FFFF0000ULL, 0xAAAAAAAAAAAAAAAAULL}},
+     {{0x00FF00FF00FF00FFULL, 0xF0F0F0F0F0F0F0F0ULL}},
+     {{0xFF000000FF000000ULL, 0x0A0A0A0A0A0A0A0AULL}}},
+    {{{1ULL << 63, 1ULL}}, {{1ULL << 63, 0ULL}}, {{0ULL, 1ULL}}},
+}};
+
 inline constexpr std::array<unary_count_case<4>, 3> kPopcountCases256{{
     {{{0ULL, 0ULL, 0ULL, 0ULL}}, 0ULL},
     {{{0xFFFFFFFFFFFFFFFFULL, 0ULL, 0ULL, 0ULL}}, 64ULL},

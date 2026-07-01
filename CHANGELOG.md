@@ -31,6 +31,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added short-circuit for shifts by `count >= Bits` (returns zero block without copying first)
 - Removed `BITCAL_FORCEINLINE` from scalar helpers (retained only on AVX2 dispatch path)
 - Collapsed tests to a single retained suite (`test_bitcal`), deleted `test_bitcal_detail` target
+- Eliminated `bit_view::data()` const_cast by decoupling `bit_view` from `const_bit_view` inheritance; `bit_view` now stores `uint64_t*` directly and provides an implicit conversion to `const_bit_view`
+- Routed `popcount`, `is_zero`, and `equals` through the AVX2 dispatch seam at runtime while preserving the scalar constexpr path via `if consteval`
+
+### ⚡ Performance
+
+- AVX2-accelerated `popcount` (LUT + `_mm256_sad_epu8`), `is_zero` (`_mm256_testz_si256`), and `equals` (`_mm256_cmpeq_epi64` + `_mm256_testc_si256`) for >= 4-word blocks, with scalar tail fallback
+
+### 🧪 Tests
+
+- Added deterministic matrices for `bit_or`, `bit_xor`, and `bit_andnot` (128-bit)
+- Added `shift_left(0)` / `shift_right(0)` no-op regression test
+- Added constexpr `popcount` / `is_zero` / `equals` verification via `static_assert`
 
 ### ⚙️ Build
 

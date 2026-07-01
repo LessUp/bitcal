@@ -24,23 +24,28 @@ inline void binary_words(const const_bit_view lhs, const const_bit_view rhs, bit
 }
 
 [[nodiscard]] constexpr bool is_zero_words(const const_bit_view value) noexcept {
-    for (std::size_t i = 0; i < value.word_count(); ++i) {
-        if (value.word(i) != 0) {
-            return false;
+    if consteval {
+        for (std::size_t i = 0; i < value.word_count(); ++i) {
+            if (value.word(i) != 0) {
+                return false;
+            }
         }
+        return true;
+    } else {
+        return is_zero_x64(value.data(), value.word_count());
     }
-
-    return true;
 }
 
 [[nodiscard]] constexpr std::uint64_t popcount_words(const const_bit_view value) noexcept {
-    std::uint64_t total = 0;
-
-    for (std::size_t i = 0; i < value.word_count(); ++i) {
-        total += static_cast<std::uint64_t>(std::popcount(value.word(i)));
+    if consteval {
+        std::uint64_t total = 0;
+        for (std::size_t i = 0; i < value.word_count(); ++i) {
+            total += static_cast<std::uint64_t>(std::popcount(value.word(i)));
+        }
+        return total;
+    } else {
+        return popcount_x64(value.data(), value.word_count());
     }
-
-    return total;
 }
 
 [[nodiscard]] constexpr bool equals_words(const const_bit_view lhs, const const_bit_view rhs) noexcept {
@@ -48,13 +53,16 @@ inline void binary_words(const const_bit_view lhs, const const_bit_view rhs, bit
         return false;
     }
 
-    for (std::size_t i = 0; i < lhs.word_count(); ++i) {
-        if (lhs.word(i) != rhs.word(i)) {
-            return false;
+    if consteval {
+        for (std::size_t i = 0; i < lhs.word_count(); ++i) {
+            if (lhs.word(i) != rhs.word(i)) {
+                return false;
+            }
         }
+        return true;
+    } else {
+        return equals_x64(lhs.data(), rhs.data(), lhs.word_count());
     }
-
-    return true;
 }
 
 }  // namespace bitcal::detail

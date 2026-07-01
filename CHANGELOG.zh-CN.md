@@ -31,6 +31,18 @@
 - 移位 `count >= Bits` 时短路返回零 block（不再先 copy 再清零）
 - scalar 辅助函数移除 `BITCAL_FORCEINLINE`（仅 AVX2 分派路径保留）
 - 测试收敛为单套 `test_bitcal`，删除 `test_bitcal_detail`
+- 消除 `bit_view::data()` 的 const_cast：`bit_view` 不再继承 `const_bit_view`，直接存储 `uint64_t*` 并提供到 `const_bit_view` 的隐式转换
+- `popcount`、`is_zero`、`equals` 在运行时经 AVX2 分派路径执行，constexpr 标量路径通过 `if consteval` 保留
+
+### ⚡ 性能
+
+- AVX2 加速 `popcount`（LUT + `_mm256_sad_epu8`）、`is_zero`（`_mm256_testz_si256`）、`equals`（`_mm256_cmpeq_epi64` + `_mm256_testc_si256`），>= 4 word 的 block 走向量路径，标量尾部兜底
+
+### 🧪 测试
+
+- 新增 `bit_or`、`bit_xor`、`bit_andnot` 的 128-bit 确定性矩阵
+- 新增 `shift_left(0)` / `shift_right(0)` no-op 回归测试
+- 新增 `popcount` / `is_zero` / `equals` 的 constexpr `static_assert` 验证
 
 ### ⚙️ 构建
 
