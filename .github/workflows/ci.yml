@@ -11,11 +11,8 @@ on:
       - "cmake/**"
       - "CMakeLists.txt"
       - "vcpkg.json"
-      - "docs/**"
       - "README.md"
-      - "README.zh-CN.md"
       - "CHANGELOG.md"
-      - "CHANGELOG.zh-CN.md"
       - ".github/workflows/ci.yml"
   pull_request:
     branches: [master, main]
@@ -27,11 +24,8 @@ on:
       - "cmake/**"
       - "CMakeLists.txt"
       - "vcpkg.json"
-      - "docs/**"
       - "README.md"
-      - "README.zh-CN.md"
       - "CHANGELOG.md"
-      - "CHANGELOG.zh-CN.md"
       - ".github/workflows/ci.yml"
 
 permissions:

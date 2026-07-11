@@ -6,7 +6,7 @@
   "homepage": "https://github.com/LessUp/bitcal",
   "license": "MIT",
   "dependencies": [],
-  "supports": "(windows | linux | osx) & (x64 | arm64 | arm)",
+  "supports": "(windows | linux | osx) & x64",
   "install-features": {
     "benchmarks": {
       "description": "Build benchmarks (requires google-benchmark)",

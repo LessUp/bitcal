@@ -48,10 +48,6 @@ node_modules/
 _site/
 _book/
 
-# VitePress build output
-docs/.vitepress/dist/
-docs/.vitepress/cache/
-
 # Windsurf
 .windsurf/
 

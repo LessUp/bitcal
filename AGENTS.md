@@ -17,8 +17,8 @@ BitCal 是一个 C++23、header-only、实验性质的 SIMD 位运算练习库�
 
 - 代码真相：`include/bitcal/`
 - 行为真相：`tests/test_bitcal.cpp`
-- 使用入口：`README.md` / `README.zh-CN.md`
-- 变更记录：根 `CHANGELOG.md` / `CHANGELOG.zh-CN.md`
+- 使用入口：`README.md`（中文为准）
+- 变更记录：根 `CHANGELOG.md`（中文为准）
 
 ### 2.2 代码与后端范围
 
@@ -63,14 +63,14 @@ BitCal 是一个 C++23、header-only、实验性质的 SIMD 位运算练习库�
 ## 5. 文档约束
 
 - 不维护 Markdown/HTML 双轨镜像
-- docs 只保留高价值路径
-- 中英双语范围克制，避免长尾同步负担
+- README / CHANGELOG 单语（中文为准），不保留 `.zh-CN` 镜像
+- 不保留独立文档站点（已删 `docs/`）；README 承载全部对外说明
 
 ## 6. AI 工具链约束
 
-- `AGENTS.md`：跨代理规则
-- `CLAUDE.md`：会话补充偏好
-- `.github/copilot-instructions.md`：Copilot 项目指令
+- `AGENTS.md` 是唯一跨代理规则源（已合并原 `CLAUDE.md` 与 `.github/copilot-instructions.md`）
+- 与维护者统一中文沟通
+- 阶段性大改优先 review；发现漂移先收敛一致性再扩展
 
 原则：只保留真能降低成本的资产。
 

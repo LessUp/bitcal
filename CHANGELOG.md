@@ -1,269 +1,251 @@
-# Changelog
+# 更新日志
 
-<p align="center">
-  <strong>English</strong> | <a href="CHANGELOG.zh-CN.md">简体中文</a>
-</p>
+本项目所有重要变更都将记录在此文件中。
 
-All notable changes to this project will be documented in this file.
-
-Current benchmark-backed performance evidence lives in [/en/performance/](https://lessup.github.io/bitcal/en/performance/). Historical entries below may quote then-current numbers, but they are archival notes rather than the retained evidence chain.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
+本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
 ---
 
-## [Unreleased]
+## [未发布]
 
-### 💥 Breaking
+### 💥 破坏性变更
 
-- Reduced backend contract to `scalar` and `avx2` only; removed retained `sse2` / `avx512` surface claims
-- Removed OpenSpec-first process assets from the active repository flow (`openspec/`, opsx command set)
-- Removed `backend_kind` enum and `default_backend()` (no runtime selection exists); replaced with compile-time `active_backend_name` string constant
-- Changed `shift_left<Bits>()` / `shift_right<Bits>()` count parameter from `int` to `size_t` (negative counts are no longer silently treated as zero-shift)
+- 后端契约收敛为 `scalar` 与 `avx2`；移除 `sse2` / `avx512` 的保留公开承诺
+- 从活动主流程移除 OpenSpec-first 资产（`openspec/`、opsx 命令集）
+- 移除 `backend_kind` enum 与 `default_backend()`（不存在运行时选择）；替换为编译期 `active_backend_name` 字符串常量
+- `shift_left<Bits>()` / `shift_right<Bits>()` 的 count 参数从 `int` 改为 `size_t`（负数不再静默视为零移位）
 
-### ♻️ Refactor
+### ♻️ 重构
 
-- Added public in-place bitwise APIs: `or_into()`, `xor_into()`, `andnot_into()` alongside existing `and_into()`
-- Removed dead SIMD and macro layers: `avx_ops.hpp`, `avx512_ops.hpp`, `sse_ops.hpp`, `neon_ops.hpp`, `scalar_ops.hpp`, `backend_ops.def`, `detail/backend.hpp`
-- Added `include/bitcal/detail/scalar_impl.hpp` and moved active scalar fallback + shift logic there
-- Unified `*_into` and `bit_*` binary algorithms to a single dispatch path through `binary_words`
-- Added short-circuit for shifts by `count >= Bits` (returns zero block without copying first)
-- Removed `BITCAL_FORCEINLINE` from scalar helpers (retained only on AVX2 dispatch path)
-- Collapsed tests to a single retained suite (`test_bitcal`), deleted `test_bitcal_detail` target
+- 公开 in-place 位运算 API 补齐：`or_into()`、`xor_into()`、`andnot_into()`（与 `and_into()` 并列）
+- 删除死 SIMD 与宏层：`avx_ops.hpp`、`avx512_ops.hpp`、`sse_ops.hpp`、`neon_ops.hpp`、`scalar_ops.hpp`、`backend_ops.def`、`detail/backend.hpp`
+- 新增 `include/bitcal/detail/scalar_impl.hpp`，承接仍在使用的 scalar fallback 与移位实现
+- `*_into` 与 `bit_*` 二元算法统一为经 `binary_words` 的单一分派路径
+- 移位 `count >= Bits` 时短路返回零 block（不再先 copy 再清零）
+- scalar 辅助函数移除 `BITCAL_FORCEINLINE`（仅 AVX2 分派路径保留）
+- 测试收敛为单套 `test_bitcal`，删除 `test_bitcal_detail`
 
-### ⚙️ Build
+### ⚙️ 构建
 
-- Excluded 32-bit x86 (`__i386__` / `_M_IX86`) from `BITCAL_ARCH_X86`; project is x86-64-first
-- Gated `<immintrin.h>` inclusion on `BITCAL_HAS_AVX2` only (faster compilation on non-AVX2 TUs)
-- Stopped tracking `benchmarks/results/` (added to `.gitignore`); results are regenerated locally
-- Removed `changelog/` fragment directory (single source of truth is root `CHANGELOG.md`)
+- `BITCAL_ARCH_X86` 排除 32 位 x86（`__i386__` / `_M_IX86`）；项目为 x86-64-first
+- `<immintrin.h>` 仅在 `BITCAL_HAS_AVX2` 时引入（非 AVX2 TU 编译更快）
+- 不再跟踪 `benchmarks/results/`（加入 `.gitignore`）；结果本地重新生成
+- 移除 `changelog/` fragment 目录（唯一事实源为根 `CHANGELOG.md`）
 
-### ⚙️ CI & Tooling
+### ⚙️ CI 与工具链
 
-- Simplified CI matrix to minimal retained jobs and removed `openspec/**` workflow triggers
-- Removed OpenSpec coupling from docs IA validator (`docs/scripts/check-ia.mjs`)
+- CI 矩阵降到最小保留集，并移除 `openspec/**` 触发
 
-### 📚 Docs
+### 📚 文档
 
-- Updated README (EN/ZH) backend and API descriptions to match shipped behavior
-- Rewrote project governance docs (`AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, copilot instructions) to lightweight flow
-- Removed low-value whitepaper extras (`design-evolution` pages, `docs/diagrams/`)
+- README 后端与 API 描述改为与实现一致
+- 重写项目治理文档（`AGENTS.md`）为轻流程策略
+- 删除低价值白皮书附加资产（`design-evolution` 页面、`docs/diagrams/`）
+- 删除 VitePress 文档站点（`docs/` 全部）、`PRODUCT.md`、`CONTRIBUTING.md`、issue/PR 模板、`release.yml` / `docs-pages.yml` CI、`CLAUDE.md` / copilot 指令（并入 `AGENTS.md`）
+- README / CHANGELOG 单语化（中文为准），删除 `.zh-CN` 镜像
 
 ## [4.0.0] - 2026-05-15
 
-### 🚀 Highlights
+### 🚀 亮点
 
-This release introduces **BitCal vNext**, a complete redesign around C++23 with a new three-layer architecture:
+本版本引入 **BitCal vNext**，基于 C++23 的全新三层架构重设计：
 
-1. **Owning storage** via `bit_block<Bits>`
-2. **Non-owning access** via `bit_view` / `const_bit_view`
-3. **Free algorithms** such as `bit_and<Bits>()` and `and_into()`
+1. **拥有型存储** 通过 `bit_block<Bits>`
+2. **非拥有型访问** 通过 `bit_view` / `const_bit_view`
+3. **自由算法** 如 `bit_and<Bits>()` 和 `and_into()`
 
-### ⚠️ Breaking
+### ⚠️ 破坏性变更
 
-- **Language baseline upgraded to C++23** (from C++17)
-- **New public model**: `bit_block` + `bit_view` + free algorithms replace the old `bitarray`-centric model
-- **No compatibility layer**: Old `bitarray` API is not preserved
-- **Platform focus**: x86-64 is now the primary optimization target
+- **语言基线升级至 C++23**（从 C++17）
+- **新公开模型**：`bit_block` + `bit_view` + 自由算法替代旧的 `bitarray` 中心模型
+- **无兼容层**：旧 `bitarray` API 不再保留
+- **平台重心**：x86-64 现为首要优化目标
 
-### ✨ Added
+### ✨ 新增功能
 
-- `bit_block<Bits>` - owning fixed-width storage with 32-byte alignment on x86-64
-- `bit_view` / `const_bit_view` - non-owning word views for external storage
-- Free algorithms: `bit_and<Bits>()`, `and_into()`, `is_zero()`, `popcount()`
-- AVX2 fast path for `and_into()` kernel
-- Span-based word import/export helpers
+- `bit_block<Bits>` — 拥有型定宽存储，x86-64 上保证 32 字节对齐
+- `bit_view` / `const_bit_view` — 用于外部存储的非拥有型字视图
+- 自由算法：`bit_and<Bits>()`、`bit_into()`、`is_zero()`、`popcount()`
+- `and_into()` 内核的 AVX2 快速路径
+- 基于 span 的字导入/导出辅助函数
 
-### 📚 Documentation
-
-- New vNext Technical Whitepaper
-- Performance Baseline documentation
-
-### 🔧 Internal Architecture
+### 🔧 内部架构
 
 ```
-bitcal/bitcal.hpp          # Single stable public include
-├── bit_block.hpp          # Owning storage
-├── bit_view.hpp           # Non-owning views
-├── algorithms.hpp         # Public free algorithms
+bitcal/bitcal.hpp          # 唯一稳定公开入口
+├── bit_block.hpp          # 拥有型存储
+├── bit_view.hpp           # 非拥有型视图
+├── algorithms.hpp         # 公开自由算法
 └── detail/
-    ├── scalar_impl.hpp    # Scalar fallback + shift primitives
-    └── x64_dispatch.hpp   # x86-64 dispatch layer
+    ├── scalar_impl.hpp    # scalar fallback 与移位原语
+    └── x64_dispatch.hpp   # x86-64 分派层
 ```
 
-### 📊 Performance Baseline
+### 📊 性能基线
 
-This release establishes the retained x86-64 benchmark baseline and intentionally keeps ARM rows blank until a matching retained benchmark path exists.
+本版本建立当前 retained 的 x86-64 benchmark baseline；ARM 数据继续留空，直到项目拥有同等级的 retained benchmark 路径。
 
-Use [/en/performance/](https://lessup.github.io/bitcal/en/performance/) for the committed tables, benchmark metadata, and reproduction guidance instead of treating the changelog as the source of record for current numbers.
+### 🔗 链接
 
-### 🔗 Links
-
-- **Full Changelog**: [v3.0.0...v4.0.0](https://github.com/LessUp/bitcal/compare/v3.0.0...v4.0.0)
-- **vNext Whitepaper**: https://lessup.github.io/bitcal/en/whitepaper/
-- **Performance Baseline**: https://lessup.github.io/bitcal/en/performance/
+- **完整变更日志**: [v3.0.0...v4.0.0](https://github.com/LessUp/bitcal/compare/v3.0.0...v4.0.0)
 
 
 ## [3.0.0] - 2026-05-08
 
-### ⚠️ Breaking
+### ⚠️ 破坏性变更
 
-- Removed the public `bitcal::ops` namespace from the supported API surface
-- Removed public traits `is_bitarray`, `is_bitarray_v`, and `bitarray_traits`
-- Removed the explicit `bit64` conversion convenience from the public contract
-- Narrowed documentation to the retained `bitarray`-based API only
+- 从受支持的公开 API 表面移除了 `bitcal::ops` 命名空间
+- 移除了公开 traits：`is_bitarray`、`is_bitarray_v`、`bitarray_traits`
+- 移除了公开契约中的显式 `bit64` 转换便捷入口
+- 文档已收敛为仅描述保留的 `bitarray` 公开 API
 
-### 🔁 Migration
+### 🔁 迁移说明
 
-- Replace `bitcal::ops` calls with `bitarray` member functions such as `popcount()`, `count_leading_zeros()`, `count_trailing_zeros()`, `andnot()`, and `reverse()`
-- Adapt existing `uint64_t` buffers with `set_word()` and extract values with `word()` / `operator[]`
-- Remove dependencies on the deleted public traits and use the documented type aliases or template parameters directly
+- 将 `bitcal::ops` 调用替换为 `bitarray` 成员函数，例如 `popcount()`、`count_leading_zeros()`、`count_trailing_zeros()`、`andnot()`、`reverse()`
+- 对已有 `uint64_t` 缓冲区使用 `set_word()` 赋值，使用 `word()` / `operator[]` 做只读提取
+- 删除对已移除公开 traits 的依赖，直接使用文档化的类型别名或模板参数
 
-### 📦 Packaging
+### 📦 打包
 
-- Updated repository install snippets and badges to pin `v3.0.0`
-- Updated `vcpkg.json` package version to `3.0.0`
+- 仓库安装示例与徽章已统一固定到 `v3.0.0`
+- `vcpkg.json` 包版本已更新为 `3.0.0`
 
-### 🔗 Links
+### 🔗 链接
 
-- **Full Changelog**: [v2.1.0...v3.0.0](https://github.com/LessUp/bitcal/compare/v2.1.0...v3.0.0)
-- **Download**: [v3.0.0 Release](https://github.com/LessUp/bitcal/releases/tag/v3.0.0)
-- **Documentation**: https://lessup.github.io/bitcal/en/
+- **完整变更日志**: [v2.1.0...v3.0.0](https://github.com/LessUp/bitcal/compare/v2.1.0...v3.0.0)
+- **下载**: [v3.0.0 发布](https://github.com/LessUp/bitcal/releases/tag/v3.0.0)
 
 
 ## [2.1.0] - 2026-04-16
 
-### 🚀 Highlights
+### 🚀 亮点
 
-- **New:** ANDNOT operation with native SIMD instructions across all backends
-- **Performance:** Up to 2.3× faster `is_zero()`, 1.7× faster `~`, 1.4× faster `reverse()`
-- **Testing:** Full bit1024 test coverage
-- **Infrastructure:** ARM32 CI support, CMake flag auto-detection
+- **新增：** 全 SIMD 后端原生 ANDNOT 运算
+- **性能：** `is_zero()` 提速最高 2.3×，`~` 提速 1.7×，`reverse()` 提速 1.4×
+- **测试：** bit1024 完整测试覆盖
+- **基础设施：** ARM32 CI 支持，CMake 标志自动检测
 
-### ✨ Added
+### ✨ 新增功能
 
-- **ANDNOT operation** — `bitarray::andnot(mask)` using native SIMD instructions
+- **ANDNOT 运算** — 使用原生 SIMD 指令的 `bitarray::andnot(mask)`
   - SSE: `_mm_andnot_si128`
   - AVX: `_mm256_andnot_si256`
   - NEON: `vbicq_u64`
-- **Unified binary operation dispatch** — `dispatch_binop<Op>` template reduces code duplication by ~40%
-- **bit1024 unit tests** — Full test coverage for 1024-bit operations
-- **Benchmarks directory** — Performance testing suite with Google Benchmark
-- **Documentation improvements** — Professional bilingual (EN/ZH) documentation
+- **统一二元运算分派** — `dispatch_binop<Op>` 模板，减少约 40% 代码重复
+- **bit1024 单元测试** — 1024 位运算的完整测试覆盖
+- **基准测试目录** — 基于 Google Benchmark 的性能测试套件
 
-### ⚡ Performance
+### ⚡ 性能提升
 
-| Optimization | v2.0 | v2.1 | Improvement |
-|--------------|------|------|-------------|
-| `operator~` | Scalar fallback | SIMD NOT | **1.7×** (256-bit) |
-| `is_zero()` | Multi-instruction | Single instruction | **2.3×** (256-bit) |
-| `clear()` | Loop-based | `std::memset` | **1.9×** (1024-bit) |
-| `reverse()` | With temp array | In-place | **1.4×** (256-bit) |
+| 优化项 | v2.0 | v2.1 | 提升 |
+|--------|------|------|------|
+| `operator~` | 标量回退 | SIMD 非运算 | **1.7×** (256 位) |
+| `is_zero()` | 多指令 | 单指令 | **2.3×** (256 位) |
+| `clear()` | 循环实现 | `std::memset` | **1.9×** (1024 位) |
+| `reverse()` | 使用临时数组 | 原地操作 | **1.4×** (256 位) |
 
-### 🔧 Fixed
+### 🔧 错误修复
 
-| Issue | Platform | Resolution |
-|-------|----------|------------|
-| MSVC SSE2 detection | Windows | Added `_M_X64` check + `<intrin.h>` |
-| NEON NOT operation | ARM | `vmvnq_u64` → `veorq_u64` (compatibility) |
-| NEON variable shift | ARM | `vshlq_n_u64` → `vshlq_u64` (runtime support) |
-| SSE 256-bit shift carry | x86 | Fixed 4-qword carry chain |
-| AVX 256/512-bit shift | x86 | Fixed cross-lane carry propagation |
-| Include order | All | Intrinsics must be outside namespace scope |
+| 问题 | 平台 | 解决方案 |
+|------|------|---------|
+| MSVC SSE2 检测 | Windows | 添加 `_M_X64` 检查 + `<intrin.h>` |
+| NEON NOT 运算 | ARM | `vmvnq_u64` → `veorq_u64`（兼容性） |
+| NEON 变位移 | ARM | `vshlq_n_u64` → `vshlq_u64`（运行时支持） |
+| SSE 256 位位移进位 | x86 | 修复 4 字进位链 |
+| AVX 256/512 位位移 | x86 | 修复跨通道进位传播 |
+| 包含顺序 | 所有 | 内部函数必须在命名空间外 |
 
-### 🏗️ Infrastructure
+### 🏗️ 基础设施
 
-- Added ARM32 cross-compile CI job
-- CMake auto-detection of SIMD compiler flags
-- Professional documentation rewrite (English & Chinese)
+- 添加 ARM32 交叉编译 CI 作业
+- CMake 自动检测 SIMD 编译器标志
 
-### 🔗 Links
+### 🔗 链接
 
-- **Full Changelog**: [v2.0.0...v2.1.0](https://github.com/LessUp/bitcal/compare/v2.0.0...v2.1.0)
-- **Download**: [v2.1.0 Release](https://github.com/LessUp/bitcal/releases/tag/v2.1.0)
-- **Documentation**: https://lessup.github.io/bitcal/en/
+- **完整变更日志**: [v2.0.0...v2.1.0](https://github.com/LessUp/bitcal/compare/v2.0.0...v2.1.0)
+- **下载**: [v2.1.0 发布](https://github.com/LessUp/bitcal/releases/tag/v2.1.0)
 
 ---
 
 ## [2.0.0] - 2026-01-08
 
-### 🔄 Complete Rewrite
+### 🔄 完全重写
 
-This is a **complete architectural redesign** from OOP inheritance to modern C++17 template-based design.
+这是一次从面向对象继承设计到现代 C++17 模板设计的**完全架构重构**。
 
-### 🏗️ Architecture Changes
+### 🏗️ 架构变更
 
-| Aspect | v1.x | v2.0 |
-|--------|------|------|
-| Design Pattern | Inheritance + Virtual | Templates + `if constexpr` |
-| Dispatch | Runtime | Compile-time |
-| Dependencies | External (spdlog) | None (header-only) |
-| API Style | Singleton pattern | Value types + operators |
+| 方面 | v1.x | v2.0 |
+|------|------|------|
+| 设计模式 | 继承 + 虚函数 | 模板 + `if constexpr` |
+| 分派方式 | 运行时 | 编译期 |
+| 依赖项 | 外部（spdlog） | 无（纯头文件） |
+| API 风格 | 单例模式 | 值类型 + 运算符 |
 
-### ✨ Added
+### ✨ 新增功能
 
-- **Header-only design** — Zero compilation dependencies
-- **Compile-time SIMD selection** — Automatic backend selection via `if constexpr`
-- **Full ARM NEON support** — 128/256/512-bit operations on ARM
-- **Operator overloading** — `&`, `|`, `^`, `~`, `<<`, `>>`
-- **Bit counting** — `popcount()`, `count_leading_zeros()`, `count_trailing_zeros()`
-- **Bit manipulation** — `get_bit()`, `set_bit()`, `flip_bit()`, `is_zero()`, `clear()`, `reverse()`
-- **Type aliases** — `bit64`, `bit128`, `bit256`, `bit512`, `bit1024`
-- **Low-level API** — `ops` namespace for raw pointer operations
+- **纯头文件设计** — 零编译依赖
+- **编译期 SIMD 选择** — 通过 `if constexpr` 自动选择后端
+- **完整 ARM NEON 支持** — ARM 上的 128/256/512 位运算
+- **运算符重载** — `&`, `|`, `^`, `~`, `<<`, `>>`
+- **位计数** — `popcount()`, `count_leading_zeros()`, `count_trailing_zeros()`
+- **位操作** — `get_bit()`, `set_bit()`, `flip_bit()`, `is_zero()`, `clear()`, `reverse()`
+- **类型别名** — `bit64`, `bit128`, `bit256`, `bit512`, `bit1024`
+- **底层 API** — 面向原始指针操作的 `ops` 命名空间
 
-### 📊 Performance Comparison
+### 📊 性能对比
 
-| Platform | Operation | Scalar | SIMD | Speedup |
-|----------|-----------|--------|------|---------|
-| x86 AVX2 | AND-256 | 12.3 ns | 2.1 ns | **5.9×** |
-| x86 AVX2 | XOR-512 | 24.8 ns | 4.3 ns | **5.8×** |
-| ARM NEON | AND-128 | 8.4 ns | 3.2 ns | **2.6×** |
+| 平台 | 运算 | 标量 | SIMD | 加速比 |
+|------|------|------|------|--------|
+| x86 AVX2 | 与运算-256 | 12.3 ns | 2.1 ns | **5.9×** |
+| x86 AVX2 | 异或运算-512 | 24.8 ns | 4.3 ns | **5.8×** |
+| ARM NEON | 与运算-128 | 8.4 ns | 3.2 ns | **2.6×** |
 
-### ❌ Removed
+### ❌ 移除项
 
-- Virtual function overhead
-- Singleton pattern
-- Runtime type checking
-- External dependencies (spdlog)
+- 虚函数开销
+- 单例模式
+- 运行时类型检查
+- 外部依赖（spdlog）
 
-### ✅ Platform Support
+### ✅ 平台支持
 
 - Linux (x86-64, ARM64, ARM32)
 - Windows (x86-64, MSVC 2017+)
 - macOS (x86-64, ARM64 Apple Silicon)
 
-### 🔗 Links
+### 🔗 链接
 
-- **Full Changelog**: [v1.0...v2.0.0](https://github.com/LessUp/bitcal/releases/tag/v2.0.0)
+- **完整变更日志**: [v1.0...v2.0.0](https://github.com/LessUp/bitcal/releases/tag/v2.0.0)
 
-### ⚠️ Migration Notes
+### ⚠️ 迁移说明
 
-v1.x is **no longer maintained**. Users should migrate to v2.x.
-
----
-
-## [1.x] - Legacy
-
-The original implementation based on inheritance and virtual functions.
-
-**Status**: No longer maintained. Users should migrate to v2.x.
+v1.x **不再维护**。用户应迁移到 v2.x。
 
 ---
 
-## Version History
+## [1.x] - 旧版
 
-| Version | Date | Status | Highlights |
-|---------|------|--------|------------|
-| v4.0.0 | 2026-05-15 | ✅ Stable | vNext C++23 redesign, new three-layer architecture |
-| v3.0.0 | 2026-05-08 | ✅ Stable | Public surface contraction, migration notes |
-| v2.1.0 | 2026-04-16 | ✅ Stable | ANDNOT, performance improvements |
-| v2.0.0 | 2026-01-08 | ✅ Stable | Complete rewrite, header-only |
-| v1.x | 2025 | ⚠️ Legacy | Inheritance-based design |
+基于继承和虚函数的原始实现。
+
+**状态**：不再维护。用户应迁移到 v2.x。
 
 ---
 
-[Unreleased]: https://github.com/LessUp/bitcal/compare/v4.0.0...HEAD
+## 版本历史
+
+| 版本 | 日期 | 状态 | 亮点 |
+|------|------|------|------|
+| v4.0.0 | 2026-05-15 | ✅ 稳定 | vNext C++23 重设计，全新三层架构 |
+| v3.0.0 | 2026-05-08 | ✅ 稳定 | 公开接口收口、迁移说明 |
+| v2.1.0 | 2026-04-16 | ✅ 稳定 | ANDNOT，性能提升 |
+| v2.0.0 | 2026-01-08 | ✅ 稳定 | 完全重写，纯头文件 |
+| v1.x | 2025 | ⚠️ 旧版 | 基于继承的设计 |
+
+---
+
+[未发布]: https://github.com/LessUp/bitcal/compare/v4.0.0...HEAD
 [4.0.0]: https://github.com/LessUp/bitcal/compare/v3.0.0...v4.0.0
 [3.0.0]: https://github.com/LessUp/bitcal/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/LessUp/bitcal/compare/v2.0.0...v2.1.0
