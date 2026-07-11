@@ -27,10 +27,11 @@ private:
     std::size_t word_count_ = 0;
 };
 
-// Mutable view over a contiguous range of uint64 words. Stores its own
-// `uint64_t*` so `data()` returns the mutable pointer directly, with no
-// const_cast. `operator const_bit_view()` lets callers pass a bit_view
-// wherever a const_bit_view is expected (free read-only degradation).
+// Mutable view over a contiguous range of uint64 words. Stores a
+// `uint64_t*` directly (no const_cast) and provides an implicit conversion
+// to const_bit_view so callers can pass a bit_view wherever a const_bit_view
+// is expected. The two types share the same interface shape but are not
+// inheritance-related, which keeps the mutable pointer type honest.
 class bit_view {
 public:
     constexpr bit_view() noexcept = default;
@@ -38,7 +39,8 @@ public:
     constexpr bit_view(std::uint64_t* data, std::size_t words) noexcept
         : data_(data), word_count_(words) {}
 
-    [[nodiscard]] constexpr std::uint64_t* data() const noexcept { return data_; }
+    [[nodiscard]] constexpr std::uint64_t* data() noexcept { return data_; }
+    [[nodiscard]] constexpr const std::uint64_t* data() const noexcept { return data_; }
     [[nodiscard]] constexpr std::size_t word_count() const noexcept { return word_count_; }
 
     [[nodiscard]] constexpr std::uint64_t word(const std::size_t index) const noexcept {
@@ -46,7 +48,7 @@ public:
         return data_[index];
     }
 
-    constexpr operator const_bit_view() const noexcept {
+    [[nodiscard]] constexpr operator const_bit_view() const noexcept {
         return const_bit_view(data_, word_count_);
     }
 

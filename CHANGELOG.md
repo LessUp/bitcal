@@ -24,8 +24,19 @@
 - 移位 `count >= Bits` 时短路返回零 block（不再先 copy 再清零）
 - scalar 辅助函数移除 `BITCAL_FORCEINLINE`（仅 AVX2 分派路径保留）
 - 测试收敛为单套 `test_bitcal`，删除 `test_bitcal_detail`
-- `bit_view` 改为独立类，存 `uint64_t*` 并提供 `operator const_bit_view()` 隐式转换；移除原继承基类 + `const_cast` 恢复可变性的微妙写法
+- `bit_view` 解耦为独立类，存 `uint64_t*` 并提供 `operator const_bit_view()` 隐式转换；移除原继承基类 + `const_cast` 恢复可变性的微妙写法
+- `popcount` / `is_zero` / `equals` 走 AVX2 分派（运行时），`if consteval` 保留 scalar constexpr 路径
 - `detail/scalar_impl.hpp` 与 `detail/x64_dispatch.hpp` 合并入 `detail/word_ops.hpp`，detail 层从三文件收敛为单文件
+
+### ⚡ 性能
+
+- AVX2 加速 `popcount`（LUT + `_mm256_sad_epu8`）、`is_zero`（`_mm256_testz_si256`）、`equals`（`_mm256_cmpeq_epi64` + `_mm256_testc_si256`），>= 4 字块走 SIMD + scalar 尾部回退
+
+### 🧪 测试
+
+- 新增 `bit_or` / `bit_xor` / `bit_andnot` 的 128 位确定性测试矩阵
+- 新增 `shift_left(0)` / `shift_right(0)` 空操作回归测试
+- 新增 `popcount` / `is_zero` / `equals` 的 constexpr `static_assert` 覆盖
 
 ### ⚙️ 构建
 
