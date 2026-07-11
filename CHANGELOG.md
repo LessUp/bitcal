@@ -20,11 +20,12 @@
 
 - 公开 in-place 位运算 API 补齐：`or_into()`、`xor_into()`、`andnot_into()`（与 `and_into()` 并列）
 - 删除死 SIMD 与宏层：`avx_ops.hpp`、`avx512_ops.hpp`、`sse_ops.hpp`、`neon_ops.hpp`、`scalar_ops.hpp`、`backend_ops.def`、`detail/backend.hpp`
-- 新增 `include/bitcal/detail/scalar_impl.hpp`，承接仍在使用的 scalar fallback 与移位实现
 - `*_into` 与 `bit_*` 二元算法统一为经 `binary_words` 的单一分派路径
 - 移位 `count >= Bits` 时短路返回零 block（不再先 copy 再清零）
 - scalar 辅助函数移除 `BITCAL_FORCEINLINE`（仅 AVX2 分派路径保留）
 - 测试收敛为单套 `test_bitcal`，删除 `test_bitcal_detail`
+- `bit_view` 改为独立类，存 `uint64_t*` 并提供 `operator const_bit_view()` 隐式转换；移除原继承基类 + `const_cast` 恢复可变性的微妙写法
+- `detail/scalar_impl.hpp` 与 `detail/x64_dispatch.hpp` 合并入 `detail/word_ops.hpp`，detail 层从三文件收敛为单文件
 
 ### ⚙️ 构建
 
@@ -78,8 +79,7 @@ bitcal/bitcal.hpp          # 唯一稳定公开入口
 ├── bit_view.hpp           # 非拥有型视图
 ├── algorithms.hpp         # 公开自由算法
 └── detail/
-    ├── scalar_impl.hpp    # scalar fallback 与移位原语
-    └── x64_dispatch.hpp   # x86-64 分派层
+    └── word_ops.hpp       # scalar 内核 + x86-64 分派 + 视图层字操作
 ```
 
 ### 📊 性能基线
