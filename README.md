@@ -24,6 +24,8 @@
 
 `<bitcal/bitcal.hpp>` 仍然是唯一稳定的公开 include seam。
 
+> English README: [README.en.md](README.en.md)（风格独立，不逐句对应）
+
 ## 状态
 
 BitCal 当前处于 **vNext / 4.0.0** 的活动重设计阶段。
@@ -37,15 +39,23 @@ BitCal 当前处于 **vNext / 4.0.0** 的活动重设计阶段。
 
 ```cpp
 #include <bitcal/bitcal.hpp>
+#include <array>
+#include <cstdint>
 #include <iostream>
+#include <span>
 
 int main() {
-    bitcal::bit_block<256> lhs;
-    bitcal::bit_block<256> rhs;
+    const std::array<std::uint64_t, 4> lhs_words{0xF0F0F0F0F0F0F0F0ULL, 0, 0, 0};
+    const std::array<std::uint64_t, 4> rhs_words{0xFFFFFFFFFFFFFFFFULL, 0, 0, 0};
 
-    auto out = bitcal::bit_and<256>(lhs.view(), rhs.view());
+    const auto lhs = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(lhs_words.data(), lhs_words.size()));
+    const auto rhs = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(rhs_words.data(), rhs_words.size()));
 
-    std::cout << out.word(0) << '\n';
+    const auto and_result = bitcal::bit_and<256>(lhs.view(), rhs.view());
+    const auto andnot_result = bitcal::bit_andnot<256>(lhs.view(), rhs.view());
+
+    std::cout << "popcount(lhs) = " << bitcal::popcount(lhs.view()) << '\n';
+    std::cout << "is_zero(andnot)? " << (bitcal::is_zero(andnot_result.view()) ? "yes" : "no") << '\n';
 }
 ```
 
@@ -68,18 +78,39 @@ int main() {
 | 查询 | `equals()`, `is_zero()`, `popcount()` |
 | 移位 | `shift_left<Bits>()`, `shift_right<Bits>()` |
 
+> **契约说明**：`equals()` 在视图宽度不一致时返回 `false`；其他算法要求视图宽度匹配，宽度不一致在 Release 下为未定义行为（Debug 下 `assert` 触发）。
+
 ### 后端
 
 x86-64: `scalar` / `avx2`（编译期由 `BITCAL_HAS_AVX2` 固定，无运行时选择）
 
+- AVX2 build：`-mavx2`（或 `-march=native`），`>= 256` 位 block 走 `__m256i` 路径并强制 32 字节对齐。
+- Scalar build：`-mno-avx2` 或不开启 `BITCAL_NATIVE_ARCH`，所有宽度走标量循环，自然对齐。
+
 ## 构建
 
 ```bash
-cmake -S . -B build-test -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_NATIVE_ARCH=ON
-cmake --build build-test --config Release -j"$(nproc)"
-ctest --test-dir build-test --output-on-failure -C Release
+# AVX2 路径（默认开发配置）
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_NATIVE_ARCH=ON
+cmake --build build --config Release -j"$(nproc)"
+ctest --test-dir build --output-on-failure -C Release
+
+# Scalar 路径（验证 BITCAL_HAS_AVX2=0 分支）
+cmake -S . -B build-scalar -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_NATIVE_ARCH=OFF -DCMAKE_CXX_FLAGS="-mno-avx2"
+cmake --build build-scalar -j"$(nproc)"
+ctest --test-dir build-scalar --output-on-failure
 ```
+
+## 基准
+
+`benchmarks/` 含两组可执行文件（需 `BITCAL_BUILD_BENCHMARKS=ON`）：
+
+- `bitcal_benchmark`：BitCal 自身各操作计时。
+- `benchmark_compare`：BitCal 与 `std::bitset` 对比计时。
+
+结果在本地生成，不入库；如需保留基线，请本地保存 `benchmarks/results/` 下的输出。
 
 ## 迁移说明
 
 旧的 `bitarray` API 已不再属于当前 shipped vNext 公共表面。BitCal 4.x 期望使用者迁移到 `bit_block`、`bit_view` / `const_bit_view` 与通过 `<bitcal/bitcal.hpp>` 提供的自由算法模型。
+

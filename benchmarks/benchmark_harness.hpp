@@ -1,9 +1,10 @@
 #pragma once
 
-#include <algorithm>
-#include <chrono>
 #include <cmath>
 #include <cstdint>
+
+#include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <ostream>
 #include <string>
@@ -103,8 +104,8 @@ sample_summary measure_ns(Func&& func, const std::size_t warmup, const std::size
             func();
         }
         const auto end = clock::now();
-        sample_values.push_back(
-            std::chrono::duration<double, std::nano>(end - start).count() / static_cast<double>(iterations_per_sample));
+        sample_values.push_back(std::chrono::duration<double, std::nano>(end - start).count() /
+                                static_cast<double>(iterations_per_sample));
     }
 
     sample_summary summary{};

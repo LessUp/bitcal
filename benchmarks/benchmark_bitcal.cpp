@@ -3,14 +3,15 @@
  * @brief Minimal vNext benchmark baseline for BitCal
  */
 
-#include <bitcal/bitcal.hpp>
-
 #include "benchmark_harness.hpp"
 
-#include <chrono>
 #include <cstdint>
+
+#include <chrono>
 #include <iostream>
 #include <random>
+
+#include <bitcal/bitcal.hpp>
 
 #ifdef BITCAL_HAS_GBENCH
 #include <benchmark/benchmark.h>

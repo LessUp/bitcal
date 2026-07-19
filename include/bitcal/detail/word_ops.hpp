@@ -3,11 +3,12 @@
 #include "../bit_view.hpp"
 #include "../config.hpp"
 
-#include <bit>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+
+#include <bit>
 
 namespace bitcal::detail {
 
@@ -39,7 +40,10 @@ inline void shift_left_array(std::uint64_t* data, std::size_t count) noexcept {
         const std::size_t word_shift = count / 64;
         const std::size_t bit_shift = count % 64;
 
-        for (std::size_t i = N - 1; i >= word_shift; --i) {
+        // word_shift >= 1 here (count >= 64). Loop guards with `i < N`
+        // so size_t underflow cannot turn into an infinite loop if this
+        // guard is ever refactored away; mirrors shift_right_array style.
+        for (std::size_t i = N; i-- > word_shift;) {
             data[i] = data[i - word_shift];
         }
         for (std::size_t i = 0; i < word_shift; ++i) {
@@ -148,8 +152,8 @@ BITCAL_FORCEINLINE void binary_into_x64(const std::uint64_t* lhs, const std::uin
 // look up popcount in a 16-entry table, then sum the byte counts into 64-bit
 // lanes via _mm256_sad_epu8 (which produces 64-bit sums in each 128-bit half).
 BITCAL_FORCEINLINE __m256i popcount_bytes_avx2(const __m256i value) noexcept {
-    const auto lut = _mm256_setr_epi8(0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
-                                      0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4);
+    const auto lut = _mm256_setr_epi8(0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2,
+                                      3, 2, 3, 3, 4);
     const auto low_mask = _mm256_set1_epi8(0x0F);
     const auto low = _mm256_and_si256(value, low_mask);
     const auto high = _mm256_and_si256(_mm256_srli_epi16(value, 4), low_mask);
@@ -183,8 +187,7 @@ BITCAL_FORCEINLINE __m256i popcount_bytes_avx2(const __m256i value) noexcept {
     return total;
 }
 
-[[nodiscard]] BITCAL_FORCEINLINE bool is_zero_x64(const std::uint64_t* data,
-                                                  const std::size_t word_count) noexcept {
+[[nodiscard]] BITCAL_FORCEINLINE bool is_zero_x64(const std::uint64_t* data, const std::size_t word_count) noexcept {
     std::size_t i = 0;
 
 #if BITCAL_ARCH_X86 && BITCAL_HAS_AVX2
@@ -238,11 +241,11 @@ inline void assert_binary_word_layout(const const_bit_view lhs, const const_bit_
 }
 
 template <typename VectorOp, typename WordOp>
-inline void binary_words(const const_bit_view lhs, const const_bit_view rhs, bit_view out,
-                         VectorOp&& vector_op, WordOp&& word_op) noexcept {
+inline void binary_words(const const_bit_view lhs, const const_bit_view rhs, bit_view out, VectorOp&& vector_op,
+                         WordOp&& word_op) noexcept {
     assert_binary_word_layout(lhs, rhs, out);
-    binary_into_x64(lhs.data(), rhs.data(), out.data(), out.word_count(),
-                    std::forward<VectorOp>(vector_op), std::forward<WordOp>(word_op));
+    binary_into_x64(lhs.data(), rhs.data(), out.data(), out.word_count(), std::forward<VectorOp>(vector_op),
+                    std::forward<WordOp>(word_op));
 }
 
 [[nodiscard]] constexpr bool is_zero_words(const const_bit_view value) noexcept {

@@ -1,7 +1,6 @@
 # Build directories
 build/
 build-*/
-build_arm64/
 .worktrees/
 cmake-build-*/
 out/
@@ -42,21 +41,6 @@ Thumbs.db
 *.suo
 *.user
 *.vcxproj.user
-
-# Node (honkit docs build)
-node_modules/
-_site/
-_book/
-
-# Windsurf
-.windsurf/
-
-# BMad Method V6
-_bmad/
-_bmad-output/
-
-# OMC (oh-my-claudecode) local state
-.omc/
 
 # Local AI tool configs
 .devin/

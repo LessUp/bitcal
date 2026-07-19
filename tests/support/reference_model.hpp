@@ -1,8 +1,9 @@
 #pragma once
 
+#include <cstdint>
+
 #include <array>
 #include <bit>
-#include <cstdint>
 
 namespace bitcal::test {
 

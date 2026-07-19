@@ -30,8 +30,7 @@ template <std::size_t Bits, typename VectorOp, typename WordOp>
     assert(rhs.word_count() == bit_block<Bits>::word_count);
 
     bit_block<Bits> out;
-    detail::binary_words(lhs, rhs, out.view(), std::forward<VectorOp>(vector_op),
-                         std::forward<WordOp>(word_op));
+    detail::binary_words(lhs, rhs, out.view(), std::forward<VectorOp>(vector_op), std::forward<WordOp>(word_op));
     return out;
 }
 
@@ -64,59 +63,55 @@ template <std::size_t Bits, typename ShiftOp>
 }  // namespace detail
 
 inline void and_into(const const_bit_view lhs, const const_bit_view rhs, bit_view out) noexcept {
-    detail::binary_words(lhs, rhs, out,
-                         [](const auto a, const auto b) noexcept { return _mm256_and_si256(a, b); },
-                         [](const std::uint64_t a, const std::uint64_t b) noexcept { return a & b; });
+    detail::binary_words(
+        lhs, rhs, out, [](const auto a, const auto b) noexcept { return _mm256_and_si256(a, b); },
+        [](const std::uint64_t a, const std::uint64_t b) noexcept { return a & b; });
 }
 
 inline void or_into(const const_bit_view lhs, const const_bit_view rhs, bit_view out) noexcept {
-    detail::binary_words(lhs, rhs, out,
-                         [](const auto a, const auto b) noexcept { return _mm256_or_si256(a, b); },
-                         [](const std::uint64_t a, const std::uint64_t b) noexcept { return a | b; });
+    detail::binary_words(
+        lhs, rhs, out, [](const auto a, const auto b) noexcept { return _mm256_or_si256(a, b); },
+        [](const std::uint64_t a, const std::uint64_t b) noexcept { return a | b; });
 }
 
 inline void xor_into(const const_bit_view lhs, const const_bit_view rhs, bit_view out) noexcept {
-    detail::binary_words(lhs, rhs, out,
-                         [](const auto a, const auto b) noexcept { return _mm256_xor_si256(a, b); },
-                         [](const std::uint64_t a, const std::uint64_t b) noexcept { return a ^ b; });
+    detail::binary_words(
+        lhs, rhs, out, [](const auto a, const auto b) noexcept { return _mm256_xor_si256(a, b); },
+        [](const std::uint64_t a, const std::uint64_t b) noexcept { return a ^ b; });
 }
 
 inline void andnot_into(const const_bit_view lhs, const const_bit_view rhs, bit_view out) noexcept {
     // AVX2 andnot takes (rhs, lhs) to compute lhs & ~rhs; scalar form mirrors that.
-    detail::binary_words(lhs, rhs, out,
-                         [](const auto a, const auto b) noexcept { return _mm256_andnot_si256(b, a); },
-                         [](const std::uint64_t a, const std::uint64_t b) noexcept { return a & ~b; });
+    detail::binary_words(
+        lhs, rhs, out, [](const auto a, const auto b) noexcept { return _mm256_andnot_si256(b, a); },
+        [](const std::uint64_t a, const std::uint64_t b) noexcept { return a & ~b; });
 }
 
 template <std::size_t Bits>
 [[nodiscard]] inline bit_block<Bits> bit_and(const const_bit_view lhs, const const_bit_view rhs) noexcept {
     return detail::compose_binary_block<Bits>(
-        lhs, rhs,
-        [](const auto a, const auto b) noexcept { return _mm256_and_si256(a, b); },
+        lhs, rhs, [](const auto a, const auto b) noexcept { return _mm256_and_si256(a, b); },
         [](const std::uint64_t a, const std::uint64_t b) noexcept { return a & b; });
 }
 
 template <std::size_t Bits>
 [[nodiscard]] inline bit_block<Bits> bit_or(const const_bit_view lhs, const const_bit_view rhs) noexcept {
     return detail::compose_binary_block<Bits>(
-        lhs, rhs,
-        [](const auto a, const auto b) noexcept { return _mm256_or_si256(a, b); },
+        lhs, rhs, [](const auto a, const auto b) noexcept { return _mm256_or_si256(a, b); },
         [](const std::uint64_t a, const std::uint64_t b) noexcept { return a | b; });
 }
 
 template <std::size_t Bits>
 [[nodiscard]] inline bit_block<Bits> bit_xor(const const_bit_view lhs, const const_bit_view rhs) noexcept {
     return detail::compose_binary_block<Bits>(
-        lhs, rhs,
-        [](const auto a, const auto b) noexcept { return _mm256_xor_si256(a, b); },
+        lhs, rhs, [](const auto a, const auto b) noexcept { return _mm256_xor_si256(a, b); },
         [](const std::uint64_t a, const std::uint64_t b) noexcept { return a ^ b; });
 }
 
 template <std::size_t Bits>
 [[nodiscard]] inline bit_block<Bits> bit_andnot(const const_bit_view lhs, const const_bit_view rhs) noexcept {
     return detail::compose_binary_block<Bits>(
-        lhs, rhs,
-        [](const auto a, const auto b) noexcept { return _mm256_andnot_si256(b, a); },
+        lhs, rhs, [](const auto a, const auto b) noexcept { return _mm256_andnot_si256(b, a); },
         [](const std::uint64_t a, const std::uint64_t b) noexcept { return a & ~b; });
 }
 

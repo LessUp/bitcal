@@ -15,6 +15,12 @@
 - 从活动主流程移除 OpenSpec-first 资产（`openspec/`、opsx 命令集）
 - 移除 `backend_kind` enum 与 `default_backend()`（不存在运行时选择）；替换为编译期 `active_backend_name` 字符串常量
 - `shift_left<Bits>()` / `shift_right<Bits>()` 的 count 参数从 `int` 改为 `size_t`（负数不再静默视为零移位）
+- 删除 `vcpkg.json`（声明 google-benchmark 但 benchmark harness 自研 `std::chrono`，`install-features` 为死配置）
+
+### 🐛 修复
+
+- `get_optimal_alignment<Bits>()` 增加 `BITCAL_HAS_AVX2` 条件：仅在 `Bits >= 256 && BITCAL_HAS_AVX2` 时返回 32 字节对齐。此前 scalar build 下 `bit_block<256>` 也强制 32 字节对齐，与"scalar 路径用自然对齐以避免死零初始化存储"的注释自相矛盾
+- `detail::shift_left_array` 反向循环改用 `i < N` 守护（与 `shift_right_array` 一致）：消除 `word_shift == 0` 时 `size_t` 下溢导致死循环的潜在隐患
 
 ### ♻️ 重构
 
@@ -27,6 +33,7 @@
 - `bit_view` 解耦为独立类，存 `uint64_t*` 并提供 `operator const_bit_view()` 隐式转换；移除原继承基类 + `const_cast` 恢复可变性的微妙写法
 - `popcount` / `is_zero` / `equals` 走 AVX2 分派（运行时），`if consteval` 保留 scalar constexpr 路径
 - `detail/scalar_impl.hpp` 与 `detail/x64_dispatch.hpp` 合并入 `detail/word_ops.hpp`，detail 层从三文件收敛为单文件
+- 全量 `clang-format` 应用于 `include/`、`tests/`、`examples/`、`benchmarks/`，CI 增加 `clang-format --dry-run --Werror` 步骤
 
 ### ⚡ 性能
 
@@ -36,7 +43,9 @@
 
 - 新增 `bit_or` / `bit_xor` / `bit_andnot` 的 128 位确定性测试矩阵
 - 新增 `shift_left(0)` / `shift_right(0)` 空操作回归测试
+- 新增 shift 边界用例：`shift(Bits-1)` 单 bit 保留、`shift(Bits+1)` 超宽短路、`shift(SIZE_MAX)` 极端 count
 - 新增 `popcount` / `is_zero` / `equals` 的 constexpr `static_assert` 覆盖
+- `test_vnext_block_storage_alignment` 断言条件从 `BITCAL_ARCH_X86` 改为 `BITCAL_HAS_AVX2`，与 `get_optimal_alignment` 新逻辑一致
 
 ### ⚙️ 构建
 
@@ -44,14 +53,20 @@
 - `<immintrin.h>` 仅在 `BITCAL_HAS_AVX2` 时引入（非 AVX2 TU 编译更快）
 - 不再跟踪 `benchmarks/results/`（加入 `.gitignore`）；结果本地重新生成
 - 移除 `changelog/` fragment 目录（唯一事实源为根 `CHANGELOG.md`）
+- 清理 `.gitignore`：删除 `build_arm64/`、`node_modules/`、`_site/`、`_book/`（honkit 已删）、`.windsurf/`、`_bmad/`、`_bmad-output/`、`.omc/`（AI 工具残留）
 
 ### ⚙️ CI 与工具链
 
 - CI 矩阵降到最小保留集，并移除 `openspec/**` 触发
+- CI 增加 scalar 路径 matrix job（`-mno-avx2` + `BITCAL_NATIVE_ARCH=OFF`），覆盖 `BITCAL_HAS_AVX2 == 0` 分支
+- CI 增加 `clang-format` dry-run 检查 job
+- CI 触发路径列表移除 `vcpkg.json`，新增 `README.en.md` 与 `.clang-format`
 
 ### 📚 文档
 
+- 新增 `README.en.md`：英文版面向贡献者与设计评审，风格与中文版独立（不逐句对应）
 - README 后端与 API 描述改为与实现一致
+- README 增加 scalar build 命令、契约说明（`equals` 容忍宽度不一致，其他算法 Release 下宽度不一致为 UB）、benchmark_compare 用途说明
 - 重写项目治理文档（`AGENTS.md`）为轻流程策略
 - 删除低价值白皮书附加资产（`design-evolution` 页面、`docs/diagrams/`）
 - 删除 VitePress 文档站点（`docs/` 全部）、`PRODUCT.md`、`CONTRIBUTING.md`、issue/PR 模板、`release.yml` / `docs-pages.yml` CI、`CLAUDE.md` / copilot 指令（并入 `AGENTS.md`）
@@ -95,7 +110,7 @@ bitcal/bitcal.hpp          # 唯一稳定公开入口
 
 ### 📊 性能基线
 
-本版本建立当前 retained 的 x86-64 benchmark baseline；ARM 数据继续留空，直到项目拥有同等级的 retained benchmark 路径。
+本版本建立 x86-64 benchmark 基线（结果本地生成、不入库，运行 `benchmarks/` 可执行文件复现）；ARM 路径暂无 benchmark。
 
 ### 🔗 链接
 

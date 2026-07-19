@@ -10,10 +10,11 @@ on:
       - "benchmarks/**"
       - "cmake/**"
       - "CMakeLists.txt"
-      - "vcpkg.json"
       - "README.md"
+      - "README.en.md"
       - "CHANGELOG.md"
       - ".github/workflows/ci.yml"
+      - ".clang-format"
   pull_request:
     branches: [master, main]
     paths:
@@ -23,10 +24,11 @@ on:
       - "benchmarks/**"
       - "cmake/**"
       - "CMakeLists.txt"
-      - "vcpkg.json"
       - "README.md"
+      - "README.en.md"
       - "CHANGELOG.md"
       - ".github/workflows/ci.yml"
+      - ".clang-format"
 
 permissions:
   contents: read
@@ -36,9 +38,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-test:
-    name: Linux x64 GCC
+  format-check:
+    name: Clang-Format
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install clang-format
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+      - name: Check formatting
+        run: |
+          find include tests examples benchmarks \( -name '*.hpp' -o -name '*.cpp' \) \
+            | xargs clang-format --dry-run --Werror
+
+  build-and-test:
+    name: Linux x64 GCC (${{ matrix.simd }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        simd: [avx2, scalar]
     steps:
       - uses: actions/checkout@v4
 
@@ -47,11 +65,20 @@ jobs:
           CC: gcc
           CXX: g++
         run: |
-          cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBITCAL_BUILD_TESTS=ON \
-            -DBITCAL_BUILD_EXAMPLES=ON \
-            -DBITCAL_NATIVE_ARCH=ON
+          if [ "${{ matrix.simd }}" = "avx2" ]; then
+            cmake -S . -B build \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DBITCAL_BUILD_TESTS=ON \
+              -DBITCAL_BUILD_EXAMPLES=ON \
+              -DBITCAL_NATIVE_ARCH=ON
+          else
+            cmake -S . -B build \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DBITCAL_BUILD_TESTS=ON \
+              -DBITCAL_BUILD_EXAMPLES=ON \
+              -DBITCAL_NATIVE_ARCH=OFF \
+              -DCMAKE_CXX_FLAGS="-mno-avx2"
+          fi
 
       - name: Build
         run: cmake --build build --config Release

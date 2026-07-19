@@ -3,8 +3,9 @@
 #include "bit_view.hpp"
 
 #include <cassert>
-#include <array>
 #include <cstring>
+
+#include <array>
 #include <span>
 
 namespace bitcal {

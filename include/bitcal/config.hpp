@@ -38,15 +38,15 @@
 
 namespace bitcal {
 
-// Optimal alignment based on bit width.
-// Only widths >= 256 bits (4+ words) use the AVX2 path and benefit from
-// 32-byte alignment. Smaller widths use the scalar fast path and are
-// better served by natural alignment, which avoids the compiler emitting
-// wide zero-initialization stores that cannot be eliminated as dead code.
+// Optimal alignment based on bit width. Only widths >= 256 bits AND an
+// AVX2-capable build benefit from 32-byte alignment (the AVX2 dispatch path
+// loads/stores __m256i). Scalar-only builds (BITCAL_HAS_AVX2 == 0) and smaller
+// widths use natural alignment: this avoids the compiler emitting wide zero-
+// initialization stores that cannot be eliminated as dead code.
 template <size_t Bits>
 constexpr size_t get_optimal_alignment() noexcept {
-    if constexpr (Bits >= 256)
-        return 32;      // 256-bit+: 32-byte alignment (AVX2 path)
+    if constexpr (Bits >= 256 && BITCAL_HAS_AVX2)
+        return 32;  // 256-bit+ on AVX2: 32-byte alignment
     else
         return alignof(std::uint64_t);  // Scalar path: natural alignment
 }
