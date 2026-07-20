@@ -26,7 +26,6 @@ cmake_install.cmake
 Makefile
 *.cmake
 !CMakeLists.txt
-!cmake/*.cmake.in
 
 # Generated files
 *.log

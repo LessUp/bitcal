@@ -1,43 +1,27 @@
 cmake_minimum_required(VERSION 3.16)
 
-# Canonical version source: include/bitcal/config.hpp
-file(READ "${CMAKE_CURRENT_SOURCE_DIR}/include/bitcal/config.hpp" BITCAL_CONFIG_HPP)
-foreach(component MAJOR MINOR PATCH)
-  string(REGEX MATCH "#define BITCAL_VERSION_${component} ([0-9][0-9]*)" _match "${BITCAL_CONFIG_HPP}")
-  if(_match STREQUAL "")
-    message(FATAL_ERROR "Failed to read BITCAL_VERSION_${component} from include/bitcal/config.hpp")
-  endif()
-  set(BITCAL_VERSION_${component} "${CMAKE_MATCH_1}")
-endforeach()
-
-project(bitcal VERSION "${BITCAL_VERSION_MAJOR}.${BITCAL_VERSION_MINOR}.${BITCAL_VERSION_PATCH}" LANGUAGES CXX)
+# Practice-scale header-only library: no install/export, no LTO, no hardening,
+# no version regex. Version lives in include/bitcal/config.hpp for the code
+# and is hardcoded here for CMake's project() metadata only.
+project(bitcal VERSION 4.0.0 LANGUAGES CXX)
 
 option(BITCAL_BUILD_TESTS "Build tests" ON)
 option(BITCAL_BUILD_EXAMPLES "Build examples" ON)
 option(BITCAL_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(BITCAL_NATIVE_ARCH "Use -march=native or equivalent for tests/examples" ON)
-option(BITCAL_ENABLE_LTO "Enable Link Time Optimization" ON)
-option(BITCAL_ENABLE_HARDENING "Enable security hardening flags" OFF)
 
-# Compiler checks
 include(CheckCXXCompilerFlag)
-include(CheckIPOSupported)
-
-# Check for compiler features
-check_cxx_compiler_flag("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
-check_cxx_compiler_flag("-mtune=native" COMPILER_SUPPORTS_MTUNE_NATIVE)
 
 add_library(bitcal INTERFACE)
 
 target_include_directories(bitcal INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
 )
 
 target_compile_features(bitcal INTERFACE cxx_std_23)
 
 # SIMD flags helper: applied to tests/examples so they can exercise SIMD paths.
-# The INTERFACE library itself does NOT carry these flags — users pick their own.
+# The INTERFACE library itself does NOT carry these flags - users pick their own.
 set(BITCAL_SIMD_FLAGS "")
 if(BITCAL_NATIVE_ARCH)
   if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
@@ -56,8 +40,6 @@ endif()
 function(bitcal_setup_dev_target target_name)
   target_link_libraries(${target_name} PRIVATE bitcal)
   target_compile_features(${target_name} PRIVATE cxx_std_23)
-  # Explicit guard: SIMD flags are only applied when BITCAL_NATIVE_ARCH is enabled.
-  # This preserves the coupling between native arch settings and dev target optimization.
   if(BITCAL_NATIVE_ARCH AND BITCAL_SIMD_FLAGS)
     target_compile_options(${target_name} PRIVATE ${BITCAL_SIMD_FLAGS})
   endif()
@@ -75,67 +57,3 @@ endif()
 if(BITCAL_BUILD_BENCHMARKS)
   add_subdirectory(benchmarks)
 endif()
-
-# Link Time Optimization support
-if(BITCAL_ENABLE_LTO)
-  check_ipo_supported(RESULT ipo_supported OUTPUT ipo_output)
-  if(ipo_supported)
-    message(STATUS "Link Time Optimization enabled")
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-  else()
-    message(STATUS "Link Time Optimization not supported: ${ipo_output}")
-  endif()
-endif()
-
-# Security hardening flags
-if(BITCAL_ENABLE_HARDENING)
-  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
-    target_compile_options(bitcal INTERFACE
-      -D_FORTIFY_SOURCE=2
-      -fstack-protector-strong
-      -Wformat
-      -Wformat-security
-    )
-    target_link_options(bitcal INTERFACE
-      -Wl,-z,relro
-      -Wl,-z,now
-      -Wl,-z,noexecstack
-    )
-  endif()
-endif()
-
-include(GNUInstallDirs)
-
-install(TARGETS bitcal
-  EXPORT bitcal-targets
-)
-
-install(DIRECTORY include/bitcal
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
-install(EXPORT bitcal-targets
-  FILE bitcal-targets.cmake
-  NAMESPACE bitcal::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/bitcal
-)
-
-include(CMakePackageConfigHelpers)
-
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/bitcal-config-version.cmake"
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY SameMajorVersion
-)
-
-configure_package_config_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/bitcal-config.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/bitcal-config.cmake"
-  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/bitcal
-)
-
-install(FILES
-  "${CMAKE_CURRENT_BINARY_DIR}/bitcal-config.cmake"
-  "${CMAKE_CURRENT_BINARY_DIR}/bitcal-config-version.cmake"
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/bitcal
-)
