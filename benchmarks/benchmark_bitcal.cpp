@@ -13,10 +13,6 @@
 
 #include <bitcal/bitcal.hpp>
 
-#ifdef BITCAL_HAS_GBENCH
-#include <benchmark/benchmark.h>
-#endif
-
 namespace {
 
 class SimpleTimer {
@@ -65,8 +61,6 @@ void run_benchmark(const char* name, Func&& func, const int iterations = 10000) 
 
 }  // namespace
 
-#ifndef BITCAL_HAS_GBENCH
-
 template <std::size_t Bits>
 void run_bit_and_benchmark(const char* label, std::mt19937_64& rng) {
     bitcal::bit_block<Bits> lhs;
@@ -95,48 +89,3 @@ int main() {
     run_all_benchmarks();
     return 0;
 }
-
-#else
-
-static void BM_BitAnd128(benchmark::State& state) {
-    std::mt19937_64 rng(42);
-    bitcal::bit_block<128> lhs;
-    bitcal::bit_block<128> rhs;
-    fill_random(lhs, rng);
-    fill_random(rhs, rng);
-
-    for (auto _ : state) {
-        benchmark::DoNotOptimize(bitcal::bit_and<128>(lhs.view(), rhs.view()));
-    }
-}
-BENCHMARK(BM_BitAnd128);
-
-static void BM_BitAnd256(benchmark::State& state) {
-    std::mt19937_64 rng(42);
-    bitcal::bit_block<256> lhs;
-    bitcal::bit_block<256> rhs;
-    fill_random(lhs, rng);
-    fill_random(rhs, rng);
-
-    for (auto _ : state) {
-        benchmark::DoNotOptimize(bitcal::bit_and<256>(lhs.view(), rhs.view()));
-    }
-}
-BENCHMARK(BM_BitAnd256);
-
-static void BM_BitAnd512(benchmark::State& state) {
-    std::mt19937_64 rng(42);
-    bitcal::bit_block<512> lhs;
-    bitcal::bit_block<512> rhs;
-    fill_random(lhs, rng);
-    fill_random(rhs, rng);
-
-    for (auto _ : state) {
-        benchmark::DoNotOptimize(bitcal::bit_and<512>(lhs.view(), rhs.view()));
-    }
-}
-BENCHMARK(BM_BitAnd512);
-
-BENCHMARK_MAIN();
-
-#endif
