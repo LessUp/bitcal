@@ -56,9 +56,10 @@ BitCal 是一个 C++23、header-only、实验性质的 SIMD 位运算练习库�
 
 ### 4.3 工程化
 
-- BitCal 是 header-only；CI/CD 只保留最小可信路径
-- 不保留低价值 workflow
-- 版本号单一事实源：`include/bitcal/config.hpp`
+- BitCal 是 header-only 实验库；CI 只保留最小可信路径（format-check + 单 build/test job）
+- 不引入分发库基础设施（install/export/LTO/hardening/cmake config 包）
+- 版本号单一事实源：`include/bitcal/config.hpp`（`CMakeLists.txt` 的 `project()` 版本独立硬编码，仅为 CMake 元数据）
+- scalar 路径与 sanitizer 验证在本地手动执行，不进 CI 矩阵
 
 ## 5. 文档约束
 

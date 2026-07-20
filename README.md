@@ -1,39 +1,38 @@
 # BitCal
 
 <p align="center">
-  <strong>纯头文件 C++23 位运算库，正在进行 vNext 重设计</strong>
+  <strong>纯头文件 C++23 位运算练习库，x86-64 + AVX2 优先</strong>
 </p>
 
 <p align="center">
   <a href="https://github.com/LessUp/bitcal/actions/workflows/ci.yml"><img src="https://github.com/LessUp/bitcal/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="许可证"></a>
   <a href="https://en.cppreference.com/w/cpp/23"><img src="https://img.shields.io/badge/C%2B%2B-23-blue.svg" alt="C++23"></a>
-  <a href="#状态"><img src="https://img.shields.io/badge/status-vNext-redesign-orange.svg" alt="状态"></a>
+  <a href="#状态"><img src="https://img.shields.io/badge/status-experimental-orange.svg" alt="状态"></a>
 </p>
 
 ---
 
 ## 概述
 
-**BitCal** 是一个纯头文件位运算库，当前正朝 **C++23** 与 **x86-64 优先** 的方向重设计。
+**BitCal** 是一个个人业余练习库，探索 SIMD 位运算在定宽字块上的最小实现。设计优先级：**小巧、可读、可快速迭代**，不追通用性。
 
-新的公开模型围绕以下三层展开：
+公开模型三层：
+
 - `bit_block<Bits>`：拥有固定宽度位存储
 - `bit_view` / `const_bit_view`：非拥有视图
 - `bit_and<Bits>()` 与 `and_into()` 这类自由算法
 
-`<bitcal/bitcal.hpp>` 仍然是唯一稳定的公开 include seam。
-
-> English README: [README.en.md](README.en.md)（风格独立，不逐句对应）
+`<bitcal/bitcal.hpp>` 是唯一稳定公开入口。
 
 ## 状态
 
-BitCal 当前处于 **vNext / 4.0.0** 的活动重设计阶段。
+实验性。业余练习仓库，不保证 API 跨大版本稳定。
 
-- **破坏性变更**：旧的 `bitarray` 中心公开模型正在被替换
-- **破坏性变更**：最小语言基线提升到 C++23
-- **破坏性变更**：不计划保留旧 API 的代码级兼容层
-- **重点**：Linux / Windows x86-64 是主要优化与验证目标
+- 语言基线：C++23
+- 平台重心：Linux / Windows x86-64
+- 后端：`scalar` / `avx2`，编译期由 `BITCAL_HAS_AVX2` 固定，无运行时选择
+- 分发模型：源码集成、单一目标平台；不提供预编译二进制
 
 ## 快速开始
 
@@ -94,8 +93,11 @@ x86-64: `scalar` / `avx2`（编译期由 `BITCAL_HAS_AVX2` 固定，无运行时
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_BUILD_EXAMPLES=ON -DBITCAL_NATIVE_ARCH=ON
 cmake --build build --config Release -j"$(nproc)"
 ctest --test-dir build --output-on-failure -C Release
+```
 
-# Scalar 路径（验证 BITCAL_HAS_AVX2=0 分支）
+Scalar 路径（验证 `BITCAL_HAS_AVX2 == 0` 分支，本地手动执行，不进 CI）：
+
+```bash
 cmake -S . -B build-scalar -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_NATIVE_ARCH=OFF -DCMAKE_CXX_FLAGS="-mno-avx2"
 cmake --build build-scalar -j"$(nproc)"
 ctest --test-dir build-scalar --output-on-failure
@@ -108,9 +110,5 @@ ctest --test-dir build-scalar --output-on-failure
 - `bitcal_benchmark`：BitCal 自身各操作计时。
 - `benchmark_compare`：BitCal 与 `std::bitset` 对比计时。
 
-结果在本地生成，不入库；如需保留基线，请本地保存 `benchmarks/results/` 下的输出。
-
-## 迁移说明
-
-旧的 `bitarray` API 已不再属于当前 shipped vNext 公共表面。BitCal 4.x 期望使用者迁移到 `bit_block`、`bit_view` / `const_bit_view` 与通过 `<bitcal/bitcal.hpp>` 提供的自由算法模型。
+结果在本地生成，不入库；计时 harness 自研 `std::chrono`，无 google-benchmark 依赖。
 
