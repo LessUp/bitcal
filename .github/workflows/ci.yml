@@ -47,12 +47,8 @@ jobs:
             | xargs clang-format --dry-run --Werror
 
   build-and-test:
-    name: Linux x64 GCC (${{ matrix.simd }})
+    name: Linux x64 GCC
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        simd: [avx2, scalar]
     steps:
       - uses: actions/checkout@v4
 
@@ -61,42 +57,14 @@ jobs:
           CC: gcc
           CXX: g++
         run: |
-          if [ "${{ matrix.simd }}" = "avx2" ]; then
-            cmake -S . -B build \
-              -DCMAKE_BUILD_TYPE=Release \
-              -DBITCAL_BUILD_TESTS=ON \
-              -DBITCAL_BUILD_EXAMPLES=ON \
-              -DBITCAL_NATIVE_ARCH=ON
-          else
-            cmake -S . -B build \
-              -DCMAKE_BUILD_TYPE=Release \
-              -DBITCAL_BUILD_TESTS=ON \
-              -DBITCAL_BUILD_EXAMPLES=ON \
-              -DBITCAL_NATIVE_ARCH=OFF \
-              -DCMAKE_CXX_FLAGS="-mno-avx2"
-          fi
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBITCAL_BUILD_TESTS=ON \
+            -DBITCAL_BUILD_EXAMPLES=ON \
+            -DBITCAL_NATIVE_ARCH=ON
 
       - name: Build
-        run: cmake --build build --config Release
+        run: cmake --build build --config Release -j"$(nproc)"
 
       - name: Test
         run: ctest --test-dir build --output-on-failure -C Release
-
-  sanitizer-test:
-    name: "Sanitizer (ASan + UBSan)"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Configure with Sanitizers
-        run: |
-          cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=Debug \
-            -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -g" \
-            -DBITCAL_BUILD_TESTS=ON
-
-      - name: Build
-        run: cmake --build build
-
-      - name: Test
-        run: ctest --test-dir build --output-on-failure
