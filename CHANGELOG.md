@@ -11,11 +11,20 @@
 
 ### 💥 破坏性变更
 
+- 工程化定位收敛为"业余练习库"：移除分发库基础设施（install/export/LTO/hardening/cmake config 包），不再保留预编译二进制分发姿态
+- 移除 `README.en.md` 双轨镜像（AGENTS.md §5 已声明不保留 Markdown 双轨）
 - 后端契约收敛为 `scalar` 与 `avx2`；移除 `sse2` / `avx512` 的保留公开承诺
 - 从活动主流程移除 OpenSpec-first 资产（`openspec/`、opsx 命令集）
 - 移除 `backend_kind` enum 与 `default_backend()`（不存在运行时选择）；替换为编译期 `active_backend_name` 字符串常量
 - `shift_left<Bits>()` / `shift_right<Bits>()` 的 count 参数从 `int` 改为 `size_t`（负数不再静默视为零移位）
 - 删除 `vcpkg.json`（声明 google-benchmark 但 benchmark harness 自研 `std::chrono`，`install-features` 为死配置）
+
+### ⚒️ 工程化收敛
+
+- `CMakeLists.txt` 从 ~140 行收敛到 ~55 行：删 `install(EXPORT ...)`、`bitcal-config.cmake.in`、`cmake/` 目录、`BITCAL_ENABLE_LTO` + `check_ipo_supported`、`BITCAL_ENABLE_HARDENING` + 6 个 hardening flag、版本号正则解析、`GNUInstallDirs` / `CMakePackageConfigHelpers`
+- `project()` 版本改为独立硬编码（仅 CMake 元数据；代码版本号单一事实源仍是 `include/bitcal/config.hpp`）
+- `benchmarks/CMakeLists.txt` 删 git commit 探测、`BITCAL_BUILD_TYPE` 宏、`find_package(benchmark)` 与 `BITCAL_HAS_GBENCH` 宏（vcpkg.json 已删，永远找不到，benchmark_harness 自研 `std::chrono`）
+- `benchmarks/benchmark_bitcal.cpp` 删 `#ifdef BITCAL_HAS_GBENCH` 双轨分支（死代码）
 
 ### 🐛 修复
 
@@ -57,6 +66,9 @@
 
 ### ⚙️ CI 与工具链
 
+- CI 矩阵收敛：删 scalar matrix job（`-mno-avx2` + `BITCAL_NATIVE_ARCH=OFF`）、删 sanitizer-test job（ASan + UBSan）。scalar 路径与 sanitizer 验证改为本地手动执行
+- CI 保留最小可信路径：`format-check` + 单 `build-and-test` job（avx2 Release）
+- CI 触发路径移除 `cmake/**` 与 `README.en.md` 引用
 - CI 矩阵降到最小保留集，并移除 `openspec/**` 触发
 - CI 增加 scalar 路径 matrix job（`-mno-avx2` + `BITCAL_NATIVE_ARCH=OFF`），覆盖 `BITCAL_HAS_AVX2 == 0` 分支
 - CI 增加 `clang-format` dry-run 检查 job
@@ -64,7 +76,8 @@
 
 ### 📚 文档
 
-- 新增 `README.en.md`：英文版面向贡献者与设计评审，风格与中文版独立（不逐句对应）
+- README 收敛：删英文 README 链接、删"vNext 活动重设计"措辞（v4.0.0 已发布）、删迁移说明段、补"实验性业余练习库 + 源码集成分发模型 + scalar 本地手动验证 + 无 google-benchmark 依赖"说明
+- AGENTS.md §4.3 工程化约束补全：显式声明"不引入 install/export/LTO/hardening/cmake config 包"与"scalar + sanitizer 本地手动验证，不进 CI 矩阵"
 - README 后端与 API 描述改为与实现一致
 - README 增加 scalar build 命令、契约说明（`equals` 容忍宽度不一致，其他算法 Release 下宽度不一致为 UB）、benchmark_compare 用途说明
 - 重写项目治理文档（`AGENTS.md`）为轻流程策略
