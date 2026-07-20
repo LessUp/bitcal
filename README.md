@@ -50,13 +50,20 @@ int main() {
     const auto lhs = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(lhs_words.data(), lhs_words.size()));
     const auto rhs = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(rhs_words.data(), rhs_words.size()));
 
-    const auto and_result = bitcal::bit_and<256>(lhs.view(), rhs.view());
-    const auto andnot_result = bitcal::bit_andnot<256>(lhs.view(), rhs.view());
+    // bit_block 重载：Bits 自动推导，省去 <256> 与 .view()
+    const auto and_result = bitcal::bit_and(lhs, rhs);
+    const auto andnot_result = bitcal::bit_andnot(lhs, rhs);
 
     std::cout << "popcount(lhs) = " << bitcal::popcount(lhs.view()) << '\n';
     std::cout << "is_zero(andnot)? " << (bitcal::is_zero(andnot_result.view()) ? "yes" : "no") << '\n';
 }
 ```
+
+> **调用形态**：返回型算法（`bit_and` / `bit_or` / `bit_xor` / `bit_andnot` / `shift_left` / `shift_right`）有两套重载：
+> - 视图形态：`bit_and<256>(lhs.view(), rhs.view())` -- 显式 `Bits`，处理外部存储
+> - 拥有型形态：`bit_and(lhs, rhs)` -- CTAD 推导 `Bits`，仅接 `bit_block<Bits>`
+>
+> 原地算法（`*_into`）与查询算法（`equals` / `is_zero` / `popcount`）只接视图，`bit_view` 隐式转 `const_bit_view`，无需重载。
 
 ## API 参考
 
@@ -67,6 +74,8 @@ int main() {
 | `bit_block<Bits>` | 拥有固定宽度位存储。`Bits >= 64` 且为 64 的倍数（如 64、128、192、256） |
 | `bit_view` | 非拥有可变视图 |
 | `const_bit_view` | 非拥有只读视图 |
+
+> **宽度约束说明**：`Bits % 64 == 0` 是硬约束，刻意只服务 64 倍数宽度场景（SHA 指纹、AES 块、SIMD 字块等）。不覆盖任意位宽需求（如 Curve25519 的 255 位、Bloom filter 的 `k*m` 变宽、位图索引的尾字非对齐）。原因：字宽对齐是 SIMD 字打包 + 强对齐 + 零跨字位偏移分支的前提，破坏它会动摇当前性能模型。
 
 ### 算法
 
