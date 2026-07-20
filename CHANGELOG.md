@@ -26,6 +26,10 @@
 - `benchmarks/CMakeLists.txt` 删 git commit 探测、`BITCAL_BUILD_TYPE` 宏、`find_package(benchmark)` 与 `BITCAL_HAS_GBENCH` 宏（vcpkg.json 已删，永远找不到，benchmark_harness 自研 `std::chrono`）
 - `benchmarks/benchmark_bitcal.cpp` 删 `#ifdef BITCAL_HAS_GBENCH` 双轨分支（死代码）
 
+### ✨ 新增功能
+
+- 返回型算法（`bit_and` / `bit_or` / `bit_xor` / `bit_andnot` / `shift_left` / `shift_right`）新增 `bit_block<Bits>` 重载，CTAD 推导 `Bits`：`bit_and(a, b)` 替代 `bit_and<256>(a.view(), b.view())`。原地算法与查询算法不受影响（视图转换已自动生效）
+
 ### 🐛 修复
 
 - `get_optimal_alignment<Bits>()` 增加 `BITCAL_HAS_AVX2` 条件：仅在 `Bits >= 256 && BITCAL_HAS_AVX2` 时返回 32 字节对齐。此前 scalar build 下 `bit_block<256>` 也强制 32 字节对齐，与"scalar 路径用自然对齐以避免死零初始化存储"的注释自相矛盾
@@ -50,6 +54,7 @@
 
 ### 🧪 测试
 
+- 新增 CTAD `bit_block` 重载测试：编译期 `static_assert`（6 个算法返回类型 + 视图形态与 CTAD 形态值等价）+ 运行时值验证（`bit_and` / `bit_or` / `bit_xor` / `bit_andnot` / `shift_left(64)` / `shift_right(64)` 各字结果）
 - 新增 `bit_or` / `bit_xor` / `bit_andnot` 的 128 位确定性测试矩阵
 - 新增 `shift_left(0)` / `shift_right(0)` 空操作回归测试
 - 新增 shift 边界用例：`shift(Bits-1)` 单 bit 保留、`shift(Bits+1)` 超宽短路、`shift(SIZE_MAX)` 极端 count
@@ -77,6 +82,8 @@
 ### 📚 文档
 
 - README 收敛：删英文 README 链接、删"vNext 活动重设计"措辞（v4.0.0 已发布）、删迁移说明段、补"实验性业余练习库 + 源码集成分发模型 + scalar 本地手动验证 + 无 google-benchmark 依赖"说明
+- README 补"宽度约束说明"：明示 `Bits % 64 == 0` 是硬约束，仅服务 64 倍数宽度场景，不覆盖任意位宽需求（Curve25519 / Bloom / 位图索引）
+- README quick start 改用 CTAD 形态（`bit_and(a, b)`），补"调用形态"段说明视图形态与拥有型形态的差异
 - AGENTS.md §4.3 工程化约束补全：显式声明"不引入 install/export/LTO/hardening/cmake config 包"与"scalar + sanitizer 本地手动验证，不进 CI 矩阵"
 - README 后端与 API 描述改为与实现一致
 - README 增加 scalar build 命令、契约说明（`equals` 容忍宽度不一致，其他算法 Release 下宽度不一致为 UB）、benchmark_compare 用途说明
