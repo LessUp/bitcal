@@ -141,4 +141,50 @@ template <std::size_t Bits>
         value, count, [](std::uint64_t* data, std::size_t c) noexcept { detail::shift_right_array<wc>(data, c); });
 }
 
+// --- bit_block overloads (CTAD on Bits) -------------------------------------
+// These complement the view-based free functions above. The returning-form
+// algorithms (bit_and / bit_or / bit_xor / bit_andnot / shift_left /
+// shift_right) require an explicit <Bits> template argument when called with
+// views, because const_bit_view is non-templated and carries no width at the
+// type level. When the caller hands in bit_block<Bits> directly, Bits can be
+// deduced, which removes the redundant <256> and the .view() noise:
+//
+//     auto c = bit_and<256>(a.view(), b.view());   // before
+//     auto c = bit_and(a, b);                      // after
+//
+// The overloads are intentionally a closed set over the returning algorithms;
+// the in-place *_into and the query algorithms (equals / is_zero / popcount)
+// already accept const_bit_view, and bit_view converts implicitly, so
+// `equals(a, b)` / `popcount(a)` work without overloads.
+
+template <std::size_t Bits>
+[[nodiscard]] inline bit_block<Bits> bit_and(const bit_block<Bits>& lhs, const bit_block<Bits>& rhs) noexcept {
+    return bit_and<Bits>(lhs.view(), rhs.view());
+}
+
+template <std::size_t Bits>
+[[nodiscard]] inline bit_block<Bits> bit_or(const bit_block<Bits>& lhs, const bit_block<Bits>& rhs) noexcept {
+    return bit_or<Bits>(lhs.view(), rhs.view());
+}
+
+template <std::size_t Bits>
+[[nodiscard]] inline bit_block<Bits> bit_xor(const bit_block<Bits>& lhs, const bit_block<Bits>& rhs) noexcept {
+    return bit_xor<Bits>(lhs.view(), rhs.view());
+}
+
+template <std::size_t Bits>
+[[nodiscard]] inline bit_block<Bits> bit_andnot(const bit_block<Bits>& lhs, const bit_block<Bits>& rhs) noexcept {
+    return bit_andnot<Bits>(lhs.view(), rhs.view());
+}
+
+template <std::size_t Bits>
+[[nodiscard]] inline bit_block<Bits> shift_left(const bit_block<Bits>& value, const std::size_t count) noexcept {
+    return shift_left<Bits>(value.view(), count);
+}
+
+template <std::size_t Bits>
+[[nodiscard]] inline bit_block<Bits> shift_right(const bit_block<Bits>& value, const std::size_t count) noexcept {
+    return shift_right<Bits>(value.view(), count);
+}
+
 }  // namespace bitcal

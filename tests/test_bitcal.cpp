@@ -636,6 +636,94 @@ static_assert(std::is_same_v<decltype(bitcal::equals(std::declval<bitcal::const_
                                                      std::declval<bitcal::const_bit_view>())),
                              bool>);
 
+// --- bit_block CTAD overloads ----------------------------------------------
+// Returning-form algorithms must deduce Bits from bit_block<Bits> arguments,
+// removing the need for an explicit <Bits> template argument and .view().
+static_assert(std::is_same_v<decltype(bitcal::bit_and(std::declval<bitcal::bit_block<256>>(),
+                                                      std::declval<bitcal::bit_block<256>>())),
+                             bitcal::bit_block<256>>);
+static_assert(std::is_same_v<decltype(bitcal::bit_or(std::declval<bitcal::bit_block<128>>(),
+                                                     std::declval<bitcal::bit_block<128>>())),
+                             bitcal::bit_block<128>>);
+static_assert(std::is_same_v<decltype(bitcal::bit_xor(std::declval<bitcal::bit_block<512>>(),
+                                                      std::declval<bitcal::bit_block<512>>())),
+                             bitcal::bit_block<512>>);
+static_assert(std::is_same_v<decltype(bitcal::bit_andnot(std::declval<bitcal::bit_block<192>>(),
+                                                         std::declval<bitcal::bit_block<192>>())),
+                             bitcal::bit_block<192>>);
+static_assert(
+    std::is_same_v<decltype(bitcal::shift_left(std::declval<bitcal::bit_block<256>>(), 0)), bitcal::bit_block<256>>);
+static_assert(
+    std::is_same_v<decltype(bitcal::shift_right(std::declval<bitcal::bit_block<256>>(), 0)), bitcal::bit_block<256>>);
+
+// CTAD overloads must produce the same value as the view-based call.
+// (Runtime-only: the view-based bit_and<Bits> is not constexpr because the
+// AVX2 dispatch path references intrinsics.)
+bool test_ctad_bit_block_overload_matches_view_form() {
+    const std::array<std::uint64_t, 4> a_words{0xF0F0F0F0F0F0F0F0ULL, 0x0F0F0F0F0F0F0F0FULL, 0, 0};
+    const std::array<std::uint64_t, 4> b_words{0xFFFFFFFFFFFFFFFFULL, 0xAAAAAAAAAAAAAAAAULL, 0, 0};
+
+    const auto a = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(a_words.data(), a_words.size()));
+    const auto b = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(b_words.data(), b_words.size()));
+
+    const auto via_view_and = bitcal::bit_and<256>(a.view(), b.view());
+    const auto via_ctad_and = bitcal::bit_and(a, b);
+    const auto via_view_or = bitcal::bit_or<256>(a.view(), b.view());
+    const auto via_ctad_or = bitcal::bit_or(a, b);
+    const auto via_view_xor = bitcal::bit_xor<256>(a.view(), b.view());
+    const auto via_ctad_xor = bitcal::bit_xor(a, b);
+    const auto via_view_andnot = bitcal::bit_andnot<256>(a.view(), b.view());
+    const auto via_ctad_andnot = bitcal::bit_andnot(a, b);
+
+    const auto via_view_shl = bitcal::shift_left<256>(a.view(), 65);
+    const auto via_ctad_shl = bitcal::shift_left(a, 65);
+    const auto via_view_shr = bitcal::shift_right<256>(a.view(), 65);
+    const auto via_ctad_shr = bitcal::shift_right(a, 65);
+
+    return bitcal::equals(via_view_and.view(), via_ctad_and.view()) &&
+           bitcal::equals(via_view_or.view(), via_ctad_or.view()) &&
+           bitcal::equals(via_view_xor.view(), via_ctad_xor.view()) &&
+           bitcal::equals(via_view_andnot.view(), via_ctad_andnot.view()) &&
+           bitcal::equals(via_view_shl.view(), via_ctad_shl.view()) &&
+           bitcal::equals(via_view_shr.view(), via_ctad_shr.view());
+}
+
+bool test_ctad_bit_block_overload_runtime() {
+    std::array<std::uint64_t, 4> a_words{0xDEADBEEFCAFEBABEULL, 0x0123456789ABCDEFULL, 0, 0};
+    std::array<std::uint64_t, 4> b_words{0xFFFFFFFFFFFFFFFFULL, 0x0000000000000000ULL, 0, 0};
+
+    bitcal::bit_block<256> a =
+        bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(a_words.data(), a_words.size()));
+    bitcal::bit_block<256> b =
+        bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(b_words.data(), b_words.size()));
+
+    auto and_result = bitcal::bit_and(a, b);
+    auto or_result = bitcal::bit_or(a, b);
+    auto xor_result = bitcal::bit_xor(a, b);
+    auto andnot_result = bitcal::bit_andnot(a, b);
+    auto shl_result = bitcal::shift_left(a, 64);
+    auto shr_result = bitcal::shift_right(a, 64);
+
+    // AND with all-ones in word 0 keeps word 0; word 1 AND 0 -> 0
+    BITCAL_ASSERT_EQ(and_result.word(0), 0xDEADBEEFCAFEBABEULL);
+    BITCAL_ASSERT_EQ(and_result.word(1), std::uint64_t{0});
+    // OR with all-ones in word 0 -> all-ones; word 1 OR 0 keeps a.word(1)
+    BITCAL_ASSERT_EQ(or_result.word(0), 0xFFFFFFFFFFFFFFFFULL);
+    BITCAL_ASSERT_EQ(or_result.word(1), 0x0123456789ABCDEFULL);
+    // XOR with all-ones in word 0 -> bitwise NOT of a.word(0)
+    BITCAL_ASSERT_EQ(xor_result.word(0), ~0xDEADBEEFCAFEBABEULL);
+    // ANDNOT (a & ~b): word 0 -> a & ~all_ones = 0; word 1 -> a & ~0 = a
+    BITCAL_ASSERT_EQ(andnot_result.word(0), std::uint64_t{0});
+    BITCAL_ASSERT_EQ(andnot_result.word(1), 0x0123456789ABCDEFULL);
+    // shift_left by 64: word 0 -> 0, word 1 -> old word 0
+    BITCAL_ASSERT_EQ(shl_result.word(0), std::uint64_t{0});
+    BITCAL_ASSERT_EQ(shl_result.word(1), 0xDEADBEEFCAFEBABEULL);
+    // shift_right by 64: word 0 -> old word 1, word 1 -> 0
+    BITCAL_ASSERT_EQ(shr_result.word(0), 0x0123456789ABCDEFULL);
+    BITCAL_ASSERT_EQ(shr_result.word(1), std::uint64_t{0});
+    return true;
+}
+
 int main() {
     std::cout << "=== BitCal vNext test suite ===" << std::endl;
 
@@ -704,6 +792,9 @@ int main() {
                            test_public_contract_core_types_accessible_through_umbrella);
     bitcal::test::run_case(g_counters, "test_public_contract_all_retained_algorithms_are_accessible",
                            test_public_contract_all_retained_algorithms_are_accessible);
+    bitcal::test::run_case(g_counters, "test_ctad_bit_block_overload_runtime", test_ctad_bit_block_overload_runtime);
+    bitcal::test::run_case(g_counters, "test_ctad_bit_block_overload_matches_view_form",
+                           test_ctad_bit_block_overload_matches_view_form);
 
     std::cout << std::endl;
     std::cout << "Passed: " << g_counters.pass << std::endl;
