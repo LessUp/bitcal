@@ -9,6 +9,10 @@
 
 ## [未发布]
 
+（暂无）
+
+## [4.1.0] - 2026-07-20
+
 ### 💥 破坏性变更
 
 - 工程化定位收敛为"业余练习库"：移除分发库基础设施（install/export/LTO/hardening/cmake config 包），不再保留预编译二进制分发姿态
@@ -75,9 +79,8 @@
 - CI 保留最小可信路径：`format-check` + 单 `build-and-test` job（avx2 Release）
 - CI 触发路径移除 `cmake/**` 与 `README.en.md` 引用
 - CI 矩阵降到最小保留集，并移除 `openspec/**` 触发
-- CI 增加 scalar 路径 matrix job（`-mno-avx2` + `BITCAL_NATIVE_ARCH=OFF`），覆盖 `BITCAL_HAS_AVX2 == 0` 分支
 - CI 增加 `clang-format` dry-run 检查 job
-- CI 触发路径列表移除 `vcpkg.json`，新增 `README.en.md` 与 `.clang-format`
+- CI 触发路径列表移除 `vcpkg.json`，新增 `.clang-format`
 
 ### 📚 文档
 
@@ -283,16 +286,9 @@ v1.x **不再维护**。用户应迁移到 v2.x。
 
 | 版本 | 日期 | 状态 | 亮点 |
 |------|------|------|------|
+| v4.1.0 | 2026-07-20 | ✅ 稳定 | 工程化收敛 + CTAD 重载 |
 | v4.0.0 | 2026-05-15 | ✅ 稳定 | vNext C++23 重设计，全新三层架构 |
 | v3.0.0 | 2026-05-08 | ✅ 稳定 | 公开接口收口、迁移说明 |
 | v2.1.0 | 2026-04-16 | ✅ 稳定 | ANDNOT，性能提升 |
 | v2.0.0 | 2026-01-08 | ✅ 稳定 | 完全重写，纯头文件 |
 | v1.x | 2025 | ⚠️ 旧版 | 基于继承的设计 |
-
----
-
-[未发布]: https://github.com/LessUp/bitcal/compare/v4.0.0...HEAD
-[4.0.0]: https://github.com/LessUp/bitcal/compare/v3.0.0...v4.0.0
-[3.0.0]: https://github.com/LessUp/bitcal/compare/v2.1.0...v3.0.0
-[2.1.0]: https://github.com/LessUp/bitcal/compare/v2.0.0...v2.1.0
-[2.0.0]: https://github.com/LessUp/bitcal/releases/tag/v2.0.0

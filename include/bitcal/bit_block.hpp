@@ -65,7 +65,7 @@ public:
         assert(out.size() == word_count);
 
         // memmove (not memcpy) because callers may pass the block's own view
-        // (self-copy); see test_vnext_block_copy_words_to_supports_self_copy.
+        // (self-copy); see test_block_copy_words_to_supports_self_copy.
         detail::copy_words_helper<word_count>(
             words_.data(), out.data(),
             [](void* dst, const void* src, std::size_t n) noexcept { std::memmove(dst, src, n); });

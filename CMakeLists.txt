@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 # Practice-scale header-only library: no install/export, no LTO, no hardening,
 # no version regex. Version lives in include/bitcal/config.hpp for the code
 # and is hardcoded here for CMake's project() metadata only.
-project(bitcal VERSION 4.0.0 LANGUAGES CXX)
+project(bitcal VERSION 4.1.0 LANGUAGES CXX)
 
 option(BITCAL_BUILD_TESTS "Build tests" ON)
 option(BITCAL_BUILD_EXAMPLES "Build examples" ON)

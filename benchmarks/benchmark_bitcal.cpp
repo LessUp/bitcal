@@ -1,6 +1,6 @@
 /**
  * @file benchmark_bitcal.cpp
- * @brief Minimal vNext benchmark baseline for BitCal
+ * @brief Minimal benchmark baseline for BitCal
  */
 
 #include "benchmark_harness.hpp"
@@ -77,7 +77,7 @@ void run_bit_and_benchmark(const char* label, std::mt19937_64& rng) {
 void run_all_benchmarks() {
     std::mt19937_64 rng(42);
 
-    std::cout << "=== BitCal vNext benchmark baseline ===" << std::endl;
+    std::cout << "=== BitCal benchmark baseline ===" << std::endl;
     std::cout << "profile: smoke-only" << std::endl;
     run_bit_and_benchmark<128>("bit_and<128>", rng);
     run_bit_and_benchmark<256>("bit_and<256>", rng);

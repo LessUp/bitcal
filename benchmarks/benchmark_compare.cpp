@@ -1,6 +1,6 @@
 /**
  * @file benchmark_compare.cpp
- * @brief Retained BitCal vNext vs std::bitset comparison benchmark
+ * @brief Retained BitCal vs std::bitset comparison benchmark
  */
 
 #include "benchmark_harness.hpp"
@@ -238,12 +238,11 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
 }
 
 void print_report(const bitcal::bench::benchmark_report& report) {
-    std::cout << "=== BitCal vNext vs std::bitset Retained Comparison ===\n";
+    std::cout << "=== BitCal vs std::bitset comparison ===\n";
     std::cout << "Profile: " << report.metadata.profile << "\n";
     std::cout << "Warmup: " << report.metadata.warmup_iterations << ", samples: " << report.metadata.samples
               << ", iterations/sample: " << report.metadata.iterations_per_sample << "\n";
     std::cout << "Backend: " << report.environment.backend << "\n";
-    std::cout << "Commit: " << report.environment.commit << "\n";
 
     std::size_t current_bits = 0;
     for (const auto& scenario : report.scenarios) {
@@ -280,7 +279,7 @@ int main(int argc, char** argv) {
     }
 
     bitcal::bench::benchmark_report report{};
-    report.metadata.profile = std::string("retained-vnext-") + bitcal::bench::active_backend_name();
+    report.metadata.profile = std::string("retained-") + bitcal::bench::active_backend_name();
     report.metadata.warmup_iterations = kWarmupIterations;
     report.metadata.samples = kSamples;
     report.metadata.iterations_per_sample = kIterationsPerSample;
