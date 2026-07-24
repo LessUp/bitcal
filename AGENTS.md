@@ -11,6 +11,8 @@ BitCal 是一个 C++23、header-only、实验性质的 SIMD 位运算练习库�
 - 对外描述必须与实现一致
 - 优先删复杂度，不堆流程
 
+平台与编译器：Linux x86-64（GCC / Clang）。不保留未经 CI 验证的平台分支。
+
 ## 2. 仓库真相
 
 ### 2.1 契约真相
@@ -32,7 +34,7 @@ BitCal 是一个 C++23、header-only、实验性质的 SIMD 位运算练习库�
 - 测试：`tests/test_bitcal.cpp`
 - 示例：`examples/*.cpp`
 - 基准：`benchmarks/*.cpp`
-- 构建：`CMakeLists.txt` 与 `cmake/`
+- 构建：`CMakeLists.txt`
 
 ## 3. 工作方式
 
@@ -60,6 +62,13 @@ BitCal 是一个 C++23、header-only、实验性质的 SIMD 位运算练习库�
 - 不引入分发库基础设施（install/export/LTO/hardening/cmake config 包）
 - 版本号单一事实源：`include/bitcal/config.hpp`（`CMakeLists.txt` 的 `project()` 版本独立硬编码，仅为 CMake 元数据）
 - scalar 路径与 sanitizer 验证在本地手动执行，不进 CI 矩阵
+- `.clang-format` 的 `Standard` 必须与项目语言基线（C++23）一致
+
+### 4.4 注释与风格
+
+- 注释只写 why（设计动机、隐藏约束、反直觉的 workaround），不写 what（函数名和代码已表达的信息）
+- 不使用 Doxygen `@file` / `@brief` 文件头（项目无 Doxygen 工具链）
+- 测试函数名即规格说明；内部注释仅在边界用例的"为什么值得测"不明显时添加
 
 ## 5. 文档约束
 
@@ -87,6 +96,7 @@ ctest --test-dir build --output-on-failure -C Release
 
 - 不制造无调用死代码
 - 不保留过时后端声明
+- 不保留未经 CI 验证的平台预处理分支
 - 不把实验仓库治理成重流程系统
 - 不引入与体量不匹配的基础设施
 
