@@ -24,13 +24,13 @@ void run_case(suite_counters& counters, const char* name, Func&& func) {
 
 }  // namespace bitcal::test
 
-#define BITCAL_ASSERT_EQ(a, b)                                                                       \
-    do {                                                                                             \
-        if ((a) != (b)) {                                                                            \
-            std::cerr << "  FAIL: " << #a << " == " << #b << " (got " << (a) << " vs " << (b) << ")" \
-                      << " at " << __FILE__ << ":" << __LINE__ << std::endl;                         \
-            return false;                                                                            \
-        }                                                                                            \
+#define BITCAL_ASSERT_EQ(a, b)                                                                                 \
+    do {                                                                                                       \
+        if ((a) != (b)) {                                                                                      \
+            std::cerr << "  FAIL: " << #a << " == " << #b << " (got " << (a) << " vs " << (b) << ")" << " at " \
+                      << __FILE__ << ":" << __LINE__ << std::endl;                                             \
+            return false;                                                                                      \
+        }                                                                                                      \
     } while (0)
 
 #define BITCAL_ASSERT_TRUE(expr)                                                                    \
