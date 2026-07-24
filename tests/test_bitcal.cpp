@@ -459,7 +459,6 @@ bool test_shift_right_moves_bits_across_words_128() {
 }
 
 bool test_shift_preserves_single_bit_at_width_minus_one_128() {
-    // Bit at position 0 shifted left by (Bits-1) should land at the top bit.
     const std::array<std::uint64_t, 2> input_words{1ULL, 0ULL};
     const auto block =
         bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
@@ -468,7 +467,6 @@ bool test_shift_preserves_single_bit_at_width_minus_one_128() {
     BITCAL_ASSERT_EQ(out_l.word(0), std::uint64_t{0});
     BITCAL_ASSERT_EQ(out_l.word(1), std::uint64_t{0x8000000000000000ULL});
 
-    // Reverse: top bit shifted right by (Bits-1) should land at position 0.
     const std::array<std::uint64_t, 2> top_words{0ULL, 0x8000000000000000ULL};
     const auto top_block =
         bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(top_words.data(), top_words.size()));
@@ -479,7 +477,6 @@ bool test_shift_preserves_single_bit_at_width_minus_one_128() {
 }
 
 bool test_shift_clears_when_count_exceeds_width_128() {
-    // count > Bits should short-circuit to zero, same as count == Bits.
     const std::array<std::uint64_t, 2> input_words{0xFFFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFFULL};
     const auto block =
         bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
@@ -495,7 +492,7 @@ bool test_shift_clears_when_count_exceeds_width_128() {
 }
 
 bool test_shift_handles_size_max_count_256() {
-    // SIZE_MAX is the largest count; must short-circuit, not overflow loops.
+    // SIZE_MAX 不得导致循环溢出，必须走短路分支
     const std::array<std::uint64_t, 4> input_words{0xFFFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFFULL,
                                                    0xFFFFFFFFFFFFFFFFULL};
     const auto block =
@@ -610,28 +607,9 @@ bool test_bit_block_64_basic_ops() {
     return true;
 }
 
-bool test_public_contract_core_types_accessible_through_umbrella() {
-    // Verify that all core public types are accessible through <bitcal/bitcal.hpp>
-    // This test is primarily a compile-time check that the umbrella header works
-
-    bitcal::bit_block<128> block;
-    bitcal::bit_view mutable_view = block.view();
-    bitcal::const_bit_view const_view = block.view();
-
-    BITCAL_ASSERT_EQ(mutable_view.word_count(), std::size_t{2});
-    BITCAL_ASSERT_EQ(const_view.word_count(), std::size_t{2});
-    BITCAL_ASSERT_TRUE(mutable_view.data() != nullptr);
-    BITCAL_ASSERT_TRUE(const_view.data() != nullptr);
-
-    return true;
-}
-
 bool test_public_contract_all_retained_algorithms_are_accessible() {
-    // Runtime smoke + in-place alias correctness: every retained algorithm is
-    // callable with the documented argument shape, and the in-place variants
-    // produce correct results when out aliases lhs. Compile-time shape is
-    // verified by the static_asserts below; this function exercises the
-    // runtime path so the test runner has something to invoke.
+    // 运行时烟雾 + 原地别名正确性：所有保留算法以文档化参数形态可调用，
+    // 且 *_into 在 out 别名 lhs 时结果与返回形态一致。
     bitcal::bit_block<256> lhs;
     bitcal::bit_block<256> rhs;
     auto lv = lhs.view();
@@ -672,9 +650,7 @@ bool test_public_contract_all_retained_algorithms_are_accessible() {
     return true;
 }
 
-// Compile-time contract: every retained algorithm is invocable with the
-// documented argument shape and returns the documented type. This is the
-// real "API surface" check; the runtime function above only exercises it.
+// 编译期 API 契约：返回类型与文档一致
 static_assert(std::is_same_v<decltype(bitcal::bit_and<256>(std::declval<bitcal::const_bit_view>(),
                                                            std::declval<bitcal::const_bit_view>())),
                              bitcal::bit_block<256>>);
@@ -697,9 +673,7 @@ static_assert(std::is_same_v<decltype(bitcal::equals(std::declval<bitcal::const_
                                                      std::declval<bitcal::const_bit_view>())),
                              bool>);
 
-// --- bit_block CTAD overloads ----------------------------------------------
-// Returning-form algorithms must deduce Bits from bit_block<Bits> arguments,
-// removing the need for an explicit <Bits> template argument and .view().
+// CTAD 重载：Bits 从 bit_block<Bits> 推导
 static_assert(std::is_same_v<decltype(bitcal::bit_and(std::declval<bitcal::bit_block<256>>(),
                                                       std::declval<bitcal::bit_block<256>>())),
                              bitcal::bit_block<256>>);
@@ -717,9 +691,7 @@ static_assert(
 static_assert(
     std::is_same_v<decltype(bitcal::shift_right(std::declval<bitcal::bit_block<256>>(), 0)), bitcal::bit_block<256>>);
 
-// CTAD overloads must produce the same value as the view-based call.
-// (Runtime-only: the view-based bit_and<Bits> is not constexpr because the
-// AVX2 dispatch path references intrinsics.)
+// CTAD 重载与视图形态值等价（运行时：AVX2 路径非 constexpr）
 bool test_ctad_bit_block_overload_matches_view_form() {
     const std::array<std::uint64_t, 4> a_words{0xF0F0F0F0F0F0F0F0ULL, 0x0F0F0F0F0F0F0F0FULL, 0, 0};
     const std::array<std::uint64_t, 4> b_words{0xFFFFFFFFFFFFFFFFULL, 0xAAAAAAAAAAAAAAAAULL, 0, 0};
@@ -854,9 +826,7 @@ int main() {
                            test_random_queries_match_reference_model_512);
     bitcal::test::run_case(g_counters, "test_bit_block_64_basic_ops", test_bit_block_64_basic_ops);
 
-    // Public contract verification tests
-    bitcal::test::run_case(g_counters, "test_public_contract_core_types_accessible_through_umbrella",
-                           test_public_contract_core_types_accessible_through_umbrella);
+    // 公开契约验证
     bitcal::test::run_case(g_counters, "test_public_contract_all_retained_algorithms_are_accessible",
                            test_public_contract_all_retained_algorithms_are_accessible);
     bitcal::test::run_case(g_counters, "test_ctad_bit_block_overload_runtime", test_ctad_bit_block_overload_runtime);

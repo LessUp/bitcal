@@ -9,20 +9,9 @@ namespace bitcal {
 
 namespace detail {
 
-// Why two operation parameters for the same logical operation:
-// `vector_op` operates on a pair of AVX2 lanes and is used on the SIMD
-// dispatch path (>= 4 words). `word_op` operates on a single uint64 pair
-// and is used by the scalar tail / small-width path. They must express the
-// same semantic operation; callers below keep them in sync per bitwise kind.
-// `vector_op` is a generic lambda (auto params) so that non-AVX2 targets
-// never instantiate its body (which references AVX2 intrinsics).
-//
-// Both the in-place `*_into` and the returning `bit_*` algorithms route
-// through `binary_words` so there is a single dispatch path. For small
-// widths (< 4 words) the AVX2 loop body never executes and the scalar tail
-// handles everything; because `binary_into_x64` is force-inlined, the
-// compiler sees the full word-by-word write of `out` and can eliminate the
-// zero-initialization of the returned block as a dead store.
+// `vector_op`（AVX2 lane 对）与 `word_op`（uint64 对）表达同一语义操作，
+// 分别用于 SIMD 路径（>= 4 字）和 scalar 尾部 / 小宽度路径。`vector_op`
+// 是 generic lambda，非 AVX2 目标不会实例化其引用 intrinsics 的函数体。
 template <std::size_t Bits, typename VectorOp, typename WordOp>
 [[nodiscard]] inline bit_block<Bits> compose_binary_block(const const_bit_view lhs, const const_bit_view rhs,
                                                           VectorOp&& vector_op, WordOp&& word_op) noexcept {
@@ -142,20 +131,11 @@ template <std::size_t Bits>
 }
 
 // --- bit_block overloads (CTAD on Bits) -------------------------------------
-// These complement the view-based free functions above. The returning-form
-// algorithms (bit_and / bit_or / bit_xor / bit_andnot / shift_left /
-// shift_right) require an explicit <Bits> template argument when called with
-// views, because const_bit_view is non-templated and carries no width at the
-// type level. When the caller hands in bit_block<Bits> directly, Bits can be
-// deduced, which removes the redundant <256> and the .view() noise:
+// const_bit_view 不携带宽度信息，视图形态需显式 <Bits>；bit_block<Bits>
+// 可推导，省去模板参数与 .view()：
 //
 //     auto c = bit_and<256>(a.view(), b.view());   // before
 //     auto c = bit_and(a, b);                      // after
-//
-// The overloads are intentionally a closed set over the returning algorithms;
-// the in-place *_into and the query algorithms (equals / is_zero / popcount)
-// already accept const_bit_view, and bit_view converts implicitly, so
-// `equals(a, b)` / `popcount(a)` work without overloads.
 
 template <std::size_t Bits>
 [[nodiscard]] inline bit_block<Bits> bit_and(const bit_block<Bits>& lhs, const bit_block<Bits>& rhs) noexcept {
