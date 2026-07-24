@@ -18,6 +18,19 @@
 - 版本历史表删除"状态"列（全标"✅ 稳定"与 README"实验性"定位矛盾）
 - 4.0.0 亮点段移除已退役的"vNext"命名
 - README 核心类型表补 512 宽度示例（测试与基准已覆盖）
+- AGENTS.md 补充平台约束（§1）、注释原则（§4.4）、禁止事项（§8），修正 `cmake/` 过时引用
+
+### ⚒️ 工程化收敛
+
+- `.clang-format` Standard 从 `c++17` 改为 `Latest`（原值与 C++23 基线矛盾）
+- `benchmarks/CMakeLists.txt` 删除冗余 `cmake_minimum_required`（子目录无需重复声明）
+- 删除 benchmark 文件的 Doxygen `@file`/`@brief` 头（项目无 Doxygen 工具链）
+
+### ♻️ 重构
+
+- `algorithms.hpp` 注释精简：删除编译器优化细节（死存储消除）和与 README 重复的 CTAD 说明
+- 删除冗余测试 `test_public_contract_core_types_accessible_through_umbrella`（与 `test_block_view_smoke` 及文件顶部 `static_assert` 重复）
+- `benchmark_compare.cpp` 提取 `append_row` helper，消除 9 处重复的 row 构造模式
 
 ## [4.1.0] - 2026-07-20
 
