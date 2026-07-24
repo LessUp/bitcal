@@ -1,8 +1,3 @@
-/**
- * @file benchmark_bitcal.cpp
- * @brief Minimal benchmark baseline for BitCal
- */
-
 #include "benchmark_harness.hpp"
 
 #include <cstdint>

@@ -1,8 +1,3 @@
-/**
- * @file benchmark_compare.cpp
- * @brief Retained BitCal vs std::bitset comparison benchmark
- */
-
 #include "benchmark_harness.hpp"
 
 #include <cstdint>

@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
-
 add_executable(bitcal_benchmark benchmark_bitcal.cpp)
 bitcal_setup_dev_target(bitcal_benchmark)
 
