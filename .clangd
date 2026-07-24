@@ -1,7 +1,7 @@
 CompileFlags:
-  CompilationDatabase: build-test
+  CompilationDatabase: build
   Add:
-    - -std=c++17
+    - -std=c++23
 
 Diagnostics:
   UnusedIncludes: Strict

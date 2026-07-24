@@ -116,7 +116,7 @@ ctest --test-dir build-scalar --output-on-failure
 
 `benchmarks/` 含两组可执行文件（需 `BITCAL_BUILD_BENCHMARKS=ON`）：
 
-- `bitcal_benchmark`：BitCal 自身各操作计时。
+- `bitcal_benchmark`：BitCal `bit_and` 多宽度基线计时。
 - `benchmark_compare`：BitCal 与 `std::bitset` 对比计时。
 
 结果在本地生成，不入库；计时 harness 自研 `std::chrono`，无 google-benchmark 依赖。

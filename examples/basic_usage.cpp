@@ -17,13 +17,13 @@ int main() {
         bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(rhs_words.data(), rhs_words.size()));
 
     // AND: only bits set in both survive.
-    const auto and_result = bitcal::bit_and<256>(lhs.view(), rhs.view());
+    const auto and_result = bitcal::bit_and(lhs, rhs);
     // OR: bits set in either survive.
-    const auto or_result = bitcal::bit_or<256>(lhs.view(), rhs.view());
+    const auto or_result = bitcal::bit_or(lhs, rhs);
     // ANDNOT: lhs & ~rhs (clears lhs bits that are set in rhs).
-    const auto andnot_result = bitcal::bit_andnot<256>(lhs.view(), rhs.view());
+    const auto andnot_result = bitcal::bit_andnot(lhs, rhs);
 
-    std::cout << "BitCal vNext basic usage\n";
+    std::cout << "BitCal basic usage\n";
     std::cout << "word_count: " << decltype(and_result)::word_count << "\n";
     std::cout << "lhs[0]      = 0x" << std::hex << lhs.word(0) << "\n";
     std::cout << "rhs[0]      = 0x" << rhs.word(0) << "\n";
@@ -34,7 +34,7 @@ int main() {
     std::cout << "is_zero(andnot)? " << (bitcal::is_zero(andnot_result.view()) ? "yes" : "no") << "\n";
 
     // Shift the lhs left by 65 bits (crosses a 64-bit word boundary).
-    const auto shifted = bitcal::shift_left<256>(lhs.view(), 65);
+    const auto shifted = bitcal::shift_left(lhs, 65);
     std::cout << "shift_left(lhs, 65)[1] = 0x" << std::hex << shifted.word(1) << "\n";
 
     return 0;

@@ -13,14 +13,6 @@
 
 #include <bitcal/bitcal.hpp>
 
-#ifndef BITCAL_GIT_COMMIT
-#define BITCAL_GIT_COMMIT "unknown"
-#endif
-
-#ifndef BITCAL_BUILD_TYPE
-#define BITCAL_BUILD_TYPE "unknown"
-#endif
-
 namespace bitcal::bench {
 
 struct sample_summary {
@@ -42,9 +34,7 @@ struct comparison_row {
 };
 
 struct environment_fingerprint {
-    std::string commit = BITCAL_GIT_COMMIT;
     std::string compiler = __VERSION__;
-    std::string build_type = BITCAL_BUILD_TYPE;
     std::string backend;
     std::string cpu;
 };
@@ -173,9 +163,7 @@ inline void write_json_report(std::ostream& out, const benchmark_report& report)
     out << "    \"iterations_per_sample\": " << report.metadata.iterations_per_sample << "\n";
     out << "  },\n";
     out << "  \"environment\": {\n";
-    out << "    \"commit\": \"" << json_escape(report.environment.commit) << "\",\n";
     out << "    \"compiler\": \"" << json_escape(report.environment.compiler) << "\",\n";
-    out << "    \"build_type\": \"" << json_escape(report.environment.build_type) << "\",\n";
     out << "    \"backend\": \"" << json_escape(report.environment.backend) << "\",\n";
     out << "    \"cpu\": \"" << json_escape(report.environment.cpu) << "\"\n";
     out << "  },\n";
