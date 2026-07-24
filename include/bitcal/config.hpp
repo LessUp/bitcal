@@ -3,9 +3,9 @@
 #include <cstddef>
 #include <cstdint>
 
-// x86-64 only. 32-bit x86 (i386/_M_IX86) is excluded: AVX2 intrinsics are
-// not reliably available there and the project is x86-64-first.
-#if defined(__x86_64__) || defined(_M_X64)
+// x86-64 only, GCC/Clang. 32-bit x86 is excluded: AVX2 intrinsics are not
+// reliably available there and the project is x86-64-first.
+#if defined(__x86_64__)
 #define BITCAL_ARCH_X86 1
 #else
 #define BITCAL_ARCH_X86 0
@@ -13,8 +13,6 @@
 
 #if defined(__GNUC__) || defined(__clang__)
 #define BITCAL_FORCEINLINE __attribute__((always_inline)) inline
-#elif defined(_MSC_VER)
-#define BITCAL_FORCEINLINE __forceinline
 #else
 #define BITCAL_FORCEINLINE inline
 #endif

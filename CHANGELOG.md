@@ -9,7 +9,9 @@
 
 ## [未发布]
 
-（暂无）
+### 💥 破坏性变更
+
+- 平台支持收敛为 Linux x86-64（GCC / Clang）：移除 `config.hpp` 中 `_MSC_VER` / `_M_X64` 预处理分支（CI 从未覆盖 Windows，benchmark harness 依赖 GCC/Clang 内联汇编与 `__VERSION__`，MSVC 路径为未经测试的死代码）
 
 ## [4.1.0] - 2026-07-20
 
