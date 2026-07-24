@@ -11,7 +11,7 @@
 
 ### 💥 破坏性变更
 
-- 平台支持收敛为 Linux x86-64（GCC / Clang）：移除 `config.hpp` 中 `_MSC_VER` / `_M_X64` 预处理分支（CI 从未覆盖 Windows，benchmark harness 依赖 GCC/Clang 内联汇编与 `__VERSION__`，MSVC 路径为未经测试的死代码）
+- 平台支持收敛为 Linux x86-64（GCC / Clang）：移除 `config.hpp` 中 `_MSC_VER` / `_M_X64` 预处理分支与 `CMakeLists.txt` 中 MSVC `/arch:AVX2` 分支（CI 从未覆盖 Windows，benchmark harness 依赖 GCC/Clang 内联汇编与 `__VERSION__`，MSVC 路径为未经测试的死代码）
 
 ### 📚 文档
 
@@ -29,8 +29,9 @@
 ### ♻️ 重构
 
 - `algorithms.hpp` 注释精简：删除编译器优化细节（死存储消除）和与 README 重复的 CTAD 说明
-- 删除冗余测试 `test_public_contract_core_types_accessible_through_umbrella`（与 `test_block_view_smoke` 及文件顶部 `static_assert` 重复）
+- 删除冗余测试 `test_public_contract_core_types_accessible_through_umbrella`，其断言并入 `test_block_view_smoke`（含 `const_bit_view` 运行时路径）
 - `benchmark_compare.cpp` 提取 `append_row` helper，消除 9 处重复的 row 构造模式
+- `CMakeLists.txt` 删除 MSVC `/arch:AVX2` 死分支与仅服务该分支的 `include(CheckCXXCompilerFlag)`，`BITCAL_SIMD_FLAGS` 简化为 `-march=native`（平台收敛收尾）
 
 ## [4.1.0] - 2026-07-20
 

@@ -67,6 +67,12 @@ bool test_block_view_smoke() {
 
     BITCAL_ASSERT_EQ(view.word_count(), std::size_t{4});
     BITCAL_ASSERT_TRUE(view.data() != nullptr);
+
+    // const 重载是另一个 view()，单独走其运行时路径
+    const bitcal::bit_block<256>& cblock = block;
+    bitcal::const_bit_view cview = cblock.view();
+    BITCAL_ASSERT_EQ(cview.word_count(), std::size_t{4});
+    BITCAL_ASSERT_TRUE(cview.data() != nullptr);
     return true;
 }
 

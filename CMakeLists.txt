@@ -10,8 +10,6 @@ option(BITCAL_BUILD_EXAMPLES "Build examples" ON)
 option(BITCAL_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(BITCAL_NATIVE_ARCH "Use -march=native or equivalent for tests/examples" ON)
 
-include(CheckCXXCompilerFlag)
-
 add_library(bitcal INTERFACE)
 
 target_include_directories(bitcal INTERFACE
@@ -24,15 +22,7 @@ target_compile_features(bitcal INTERFACE cxx_std_23)
 # The INTERFACE library itself does NOT carry these flags - users pick their own.
 set(BITCAL_SIMD_FLAGS "")
 if(BITCAL_NATIVE_ARCH)
-  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
-    set(BITCAL_SIMD_FLAGS -march=native)
-  elseif(MSVC)
-    # /arch:AVX2 enables AVX/AVX2/SSE* on MSVC
-    check_cxx_compiler_flag("/arch:AVX2" BITCAL_MSVC_HAS_AVX2)
-    if(BITCAL_MSVC_HAS_AVX2)
-      set(BITCAL_SIMD_FLAGS /arch:AVX2)
-    endif()
-  endif()
+  set(BITCAL_SIMD_FLAGS -march=native)
 endif()
 
 # Helper function for dev targets (tests, examples, benchmarks).
