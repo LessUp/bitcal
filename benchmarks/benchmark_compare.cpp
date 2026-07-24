@@ -78,158 +78,113 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     const auto lhs_bitset = to_bitset<Bits>(lhs_words);
     const auto rhs_bitset = to_bitset<Bits>(rhs_words);
 
-    bitcal::bench::comparison_row and_row{};
-    and_row.operation = "bit_and";
-    and_row.bits = Bits;
-    and_row.bitcal = bitcal::bench::measure_ns(
-        [&]() {
+    auto append_row = [&](const char* op, auto bitcal_fn, auto std_fn) {
+        bitcal::bench::comparison_row row{};
+        row.operation = op;
+        row.bits = Bits;
+        row.bitcal = bitcal::bench::measure_ns(bitcal_fn, kWarmupIterations, kSamples, kIterationsPerSample);
+        row.std_bitset = bitcal::bench::measure_ns(std_fn, kWarmupIterations, kSamples, kIterationsPerSample);
+        report.scenarios.push_back(row);
+    };
+
+    append_row(
+        "bit_and",
+        [&] {
             const auto out = bitcal::bit_and<Bits>(lhs_block.view(), rhs_block.view());
             bitcal::bench::do_not_optimize(out);
         },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    and_row.std_bitset = bitcal::bench::measure_ns(
-        [&]() {
+        [&] {
             const auto out = lhs_bitset & rhs_bitset;
             bitcal::bench::do_not_optimize(out);
-        },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    report.scenarios.push_back(and_row);
+        });
 
-    bitcal::bench::comparison_row or_row{};
-    or_row.operation = "bit_or";
-    or_row.bits = Bits;
-    or_row.bitcal = bitcal::bench::measure_ns(
-        [&]() {
+    append_row(
+        "bit_or",
+        [&] {
             const auto out = bitcal::bit_or<Bits>(lhs_block.view(), rhs_block.view());
             bitcal::bench::do_not_optimize(out);
         },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    or_row.std_bitset = bitcal::bench::measure_ns(
-        [&]() {
+        [&] {
             const auto out = lhs_bitset | rhs_bitset;
             bitcal::bench::do_not_optimize(out);
-        },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    report.scenarios.push_back(or_row);
+        });
 
-    bitcal::bench::comparison_row xor_row{};
-    xor_row.operation = "bit_xor";
-    xor_row.bits = Bits;
-    xor_row.bitcal = bitcal::bench::measure_ns(
-        [&]() {
+    append_row(
+        "bit_xor",
+        [&] {
             const auto out = bitcal::bit_xor<Bits>(lhs_block.view(), rhs_block.view());
             bitcal::bench::do_not_optimize(out);
         },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    xor_row.std_bitset = bitcal::bench::measure_ns(
-        [&]() {
+        [&] {
             const auto out = lhs_bitset ^ rhs_bitset;
             bitcal::bench::do_not_optimize(out);
-        },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    report.scenarios.push_back(xor_row);
+        });
 
-    bitcal::bench::comparison_row andnot_row{};
-    andnot_row.operation = "bit_andnot";
-    andnot_row.bits = Bits;
-    andnot_row.bitcal = bitcal::bench::measure_ns(
-        [&]() {
+    append_row(
+        "bit_andnot",
+        [&] {
             const auto out = bitcal::bit_andnot<Bits>(lhs_block.view(), rhs_block.view());
             bitcal::bench::do_not_optimize(out);
         },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    andnot_row.std_bitset = bitcal::bench::measure_ns(
-        [&]() {
+        [&] {
             const auto out = lhs_bitset & ~rhs_bitset;
             bitcal::bench::do_not_optimize(out);
-        },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    report.scenarios.push_back(andnot_row);
+        });
 
-    bitcal::bench::comparison_row popcount_row{};
-    popcount_row.operation = "popcount";
-    popcount_row.bits = Bits;
-    popcount_row.bitcal = bitcal::bench::measure_ns(
-        [&]() {
+    append_row(
+        "popcount",
+        [&] {
             const auto out = bitcal::popcount(lhs_block.view());
             bitcal::bench::do_not_optimize(out);
         },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    popcount_row.std_bitset = bitcal::bench::measure_ns(
-        [&]() {
+        [&] {
             const auto out = lhs_bitset.count();
             bitcal::bench::do_not_optimize(out);
-        },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    report.scenarios.push_back(popcount_row);
+        });
 
-    bitcal::bench::comparison_row equals_row{};
-    equals_row.operation = "equals";
-    equals_row.bits = Bits;
-    equals_row.bitcal = bitcal::bench::measure_ns(
-        [&]() {
+    append_row(
+        "equals",
+        [&] {
             const auto out = bitcal::equals(lhs_block.view(), lhs_block.view());
             bitcal::bench::do_not_optimize(out);
         },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    equals_row.std_bitset = bitcal::bench::measure_ns(
-        [&]() {
+        [&] {
             const auto out = (lhs_bitset == lhs_bitset);
             bitcal::bench::do_not_optimize(out);
-        },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    report.scenarios.push_back(equals_row);
+        });
 
-    bitcal::bench::comparison_row is_zero_row{};
-    is_zero_row.operation = "is_zero";
-    is_zero_row.bits = Bits;
-    is_zero_row.bitcal = bitcal::bench::measure_ns(
-        [&]() {
+    append_row(
+        "is_zero",
+        [&] {
             const auto out = bitcal::is_zero(lhs_block.view());
             bitcal::bench::do_not_optimize(out);
         },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    is_zero_row.std_bitset = bitcal::bench::measure_ns(
-        [&]() {
+        [&] {
             const auto out = lhs_bitset.none();
             bitcal::bench::do_not_optimize(out);
-        },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    report.scenarios.push_back(is_zero_row);
+        });
 
-    bitcal::bench::comparison_row shift_left_row{};
-    shift_left_row.operation = "shift_left";
-    shift_left_row.bits = Bits;
-    shift_left_row.bitcal = bitcal::bench::measure_ns(
-        [&]() {
+    append_row(
+        "shift_left",
+        [&] {
             const auto out = bitcal::shift_left<Bits>(lhs_block.view(), kShiftCount);
             bitcal::bench::do_not_optimize(out);
         },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    shift_left_row.std_bitset = bitcal::bench::measure_ns(
-        [&]() {
+        [&] {
             const auto out = lhs_bitset << kShiftCount;
             bitcal::bench::do_not_optimize(out);
-        },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    report.scenarios.push_back(shift_left_row);
+        });
 
-    bitcal::bench::comparison_row shift_right_row{};
-    shift_right_row.operation = "shift_right";
-    shift_right_row.bits = Bits;
-    shift_right_row.bitcal = bitcal::bench::measure_ns(
-        [&]() {
+    append_row(
+        "shift_right",
+        [&] {
             const auto out = bitcal::shift_right<Bits>(lhs_block.view(), kShiftCount);
             bitcal::bench::do_not_optimize(out);
         },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    shift_right_row.std_bitset = bitcal::bench::measure_ns(
-        [&]() {
+        [&] {
             const auto out = lhs_bitset >> kShiftCount;
             bitcal::bench::do_not_optimize(out);
-        },
-        kWarmupIterations, kSamples, kIterationsPerSample);
-    report.scenarios.push_back(shift_right_row);
+        });
 }
 
 void print_report(const bitcal::bench::benchmark_report& report) {
