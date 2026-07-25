@@ -43,9 +43,7 @@ public:
 
     constexpr bit_block() noexcept = default;
 
-    [[nodiscard]] static constexpr bit_block from_words(const std::span<const std::uint64_t> words) noexcept {
-        assert(words.size() == word_count);
-
+    [[nodiscard]] static constexpr bit_block from_words(std::span<const std::uint64_t, word_count> words) noexcept {
         bit_block out;
         detail::copy_words_helper<word_count>(
             words.data(), out.words_.data(),
@@ -61,9 +59,7 @@ public:
         return words_[index];
     }
 
-    constexpr void copy_words_to(const std::span<std::uint64_t> out) const noexcept {
-        assert(out.size() == word_count);
-
+    constexpr void copy_words_to(std::span<std::uint64_t, word_count> out) const noexcept {
         // memmove (not memcpy) because callers may pass the block's own view
         // (self-copy); see test_block_copy_words_to_supports_self_copy.
         detail::copy_words_helper<word_count>(

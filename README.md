@@ -47,8 +47,8 @@ int main() {
     const std::array<std::uint64_t, 4> lhs_words{0xF0F0F0F0F0F0F0F0ULL, 0, 0, 0};
     const std::array<std::uint64_t, 4> rhs_words{0xFFFFFFFFFFFFFFFFULL, 0, 0, 0};
 
-    const auto lhs = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(lhs_words.data(), lhs_words.size()));
-    const auto rhs = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(rhs_words.data(), rhs_words.size()));
+    const auto lhs = bitcal::bit_block<256>::from_words(lhs_words);
+    const auto rhs = bitcal::bit_block<256>::from_words(rhs_words);
 
     // bit_block 重载：Bits 自动推导，省去 <256> 与 .view()
     const auto and_result = bitcal::bit_and(lhs, rhs);

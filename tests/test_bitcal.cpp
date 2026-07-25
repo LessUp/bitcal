@@ -27,11 +27,10 @@ static_assert(BITCAL_VERSION == ((4 << 16) | (1 << 8) | 0));
 
 constexpr bool test_block_word_roundtrip_is_constexpr() {
     constexpr std::array<std::uint64_t, 4> input_words{0x1ULL, 0x2ULL, 0x3ULL, 0x4ULL};
-    const auto block =
-        bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
+    const auto block = bitcal::bit_block<256>::from_words(input_words);
 
     std::array<std::uint64_t, 4> output_words{};
-    block.copy_words_to(std::span<std::uint64_t>(output_words.data(), output_words.size()));
+    block.copy_words_to(output_words);
 
     return output_words[0] == input_words[0] && output_words[1] == input_words[1] &&
            output_words[2] == input_words[2] && output_words[3] == input_words[3];
@@ -259,13 +258,13 @@ bool test_block_storage_alignment() {
 
 bool test_block_word_span_interop() {
     const std::uint64_t input_words[] = {0x1ULL, 0x2ULL, 0x3ULL, 0x4ULL};
-    auto block = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(input_words, 4));
+    auto block = bitcal::bit_block<256>::from_words(input_words);
 
     BITCAL_ASSERT_EQ(block.word(0), std::uint64_t{0x1ULL});
     BITCAL_ASSERT_EQ(block.word(3), std::uint64_t{0x4ULL});
 
     std::uint64_t output_words[4] = {};
-    block.copy_words_to(std::span<std::uint64_t>(output_words, 4));
+    block.copy_words_to(output_words);
 
     BITCAL_ASSERT_EQ(output_words[0], std::uint64_t{0x1ULL});
     BITCAL_ASSERT_EQ(output_words[3], std::uint64_t{0x4ULL});
@@ -274,11 +273,10 @@ bool test_block_word_span_interop() {
 
 bool test_block_copy_words_to_supports_self_copy() {
     const std::array<std::uint64_t, 4> input_words{0x10ULL, 0x20ULL, 0x30ULL, 0x40ULL};
-    auto block =
-        bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
+    auto block = bitcal::bit_block<256>::from_words(input_words);
     auto view = block.view();
 
-    block.copy_words_to(std::span<std::uint64_t>(view.data(), view.word_count()));
+    block.copy_words_to(std::span<std::uint64_t, bitcal::bit_block<256>::word_count>(view.data(), view.word_count()));
 
     BITCAL_ASSERT_EQ(block.word(0), std::uint64_t{0x10ULL});
     BITCAL_ASSERT_EQ(block.word(1), std::uint64_t{0x20ULL});
@@ -289,10 +287,8 @@ bool test_block_copy_words_to_supports_self_copy() {
 
 bool test_bit_and_matches_deterministic_matrix_128() {
     for (const auto& tc : bitcal::test::kBitAndCases128) {
-        const auto lhs =
-            bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(tc.lhs.data(), tc.lhs.size()));
-        const auto rhs =
-            bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(tc.rhs.data(), tc.rhs.size()));
+        const auto lhs = bitcal::bit_block<128>::from_words(tc.lhs);
+        const auto rhs = bitcal::bit_block<128>::from_words(tc.rhs);
         const auto out = bitcal::bit_and<128>(lhs.view(), rhs.view());
 
         for (std::size_t i = 0; i < bitcal::bit_block<128>::word_count; ++i) {
@@ -305,10 +301,8 @@ bool test_bit_and_matches_deterministic_matrix_128() {
 
 bool test_bit_or_matches_deterministic_matrix_128() {
     for (const auto& tc : bitcal::test::kBitOrCases128) {
-        const auto lhs =
-            bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(tc.lhs.data(), tc.lhs.size()));
-        const auto rhs =
-            bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(tc.rhs.data(), tc.rhs.size()));
+        const auto lhs = bitcal::bit_block<128>::from_words(tc.lhs);
+        const auto rhs = bitcal::bit_block<128>::from_words(tc.rhs);
         const auto out = bitcal::bit_or<128>(lhs.view(), rhs.view());
 
         for (std::size_t i = 0; i < bitcal::bit_block<128>::word_count; ++i) {
@@ -321,10 +315,8 @@ bool test_bit_or_matches_deterministic_matrix_128() {
 
 bool test_bit_xor_matches_deterministic_matrix_128() {
     for (const auto& tc : bitcal::test::kBitXorCases128) {
-        const auto lhs =
-            bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(tc.lhs.data(), tc.lhs.size()));
-        const auto rhs =
-            bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(tc.rhs.data(), tc.rhs.size()));
+        const auto lhs = bitcal::bit_block<128>::from_words(tc.lhs);
+        const auto rhs = bitcal::bit_block<128>::from_words(tc.rhs);
         const auto out = bitcal::bit_xor<128>(lhs.view(), rhs.view());
 
         for (std::size_t i = 0; i < bitcal::bit_block<128>::word_count; ++i) {
@@ -337,10 +329,8 @@ bool test_bit_xor_matches_deterministic_matrix_128() {
 
 bool test_bit_andnot_matches_deterministic_matrix_128() {
     for (const auto& tc : bitcal::test::kBitAndnotCases128) {
-        const auto lhs =
-            bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(tc.lhs.data(), tc.lhs.size()));
-        const auto rhs =
-            bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(tc.rhs.data(), tc.rhs.size()));
+        const auto lhs = bitcal::bit_block<128>::from_words(tc.lhs);
+        const auto rhs = bitcal::bit_block<128>::from_words(tc.rhs);
         const auto out = bitcal::bit_andnot<128>(lhs.view(), rhs.view());
 
         for (std::size_t i = 0; i < bitcal::bit_block<128>::word_count; ++i) {
@@ -353,8 +343,7 @@ bool test_bit_andnot_matches_deterministic_matrix_128() {
 
 bool test_popcount_matches_deterministic_matrix_256() {
     for (const auto& tc : bitcal::test::kPopcountCases256) {
-        const auto block =
-            bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(tc.words.data(), tc.words.size()));
+        const auto block = bitcal::bit_block<256>::from_words(tc.words);
         BITCAL_ASSERT_EQ(bitcal::popcount(block.view()), tc.expected);
     }
 
@@ -363,10 +352,8 @@ bool test_popcount_matches_deterministic_matrix_256() {
 
 bool test_bit_and_matches_deterministic_matrix_512() {
     for (const auto& tc : bitcal::test::kBitAndCases512) {
-        const auto lhs =
-            bitcal::bit_block<512>::from_words(std::span<const std::uint64_t>(tc.lhs.data(), tc.lhs.size()));
-        const auto rhs =
-            bitcal::bit_block<512>::from_words(std::span<const std::uint64_t>(tc.rhs.data(), tc.rhs.size()));
+        const auto lhs = bitcal::bit_block<512>::from_words(tc.lhs);
+        const auto rhs = bitcal::bit_block<512>::from_words(tc.rhs);
         const auto out = bitcal::bit_and<512>(lhs.view(), rhs.view());
 
         for (std::size_t i = 0; i < bitcal::bit_block<512>::word_count; ++i) {
@@ -380,10 +367,8 @@ bool test_bit_and_matches_deterministic_matrix_512() {
 bool test_is_zero_detects_sparse_and_dense_patterns_192() {
     const std::array<std::uint64_t, 3> zero_words{0ULL, 0ULL, 0ULL};
     const std::array<std::uint64_t, 3> sparse_words{0ULL, 1ULL << 17, 0ULL};
-    const auto zero =
-        bitcal::bit_block<192>::from_words(std::span<const std::uint64_t>(zero_words.data(), zero_words.size()));
-    const auto sparse =
-        bitcal::bit_block<192>::from_words(std::span<const std::uint64_t>(sparse_words.data(), sparse_words.size()));
+    const auto zero = bitcal::bit_block<192>::from_words(zero_words);
+    const auto sparse = bitcal::bit_block<192>::from_words(sparse_words);
 
     BITCAL_ASSERT_TRUE(bitcal::is_zero(zero.view()));
     BITCAL_ASSERT_TRUE(!bitcal::is_zero(sparse.view()));
@@ -430,8 +415,7 @@ bool test_block_uses_optimal_alignment_per_width() {
 
 bool test_shift_left_moves_bits_across_words_128() {
     const std::array<std::uint64_t, 2> input_words{1ULL, 0ULL};
-    const auto block =
-        bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
+    const auto block = bitcal::bit_block<128>::from_words(input_words);
 
     const auto out = bitcal::shift_left<128>(block.view(), 65);
 
@@ -442,8 +426,7 @@ bool test_shift_left_moves_bits_across_words_128() {
 
 bool test_shift_left_clears_when_count_reaches_width_128() {
     const std::array<std::uint64_t, 2> input_words{0xFFFFFFFFFFFFFFFFULL, 0x1ULL};
-    const auto block =
-        bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
+    const auto block = bitcal::bit_block<128>::from_words(input_words);
 
     const auto out = bitcal::shift_left<128>(block.view(), 128);
 
@@ -454,8 +437,7 @@ bool test_shift_left_clears_when_count_reaches_width_128() {
 
 bool test_shift_right_moves_bits_across_words_128() {
     const std::array<std::uint64_t, 2> input_words{0ULL, 2ULL};
-    const auto block =
-        bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
+    const auto block = bitcal::bit_block<128>::from_words(input_words);
 
     const auto out = bitcal::shift_right<128>(block.view(), 65);
 
@@ -466,16 +448,14 @@ bool test_shift_right_moves_bits_across_words_128() {
 
 bool test_shift_preserves_single_bit_at_width_minus_one_128() {
     const std::array<std::uint64_t, 2> input_words{1ULL, 0ULL};
-    const auto block =
-        bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
+    const auto block = bitcal::bit_block<128>::from_words(input_words);
 
     const auto out_l = bitcal::shift_left<128>(block.view(), 127);
     BITCAL_ASSERT_EQ(out_l.word(0), std::uint64_t{0});
     BITCAL_ASSERT_EQ(out_l.word(1), std::uint64_t{0x8000000000000000ULL});
 
     const std::array<std::uint64_t, 2> top_words{0ULL, 0x8000000000000000ULL};
-    const auto top_block =
-        bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(top_words.data(), top_words.size()));
+    const auto top_block = bitcal::bit_block<128>::from_words(top_words);
     const auto out_r = bitcal::shift_right<128>(top_block.view(), 127);
     BITCAL_ASSERT_EQ(out_r.word(0), std::uint64_t{1});
     BITCAL_ASSERT_EQ(out_r.word(1), std::uint64_t{0});
@@ -484,8 +464,7 @@ bool test_shift_preserves_single_bit_at_width_minus_one_128() {
 
 bool test_shift_clears_when_count_exceeds_width_128() {
     const std::array<std::uint64_t, 2> input_words{0xFFFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFFULL};
-    const auto block =
-        bitcal::bit_block<128>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
+    const auto block = bitcal::bit_block<128>::from_words(input_words);
 
     const auto out_l = bitcal::shift_left<128>(block.view(), 129);
     const auto out_r = bitcal::shift_right<128>(block.view(), 129);
@@ -501,8 +480,7 @@ bool test_shift_handles_size_max_count_256() {
     // SIZE_MAX 不得导致循环溢出，必须走短路分支
     const std::array<std::uint64_t, 4> input_words{0xFFFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFFULL, 0xFFFFFFFFFFFFFFFFULL,
                                                    0xFFFFFFFFFFFFFFFFULL};
-    const auto block =
-        bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
+    const auto block = bitcal::bit_block<256>::from_words(input_words);
 
     const auto out_l = bitcal::shift_left<256>(block.view(), SIZE_MAX);
     const auto out_r = bitcal::shift_right<256>(block.view(), SIZE_MAX);
@@ -517,8 +495,7 @@ bool test_shift_handles_size_max_count_256() {
 bool test_shift_zero_is_noop_256() {
     const std::array<std::uint64_t, 4> input_words{0xDEADBEEFULL, 0xCAFEBABEULL, 0x0123456789ABCDEFULL,
                                                    0xFEDCBA9876543210ULL};
-    const auto block =
-        bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(input_words.data(), input_words.size()));
+    const auto block = bitcal::bit_block<256>::from_words(input_words);
 
     const auto out_l = bitcal::shift_left<256>(block.view(), 0);
     const auto out_r = bitcal::shift_right<256>(block.view(), 0);
@@ -595,8 +572,8 @@ bool test_bit_block_64_basic_ops() {
     const std::array<std::uint64_t, 1> a_words{0xDEADBEEFCAFEBABEULL};
     const std::array<std::uint64_t, 1> b_words{0xFF00FF00FF00FF00ULL};
 
-    const auto a = bitcal::bit_block<64>::from_words(std::span<const std::uint64_t>(a_words.data(), a_words.size()));
-    const auto b = bitcal::bit_block<64>::from_words(std::span<const std::uint64_t>(b_words.data(), b_words.size()));
+    const auto a = bitcal::bit_block<64>::from_words(a_words);
+    const auto b = bitcal::bit_block<64>::from_words(b_words);
 
     const auto and_result = bitcal::bit_and(a, b);
     BITCAL_ASSERT_EQ(and_result.word(0), 0xDEADBEEFCAFEBABEULL & 0xFF00FF00FF00FF00ULL);
@@ -702,8 +679,8 @@ bool test_ctad_bit_block_overload_matches_view_form() {
     const std::array<std::uint64_t, 4> a_words{0xF0F0F0F0F0F0F0F0ULL, 0x0F0F0F0F0F0F0F0FULL, 0, 0};
     const std::array<std::uint64_t, 4> b_words{0xFFFFFFFFFFFFFFFFULL, 0xAAAAAAAAAAAAAAAAULL, 0, 0};
 
-    const auto a = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(a_words.data(), a_words.size()));
-    const auto b = bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(b_words.data(), b_words.size()));
+    const auto a = bitcal::bit_block<256>::from_words(a_words);
+    const auto b = bitcal::bit_block<256>::from_words(b_words);
 
     const auto via_view_and = bitcal::bit_and<256>(a.view(), b.view());
     const auto via_ctad_and = bitcal::bit_and(a, b);
@@ -731,10 +708,8 @@ bool test_ctad_bit_block_overload_runtime() {
     std::array<std::uint64_t, 4> a_words{0xDEADBEEFCAFEBABEULL, 0x0123456789ABCDEFULL, 0, 0};
     std::array<std::uint64_t, 4> b_words{0xFFFFFFFFFFFFFFFFULL, 0x0000000000000000ULL, 0, 0};
 
-    bitcal::bit_block<256> a =
-        bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(a_words.data(), a_words.size()));
-    bitcal::bit_block<256> b =
-        bitcal::bit_block<256>::from_words(std::span<const std::uint64_t>(b_words.data(), b_words.size()));
+    bitcal::bit_block<256> a = bitcal::bit_block<256>::from_words(a_words);
+    bitcal::bit_block<256> b = bitcal::bit_block<256>::from_words(b_words);
 
     auto and_result = bitcal::bit_and(a, b);
     auto or_result = bitcal::bit_or(a, b);

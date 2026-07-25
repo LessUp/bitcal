@@ -39,10 +39,8 @@ std::vector<random_binary_case<Bits>> make_random_binary_cases(const std::uint64
             tc.rhs_words[word] = rng();
         }
 
-        tc.lhs = bitcal::bit_block<Bits>::from_words(
-            std::span<const std::uint64_t>(tc.lhs_words.data(), tc.lhs_words.size()));
-        tc.rhs = bitcal::bit_block<Bits>::from_words(
-            std::span<const std::uint64_t>(tc.rhs_words.data(), tc.rhs_words.size()));
+        tc.lhs = bitcal::bit_block<Bits>::from_words(tc.lhs_words);
+        tc.rhs = bitcal::bit_block<Bits>::from_words(tc.rhs_words);
         cases.push_back(tc);
     }
 
@@ -62,8 +60,7 @@ std::vector<random_unary_case<Bits>> make_random_unary_cases(const std::uint64_t
             tc.words[word] = rng();
         }
 
-        tc.block =
-            bitcal::bit_block<Bits>::from_words(std::span<const std::uint64_t>(tc.words.data(), tc.words.size()));
+        tc.block = bitcal::bit_block<Bits>::from_words(tc.words);
         cases.push_back(tc);
     }
 

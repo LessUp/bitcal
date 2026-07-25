@@ -64,8 +64,8 @@ void run_bit_and_benchmark(const char* label, std::mt19937_64& rng) {
     fill_random(rhs, rng);
 
     run_benchmark(label, [&]() {
-        volatile auto out = bitcal::bit_and<Bits>(lhs.view(), rhs.view());
-        (void)out;
+        auto out = bitcal::bit_and<Bits>(lhs.view(), rhs.view());
+        bitcal::bench::do_not_optimize(out);
     });
 }
 

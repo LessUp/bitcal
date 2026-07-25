@@ -12,6 +12,7 @@
 ### 💥 破坏性变更
 
 - 平台支持收敛为 Linux x86-64（GCC / Clang）：移除 `config.hpp` 中 `_MSC_VER` / `_M_X64` 预处理分支与 `CMakeLists.txt` 中 MSVC `/arch:AVX2` 分支（CI 从未覆盖 Windows，benchmark harness 依赖 GCC/Clang 内联汇编与 `__VERSION__`，MSVC 路径为未经测试的死代码）
+- `bit_block::from_words()` 与 `copy_words_to()` 参数从动态 `std::span<const std::uint64_t>` 改为静态 `std::span<const std::uint64_t, word_count>`：从 `std::array` 构造的调用获得编译期宽度保证；手动 `(ptr, count)` 构造仍可行但退化为 precondition UB（原 `assert` 保护移除）
 
 ### 📚 文档
 
@@ -22,12 +23,16 @@
 
 ### ⚒️ 工程化收敛
 
+- CI 新增 Clang build/test job（`CC=clang CXX=clang++`），与 GCC job 并行；AGENTS.md §4.3 同步修订为"format-check + GCC/Clang 两个 build/test job"
+- `benchmark_bitcal.cpp` 防优化从 `volatile` 改为 `bitcal::bench::do_not_optimize`（asm barrier），消除不必要的内存写回对微基准测量的扭曲
 - `.clang-format` Standard 从 `c++17` 改为 `Latest`（原值与 C++23 基线矛盾）
 - `benchmarks/CMakeLists.txt` 删除冗余 `cmake_minimum_required`（子目录无需重复声明）
 - 删除 benchmark 文件的 Doxygen `@file`/`@brief` 头（项目无 Doxygen 工具链）
+- 删除 `examples/basic_usage.cpp` 与 `benchmarks/benchmark_compare.cpp` 中静态 span 改造后遗留的未使用 `#include <span>`（`from_words` 改为接收 `std::array` 隐式转换，调用方不再显式使用 span）
 
 ### ♻️ 重构
 
+- `algorithms.hpp` 二元运算的 AVX2/scalar lambda 对提取为 `detail::and_ops` / `or_ops` / `xor_ops` / `andnot_ops`（`static constexpr` 成员），`*_into` 与 `bit_*<Bits>` 共享同一定义，消除 8 处重复（特别是 `andnot` 的 `_mm256_andnot_si256(b, a)` 参数反转只写一次）
 - `algorithms.hpp` 注释精简：删除编译器优化细节（死存储消除）和与 README 重复的 CTAD 说明
 - 删除冗余测试 `test_public_contract_core_types_accessible_through_umbrella`，其断言并入 `test_block_view_smoke`（含 `const_bit_view` 运行时路径）
 - `benchmark_compare.cpp` 提取 `append_row` helper，消除 9 处重复的 row 构造模式

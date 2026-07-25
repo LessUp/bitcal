@@ -8,7 +8,6 @@
 #include <iomanip>
 #include <iostream>
 #include <random>
-#include <span>
 #include <string>
 
 #include <bitcal/bitcal.hpp>
@@ -48,7 +47,7 @@ word_array<Bits> make_random_words(std::mt19937_64& rng) {
 
 template <std::size_t Bits>
 bitcal::bit_block<Bits> to_block(const word_array<Bits>& words) {
-    return bitcal::bit_block<Bits>::from_words(std::span<const std::uint64_t>(words.data(), words.size()));
+    return bitcal::bit_block<Bits>::from_words(words);
 }
 
 template <std::size_t Bits>
