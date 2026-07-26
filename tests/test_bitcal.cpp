@@ -529,6 +529,46 @@ bool test_random_queries_match_reference_model_512() {
     return true;
 }
 
+bool test_equals_avx2_path_256_and_512() {
+    // 256 位（4 word，单个 AVX2 vec 块）：word(0..2) 相同、word(3) 不同，
+    // 使块内同时含相等与不等 lane，验证 _mm256_testc_si256 不被部分相等误导。
+    {
+        const std::array<std::uint64_t, 4> a{0xAAULL, 0xBBULL, 0xCCULL, 0xDDULL};
+        const std::array<std::uint64_t, 4> b{0xAAULL, 0xBBULL, 0xCCULL, 0xEEULL};
+        const auto ba = bitcal::bit_block<256>::from_words(a);
+        const auto bb = bitcal::bit_block<256>::from_words(b);
+
+        BITCAL_ASSERT_TRUE(bitcal::equals(ba.view(), ba.view()));
+        BITCAL_ASSERT_TRUE(!bitcal::equals(ba.view(), bb.view()));
+    }
+
+    // 512 位（8 word，两个 AVX2 vec 块）：前 4 word 全相同、第二块仅 word(7) 不同，
+    // 验证跨 vec 块的不等也能被捕获（第一块全等不会掩盖第二块的不等）。
+    {
+        const std::array<std::uint64_t, 8> c{1ULL, 2ULL, 3ULL, 4ULL, 5ULL, 6ULL, 7ULL, 8ULL};
+        const std::array<std::uint64_t, 8> d{1ULL, 2ULL, 3ULL, 4ULL, 5ULL, 6ULL, 7ULL, 9ULL};
+        const auto bc = bitcal::bit_block<512>::from_words(c);
+        const auto bd = bitcal::bit_block<512>::from_words(d);
+
+        BITCAL_ASSERT_TRUE(bitcal::equals(bc.view(), bc.view()));
+        BITCAL_ASSERT_TRUE(!bitcal::equals(bc.view(), bd.view()));
+    }
+
+    return true;
+}
+
+bool test_random_equals_matches_reference_model_256() {
+    for (const auto& tc : bitcal::test::make_random_binary_cases<256>(0xE0A1ULL, 64)) {
+        // 自比恒真：覆盖 AVX2 全等路径
+        BITCAL_ASSERT_TRUE(bitcal::equals(tc.lhs.view(), tc.lhs.view()));
+        // 随机 lhs/rhs 几乎必不等：覆盖 AVX2 不等路径，与参考模型一致
+        BITCAL_ASSERT_EQ(bitcal::equals(tc.lhs.view(), tc.rhs.view()),
+                         bitcal::test::reference_equals<256>(tc.lhs_words, tc.rhs_words));
+    }
+
+    return true;
+}
+
 bool test_random_bit_or_matches_reference_model_256() {
     for (const auto& tc : bitcal::test::make_random_binary_cases<256>(0x0B17ULL, 64)) {
         const auto actual = bitcal::bit_or<256>(tc.lhs.view(), tc.rhs.view());
@@ -805,6 +845,9 @@ int main() {
                            test_random_bit_andnot_matches_reference_model_256);
     bitcal::test::run_case(g_counters, "test_random_queries_match_reference_model_512",
                            test_random_queries_match_reference_model_512);
+    bitcal::test::run_case(g_counters, "test_equals_avx2_path_256_and_512", test_equals_avx2_path_256_and_512);
+    bitcal::test::run_case(g_counters, "test_random_equals_matches_reference_model_256",
+                           test_random_equals_matches_reference_model_256);
     bitcal::test::run_case(g_counters, "test_bit_block_64_basic_ops", test_bit_block_64_basic_ops);
 
     // 公开契约验证

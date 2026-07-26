@@ -76,4 +76,15 @@ bool reference_is_zero(const std::array<std::uint64_t, WordCount>& words) {
     return true;
 }
 
+template <std::size_t Bits>
+bool reference_equals(const word_array<Bits>& lhs, const word_array<Bits>& rhs) {
+    for (std::size_t i = 0; i < lhs.size(); ++i) {
+        if (lhs[i] != rhs[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 }  // namespace bitcal::test

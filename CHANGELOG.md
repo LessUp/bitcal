@@ -20,6 +20,8 @@
 - 4.0.0 亮点段移除已退役的"vNext"命名
 - README 核心类型表补 512 宽度示例（测试与基准已覆盖）
 - AGENTS.md 补充平台约束（§1）、注释原则（§4.4）、禁止事项（§8），修正 `cmake/` 过时引用
+- `config.hpp` 对齐注释澄清：32 字节对齐是 `bit_block` 自身存储的保证，AVX2 分派路径用 unaligned `loadu`/`storeu`，对齐非正确性前提（原注释"AVX2 dispatch path loads/stores `__m256i`"暗示需 32 字节对齐，与实现不符）
+- 审核文档收敛：`findings.md` / `progress.md` / `task_plan.md` 收敛为根 `NOTES.md`，只留跨版本的设计取舍与已知限制；过程性产物不再入库（已修复 bug 靠 CHANGELOG，实施过程靠 git log）；`AGENTS.md` §2.1 加 `NOTES.md` 指向
 
 ### ⚒️ 工程化收敛
 
@@ -37,6 +39,10 @@
 - 删除冗余测试 `test_public_contract_core_types_accessible_through_umbrella`，其断言并入 `test_block_view_smoke`（含 `const_bit_view` 运行时路径）
 - `benchmark_compare.cpp` 提取 `append_row` helper，消除 9 处重复的 row 构造模式
 - `CMakeLists.txt` 删除 MSVC `/arch:AVX2` 死分支与仅服务该分支的 `include(CheckCXXCompilerFlag)`，`BITCAL_SIMD_FLAGS` 简化为 `-march=native`（平台收敛收尾）
+
+### 🧪 测试
+
+- 补 `equals` 的 AVX2 路径回归覆盖：256/512 位确定性用例（块内部分相等、跨 vec 块不等）+ 256 位随机对照参考模型。此前 `equals` 的"不等 -> 提前返回"分支仅在 ≤192 位（走 scalar 尾部）或自比（恒真）下被覆盖，AVX2 路径（≥4 字）无断言保护
 
 ## [4.1.0] - 2026-07-20
 

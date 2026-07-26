@@ -21,6 +21,7 @@ BitCal 是一个 C++23、header-only、实验性质的 SIMD 位运算练习库�
 - 行为真相：`tests/test_bitcal.cpp`
 - 使用入口：`README.md`（中文为准）
 - 变更记录：根 `CHANGELOG.md`（中文为准）
+- 设计取舍与已知限制：根 `NOTES.md`（中文为准）
 
 ### 2.2 代码与后端范围
 
