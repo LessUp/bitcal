@@ -67,4 +67,31 @@ std::vector<random_unary_case<Bits>> make_random_unary_cases(const std::uint64_t
     return cases;
 }
 
+template <std::size_t Bits>
+struct random_shift_case {
+    bitcal::bit_block<Bits> block;
+    std::array<std::uint64_t, Bits / 64> words;
+    std::size_t count;
+};
+
+template <std::size_t Bits>
+std::vector<random_shift_case<Bits>> make_random_shift_cases(const std::uint64_t seed, const std::size_t count) {
+    std::mt19937_64 rng(seed);
+    std::uniform_int_distribution<std::size_t> count_dist(0, Bits);
+    std::vector<random_shift_case<Bits>> cases;
+    cases.reserve(count);
+
+    for (std::size_t i = 0; i < count; ++i) {
+        random_shift_case<Bits> tc{};
+        for (std::size_t word = 0; word < Bits / 64; ++word) {
+            tc.words[word] = rng();
+        }
+        tc.block = bitcal::bit_block<Bits>::from_words(tc.words);
+        tc.count = count_dist(rng);
+        cases.push_back(tc);
+    }
+
+    return cases;
+}
+
 }  // namespace bitcal::test
