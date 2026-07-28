@@ -91,3 +91,27 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --output-on-failure -C Release
+
+  build-and-test-scalar:
+    name: Linux x64 GCC (scalar)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        env:
+          CC: gcc
+          CXX: g++
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBITCAL_BUILD_TESTS=ON \
+            -DBITCAL_BUILD_EXAMPLES=ON \
+            -DBITCAL_NATIVE_ARCH=OFF \
+            -DCMAKE_CXX_FLAGS="-mno-avx2"
+
+      - name: Build
+        run: cmake --build build --config Release -j"$(nproc)"
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -C Release

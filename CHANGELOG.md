@@ -31,6 +31,8 @@
 - `benchmarks/CMakeLists.txt` 删除冗余 `cmake_minimum_required`（子目录无需重复声明）
 - 删除 benchmark 文件的 Doxygen `@file`/`@brief` 头（项目无 Doxygen 工具链）
 - 删除 `examples/basic_usage.cpp` 与 `benchmarks/benchmark_compare.cpp` 中静态 span 改造后遗留的未使用 `#include <span>`（`from_words` 改为接收 `std::array` 隐式转换，调用方不再显式使用 span）
+- CI 新增 scalar build/test job（`-mno-avx2` + `BITCAL_NATIVE_ARCH=OFF`），覆盖 `BITCAL_HAS_AVX2 == 0` 分支；此前 CI 两个 job 均走 AVX2 路径，scalar 分支从未被编译和测试
+- `README.md` 与 `AGENTS.md` §4.3 scalar 路径描述同步（"本地手动执行，不进 CI" -> "已进 CI"；sanitizer 验证仍为本地手动）
 
 ### ♻️ 重构
 
@@ -43,6 +45,7 @@
 ### 🧪 测试
 
 - 补 `equals` 的 AVX2 路径回归覆盖：256/512 位确定性用例（块内部分相等、跨 vec 块不等）+ 256 位随机对照参考模型。此前 `equals` 的"不等 -> 提前返回"分支仅在 ≤192 位（走 scalar 尾部）或自比（恒真）下被覆盖，AVX2 路径（≥4 字）无断言保护
+- 补 `shift_left` / `shift_right` 的 256 位随机对照测试：随机 count ∈ [0, Bits] 对照逐 bit 参考模型，覆盖此前手工用例未碰的中间 shift 值
 
 ## [4.1.0] - 2026-07-20
 

@@ -87,4 +87,31 @@ bool reference_equals(const word_array<Bits>& lhs, const word_array<Bits>& rhs) 
     return true;
 }
 
+// Bit-by-bit reference shifts: obviously correct, O(Bits) per call.
+template <std::size_t Bits>
+word_array<Bits> reference_shift_left(const word_array<Bits>& words, std::size_t count) {
+    word_array<Bits> out{};
+    if (count >= Bits)
+        return out;
+    for (std::size_t i = 0; i + count < Bits; ++i) {
+        if ((words[i / 64] >> (i % 64)) & 1ULL) {
+            out[(i + count) / 64] |= 1ULL << ((i + count) % 64);
+        }
+    }
+    return out;
+}
+
+template <std::size_t Bits>
+word_array<Bits> reference_shift_right(const word_array<Bits>& words, std::size_t count) {
+    word_array<Bits> out{};
+    if (count >= Bits)
+        return out;
+    for (std::size_t i = count; i < Bits; ++i) {
+        if ((words[i / 64] >> (i % 64)) & 1ULL) {
+            out[(i - count) / 64] |= 1ULL << ((i - count) % 64);
+        }
+    }
+    return out;
+}
+
 }  // namespace bitcal::test

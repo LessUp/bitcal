@@ -778,6 +778,32 @@ bool test_ctad_bit_block_overload_runtime() {
     return true;
 }
 
+bool test_random_shift_left_matches_reference_model_256() {
+    for (const auto& tc : bitcal::test::make_random_shift_cases<256>(0x51F7ULL, 64)) {
+        const auto actual = bitcal::shift_left<256>(tc.block.view(), tc.count);
+        const auto expected = bitcal::test::reference_shift_left<256>(tc.words, tc.count);
+
+        for (std::size_t i = 0; i < bitcal::bit_block<256>::word_count; ++i) {
+            BITCAL_ASSERT_EQ(actual.word(i), expected[i]);
+        }
+    }
+
+    return true;
+}
+
+bool test_random_shift_right_matches_reference_model_256() {
+    for (const auto& tc : bitcal::test::make_random_shift_cases<256>(0x5B17ULL, 64)) {
+        const auto actual = bitcal::shift_right<256>(tc.block.view(), tc.count);
+        const auto expected = bitcal::test::reference_shift_right<256>(tc.words, tc.count);
+
+        for (std::size_t i = 0; i < bitcal::bit_block<256>::word_count; ++i) {
+            BITCAL_ASSERT_EQ(actual.word(i), expected[i]);
+        }
+    }
+
+    return true;
+}
+
 int main() {
     std::cout << "=== BitCal test suite ===" << std::endl;
 
@@ -856,6 +882,10 @@ int main() {
     bitcal::test::run_case(g_counters, "test_ctad_bit_block_overload_runtime", test_ctad_bit_block_overload_runtime);
     bitcal::test::run_case(g_counters, "test_ctad_bit_block_overload_matches_view_form",
                            test_ctad_bit_block_overload_matches_view_form);
+    bitcal::test::run_case(g_counters, "test_random_shift_left_matches_reference_model_256",
+                           test_random_shift_left_matches_reference_model_256);
+    bitcal::test::run_case(g_counters, "test_random_shift_right_matches_reference_model_256",
+                           test_random_shift_right_matches_reference_model_256);
 
     std::cout << std::endl;
     std::cout << "Passed: " << g_counters.pass << std::endl;

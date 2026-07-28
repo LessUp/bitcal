@@ -104,7 +104,7 @@ cmake --build build --config Release -j"$(nproc)"
 ctest --test-dir build --output-on-failure -C Release
 ```
 
-Scalar 路径（验证 `BITCAL_HAS_AVX2 == 0` 分支，本地手动执行，不进 CI）：
+Scalar 路径（验证 `BITCAL_HAS_AVX2 == 0` 分支，已进 CI；以下本地命令供调试复用）：
 
 ```bash
 cmake -S . -B build-scalar -DCMAKE_BUILD_TYPE=Release -DBITCAL_BUILD_TESTS=ON -DBITCAL_NATIVE_ARCH=OFF -DCMAKE_CXX_FLAGS="-mno-avx2"
