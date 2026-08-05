@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include <chrono>
+#include <iomanip>
 #include <iostream>
 #include <random>
 
@@ -10,20 +10,11 @@
 
 namespace {
 
-class SimpleTimer {
-public:
-    using clock = std::chrono::high_resolution_clock;
-
-    void start() { start_ = clock::now(); }
-
-    [[nodiscard]] double elapsed_ns() const {
-        const auto end = clock::now();
-        return std::chrono::duration<double, std::nano>(end - start_).count();
-    }
-
-private:
-    clock::time_point start_{};
-};
+// Same measurement profile as benchmark_compare so the baseline numbers are
+// directly comparable across the two executables.
+constexpr std::size_t kWarmupIterations = 100;
+constexpr std::size_t kSamples = 25;
+constexpr std::size_t kIterationsPerSample = 5000;
 
 template <std::size_t Bits>
 void fill_random(bitcal::bit_block<Bits>& block, std::mt19937_64& rng) {
@@ -35,27 +26,6 @@ void fill_random(bitcal::bit_block<Bits>& block, std::mt19937_64& rng) {
     }
 }
 
-template <typename Func>
-void run_benchmark(const char* name, Func&& func, const int iterations = 10000) {
-    constexpr int warmup_iterations = 100;
-    SimpleTimer timer;
-
-    for (int i = 0; i < warmup_iterations; ++i) {
-        func();
-    }
-
-    timer.start();
-    for (int i = 0; i < iterations; ++i) {
-        func();
-    }
-
-    const auto total_ns = timer.elapsed_ns();
-    const auto avg_ns = total_ns / static_cast<double>(iterations);
-    std::cout << name << ": " << avg_ns << " ns/op" << std::endl;
-}
-
-}  // namespace
-
 template <std::size_t Bits>
 void run_bit_and_benchmark(const char* label, std::mt19937_64& rng) {
     bitcal::bit_block<Bits> lhs;
@@ -63,22 +33,30 @@ void run_bit_and_benchmark(const char* label, std::mt19937_64& rng) {
     fill_random(lhs, rng);
     fill_random(rhs, rng);
 
-    run_benchmark(label, [&]() {
-        auto out = bitcal::bit_and<Bits>(lhs.view(), rhs.view());
-        bitcal::bench::do_not_optimize(out);
-    });
+    const auto summary = bitcal::bench::measure_ns(
+        [&]() {
+            auto out = bitcal::bit_and(lhs, rhs);
+            bitcal::bench::do_not_optimize(out);
+        },
+        kWarmupIterations, kSamples, kIterationsPerSample);
+
+    std::cout << label << ": min " << std::fixed << std::setprecision(2) << summary.min_ns << " ns/op (median "
+              << summary.median_ns << ", cv " << summary.cv << ")" << std::endl;
 }
 
 void run_all_benchmarks() {
     std::mt19937_64 rng(42);
 
     std::cout << "=== BitCal benchmark baseline ===" << std::endl;
-    std::cout << "profile: smoke-only" << std::endl;
+    std::cout << "profile: warmup " << kWarmupIterations << ", " << kSamples << " samples x " << kIterationsPerSample
+              << " iterations" << std::endl;
     run_bit_and_benchmark<128>("bit_and<128>", rng);
     run_bit_and_benchmark<256>("bit_and<256>", rng);
     run_bit_and_benchmark<512>("bit_and<512>", rng);
     std::cout << "default backend: " << bitcal::bench::active_backend_name() << std::endl;
 }
+
+}  // namespace
 
 int main() {
     run_all_benchmarks();

@@ -13,6 +13,12 @@
 
 - 平台支持收敛为 Linux x86-64（GCC / Clang）：移除 `config.hpp` 中 `_MSC_VER` / `_M_X64` 预处理分支与 `CMakeLists.txt` 中 MSVC `/arch:AVX2` 分支（CI 从未覆盖 Windows，benchmark harness 依赖 GCC/Clang 内联汇编与 `__VERSION__`，MSVC 路径为未经测试的死代码）
 - `bit_block::from_words()` 与 `copy_words_to()` 参数从动态 `std::span<const std::uint64_t>` 改为静态 `std::span<const std::uint64_t, word_count>`：从 `std::array` 构造的调用获得编译期宽度保证；手动 `(ptr, count)` 构造仍可行但退化为 precondition UB（原 `assert` 保护移除）
+- `BITCAL_BUILD_TESTS` / `BITCAL_BUILD_EXAMPLES` 默认值改为“仅顶层项目 ON”：以 `add_subdirectory` / FetchContent 集成 BitCal 的下游项目不再默认构建测试/示例（此前默认 ON 会污染下游目标空间）
+- 返回型算法（`bit_*` / `shift_*`）视图形态从 `const_bit_view` 改为静态宽度 word range（`std::span<const uint64_t, N>` / `std::array` / C 数组，`static_word_range` concept 约束）：宽度从 extent 推导（无需手写 `<Bits>`），宽度错配从 Release UB 降级为编译错误；原 `bit_and<256>(view, view)` 形态移除
+
+### ✨ 新增
+
+- `bit_block` 增加 `words()` 访问器（静态 span，与 `from_words` / `copy_words_to` 对称），作为返回型算法静态宽度形态的入口
 
 ### 📚 文档
 
@@ -22,6 +28,11 @@
 - AGENTS.md 补充平台约束（§1）、注释原则（§4.4）、禁止事项（§8），修正 `cmake/` 过时引用
 - `config.hpp` 对齐注释澄清：32 字节对齐是 `bit_block` 自身存储的保证，AVX2 分派路径用 unaligned `loadu`/`storeu`，对齐非正确性前提（原注释"AVX2 dispatch path loads/stores `__m256i`"暗示需 32 字节对齐，与实现不符）
 - 审核文档收敛：`findings.md` / `progress.md` / `task_plan.md` 收敛为根 `NOTES.md`，只留跨版本的设计取舍与已知限制；过程性产物不再入库（已修复 bug 靠 CHANGELOG，实施过程靠 git log）；`AGENTS.md` §2.1 加 `NOTES.md` 指向
+- `README.md` 后端段对齐措辞澄清：32 字节对齐是存储保证、非 `__m256i` 路径的正确性前提（与 NOTES/config.hpp 口径统一）
+- `README.md` 契约说明补别名契约：`*_into` 内核逐字独立，`out` 可别名 `lhs` / `rhs`（含同一视图）；`copy_words_to` 支持自拷贝
+- `NOTES.md` 新增「popcount 走 scalar 路径」设计取舍（含实测数据与原因）；已知限制澄清变换类算法（`bit_*` / `shift_*`）整体非 constexpr；`AGENTS.md` §4.3 同步 CI benchmark 编译覆盖
+- `NOTES.md` 新增「亚纳秒基准在高负载机器上不可信」已知限制：记录 median-of-samples + 先测 BitCal 的顺序在负载波动下的系统性失真（含 `is_zero<512>` 摆动实证）与绑核 + min-of-N 复测方法；「popcount 走 scalar 路径」条目同步修正“残留差距”为测量伪影（绑核隔离实验证伪，4 路拆分累加器尝试无收益已回退）
+- `README.md` 调用形态与契约说明重写为静态宽度形态；`NOTES.md` 视图宽度条目重写为「视图携带运行时宽度；返回型算法取静态宽度 range」
 
 ### ⚒️ 工程化收敛
 
@@ -33,6 +44,9 @@
 - 删除 `examples/basic_usage.cpp` 与 `benchmarks/benchmark_compare.cpp` 中静态 span 改造后遗留的未使用 `#include <span>`（`from_words` 改为接收 `std::array` 隐式转换，调用方不再显式使用 span）
 - CI 新增 scalar build/test job（`-mno-avx2` + `BITCAL_NATIVE_ARCH=OFF`），覆盖 `BITCAL_HAS_AVX2 == 0` 分支；此前 CI 两个 job 均走 AVX2 路径，scalar 分支从未被编译和测试
 - `README.md` 与 `AGENTS.md` §4.3 scalar 路径描述同步（"本地手动执行，不进 CI" -> "已进 CI"；sanitizer 验证仍为本地手动）
+- `benchmark_bitcal.cpp` 计时收敛到 `bitcal::bench::measure_ns`（删除自研 `SimpleTimer` / `run_benchmark`）：基线基准与对比基准统一为同一测量方法（warmup + 25 样本中位数/CV），两组可执行文件数字可直接互比
+- CI GCC job 开启 `BITCAL_BUILD_BENCHMARKS=ON`（仅编译覆盖、不运行）：此前 benchmarks 不在任何 CI job 编译，代码可能静默腐烂
+- `benchmark_compare` / `benchmark_bitcal` 报告主列从 median 改为 min：负载尖峰只会向上污染测量，min 是稳健下界（实证见 NOTES「亚纳秒基准在高负载机器上不可信」）
 
 ### ♻️ 重构
 
@@ -41,6 +55,14 @@
 - 删除冗余测试 `test_public_contract_core_types_accessible_through_umbrella`，其断言并入 `test_block_view_smoke`（含 `const_bit_view` 运行时路径）
 - `benchmark_compare.cpp` 提取 `append_row` helper，消除 9 处重复的 row 构造模式
 - `CMakeLists.txt` 删除 MSVC `/arch:AVX2` 死分支与仅服务该分支的 `include(CheckCXXCompilerFlag)`，`BITCAL_SIMD_FLAGS` 简化为 `-march=native`（平台收敛收尾）
+- `popcount` 回退逐字 `std::popcount` 循环，删除 AVX2 LUT 路径（详见 ⚡ 性能）；`popcount_words` 不再需要 `if consteval` 分叉（纯 scalar 循环天然 constexpr）
+- 修正 `test_block_storage_alignment` 过时注释（"alignment for __m256i load/store" → 存储保证、非正确性前提）
+- 删除 `tests/support/random_cases.hpp` 遗留的未使用 `#include <span>`（此前同类遗留仅清理了 examples/benchmarks）
+- `compose_binary_block` / `compose_shifted_block` 删除运行时宽度 assert（span 静态 extent 已在编译期保证）；测试与基准迁移至 block / span 形态
+
+### ⚡ 性能
+
+- `popcount` 删除 AVX2 LUT 路径（`popcount_bytes_avx2` + `_mm256_sad_epu8`），回退逐字 `std::popcount`：`benchmark_compare` 实测（AVX2 + POPCNT 机器）LUT 路径在其生效的 256/512 位块上慢于 scalar popcnt（`popcount<256>` 1.51 ns vs 0.58 ns、`popcount<512>` 1.72 ns vs 1.11 ns），4.1.0「AVX2 加速 popcount」声明被项目自身基准证伪（取舍记录见 `NOTES.md`）；`is_zero` / `equals` AVX2 分派保留（实测 ≤512 位与 scalar 持平），措辞不再称“加速”
 
 ### 🧪 测试
 

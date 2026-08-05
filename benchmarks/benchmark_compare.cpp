@@ -24,16 +24,16 @@ using word_array = std::array<std::uint64_t, Bits / 64>;
 
 void print_header() {
     std::cout << "\n";
-    std::cout << "| Operation           | BitCal median (ns) | std::bitset median (ns) | Ratio   |\n";
-    std::cout << "|---------------------|--------------------|-------------------------|---------|\n";
+    std::cout << "| Operation           | BitCal min (ns) | std::bitset min (ns) | Ratio   |\n";
+    std::cout << "|---------------------|-----------------|----------------------|---------|\n";
 }
 
 void print_row(const std::string& op, const bitcal::bench::sample_summary& bitcal_summary,
                const bitcal::bench::sample_summary& std_summary) {
-    const auto ratio = bitcal_summary.median_ns == 0.0 ? 0.0 : (std_summary.median_ns / bitcal_summary.median_ns);
-    std::cout << "| " << std::left << std::setw(20) << op << "| " << std::right << std::setw(18) << std::fixed
-              << std::setprecision(2) << bitcal_summary.median_ns << " | " << std::setw(23) << std_summary.median_ns
-              << " | " << std::setw(7) << std::setprecision(2) << ratio << "x |\n";
+    const auto ratio = bitcal_summary.min_ns == 0.0 ? 0.0 : (std_summary.min_ns / bitcal_summary.min_ns);
+    std::cout << "| " << std::left << std::setw(20) << op << "| " << std::right << std::setw(17) << std::fixed
+              << std::setprecision(2) << bitcal_summary.min_ns << " | " << std::setw(22) << std_summary.min_ns << " | "
+              << std::setw(7) << std::setprecision(2) << ratio << "x |\n";
 }
 
 template <std::size_t Bits>
@@ -89,7 +89,7 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "bit_and",
         [&] {
-            const auto out = bitcal::bit_and<Bits>(lhs_block.view(), rhs_block.view());
+            const auto out = bitcal::bit_and(lhs_block, rhs_block);
             bitcal::bench::do_not_optimize(out);
         },
         [&] {
@@ -100,7 +100,7 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "bit_or",
         [&] {
-            const auto out = bitcal::bit_or<Bits>(lhs_block.view(), rhs_block.view());
+            const auto out = bitcal::bit_or(lhs_block, rhs_block);
             bitcal::bench::do_not_optimize(out);
         },
         [&] {
@@ -111,7 +111,7 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "bit_xor",
         [&] {
-            const auto out = bitcal::bit_xor<Bits>(lhs_block.view(), rhs_block.view());
+            const auto out = bitcal::bit_xor(lhs_block, rhs_block);
             bitcal::bench::do_not_optimize(out);
         },
         [&] {
@@ -122,7 +122,7 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "bit_andnot",
         [&] {
-            const auto out = bitcal::bit_andnot<Bits>(lhs_block.view(), rhs_block.view());
+            const auto out = bitcal::bit_andnot(lhs_block, rhs_block);
             bitcal::bench::do_not_optimize(out);
         },
         [&] {
@@ -166,7 +166,7 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "shift_left",
         [&] {
-            const auto out = bitcal::shift_left<Bits>(lhs_block.view(), kShiftCount);
+            const auto out = bitcal::shift_left(lhs_block, kShiftCount);
             bitcal::bench::do_not_optimize(out);
         },
         [&] {
@@ -177,7 +177,7 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "shift_right",
         [&] {
-            const auto out = bitcal::shift_right<Bits>(lhs_block.view(), kShiftCount);
+            const auto out = bitcal::shift_right(lhs_block, kShiftCount);
             bitcal::bench::do_not_optimize(out);
         },
         [&] {

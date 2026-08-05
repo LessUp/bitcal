@@ -54,6 +54,11 @@ public:
     [[nodiscard]] constexpr bit_view view() noexcept { return bit_view(words_.data(), word_count); }
     [[nodiscard]] constexpr const_bit_view view() const noexcept { return const_bit_view(words_.data(), word_count); }
 
+    // Static-extent span forms mirror from_words/copy_words_to and feed the
+    // span-form algorithms (bit_and(words, words) deduces the width).
+    [[nodiscard]] constexpr std::span<std::uint64_t, word_count> words() noexcept { return words_; }
+    [[nodiscard]] constexpr std::span<const std::uint64_t, word_count> words() const noexcept { return words_; }
+
     [[nodiscard]] constexpr std::uint64_t word(const std::size_t index) const noexcept {
         assert(index < word_count);
         return words_[index];

@@ -52,6 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Benchmarks are compiled here for coverage but never executed.
       - name: Configure
         env:
           CC: gcc
@@ -61,6 +62,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DBITCAL_BUILD_TESTS=ON \
             -DBITCAL_BUILD_EXAMPLES=ON \
+            -DBITCAL_BUILD_BENCHMARKS=ON \
             -DBITCAL_NATIVE_ARCH=ON
 
       - name: Build

@@ -4,7 +4,6 @@
 
 #include <array>
 #include <random>
-#include <span>
 #include <vector>
 
 #include <bitcal/bit_block.hpp>

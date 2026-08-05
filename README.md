@@ -60,8 +60,8 @@ int main() {
 ```
 
 > **调用形态**：返回型算法（`bit_and` / `bit_or` / `bit_xor` / `bit_andnot` / `shift_left` / `shift_right`）有两套重载：
-> - 视图形态：`bit_and<256>(lhs.view(), rhs.view())` -- 显式 `Bits`，处理外部存储
-> - 拥有型形态：`bit_and(lhs, rhs)` -- CTAD 推导 `Bits`，仅接 `bit_block<Bits>`
+> - 静态宽度形态：`bit_and(lhs_words, rhs_words)` -- 接 `std::span<const uint64_t, N>` / `std::array` / C 数组，宽度从 extent 推导，宽度错配是编译错误
+> - 拥有型形态：`bit_and(lhs, rhs)` -- 接 `bit_block<Bits>`，CTAD 推导
 >
 > 原地算法（`*_into`）与查询算法（`equals` / `is_zero` / `popcount`）只接视图，`bit_view` 隐式转 `const_bit_view`，无需重载。
 
@@ -81,18 +81,20 @@ int main() {
 
 | 类别 | 函数 |
 |------|------|
-| 位运算 | `bit_and<Bits>()`, `bit_or<Bits>()`, `bit_xor<Bits>()`, `bit_andnot<Bits>()` |
+| 位运算 | `bit_and()`, `bit_or()`, `bit_xor()`, `bit_andnot()` |
 | 原地位运算 | `and_into()`, `or_into()`, `xor_into()`, `andnot_into()` |
 | 查询 | `equals()`, `is_zero()`, `popcount()` |
-| 移位 | `shift_left<Bits>()`, `shift_right<Bits>()` |
+| 移位 | `shift_left()`, `shift_right()` |
 
-> **契约说明**：`equals()` 在视图宽度不一致时返回 `false`；其他算法要求视图宽度匹配，宽度不一致在 Release 下为未定义行为（Debug 下 `assert` 触发）。
+> **契约说明**：返回型算法取静态宽度 word range，宽度错配是编译错误；`*_into()` 要求视图宽度匹配，宽度不一致在 Release 下为未定义行为（Debug 下 `assert` 触发）；`equals()` 在宽度不一致时返回 `false`。
+>
+> **别名契约**：`*_into()` 内核逐字独立（`out[i]` 只依赖 `lhs[i]` / `rhs[i]`），`out` 可与 `lhs` 或 `rhs` 别名（含传入同一视图）；`copy_words_to()` 支持自拷贝。
 
 ### 后端
 
 x86-64: `scalar` / `avx2`（编译期由 `BITCAL_HAS_AVX2` 固定，无运行时选择）
 
-- AVX2 build：`-mavx2`（或 `-march=native`），`>= 256` 位 block 走 `__m256i` 路径并强制 32 字节对齐。
+- AVX2 build：`-mavx2`（或 `-march=native`），4 字及以上（`>= 256` 位）的运算走 `__m256i` 路径；`>= 256` 位 `bit_block` 的存储按 32 字节对齐（存储保证，非正确性前提——内核使用 unaligned load/store，见 `NOTES.md`）。
 - Scalar build：`-mno-avx2` 或不开启 `BITCAL_NATIVE_ARCH`，所有宽度走标量循环，自然对齐。
 
 ## 构建

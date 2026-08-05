@@ -5,8 +5,17 @@ cmake_minimum_required(VERSION 3.16)
 # and is hardcoded here for CMake's project() metadata only.
 project(bitcal VERSION 4.1.0 LANGUAGES CXX)
 
-option(BITCAL_BUILD_TESTS "Build tests" ON)
-option(BITCAL_BUILD_EXAMPLES "Build examples" ON)
+# Dev targets default ON only when BitCal is the top-level project, so
+# source-integration consumers (add_subdirectory / FetchContent) don't
+# inherit test/example targets they didn't ask for.
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  set(BITCAL_IS_TOP_LEVEL ON)
+else()
+  set(BITCAL_IS_TOP_LEVEL OFF)
+endif()
+
+option(BITCAL_BUILD_TESTS "Build tests" ${BITCAL_IS_TOP_LEVEL})
+option(BITCAL_BUILD_EXAMPLES "Build examples" ${BITCAL_IS_TOP_LEVEL})
 option(BITCAL_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(BITCAL_NATIVE_ARCH "Use -march=native or equivalent for tests/examples" ON)
 
