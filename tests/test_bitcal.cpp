@@ -21,9 +21,9 @@ static_assert(std::is_same_v<decltype(std::declval<const bitcal::bit_block<256>>
 
 // 公开契约验证：版本宏已定义
 static_assert(BITCAL_VERSION_MAJOR == 4);
-static_assert(BITCAL_VERSION_MINOR == 1);
+static_assert(BITCAL_VERSION_MINOR == 2);
 static_assert(BITCAL_VERSION_PATCH == 0);
-static_assert(BITCAL_VERSION == ((4 << 16) | (1 << 8) | 0));
+static_assert(BITCAL_VERSION == ((4 << 16) | (2 << 8) | 0));
 
 constexpr bool test_block_word_roundtrip_is_constexpr() {
     constexpr std::array<std::uint64_t, 4> input_words{0x1ULL, 0x2ULL, 0x3ULL, 0x4ULL};
