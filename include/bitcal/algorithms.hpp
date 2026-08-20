@@ -58,28 +58,20 @@ template <typename Lhs, typename Rhs, typename VectorOp, typename WordOp>
                                                 std::forward<WordOp>(word_op));
 }
 
-// Shared shape for shift_left / shift_right: copy the input into a fresh
-// block, then apply the in-place array shifter. The two shifts differ only
-// in which `shift_*_array` is invoked, so we route that through `ShiftOp`
-// rather than duplicating the copy + dispatch skeleton. Short-circuits the
-// full-width-or-more case to avoid a pointless copy before the shifter
-// zeroes the block.
+// Shared shape for shift_left / shift_right: build a fresh block and run the
+// single-pass fused kernel over it (read `value`, write the block). The two
+// shifts differ only in which `shift_*_fused` is invoked, so we route that
+// through `ShiftOp` rather than duplicating the skeleton. Short-circuits the
+// full-width-or-more case to return a zero block without touching the kernel.
 template <std::size_t Bits, typename ShiftOp>
-[[nodiscard]] inline bit_block<Bits> compose_shifted_block(const std::span<const std::uint64_t, Bits / 64> value,
-                                                           const std::size_t count, ShiftOp&& shift_op) noexcept {
-    constexpr std::size_t wc = bit_block<Bits>::word_count;
-
+[[nodiscard]] constexpr bit_block<Bits> compose_shifted_block(const std::span<const std::uint64_t, Bits / 64> value,
+                                                              const std::size_t count, ShiftOp&& shift_op) noexcept {
     if (count >= Bits) {
         return bit_block<Bits>{};  // all bits shifted out -> zero block
     }
 
     bit_block<Bits> out;
-    auto* out_data = out.view().data();
-    const auto* in_data = value.data();
-    for (std::size_t i = 0; i < wc; ++i) {
-        out_data[i] = in_data[i];
-    }
-    shift_op(out_data, count);
+    shift_op(out.view().data(), value.data(), count);
     return out;
 }
 
@@ -158,19 +150,21 @@ template <detail::static_word_range Lhs, detail::static_word_range Rhs>
 }
 
 template <detail::static_word_range Words>
-[[nodiscard]] inline auto shift_left(const Words& value, const std::size_t count) noexcept {
+[[nodiscard]] constexpr auto shift_left(const Words& value, const std::size_t count) noexcept {
     constexpr std::size_t wc = detail::static_word_extent_v<Words>;
     return detail::compose_shifted_block<wc * 64>(
-        detail::as_word_span(value), count,
-        [](std::uint64_t* data, std::size_t c) noexcept { detail::shift_left_array<wc>(data, c); });
+        detail::as_word_span(value), count, [](std::uint64_t* out, const std::uint64_t* in, std::size_t c) noexcept {
+            detail::shift_left_fused<wc>(out, in, c);
+        });
 }
 
 template <detail::static_word_range Words>
-[[nodiscard]] inline auto shift_right(const Words& value, const std::size_t count) noexcept {
+[[nodiscard]] constexpr auto shift_right(const Words& value, const std::size_t count) noexcept {
     constexpr std::size_t wc = detail::static_word_extent_v<Words>;
     return detail::compose_shifted_block<wc * 64>(
-        detail::as_word_span(value), count,
-        [](std::uint64_t* data, std::size_t c) noexcept { detail::shift_right_array<wc>(data, c); });
+        detail::as_word_span(value), count, [](std::uint64_t* out, const std::uint64_t* in, std::size_t c) noexcept {
+            detail::shift_right_fused<wc>(out, in, c);
+        });
 }
 
 // --- bit_block overloads (CTAD on Bits) -------------------------------------
@@ -200,12 +194,12 @@ template <std::size_t Bits>
 }
 
 template <std::size_t Bits>
-[[nodiscard]] inline bit_block<Bits> shift_left(const bit_block<Bits>& value, const std::size_t count) noexcept {
+[[nodiscard]] constexpr bit_block<Bits> shift_left(const bit_block<Bits>& value, const std::size_t count) noexcept {
     return shift_left(value.words(), count);
 }
 
 template <std::size_t Bits>
-[[nodiscard]] inline bit_block<Bits> shift_right(const bit_block<Bits>& value, const std::size_t count) noexcept {
+[[nodiscard]] constexpr bit_block<Bits> shift_right(const bit_block<Bits>& value, const std::size_t count) noexcept {
     return shift_right(value.words(), count);
 }
 

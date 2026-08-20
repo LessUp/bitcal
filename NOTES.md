@@ -43,8 +43,8 @@
 
 ## 已知限制（不修）
 
-### Shift 无 AVX2 路径；变换类算法整体非 constexpr
+### Shift 无 AVX2 路径；仅 `bit_*` 非 constexpr
 
-`shift_*_array` 纯 scalar，`compose_shifted_block` 用 `memset` 非 constexpr。变换类算法（`bit_*` / `shift_*`）均非 constexpr（运行时 AVX2 分派）；查询类（`popcount` / `is_zero` / `equals`）为 constexpr（`is_zero` / `equals` 走 `if consteval` scalar 分支，popcount 纯 scalar 循环天然 constexpr）。
+`shift_left` / `shift_right` 为融合单遍 scalar 内核（`detail::shift_left_fused` / `shift_right_fused`，读入写出、单遍完成词移+位移、无 memcpy/memset），纯 scalar 循环天然 constexpr，无运行时分派、无需 `if consteval`。已知限制缩窄为：仅 `bit_*`（运行时 AVX2 分派）非 constexpr；查询类（`popcount` / `is_zero` / `equals`）constexpr 不变。
 
-不做 AVX2 的原因：跨 lane 移位需 `_mm256_permutevar8x32_epi32` + 跨 128-bit lane 进位处理，复杂度高；≤512 位块 scalar shift 绝对耗时足够低，`benchmark_compare` 已有计时基线可复评。非 constexpr：README 未声称，改 constexpr 无明确诉求。
+不做 AVX2 的原因：跨 lane 移位需 `_mm256_permutevar8x32_epi32` + 跨 128-bit lane 进位处理，复杂度高；≤512 位块 scalar shift 绝对耗时足够低，`benchmark_compare` 已有计时基线可复评。

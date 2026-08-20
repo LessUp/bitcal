@@ -58,6 +58,34 @@ constexpr bool test_public_queries_remain_constexpr() {
 
 static_assert(test_public_queries_remain_constexpr());
 
+// Constexpr shift verification: shift_left / shift_right must be usable in
+// constant expressions. The fused single-pass kernels are pure scalar loops
+// (no memcpy/memset), so no `if consteval` fork is needed — unlike is_zero /
+// equals. Expected values are hardcoded word constants (word 0 is the least
+// significant word); covers the word+bit mix (65), pure word shift with
+// bit_shift == 0 (64), and the count >= Bits short-circuit (256).
+constexpr bool test_shifts_remain_constexpr() {
+    constexpr std::array<std::uint64_t, 4> words{0x0123456789ABCDEFULL, 0xFEDCBA9876543210ULL, 0xDEADBEEFCAFEBABEULL,
+                                                 0x0F0F0F0F0F0F0F0FULL};
+    const auto block = bitcal::bit_block<256>::from_words(words);
+
+    const auto shl65 = bitcal::shift_left(block, 65);
+    const auto shr65 = bitcal::shift_right(block, 65);
+    const auto shl64 = bitcal::shift_left(block, 64);
+    const auto shr64 = bitcal::shift_right(block, 64);
+    const auto shl256 = bitcal::shift_left(block, 256);
+
+    return shl65.word(0) == 0 && shl65.word(1) == 0x02468ACF13579BDEULL && shl65.word(2) == 0xFDB97530ECA86420ULL &&
+           shl65.word(3) == 0xBD5B7DDF95FD757DULL && shr65.word(0) == 0x7F6E5D4C3B2A1908ULL &&
+           shr65.word(1) == 0xEF56DF77E57F5D5FULL && shr65.word(2) == 0x0787878787878787ULL && shr65.word(3) == 0 &&
+           shl64.word(0) == 0 && shl64.word(1) == 0x0123456789ABCDEFULL && shl64.word(2) == 0xFEDCBA9876543210ULL &&
+           shl64.word(3) == 0xDEADBEEFCAFEBABEULL && shr64.word(0) == 0xFEDCBA9876543210ULL &&
+           shr64.word(1) == 0xDEADBEEFCAFEBABEULL && shr64.word(2) == 0x0F0F0F0F0F0F0F0FULL && shr64.word(3) == 0 &&
+           shl256.word(0) == 0 && shl256.word(1) == 0 && shl256.word(2) == 0 && shl256.word(3) == 0;
+}
+
+static_assert(test_shifts_remain_constexpr());
+
 static bitcal::test::suite_counters g_counters;
 
 bool test_block_view_smoke() {
@@ -508,6 +536,45 @@ bool test_shift_zero_is_noop_256() {
     return true;
 }
 
+bool test_shift_bit_shift_extremes_128() {
+    // 词内 bit_shift 的两种极端：count==1（最小）与 count==63（最大，carry 走 >>1 / <<1）。
+    // 非对称字 {全 1, 0xA...A} 让 carry 项与主源词的贡献可区分。
+    const std::array<std::uint64_t, 2> input_words{0xFFFFFFFFFFFFFFFFULL, 0xAAAAAAAAAAAAAAAAULL};
+    const auto block = bitcal::bit_block<128>::from_words(input_words);
+
+    const auto l1 = bitcal::shift_left(block, 1);
+    BITCAL_ASSERT_EQ(l1.word(0), 0xFFFFFFFFFFFFFFFEULL);
+    BITCAL_ASSERT_EQ(l1.word(1), 0x5555555555555555ULL);
+
+    const auto r1 = bitcal::shift_right(block, 1);
+    BITCAL_ASSERT_EQ(r1.word(0), 0x7FFFFFFFFFFFFFFFULL);
+    BITCAL_ASSERT_EQ(r1.word(1), 0x5555555555555555ULL);
+
+    const auto l63 = bitcal::shift_left(block, 63);
+    BITCAL_ASSERT_EQ(l63.word(0), 0x8000000000000000ULL);
+    BITCAL_ASSERT_EQ(l63.word(1), 0x7FFFFFFFFFFFFFFFULL);
+
+    const auto r63 = bitcal::shift_right(block, 63);
+    BITCAL_ASSERT_EQ(r63.word(0), 0x5555555555555555ULL);
+    BITCAL_ASSERT_EQ(r63.word(1), std::uint64_t{1});
+    return true;
+}
+
+bool test_shift_word_boundary_no_bit_shift_128() {
+    // count == 64：纯词移、bit_shift == 0，锁定位移进位项的短路路径（避免 >>64 / <<64 UB）。
+    const std::array<std::uint64_t, 2> input_words{0xFFFFFFFFFFFFFFFFULL, 0xAAAAAAAAAAAAAAAAULL};
+    const auto block = bitcal::bit_block<128>::from_words(input_words);
+
+    const auto out_l = bitcal::shift_left(block, 64);
+    BITCAL_ASSERT_EQ(out_l.word(0), std::uint64_t{0});
+    BITCAL_ASSERT_EQ(out_l.word(1), 0xFFFFFFFFFFFFFFFFULL);
+
+    const auto out_r = bitcal::shift_right(block, 64);
+    BITCAL_ASSERT_EQ(out_r.word(0), 0xAAAAAAAAAAAAAAAAULL);
+    BITCAL_ASSERT_EQ(out_r.word(1), std::uint64_t{0});
+    return true;
+}
+
 bool test_random_bit_and_matches_reference_model_256() {
     for (const auto& tc : bitcal::test::make_random_binary_cases<256>(0xB17CA1ULL, 64)) {
         const auto actual = bitcal::bit_and(tc.lhs, tc.rhs);
@@ -806,6 +873,33 @@ bool test_random_shift_right_matches_reference_model_256() {
     return true;
 }
 
+bool test_random_shift_left_matches_reference_model_512() {
+    // 512 位 = 8 词块，覆盖 word_shift 达 7 的多词链（256 位随机对照最大只到 word_shift <= 3）。
+    for (const auto& tc : bitcal::test::make_random_shift_cases<512>(0x5121ULL, 64)) {
+        const auto actual = bitcal::shift_left(tc.block, tc.count);
+        const auto expected = bitcal::test::reference_shift_left<512>(tc.words, tc.count);
+
+        for (std::size_t i = 0; i < bitcal::bit_block<512>::word_count; ++i) {
+            BITCAL_ASSERT_EQ(actual.word(i), expected[i]);
+        }
+    }
+
+    return true;
+}
+
+bool test_random_shift_right_matches_reference_model_512() {
+    for (const auto& tc : bitcal::test::make_random_shift_cases<512>(0x5122ULL, 64)) {
+        const auto actual = bitcal::shift_right(tc.block, tc.count);
+        const auto expected = bitcal::test::reference_shift_right<512>(tc.words, tc.count);
+
+        for (std::size_t i = 0; i < bitcal::bit_block<512>::word_count; ++i) {
+            BITCAL_ASSERT_EQ(actual.word(i), expected[i]);
+        }
+    }
+
+    return true;
+}
+
 int main() {
     std::cout << "=== BitCal test suite ===" << std::endl;
 
@@ -863,6 +957,9 @@ int main() {
                            test_shift_clears_when_count_exceeds_width_128);
     bitcal::test::run_case(g_counters, "test_shift_handles_size_max_count_256", test_shift_handles_size_max_count_256);
     bitcal::test::run_case(g_counters, "test_shift_zero_is_noop_256", test_shift_zero_is_noop_256);
+    bitcal::test::run_case(g_counters, "test_shift_bit_shift_extremes_128", test_shift_bit_shift_extremes_128);
+    bitcal::test::run_case(g_counters, "test_shift_word_boundary_no_bit_shift_128",
+                           test_shift_word_boundary_no_bit_shift_128);
     bitcal::test::run_case(g_counters, "test_random_bit_and_matches_reference_model_256",
                            test_random_bit_and_matches_reference_model_256);
     bitcal::test::run_case(g_counters, "test_random_bit_or_matches_reference_model_256",
@@ -887,6 +984,10 @@ int main() {
                            test_random_shift_left_matches_reference_model_256);
     bitcal::test::run_case(g_counters, "test_random_shift_right_matches_reference_model_256",
                            test_random_shift_right_matches_reference_model_256);
+    bitcal::test::run_case(g_counters, "test_random_shift_left_matches_reference_model_512",
+                           test_random_shift_left_matches_reference_model_512);
+    bitcal::test::run_case(g_counters, "test_random_shift_right_matches_reference_model_512",
+                           test_random_shift_right_matches_reference_model_512);
 
     std::cout << std::endl;
     std::cout << "Passed: " << g_counters.pass << std::endl;
