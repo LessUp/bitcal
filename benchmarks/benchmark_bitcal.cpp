@@ -10,8 +10,7 @@
 
 namespace {
 
-// Same measurement profile as benchmark_compare so the baseline numbers are
-// directly comparable across the two executables.
+// 与 benchmark_compare 使用同一测量剖面，使两个可执行文件的基线数字可直接互比。
 constexpr std::size_t kWarmupIterations = 100;
 constexpr std::size_t kSamples = 25;
 constexpr std::size_t kIterationsPerSample = 5000;
@@ -35,6 +34,9 @@ void run_bit_and_benchmark(const char* label, std::mt19937_64& rng) {
 
     const auto summary = bitcal::bench::measure_ns(
         [&]() {
+            // 输入同样消费，防止编译器把 bit_and 提升为循环不变式或常量传播
+            bitcal::bench::do_not_optimize(lhs);
+            bitcal::bench::do_not_optimize(rhs);
             auto out = bitcal::bit_and(lhs, rhs);
             bitcal::bench::do_not_optimize(out);
         },

@@ -3,7 +3,11 @@ cmake_minimum_required(VERSION 3.16)
 # Practice-scale header-only library: no install/export, no LTO, no hardening,
 # no version regex. Version lives in include/bitcal/config.hpp for the code
 # and is hardcoded here for CMake's project() metadata only.
-project(bitcal VERSION 4.1.0 LANGUAGES CXX)
+project(bitcal VERSION 4.2.0 LANGUAGES CXX)
+
+# Export compile_commands.json by default so clangd's `CompilationDatabase: build`
+# works out of the box (harmless for an INTERFACE-only library).
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Dev targets default ON only when BitCal is the top-level project, so
 # source-integration consumers (add_subdirectory / FetchContent) don't

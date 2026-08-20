@@ -87,7 +87,7 @@ bool reference_equals(const word_array<Bits>& lhs, const word_array<Bits>& rhs) 
     return true;
 }
 
-// Bit-by-bit reference shifts: obviously correct, O(Bits) per call.
+// 逐位参考移位：显然正确，每次调用 O(Bits)。
 template <std::size_t Bits>
 word_array<Bits> reference_shift_left(const word_array<Bits>& words, std::size_t count) {
     word_array<Bits> out{};

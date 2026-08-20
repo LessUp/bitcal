@@ -5,12 +5,6 @@ CompileFlags:
 
 Diagnostics:
   UnusedIncludes: Strict
-  ClangTidy:
-    Add:
-      - bugprone-*
-      - performance-*
-      - portability-*
-      - readability-identifier-naming
 
 Index:
   Background: Build

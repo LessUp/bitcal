@@ -12,12 +12,10 @@ namespace bitcal {
 
 namespace detail {
 
-// Bridges constexpr and runtime word-copy paths. In a consteval context the
-// byte-copy intrinsics are unavailable, so we fall back to a per-word loop;
-// at runtime we delegate to `ByteCopy` (memcpy for from_words, memmove for
-// copy_words_to, which must support self-overlap). The `if consteval`
-// dispatch is centralized here so bit_block's two callers don't each repeat
-// the constexpr/runtime fork.
+// 桥接 constexpr 与运行时字拷贝路径。在 consteval 语境下字节拷贝 intrinsics
+// 不可用，故回退为逐字循环；运行时委托给 `ByteCopy`（from_words 用 memcpy，
+// copy_words_to 用 memmove——后者必须支持自重叠）。`if consteval` 分派集中在
+// 这里，bit_block 的两个调用方无需各自重复 constexpr/运行时分叉。
 template <std::size_t N, typename ByteCopy>
 constexpr void copy_words_helper(const std::uint64_t* src, std::uint64_t* dst, ByteCopy&& byte_copy) noexcept {
     if consteval {
@@ -54,8 +52,8 @@ public:
     [[nodiscard]] constexpr bit_view view() noexcept { return bit_view(words_.data(), word_count); }
     [[nodiscard]] constexpr const_bit_view view() const noexcept { return const_bit_view(words_.data(), word_count); }
 
-    // Static-extent span forms mirror from_words/copy_words_to and feed the
-    // span-form algorithms (bit_and(words, words) deduces the width).
+    // 静态 extent 的 span 形态与 from_words/copy_words_to 对称，喂给 span 形态
+    // 算法（bit_and(words, words) 从中推导宽度）。
     [[nodiscard]] constexpr std::span<std::uint64_t, word_count> words() noexcept { return words_; }
     [[nodiscard]] constexpr std::span<const std::uint64_t, word_count> words() const noexcept { return words_; }
 
@@ -65,8 +63,8 @@ public:
     }
 
     constexpr void copy_words_to(std::span<std::uint64_t, word_count> out) const noexcept {
-        // memmove (not memcpy) because callers may pass the block's own view
-        // (self-copy); see test_block_copy_words_to_supports_self_copy.
+        // 用 memmove（而非 memcpy），因为调用方可能传入块自身的视图（自拷贝）；
+        // 见 test_block_copy_words_to_supports_self_copy。
         detail::copy_words_helper<word_count>(
             words_.data(), out.data(),
             [](void* dst, const void* src, std::size_t n) noexcept { std::memmove(dst, src, n); });

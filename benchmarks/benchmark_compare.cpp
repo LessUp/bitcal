@@ -89,10 +89,14 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "bit_and",
         [&] {
+            bitcal::bench::do_not_optimize(lhs_block);
+            bitcal::bench::do_not_optimize(rhs_block);
             const auto out = bitcal::bit_and(lhs_block, rhs_block);
             bitcal::bench::do_not_optimize(out);
         },
         [&] {
+            bitcal::bench::do_not_optimize(lhs_bitset);
+            bitcal::bench::do_not_optimize(rhs_bitset);
             const auto out = lhs_bitset & rhs_bitset;
             bitcal::bench::do_not_optimize(out);
         });
@@ -100,10 +104,14 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "bit_or",
         [&] {
+            bitcal::bench::do_not_optimize(lhs_block);
+            bitcal::bench::do_not_optimize(rhs_block);
             const auto out = bitcal::bit_or(lhs_block, rhs_block);
             bitcal::bench::do_not_optimize(out);
         },
         [&] {
+            bitcal::bench::do_not_optimize(lhs_bitset);
+            bitcal::bench::do_not_optimize(rhs_bitset);
             const auto out = lhs_bitset | rhs_bitset;
             bitcal::bench::do_not_optimize(out);
         });
@@ -111,10 +119,14 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "bit_xor",
         [&] {
+            bitcal::bench::do_not_optimize(lhs_block);
+            bitcal::bench::do_not_optimize(rhs_block);
             const auto out = bitcal::bit_xor(lhs_block, rhs_block);
             bitcal::bench::do_not_optimize(out);
         },
         [&] {
+            bitcal::bench::do_not_optimize(lhs_bitset);
+            bitcal::bench::do_not_optimize(rhs_bitset);
             const auto out = lhs_bitset ^ rhs_bitset;
             bitcal::bench::do_not_optimize(out);
         });
@@ -122,10 +134,14 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "bit_andnot",
         [&] {
+            bitcal::bench::do_not_optimize(lhs_block);
+            bitcal::bench::do_not_optimize(rhs_block);
             const auto out = bitcal::bit_andnot(lhs_block, rhs_block);
             bitcal::bench::do_not_optimize(out);
         },
         [&] {
+            bitcal::bench::do_not_optimize(lhs_bitset);
+            bitcal::bench::do_not_optimize(rhs_bitset);
             const auto out = lhs_bitset & ~rhs_bitset;
             bitcal::bench::do_not_optimize(out);
         });
@@ -133,10 +149,12 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "popcount",
         [&] {
+            bitcal::bench::do_not_optimize(lhs_block);
             const auto out = bitcal::popcount(lhs_block.view());
             bitcal::bench::do_not_optimize(out);
         },
         [&] {
+            bitcal::bench::do_not_optimize(lhs_bitset);
             const auto out = lhs_bitset.count();
             bitcal::bench::do_not_optimize(out);
         });
@@ -144,10 +162,12 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "equals",
         [&] {
+            bitcal::bench::do_not_optimize(lhs_block);
             const auto out = bitcal::equals(lhs_block.view(), lhs_block.view());
             bitcal::bench::do_not_optimize(out);
         },
         [&] {
+            bitcal::bench::do_not_optimize(lhs_bitset);
             const auto out = (lhs_bitset == lhs_bitset);
             bitcal::bench::do_not_optimize(out);
         });
@@ -155,10 +175,12 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "is_zero",
         [&] {
+            bitcal::bench::do_not_optimize(lhs_block);
             const auto out = bitcal::is_zero(lhs_block.view());
             bitcal::bench::do_not_optimize(out);
         },
         [&] {
+            bitcal::bench::do_not_optimize(lhs_bitset);
             const auto out = lhs_bitset.none();
             bitcal::bench::do_not_optimize(out);
         });
@@ -166,10 +188,12 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "shift_left",
         [&] {
+            bitcal::bench::do_not_optimize(lhs_block);
             const auto out = bitcal::shift_left(lhs_block, kShiftCount);
             bitcal::bench::do_not_optimize(out);
         },
         [&] {
+            bitcal::bench::do_not_optimize(lhs_bitset);
             const auto out = lhs_bitset << kShiftCount;
             bitcal::bench::do_not_optimize(out);
         });
@@ -177,10 +201,12 @@ void append_retained_cases(bitcal::bench::benchmark_report& report) {
     append_row(
         "shift_right",
         [&] {
+            bitcal::bench::do_not_optimize(lhs_block);
             const auto out = bitcal::shift_right(lhs_block, kShiftCount);
             bitcal::bench::do_not_optimize(out);
         },
         [&] {
+            bitcal::bench::do_not_optimize(lhs_bitset);
             const auto out = lhs_bitset >> kShiftCount;
             bitcal::bench::do_not_optimize(out);
         });
