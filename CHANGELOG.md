@@ -22,6 +22,7 @@
 
 ### 📚 文档
 
+- `NOTES.md` 已知限制「变换类算法整体非 constexpr」缩窄为「仅 `bit_*` 非 constexpr」（`shift_*` 随融合内核化成为 constexpr；「不做 AVX2 shift」的跨 lane 复杂度理由保留）
 - 版本历史表删除"状态"列（全标"✅ 稳定"与 README"实验性"定位矛盾）
 - 4.0.0 亮点段移除已退役的"vNext"命名
 - README 核心类型表补 512 宽度示例（测试与基准已覆盖）
@@ -50,6 +51,7 @@
 
 ### ♻️ 重构
 
+- `shift_left` / `shift_right` 改为单遍融合内核（`detail::shift_left_fused` / `shift_right_fused`，分离读写、单遍完成词移+位移、无串行 carry 依赖链），`compose_shifted_block` 删除预拷贝循环；`shift_left` / `shift_right` 整体 constexpr；`word_ops.hpp` 删除不再使用的 `<cstring>`
 - `algorithms.hpp` 二元运算的 AVX2/scalar lambda 对提取为 `detail::and_ops` / `or_ops` / `xor_ops` / `andnot_ops`（`static constexpr` 成员），`*_into` 与 `bit_*<Bits>` 共享同一定义，消除 8 处重复（特别是 `andnot` 的 `_mm256_andnot_si256(b, a)` 参数反转只写一次）
 - `algorithms.hpp` 注释精简：删除编译器优化细节（死存储消除）和与 README 重复的 CTAD 说明
 - 删除冗余测试 `test_public_contract_core_types_accessible_through_umbrella`，其断言并入 `test_block_view_smoke`（含 `const_bit_view` 运行时路径）
@@ -66,6 +68,7 @@
 
 ### 🧪 测试
 
+- 补 shift 的 constexpr 编译期断言（`static_assert(test_shifts_remain_constexpr())`，覆盖 count=64/65/256）+ 128 位词内位移极端（count=1/63）与纯词移（count=64）确定性用例 + 512 位随机对照（此前 shift 确定性用例与随机对照最大只到 256 位）
 - 补 `equals` 的 AVX2 路径回归覆盖：256/512 位确定性用例（块内部分相等、跨 vec 块不等）+ 256 位随机对照参考模型。此前 `equals` 的"不等 -> 提前返回"分支仅在 ≤192 位（走 scalar 尾部）或自比（恒真）下被覆盖，AVX2 路径（≥4 字）无断言保护
 - 补 `shift_left` / `shift_right` 的 256 位随机对照测试：随机 count ∈ [0, Bits] 对照逐 bit 参考模型，覆盖此前手工用例未碰的中间 shift 值
 

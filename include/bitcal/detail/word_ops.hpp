@@ -6,7 +6,6 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
-#include <cstring>
 
 #include <bit>
 
@@ -22,86 +21,40 @@ inline void binary_into_scalar(const std::uint64_t* lhs, const std::uint64_t* rh
     }
 }
 
+// shift 单遍融合内核：读 `in`、写 `out`，一次扫描完成词移（word_shift）+ 位移（bit_shift）。
+// 每个输出字只依赖两个独立输入字，无串行 carry 依赖链；count==0 与 count>=N*64 均由公式
+// 天然正确（越界项取 0），无需特判。`out` / `in` 不得重叠（公开 API 的 `out` 总是新建
+// bit_block，in/out 永不重叠），`assert(out != in)` 仅作 Debug 前置检查。
 template <std::size_t N>
-inline void shift_left_array(std::uint64_t* data, std::size_t count) noexcept {
+constexpr void shift_left_fused(std::uint64_t* out, const std::uint64_t* in, const std::size_t count) noexcept {
     static_assert(N > 0, "Array size must be positive");
+    assert(out != in);
 
-    if (count == 0) {
-        return;
-    }
-
-    // Short-circuit: shifting by the full width (or more) clears everything.
-    if (count >= N * 64) {
-        std::memset(data, 0, N * sizeof(std::uint64_t));
-        return;
-    }
-
-    if (count >= 64) {
-        const std::size_t word_shift = count / 64;
-        const std::size_t bit_shift = count % 64;
-
-        // word_shift >= 1 here (count >= 64). Loop guards with `i < N`
-        // so size_t underflow cannot turn into an infinite loop if this
-        // guard is ever refactored away; mirrors shift_right_array style.
-        for (std::size_t i = N; i-- > word_shift;) {
-            data[i] = data[i - word_shift];
-        }
-        for (std::size_t i = 0; i < word_shift; ++i) {
-            data[i] = 0;
-        }
-
-        if (bit_shift == 0) {
-            return;
-        }
-
-        count = bit_shift;
-    }
-
-    std::uint64_t carry = 0;
+    const std::size_t word_shift = count / 64;
+    const std::size_t bit_shift = count % 64;
     for (std::size_t i = 0; i < N; ++i) {
-        const std::uint64_t next_carry = data[i] >> (64 - count);
-        data[i] = (data[i] << count) | carry;
-        carry = next_carry;
+        // 主源词：in[i-word_shift] 左移 bit_shift；i < word_shift 时为 0（低位补零）。
+        const std::uint64_t shifted = (i >= word_shift) ? in[i - word_shift] << bit_shift : 0;
+        // 进位词：in[i-word_shift-1] 的高 bit_shift 位落到 out[i] 低位；bit_shift==0 短路避免 >>64 UB。
+        const std::uint64_t carry = (bit_shift != 0 && i > word_shift) ? in[i - word_shift - 1] >> (64 - bit_shift) : 0;
+        out[i] = shifted | carry;
     }
 }
 
 template <std::size_t N>
-inline void shift_right_array(std::uint64_t* data, std::size_t count) noexcept {
+constexpr void shift_right_fused(std::uint64_t* out, const std::uint64_t* in, const std::size_t count) noexcept {
     static_assert(N > 0, "Array size must be positive");
+    assert(out != in);
 
-    if (count == 0) {
-        return;
-    }
-
-    // Short-circuit: shifting by the full width (or more) clears everything.
-    if (count >= N * 64) {
-        std::memset(data, 0, N * sizeof(std::uint64_t));
-        return;
-    }
-
-    if (count >= 64) {
-        const std::size_t word_shift = count / 64;
-        const std::size_t bit_shift = count % 64;
-
-        for (std::size_t i = 0; i < N - word_shift; ++i) {
-            data[i] = data[i + word_shift];
-        }
-        for (std::size_t i = N - word_shift; i < N; ++i) {
-            data[i] = 0;
-        }
-
-        if (bit_shift == 0) {
-            return;
-        }
-
-        count = bit_shift;
-    }
-
-    std::uint64_t carry = 0;
-    for (std::size_t i = N - 1; i < N; --i) {
-        const std::uint64_t next_carry = data[i] << (64 - count);
-        data[i] = (data[i] >> count) | carry;
-        carry = next_carry;
+    const std::size_t word_shift = count / 64;
+    const std::size_t bit_shift = count % 64;
+    for (std::size_t i = 0; i < N; ++i) {
+        // 主源词：in[i+word_shift] 右移 bit_shift；i+word_shift >= N 时为 0（高位补零）。
+        const std::uint64_t shifted = (i + word_shift < N) ? in[i + word_shift] >> bit_shift : 0;
+        // 进位词：in[i+word_shift+1] 的低 bit_shift 位落到 out[i] 高位；bit_shift==0 短路避免 <<64 UB。
+        const std::uint64_t carry =
+            (bit_shift != 0 && i + word_shift + 1 < N) ? in[i + word_shift + 1] << (64 - bit_shift) : 0;
+        out[i] = shifted | carry;
     }
 }
 
