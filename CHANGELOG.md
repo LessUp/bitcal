@@ -9,6 +9,8 @@
 
 ## [未发布]
 
+## [4.2.0] - 2026-08-20
+
 ### 💥 破坏性变更
 
 - 平台支持收敛为 Linux x86-64（GCC / Clang）：移除 `config.hpp` 中 `_MSC_VER` / `_M_X64` 预处理分支与 `CMakeLists.txt` 中 MSVC `/arch:AVX2` 分支（CI 从未覆盖 Windows，benchmark harness 依赖 GCC/Clang 内联汇编与 `__VERSION__`，MSVC 路径为未经测试的死代码）
@@ -34,6 +36,7 @@
 - `NOTES.md` 新增「popcount 走 scalar 路径」设计取舍（含实测数据与原因）；已知限制澄清变换类算法（`bit_*` / `shift_*`）整体非 constexpr；`AGENTS.md` §4.3 同步 CI benchmark 编译覆盖
 - `NOTES.md` 新增「亚纳秒基准在高负载机器上不可信」已知限制：记录 median-of-samples + 先测 BitCal 的顺序在负载波动下的系统性失真（含 `is_zero<512>` 摆动实证）与绑核 + min-of-N 复测方法；「popcount 走 scalar 路径」条目同步修正“残留差距”为测量伪影（绑核隔离实验证伪，4 路拆分累加器尝试无收益已回退）
 - `README.md` 调用形态与契约说明重写为静态宽度形态；`NOTES.md` 视图宽度条目重写为「视图携带运行时宽度；返回型算法取静态宽度 range」
+- 源码注释统一为中文：`config.hpp` / `word_ops.hpp` / `bit_block.hpp` / `bit_view.hpp` / `algorithms.hpp` / `test_bitcal.cpp` / `reference_model.hpp` / `basic_usage.cpp` / `benchmark_bitcal.cpp` 的英文注释全部译中文（技术术语与标识符如 `AVX2`、`loadu`/`storeu`、`if consteval` 保留），遵循 AGENTS.md §4.4「注释只写 why」，与 README/NOTES 中文口径统一
 
 ### ⚒️ 工程化收敛
 
@@ -48,6 +51,9 @@
 - `benchmark_bitcal.cpp` 计时收敛到 `bitcal::bench::measure_ns`（删除自研 `SimpleTimer` / `run_benchmark`）：基线基准与对比基准统一为同一测量方法（warmup + 25 样本中位数/CV），两组可执行文件数字可直接互比
 - CI GCC job 开启 `BITCAL_BUILD_BENCHMARKS=ON`（仅编译覆盖、不运行）：此前 benchmarks 不在任何 CI job 编译，代码可能静默腐烂
 - `benchmark_compare` / `benchmark_bitcal` 报告主列从 median 改为 min：负载尖峰只会向上污染测量，min 是稳健下界（实证见 NOTES「亚纳秒基准在高负载机器上不可信」）
+- clang-tidy 进 CI：新增根 `.clang-tidy`（Checks / `WarningsAsErrors: '*'` / 命名规则的唯一事实源，clangd 自动拾取，删除 `.clangd` 内联 `ClangTidy.Add` 块），新增 CI clang-tidy job（apt 装 `clang-tidy`+`clang-tools` → cmake 导出 compile_commands → `run-clang-tidy --warnings-as-errors='*'`），4 个 TU 零诊断
+- `CMakeLists.txt` 开启 `CMAKE_EXPORT_COMPILE_COMMANDS`：clangd 的 `CompilationDatabase: build` 开箱即用（INTERFACE-only 库无副作用）
+- `benchmark_compare` / `benchmark_bitcal` 被测 lambda 输入侧也加 `do_not_optimize`：此前只 pin 输出，输入可能被常量传播或提升为循环不变式；输入+输出双侧 pin 消除测量扭曲，且 BitCal 与 std::bitset 两侧对称保证对比公平
 
 ### ♻️ 重构
 
@@ -71,6 +77,7 @@
 - 补 shift 的 constexpr 编译期断言（`static_assert(test_shifts_remain_constexpr())`，覆盖 count=64/65/256）+ 128 位词内位移极端（count=1/63）与纯词移（count=64）确定性用例 + 512 位随机对照（此前 shift 确定性用例与随机对照最大只到 256 位）
 - 补 `equals` 的 AVX2 路径回归覆盖：256/512 位确定性用例（块内部分相等、跨 vec 块不等）+ 256 位随机对照参考模型。此前 `equals` 的"不等 -> 提前返回"分支仅在 ≤192 位（走 scalar 尾部）或自比（恒真）下被覆盖，AVX2 路径（≥4 字）无断言保护
 - 补 `shift_left` / `shift_right` 的 256 位随机对照测试：随机 count ∈ [0, Bits] 对照逐 bit 参考模型，覆盖此前手工用例未碰的中间 shift 值
+- 测试自动注册：引入 `BITCAL_TEST_CASE(name)` 宏（前置声明 + 静态注册器 + 函数定义，零动态分配、函数局部静态头规避 SIOF），`main()` 从约 95 行手动 `run_case` 注册缩为一行 `run_all_registered(g_counters)`，49 个用例全自发现——新增用例无需再触碰 `main()`，杜绝漏注册
 
 ## [4.1.0] - 2026-07-20
 
@@ -347,7 +354,7 @@ v1.x **不再维护**。用户应迁移到 v2.x。
 
 | 版本 | 日期 | 亮点 |
 |------|------|------|
-| v4.1.0 | 2026-07-20 | 工程化收敛 + CTAD 重载 |
+| v4.2.0 | 2026-08-20 | 首版 tag + Release：中文注释统一、测试自注册、clang-tidy 进 CI、基准防优化 |
 | v4.0.0 | 2026-05-15 | C++23 重设计，全新三层架构 |
 | v3.0.0 | 2026-05-08 | 公开接口收口、迁移说明 |
 | v2.1.0 | 2026-04-16 | ANDNOT，性能提升 |
