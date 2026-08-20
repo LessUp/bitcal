@@ -11,7 +11,7 @@
 
 namespace bitcal::detail {
 
-// --- scalar kernels ---------------------------------------------------------
+// --- scalar 内核 ------------------------------------------------------------
 
 template <typename WordOp>
 inline void binary_into_scalar(const std::uint64_t* lhs, const std::uint64_t* rhs, std::uint64_t* out,
@@ -58,11 +58,10 @@ constexpr void shift_right_fused(std::uint64_t* out, const std::uint64_t* in, co
     }
 }
 
-// --- x86-64 dispatch --------------------------------------------------------
-// `vector_op` is only invoked on the AVX2 path; on scalar-only targets it is
-// unused, so callers may pass a generic lambda referencing AVX2 intrinsics
-// without breaking non-x86 builds (the lambda body is only instantiated when
-// called).
+// --- x86-64 分派 ------------------------------------------------------------
+// `vector_op` 仅在 AVX2 路径被调用；scalar-only 目标上它未被使用，因此调用方
+// 可以传引用 AVX2 intrinsics 的 generic lambda 而不破坏非 x86 构建
+// （lambda 函数体仅在真正被调用时才实例化）。
 
 #if BITCAL_ARCH_X86 && BITCAL_HAS_AVX2
 template <typename VectorOp, typename ScalarWordOp>
@@ -95,11 +94,10 @@ BITCAL_FORCEINLINE void binary_into_x64(const std::uint64_t* lhs, const std::uin
 #endif
 }
 
-// --- query dispatch (is_zero / equals) ---------------------------------------
-// is_zero / equals mirror the binary dispatch pattern: 4-word AVX2 chunks
-// with a scalar tail; `if consteval` in the view-level wrappers below keeps
-// the constexpr scalar path alive for compile-time evaluation. popcount does
-// not take part in AVX2 dispatch (see popcount_words below).
+// --- 查询分派（is_zero / equals）---------------------------------------------
+// is_zero / equals 复刻二元分派模式：4 字 AVX2 块 + scalar 尾部；下方视图层
+// 包装里的 `if consteval` 保留 constexpr scalar 路径以支持编译期求值。popcount
+// 不参与 AVX2 分派（见下方 popcount_words）。
 
 [[nodiscard]] BITCAL_FORCEINLINE bool is_zero_x64(const std::uint64_t* data, const std::size_t word_count) noexcept {
     std::size_t i = 0;
@@ -107,7 +105,7 @@ BITCAL_FORCEINLINE void binary_into_x64(const std::uint64_t* lhs, const std::uin
 #if BITCAL_ARCH_X86 && BITCAL_HAS_AVX2
     for (; i + 4 <= word_count; i += 4) {
         const auto value = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data + i));
-        // _mm256_testz_si256 returns 1 if (value & value) == 0, i.e. value is all zeros.
+        // _mm256_testz_si256 在 (value & value) == 0 时返回 1，即 value 全零。
         if (_mm256_testz_si256(value, value) == 0) {
             return false;
         }
@@ -131,7 +129,7 @@ BITCAL_FORCEINLINE void binary_into_x64(const std::uint64_t* lhs, const std::uin
     for (; i + 4 <= word_count; i += 4) {
         const auto lhs_vec = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(lhs + i));
         const auto rhs_vec = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(rhs + i));
-        // _mm256_testc_si256 returns 1 if (cmp & all_ones) == all_ones, i.e. all lanes equal.
+        // _mm256_testc_si256 在 (cmp & all_ones) == all_ones 时返回 1，即所有 lane 相等。
         const auto cmp = _mm256_cmpeq_epi64(lhs_vec, rhs_vec);
         if (_mm256_testc_si256(cmp, all_ones) == 0) {
             return false;
@@ -147,7 +145,7 @@ BITCAL_FORCEINLINE void binary_into_x64(const std::uint64_t* lhs, const std::uin
     return true;
 }
 
-// --- view-level word ops ----------------------------------------------------
+// --- 视图层 word 操作 --------------------------------------------------------
 
 inline void assert_binary_word_layout(const const_bit_view lhs, const const_bit_view rhs, const bit_view out) noexcept {
     assert(lhs.word_count() == rhs.word_count());

@@ -15,11 +15,11 @@
 
 static_assert(std::is_default_constructible_v<bitcal::bit_block<256>>);
 
-// Public contract verification: core types are accessible through the umbrella header
+// 公开契约验证：核心类型经 umbrella 头文件可访问
 static_assert(std::is_same_v<decltype(std::declval<bitcal::bit_block<256>>().view()), bitcal::bit_view>);
 static_assert(std::is_same_v<decltype(std::declval<const bitcal::bit_block<256>>().view()), bitcal::const_bit_view>);
 
-// Public contract verification: version macros are defined
+// 公开契约验证：版本宏已定义
 static_assert(BITCAL_VERSION_MAJOR == 4);
 static_assert(BITCAL_VERSION_MINOR == 1);
 static_assert(BITCAL_VERSION_PATCH == 0);
@@ -38,9 +38,9 @@ constexpr bool test_block_word_roundtrip_is_constexpr() {
 
 static_assert(test_block_word_roundtrip_is_constexpr());
 
-// Constexpr query verification: popcount, is_zero, and equals must be usable
-// in constant expressions. This guards the `if consteval` scalar path in
-// word_ops.hpp and ensures the AVX2 runtime path does not break constexpr.
+// constexpr 查询验证：popcount、is_zero、equals 必须可在常量表达式中使用。
+// 守护 word_ops.hpp 里的 `if consteval` scalar 路径，并确保 AVX2 运行时路径
+// 不破坏 constexpr。
 constexpr bool test_public_queries_remain_constexpr() {
     constexpr std::array<std::uint64_t, 4> lhs_words{0x1ULL, 0x0ULL, 0xFULL, 0x8000000000000000ULL};
     constexpr std::array<std::uint64_t, 4> same_words{0x1ULL, 0x0ULL, 0xFULL, 0x8000000000000000ULL};
@@ -58,12 +58,11 @@ constexpr bool test_public_queries_remain_constexpr() {
 
 static_assert(test_public_queries_remain_constexpr());
 
-// Constexpr shift verification: shift_left / shift_right must be usable in
-// constant expressions. The fused single-pass kernels are pure scalar loops
-// (no memcpy/memset), so no `if consteval` fork is needed — unlike is_zero /
-// equals. Expected values are hardcoded word constants (word 0 is the least
-// significant word); covers the word+bit mix (65), pure word shift with
-// bit_shift == 0 (64), and the count >= Bits short-circuit (256).
+// constexpr 移位验证：shift_left / shift_right 必须可在常量表达式中使用。
+// 融合单遍内核是纯 scalar 循环（无 memcpy/memset），故无需 `if consteval`
+// 分叉——这一点与 is_zero / equals 不同。期望值是硬编码的字常量（word 0 为
+// 最低有效字）；覆盖词移+位移混合（65）、bit_shift == 0 的纯词移（64）、
+// count >= Bits 的短路（256）。
 constexpr bool test_shifts_remain_constexpr() {
     constexpr std::array<std::uint64_t, 4> words{0x0123456789ABCDEFULL, 0xFEDCBA9876543210ULL, 0xDEADBEEFCAFEBABEULL,
                                                  0x0F0F0F0F0F0F0F0FULL};
@@ -274,11 +273,11 @@ bool test_block_storage_alignment() {
     const auto address = reinterpret_cast<std::uintptr_t>(block.view().data());
 
 #if BITCAL_HAS_AVX2
-    // 256-bit+ block on AVX2 build: 32-byte alignment is a storage guarantee
-    // (kernels use unaligned loads, so it is not a correctness requirement).
+    // AVX2 构建下 256 位及以上块：32 字节对齐是存储保证
+    // （内核用 unaligned load，故非正确性前提）。
     BITCAL_ASSERT_EQ(address % std::uintptr_t{32}, std::uintptr_t{0});
 #else
-    // Scalar build: natural alignment only.
+    // Scalar 构建：仅自然对齐。
     BITCAL_ASSERT_TRUE(address % std::uintptr_t{alignof(std::uint64_t)} == 0);
 #endif
 
@@ -713,8 +712,8 @@ bool test_public_contract_all_retained_algorithms_are_accessible() {
     [[maybe_unused]] auto xor_result = bitcal::bit_xor(lhs, rhs);
     [[maybe_unused]] auto andnot_result = bitcal::bit_andnot(lhs, rhs);
 
-    // In-place alias: out == lhs. Verify the aliased result matches the
-    // non-aliased returning form, so alias correctness has regression cover.
+    // 原地别名：out == lhs。验证别名后的结果与非别名返回形态一致，
+    // 使别名正确性有回归覆盖。
     bitcal::bit_block<256> and_alias = lhs;
     bitcal::and_into(and_alias.view(), rhs.view(), and_alias.view());
     BITCAL_ASSERT_EQ(and_alias.word(0), and_result.word(0));
@@ -827,21 +826,21 @@ bool test_ctad_bit_block_overload_runtime() {
     auto shl_result = bitcal::shift_left(a, 64);
     auto shr_result = bitcal::shift_right(a, 64);
 
-    // AND with all-ones in word 0 keeps word 0; word 1 AND 0 -> 0
+    // AND：word 0 与全 1 相与保持不变；word 1 与 0 相与 -> 0
     BITCAL_ASSERT_EQ(and_result.word(0), 0xDEADBEEFCAFEBABEULL);
     BITCAL_ASSERT_EQ(and_result.word(1), std::uint64_t{0});
-    // OR with all-ones in word 0 -> all-ones; word 1 OR 0 keeps a.word(1)
+    // OR：word 0 与全 1 相或 -> 全 1；word 1 与 0 相或保留 a.word(1)
     BITCAL_ASSERT_EQ(or_result.word(0), 0xFFFFFFFFFFFFFFFFULL);
     BITCAL_ASSERT_EQ(or_result.word(1), 0x0123456789ABCDEFULL);
-    // XOR with all-ones in word 0 -> bitwise NOT of a.word(0)
+    // XOR：word 0 与全 1 异或 -> a.word(0) 按位取反
     BITCAL_ASSERT_EQ(xor_result.word(0), ~0xDEADBEEFCAFEBABEULL);
-    // ANDNOT (a & ~b): word 0 -> a & ~all_ones = 0; word 1 -> a & ~0 = a
+    // ANDNOT（a & ~b）：word 0 -> a & ~全1 = 0；word 1 -> a & ~0 = a
     BITCAL_ASSERT_EQ(andnot_result.word(0), std::uint64_t{0});
     BITCAL_ASSERT_EQ(andnot_result.word(1), 0x0123456789ABCDEFULL);
-    // shift_left by 64: word 0 -> 0, word 1 -> old word 0
+    // shift_left 64：word 0 -> 0，word 1 -> 旧 word 0
     BITCAL_ASSERT_EQ(shl_result.word(0), std::uint64_t{0});
     BITCAL_ASSERT_EQ(shl_result.word(1), 0xDEADBEEFCAFEBABEULL);
-    // shift_right by 64: word 0 -> old word 1, word 1 -> 0
+    // shift_right 64：word 0 -> 旧 word 1，word 1 -> 0
     BITCAL_ASSERT_EQ(shr_result.word(0), 0x0123456789ABCDEFULL);
     BITCAL_ASSERT_EQ(shr_result.word(1), std::uint64_t{0});
     return true;

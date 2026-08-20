@@ -58,11 +58,9 @@ template <typename Lhs, typename Rhs, typename VectorOp, typename WordOp>
                                                 std::forward<WordOp>(word_op));
 }
 
-// Shared shape for shift_left / shift_right: build a fresh block and run the
-// single-pass fused kernel over it (read `value`, write the block). The two
-// shifts differ only in which `shift_*_fused` is invoked, so we route that
-// through `ShiftOp` rather than duplicating the skeleton. Short-circuits the
-// full-width-or-more case to return a zero block without touching the kernel.
+// shift_left / shift_right 的共享骨架：新建块并在其上运行单遍融合内核
+// （读 `value`、写块）。两个 shift 仅在被调用的 `shift_*_fused` 上不同，
+// 故经 `ShiftOp` 路由而非复制骨架。满宽度及以上直接短路返回零块，不触内核。
 template <std::size_t Bits, typename ShiftOp>
 [[nodiscard]] constexpr bit_block<Bits> compose_shifted_block(const std::span<const std::uint64_t, Bits / 64> value,
                                                               const std::size_t count, ShiftOp&& shift_op) noexcept {
@@ -94,7 +92,7 @@ struct xor_ops {
 };
 
 struct andnot_ops {
-    // AVX2 andnot takes (rhs, lhs) to compute lhs & ~rhs; scalar form mirrors that.
+    // AVX2 andnot 以 (rhs, lhs) 参数序计算 lhs & ~rhs；scalar 形态与之镜像。
     static constexpr auto vector = [](const auto a, const auto b) noexcept { return _mm256_andnot_si256(b, a); };
     static constexpr auto word = [](const std::uint64_t a, const std::uint64_t b) noexcept { return a & ~b; };
 };

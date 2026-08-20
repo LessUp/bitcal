@@ -10,8 +10,7 @@
 
 namespace {
 
-// Same measurement profile as benchmark_compare so the baseline numbers are
-// directly comparable across the two executables.
+// 与 benchmark_compare 使用同一测量剖面，使两个可执行文件的基线数字可直接互比。
 constexpr std::size_t kWarmupIterations = 100;
 constexpr std::size_t kSamples = 25;
 constexpr std::size_t kIterationsPerSample = 5000;

@@ -6,7 +6,7 @@
 
 namespace bitcal {
 
-// Read-only view over a contiguous range of uint64 words.
+// 覆盖一段连续 uint64 字的只读视图。
 class const_bit_view {
 public:
     constexpr const_bit_view() noexcept = default;
@@ -26,11 +26,10 @@ private:
     std::size_t word_count_ = 0;
 };
 
-// Mutable view over a contiguous range of uint64 words. Stores a
-// `uint64_t*` directly (no const_cast) and provides an implicit conversion
-// to const_bit_view so callers can pass a bit_view wherever a const_bit_view
-// is expected. The two types share the same interface shape but are not
-// inheritance-related, which keeps the mutable pointer type honest.
+// 覆盖一段连续 uint64 字的可变视图。直接存 `uint64_t*`（无 const_cast），
+// 并提供到 const_bit_view 的隐式转换，调用方可在需要 const_bit_view 处直接
+// 传入 bit_view。两种类型共享同一接口形态但无继承关系，保持可变指针类型的
+// 诚实性。
 class bit_view {
 public:
     constexpr bit_view() noexcept = default;
