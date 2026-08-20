@@ -119,8 +119,11 @@ jobs:
             -DBITCAL_BUILD_BENCHMARKS=ON \
             -DBITCAL_NATIVE_ARCH=ON
 
+      # WarningsAsErrors comes from .clang-tidy (clang-tidy reads it directly),
+      # so no CLI flag is needed here — and run-clang-tidy rejects the
+      # --warnings-as-errors='*' form, which made the first run fail.
       - name: Run clang-tidy
-        run: run-clang-tidy -p build-tidy -quiet --warnings-as-errors='*'
+        run: run-clang-tidy -p build-tidy -quiet
 
   build-and-test-scalar:
     name: Linux x64 GCC (scalar)
