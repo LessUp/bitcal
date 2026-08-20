@@ -34,6 +34,9 @@ void run_bit_and_benchmark(const char* label, std::mt19937_64& rng) {
 
     const auto summary = bitcal::bench::measure_ns(
         [&]() {
+            // 输入同样消费，防止编译器把 bit_and 提升为循环不变式或常量传播
+            bitcal::bench::do_not_optimize(lhs);
+            bitcal::bench::do_not_optimize(rhs);
             auto out = bitcal::bit_and(lhs, rhs);
             bitcal::bench::do_not_optimize(out);
         },
