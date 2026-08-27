@@ -8,6 +8,7 @@
 #include <cstdint>
 
 #include <bit>
+#include <utility>
 
 namespace bitcal::detail {
 
@@ -63,7 +64,7 @@ constexpr void shift_right_fused(std::uint64_t* out, const std::uint64_t* in, co
 // 可以传引用 AVX2 intrinsics 的 generic lambda 而不破坏非 x86 构建
 // （lambda 函数体仅在真正被调用时才实例化）。
 
-#if BITCAL_ARCH_X86 && BITCAL_HAS_AVX2
+#if BITCAL_HAS_AVX2
 template <typename VectorOp, typename ScalarWordOp>
 BITCAL_FORCEINLINE void binary_into_avx2_or_scalar(const std::uint64_t* lhs, const std::uint64_t* rhs,
                                                    std::uint64_t* out, const std::size_t word_count,
@@ -85,7 +86,7 @@ BITCAL_FORCEINLINE void binary_into_avx2_or_scalar(const std::uint64_t* lhs, con
 template <typename VectorOp, typename WordOp>
 BITCAL_FORCEINLINE void binary_into_x64(const std::uint64_t* lhs, const std::uint64_t* rhs, std::uint64_t* out,
                                         const std::size_t word_count, VectorOp&& vector_op, WordOp&& word_op) noexcept {
-#if BITCAL_ARCH_X86 && BITCAL_HAS_AVX2
+#if BITCAL_HAS_AVX2
     binary_into_avx2_or_scalar(lhs, rhs, out, word_count, std::forward<VectorOp>(vector_op),
                                std::forward<WordOp>(word_op));
 #else
@@ -102,7 +103,7 @@ BITCAL_FORCEINLINE void binary_into_x64(const std::uint64_t* lhs, const std::uin
 [[nodiscard]] BITCAL_FORCEINLINE bool is_zero_x64(const std::uint64_t* data, const std::size_t word_count) noexcept {
     std::size_t i = 0;
 
-#if BITCAL_ARCH_X86 && BITCAL_HAS_AVX2
+#if BITCAL_HAS_AVX2
     for (; i + 4 <= word_count; i += 4) {
         const auto value = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data + i));
         // _mm256_testz_si256 在 (value & value) == 0 时返回 1，即 value 全零。
@@ -124,7 +125,7 @@ BITCAL_FORCEINLINE void binary_into_x64(const std::uint64_t* lhs, const std::uin
                                                  const std::size_t word_count) noexcept {
     std::size_t i = 0;
 
-#if BITCAL_ARCH_X86 && BITCAL_HAS_AVX2
+#if BITCAL_HAS_AVX2
     const auto all_ones = _mm256_set1_epi32(-1);
     for (; i + 4 <= word_count; i += 4) {
         const auto lhs_vec = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(lhs + i));

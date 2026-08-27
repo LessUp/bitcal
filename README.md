@@ -97,6 +97,8 @@ x86-64: `scalar` / `avx2`（编译期由 `BITCAL_HAS_AVX2` 固定，无运行时
 - AVX2 build：`-mavx2`（或 `-march=native`），4 字及以上（`>= 256` 位）的运算走 `__m256i` 路径；`>= 256` 位 `bit_block` 的存储按 32 字节对齐（存储保证，非正确性前提——内核使用 unaligned load/store，见 `NOTES.md`）。
 - Scalar build：`-mno-avx2` 或不开启 `BITCAL_NATIVE_ARCH`，所有宽度走标量循环，自然对齐。
 
+> **编译选项一致性**：后端在编译期固定且库为 header-only，同一程序的所有翻译单元必须以一致的 SIMD 编译选项构建。混用（如部分 TU 带 `-mavx2`、部分不带）会使 inline 内核在不同 TU 中定义不一致，构成 ODR 违规——链接器可能任意保留其中一版内核，导致无声的性能劣化。
+
 ## 构建
 
 ```bash

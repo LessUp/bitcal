@@ -1,8 +1,8 @@
 #pragma once
 
-#include "config.hpp"
-
 #include <cassert>
+#include <cstddef>
+#include <cstdint>
 
 namespace bitcal {
 

@@ -11,10 +11,11 @@
 #define BITCAL_ARCH_X86 0
 #endif
 
+// 平台承诺仅 GCC / Clang（README）：其他编译器直接报错，不保留未经验证的静默降级分支。
 #if defined(__GNUC__) || defined(__clang__)
 #define BITCAL_FORCEINLINE __attribute__((always_inline)) inline
 #else
-#define BITCAL_FORCEINLINE inline
+#error "bitcal requires GCC or Clang on Linux x86-64"
 #endif
 
 #define BITCAL_VERSION_MAJOR 4

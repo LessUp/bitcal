@@ -95,6 +95,14 @@ cmake --build build --config Release -j"$(nproc)"
 ctest --test-dir build --output-on-failure -C Release
 ```
 
+Sanitizer 验证（§4.3 本地手动政策的落地命令，ASan + UBSan；Debug 保留 assert，NATIVE_ARCH=OFF 走 scalar 路径）：
+
+```bash
+cmake -S . -B build-san -DCMAKE_BUILD_TYPE=Debug -DBITCAL_BUILD_TESTS=ON -DBITCAL_NATIVE_ARCH=OFF -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+cmake --build build-san -j"$(nproc)"
+ctest --test-dir build-san --output-on-failure
+```
+
 ## 8. 禁止事项
 
 - 不制造无调用死代码

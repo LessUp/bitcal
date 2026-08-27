@@ -79,7 +79,8 @@ inline std::string detect_cpu_model() {
 template <typename Func>
 sample_summary measure_ns(Func&& func, const std::size_t warmup, const std::size_t samples,
                           const std::size_t iterations_per_sample) {
-    using clock = std::chrono::high_resolution_clock;
+    // steady_clock：libstdc++ 的 high_resolution_clock 是 system_clock 别名（非单调），计时须单调。
+    using clock = std::chrono::steady_clock;
 
     for (std::size_t i = 0; i < warmup; ++i) {
         func();

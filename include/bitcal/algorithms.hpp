@@ -3,8 +3,10 @@
 #include "bit_block.hpp"
 #include "detail/word_ops.hpp"
 
+#include <array>
 #include <span>
 #include <type_traits>
+#include <utility>
 
 namespace bitcal {
 

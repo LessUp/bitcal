@@ -9,6 +9,25 @@
 
 ## [未发布]
 
+### ♻️ 重构
+
+- include 依赖修正：`bit_view.hpp` 移除未使用的 `config.hpp`（改为直接包含 `<cstddef>` / `<cstdint>`）；`bit_block.hpp` 直接包含 `config.hpp`（`get_optimal_alignment` 此前靠经 `bit_view.hpp` 的传递包含，属脆弱依赖）；`algorithms.hpp` 补直接包含 `<array>` / `<utility>`；`detail/word_ops.hpp` 补直接包含 `<utility>`（`std::forward` 此前靠传递包含，单独包含该头会编译失败）
+- `word_ops.hpp` 四处分派条件从 `#if BITCAL_ARCH_X86 && BITCAL_HAS_AVX2` 统一为 `#if BITCAL_HAS_AVX2`（后者定义已蕴含前者，与 `config.hpp` 中 `<immintrin.h>` 门控的写法一致）
+- 非 GCC / Clang 编译器下 `BITCAL_FORCEINLINE` 由静默降级为普通 `inline` 改为 `#error`：README 平台承诺仅为 GCC / Clang，不再保留未经验证的降级分支
+
+### 🔧 错误修复
+
+- benchmark 计时从 `high_resolution_clock` 改为 `steady_clock`：libstdc++ 中前者是 `system_clock` 的别名（非单调，受 NTP 调整影响），与 `NOTES.md` 记录的亚纳秒测量伪影教训一致
+
+### ⚙️ CI 与工具链
+
+- CI paths 过滤补 `NOTES.md`：README / CHANGELOG 均触发 CI，文档真相三者待遇应一致
+- `AGENTS.md`「已验证本地命令」补 ASan + UBSan 本地构建命令（§4.3 的 sanitizer 政策此前无对应可复现命令）
+
+### 📚 文档
+
+- README 后端小节补编译选项一致性警示：同一程序所有翻译单元必须以一致的 SIMD 编译选项构建，混用会因 inline 内核定义不一致构成 ODR 违规，链接器任意保留一版造成无声性能劣化
+
 ## [4.2.0] - 2026-08-20
 
 ### 💥 破坏性变更
