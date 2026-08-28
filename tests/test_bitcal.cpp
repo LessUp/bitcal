@@ -741,6 +741,12 @@ BITCAL_TEST_CASE(test_public_contract_all_retained_algorithms_are_accessible) {
 }
 
 // 编译期 API 契约：返回类型与文档一致（span 形态宽度从 extent 推导，无需显式模板参数）
+static_assert(bitcal::detail::static_word_range<std::array<std::uint64_t, 4>>);
+static_assert(bitcal::detail::static_word_range<std::uint64_t[4]>);
+static_assert(bitcal::detail::static_word_range<std::span<std::uint64_t, 4>>);
+static_assert(bitcal::detail::static_word_range<std::span<const std::uint64_t, 4>>);
+static_assert(!bitcal::detail::static_word_range<std::span<std::uint64_t>>);
+static_assert(!bitcal::detail::static_word_range<std::span<const std::uint64_t>>);
 static_assert(std::is_same_v<decltype(bitcal::bit_and(std::declval<std::span<const std::uint64_t, 4>>(),
                                                       std::declval<std::span<const std::uint64_t, 4>>())),
                              bitcal::bit_block<256>>);
@@ -780,6 +786,22 @@ static_assert(
     std::is_same_v<decltype(bitcal::shift_left(std::declval<bitcal::bit_block<256>>(), 0)), bitcal::bit_block<256>>);
 static_assert(
     std::is_same_v<decltype(bitcal::shift_right(std::declval<bitcal::bit_block<256>>(), 0)), bitcal::bit_block<256>>);
+
+BITCAL_TEST_CASE(test_static_word_range_accepts_c_arrays_and_spans) {
+    const std::uint64_t lhs_words[4]{0xFF00ULL, 0x0F0FULL, 0xAAAAULL, 0x5555ULL};
+    const std::array<std::uint64_t, 4> rhs_words{0x0F0FULL, 0x00FFULL, 0x5555ULL, 0xAAAAULL};
+    const std::span<const std::uint64_t, 4> lhs_span(lhs_words);
+    const std::span<const std::uint64_t, 4> rhs_span(rhs_words);
+
+    const auto array_result = bitcal::bit_and(lhs_words, rhs_words);
+    const auto span_result = bitcal::bit_or(lhs_span, rhs_span);
+
+    for (std::size_t i = 0; i < 4; ++i) {
+        BITCAL_ASSERT_EQ(array_result.word(i), lhs_words[i] & rhs_words[i]);
+        BITCAL_ASSERT_EQ(span_result.word(i), lhs_words[i] | rhs_words[i]);
+    }
+    return true;
+}
 
 // bit_block 重载与 span 形态值等价（运行时：AVX2 路径非 constexpr）。
 // span 形态直接传 std::array，同时覆盖隐式 array -> span 转换。
@@ -903,7 +925,11 @@ int main() {
     std::cout << "=== BitCal test suite ===" << std::endl;
 
     // 用例经 BITCAL_TEST_CASE 自注册，main() 无需（也无法）漏注册任何测试
-    bitcal::test::run_all_registered(g_counters);
+    const auto registered = bitcal::test::run_all_registered(g_counters);
+    if (registered == 0) {
+        std::cerr << "No tests registered" << std::endl;
+        return 1;
+    }
 
     std::cout << std::endl;
     std::cout << "Passed: " << g_counters.pass << std::endl;

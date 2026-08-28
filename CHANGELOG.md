@@ -18,6 +18,11 @@
 ### 🔧 错误修复
 
 - benchmark 计时从 `high_resolution_clock` 改为 `steady_clock`：libstdc++ 中前者是 `system_clock` 的别名（非单调，受 NTP 调整影响），与 `NOTES.md` 记录的亚纳秒测量伪影教训一致
+- `static_word_range` 排除动态 `std::span` extent，避免将 `std::dynamic_extent` 误当作静态 word 数参与返回型算法模板实例化
+
+### 🧪 测试
+
+- 测试入口在没有任何自注册用例时显式失败；补 C 数组、静态 `std::span` 与动态 `std::span` 约束的编译期/运行时回归覆盖
 
 ### ⚙️ CI 与工具链
 

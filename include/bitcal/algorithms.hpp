@@ -21,8 +21,10 @@ struct static_word_extent<std::array<std::uint64_t, N>> : std::integral_constant
 template <std::size_t N>
 struct static_word_extent<std::uint64_t[N]> : std::integral_constant<std::size_t, N> {};
 template <std::size_t N>
+    requires(N != std::dynamic_extent)
 struct static_word_extent<std::span<std::uint64_t, N>> : std::integral_constant<std::size_t, N> {};
 template <std::size_t N>
+    requires(N != std::dynamic_extent)
 struct static_word_extent<std::span<const std::uint64_t, N>> : std::integral_constant<std::size_t, N> {};
 
 template <typename T>
